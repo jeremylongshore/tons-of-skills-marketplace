@@ -6,7 +6,7 @@
   },
   "stats": {
     "totalPlugins": 434,
-    "totalSkills": 2900,
+    "totalSkills": 2905,
     "totalCommands": 82,
     "pluginsWithSkills": 401,
     "byCategory": {
@@ -7685,8 +7685,8 @@
       "slug": "sentry-pack",
       "name": "sentry-pack",
       "displayName": "sentry pack",
-      "description": "Complete Sentry integration skill pack with 30 skills covering error monitoring, performance tracking, session replay, and observability. Flagship+ tier vendor pack.",
-      "version": "1.51.0",
+      "description": "Sentry pack v2: five advisory operational skills (quota leak, event forensics, release medic, issue triage, PII scrub) plus redirects for the 30 retired v1 skills. Recommends changes; never writes to Sentry.",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "sentry",
@@ -7698,7 +7698,7 @@
         "apm"
       ],
       "hasSkills": true,
-      "skillCount": 30,
+      "skillCount": 35,
       "commandCount": 0,
       "installCommand": "/plugin install sentry-pack",
       "sourcePath": "./plugins/saas-packs/sentry-pack",

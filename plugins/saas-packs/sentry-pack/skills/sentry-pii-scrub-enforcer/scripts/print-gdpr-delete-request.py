@@ -8,6 +8,7 @@ data. GET on the project users collection is read-only.
 This script prints the plan, then calls SentryReadOnlyClient.refuse_write.
 It never attaches a real token.
 """
+
 from __future__ import annotations
 
 import argparse

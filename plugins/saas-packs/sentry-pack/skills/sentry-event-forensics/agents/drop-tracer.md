@@ -1,11 +1,8 @@
 ---
 name: drop-tracer
-description: Walk the silent-drop layers (init, sample, beforeSend, transport, inbound filter) and name the one layer that ate the event. Does not upgrade the SDK.
+description: "Walk the silent-drop layers (init, sample, beforeSend, transport, inbound filter) and name the one layer that ate the event. Does not upgrade the SDK."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: red
 version: 2.0.0

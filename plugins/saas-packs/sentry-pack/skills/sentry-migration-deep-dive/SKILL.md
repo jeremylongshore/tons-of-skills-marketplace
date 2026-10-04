@@ -1,71 +1,65 @@
 ---
 name: sentry-migration-deep-dive
 description: |
-  DEPRECATED stub. sentry-migration-deep-dive moved or was cut in sentry-pack v2.
-  Use **sentry-event-forensics** instead.
-  Trigger retained only so saved workflows get a redirect, not a missing skill.
-# version intentionally present so reconstruct-versions sees the stub;
-# stub will be deleted in a later tag — not dual maintenance of v1 bodies.
+  Route the retired sentry-migration-deep-dive skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: Merge).
+  Use when a saved prompt or workflow still names sentry-migration-deep-dive. Trigger with "sentry-migration-deep-dive" or "/sentry-migration-deep-dive".
+argument-hint: "[the question you used to ask sentry-migration-deep-dive]"
 allowed-tools: Read
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
-tags: [sentry, deprecated, stub, v1-compat]
+tags: [sentry, deprecated, redirect, v1-compat]
 ---
 
-# sentry-migration-deep-dive (deprecated stub)
+# sentry-migration-deep-dive (retired in sentry-pack 2.0.0)
 
 > [!WARNING]
-> **Deprecated in sentry-pack@2.0.0.** `sentry-migration-deep-dive` is a **Merge stub redirect**.
-> It is not a supported implementation. Bodies were not copied from v1.
-> Stubs remain until a follow-up tag deletes them (Absorb / pressure-test change 5).
-
-
-**Moved to:** `sentry-event-forensics` — agent `sdk-migrator` / checklist `vendor-cutover`
-
-## Compatibility plan
-
-- Deprecation banners ship on stubs in the `2.0.0` tag.
-- Do **not** delete stub directories in the same release that removes v1 bodies.
-- Delete stubs only in a later tag after operators have migrated bookmarks.
-- Canonical map: `000-docs/phase0-kill-list.md` §3 and `000-docs/008-AT-ADEC-sentry-v2-cto-decision.md`.
-- Absorb amendment: `000-docs/010-AT-ADEC-sentry-v2-modify-absorb.md`.
-
-## What to do
-
-Use **`sentry-event-forensics`** instead.
+> **Retired.** Disposition: **Merge**. Replacement: `sentry-event-forensics`.
 
 ## Overview
 
-Deprecated v1 stub redirect. This slug is not a supported implementation in sentry-pack 2.0.0. The migration map names the disposition (Keep, Merge, or Cut) and the parent skill that owns the job, if any.
+Redirect saved workflows that still name `sentry-migration-deep-dive` to the right sentry-pack 2.0.0
+skill.
+
+## What changed in 2.0.0
+
+sentry-pack 1.x was 30 tutorial skills organized around SDK features. Version 2.0.0 replaces them
+with five operational skills organized around the jobs operators actually bring to Sentry: finding
+quota burn (`sentry-quota-leak-hunter`), explaining a missing or wrong event
+(`sentry-event-forensics`), repairing a release or sourcemap (`sentry-release-medic`), triaging an
+issue (`sentry-issue-triage`), and proving PII scrubbing (`sentry-pii-scrub-enforcer`). Each v1 slug
+was kept, merged into one of those five, or cut. All five are advisory: they read pasted config and
+event JSON and recommend changes; they do not change Sentry.
 
 ## Prerequisites
 
-None. Do not install SDKs or mint tokens for this stub. Read the migration map before continuing saved workflows that still name this slug.
+None. Authentication: none required. This redirect makes no Sentry calls and needs no DSN or token.
 
 ## Instructions
 
-1. Stop. Do not follow any v1 tutorial that used to live in this directory.
-2. Open `000-docs/phase0-kill-list.md` section 3 and find this slug.
-3. Switch to the parent skill named there, or drop the workflow if the disposition is Cut.
+1. Stop using `sentry-migration-deep-dive`; it no longer contains instructions.
+2. Invoke `sentry-event-forensics` instead. It handles this job: explain a missing, wrong or dropped event from SDK config and event JSON.
+3. Update the saved prompt or workflow to name `sentry-event-forensics` so this redirect is no longer needed.
+4. Keep the original question intact when you switch; `sentry-event-forensics` expects the same symptoms, config or event JSON the old prompt supplied.
 
 ## Output
 
-A redirect only. No Sentry API call, no config diff, and no edited SDK file comes from this stub.
+A short redirect message that names `sentry-event-forensics` as the replacement, states the reason
+it moved, and gives the updated prompt to use. No Sentry data is read or changed.
 
 ## Error Handling
 
-If the migration map has no row for this slug, say so and stop. Do not invent a replacement. Do not recreate the deleted v1 body.
+If the request does not fit the replacement, say so and stop. Do not recreate the retired v1
+tutorial.
 
 ## Examples
 
-A saved prompt that still says `/sentry-migration-deep-dive` should be rewritten to the parent skill in the migration map. Example: a cost question goes to `sentry-quota-leak-hunter`, not a deleted tuning tutorial.
+A saved prompt that says `/sentry-migration-deep-dive` becomes `/sentry-event-forensics` with the
+same question. Reason for the move: Migration breakage is diagnosed by forensics agents.
 
 ## Resources
 
-- `000-docs/phase0-kill-list.md` section 3 (migration map)
-- `000-docs/008-AT-ADEC-sentry-v2-cto-decision.md` (locked cut)
-- `000-docs/010-AT-ADEC-sentry-v2-modify-absorb.md` (stub-until-later-tag decision)
-- Pack `README.md` migration table
-
+- Migration map: `../../000-docs/phase0-kill-list.md` (section 3). Use Read to open it when the replacement is unclear.
+- Decision record: `../../000-docs/001-AT-ADEC-sentry-v2-rebuild-decisions.md`
+- This redirect is removed in a later release, after saved workflows have migrated.

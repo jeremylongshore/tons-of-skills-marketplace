@@ -1,16 +1,18 @@
 ---
 name: sentry-issue-triage
 description: |
-  On-call triage for a Sentry issue that already exists: severity from the
-  payload, suspect release, grouping/fingerprint (prospective only), inbound
+  Triage an existing Sentry issue end to end: severity from the payload,
+  suspect release, grouping/fingerprint levers (prospective only), inbound
   noise, a performance-issue span when the issue type is performance, and the
-  log line that carries the event id. Use for a Sentry incident, a page, a
-  split or merged issue, inbound filters, or a postmortem skeleton. Not a
-  generic SRE essay, not "events never arrived" (that is sentry-event-forensics),
-  and not a volume cut. Trigger with "sentry incident", "triage this issue",
-  "sentry severity", "which release caused this", "sentry fingerprint",
-  "inbound filter", "correlate sentry event to logs", "N+1 sentry issue".
-allowed-tools: Read, Glob, Grep, Bash(sentry-cli:*), Bash(jq:*), Bash(python3:*)
+  log line that carries the event id. Use when an on-call page names a Sentry
+  issue, a split or merged issue needs a grouping decision, inbound filters
+  need a call, or a postmortem skeleton is due. Not a generic SRE essay, not
+  "events never arrived" (that is sentry-event-forensics), and not a volume
+  cut. Trigger with "sentry incident", "triage this issue", "sentry
+  severity", "which release caused this", "sentry fingerprint", "inbound
+  filter", "correlate sentry event to logs", "N+1 sentry issue".
+argument-hint: "[pasted issue/event JSON, or SENTRY_AUTH_TOKEN env + issue URL]"
+allowed-tools: Read, Bash(python3 "${CLAUDE_SKILL_DIR}/scripts/*")
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
@@ -20,9 +22,8 @@ tags: [saas, sentry, triage, incident, sre]
 
 # Sentry Issue Triage
 
-This page: how bad, which release, which grouping lever, which span, which log
-line. The parent is a router. Scripts extract numbers and fingerprints.
-Subagents Read `CHECKLIST.md` files; those files are not marketplace skills.
+This page answers how bad, which release, which grouping lever, which span,
+and which log line, routing each sub-question to a dedicated subagent.
 
 ## Overview
 
@@ -52,6 +53,13 @@ Minified frames (OP01) hand off to `sentry-event-forensics` /
 - `python3` for `scripts/`. The agent does not re-sum `accepted + filtered + dropped`.
   Filtered is not dropped. Ignore still bills.
 
+## Authentication
+
+This skill is advisory and works on pasted issue or event JSON without any token. If a
+human later wants a read-only live fetch, the required env var is `SENTRY_AUTH_TOKEN`
+with the minimum scopes `event:read` and `project:read` (see Prerequisites). Never print
+or paste the token value into output; pass it only through the environment.
+
 ## Instructions
 
 ### Step 0 — Refuse the wrong job
@@ -61,8 +69,8 @@ Minified frames (OP01) hand off to `sentry-event-forensics` /
 - Do not call a Sentry write API (resolve, ignore, merge, discard, rule create).
   Recommend the lever. The operator clicks it.
 - Do not send the communication template in `references/communication-template.md`.
-- Do not put a rate limit on the `environment` tag. There is no per-environment
-  rate limit (Help Center, 2026-07-28). That refusal belongs with quota's
+- Do not put a rate limit on the `environment` tag. Sentry has no per-environment
+  rate limit, per the Sentry Help Center. That refusal belongs with quota's
   `key-boundary-mapper`; if the user asks here, say so and stop that branch.
 - Fingerprint rules and source maps do not rewrite events already stored.
 
@@ -74,9 +82,10 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/fingerprint-from-event.py" --pasted "$EVENT
 ```
 
 Live read, only when a token exists, goes through `scripts/lib/sentry_readonly.py`
-(`fetch_event_json`). The shared client refuses writes. If it raises
-"TODO: live … not implemented", fall back to pasted JSON and say advisory.
-Do not invent a second HTTP client.
+(`fetch_event_json`). The shared client refuses writes. Live read-only API fetch is a
+planned follow-up; this skill works on pasted input today, so if the client reports it
+is unimplemented, fall back to pasted JSON and say advisory. Do not invent a second
+HTTP client.
 
 `issue-context.py` is the severity rubric and the only timestamps the postmortem
 may use (`firstSeen`, `lastSeen`). If release is null, the suspect release is
@@ -140,6 +149,11 @@ Do not restate `resolved_with` matchers. See
 
 ## Output
 
+Returns a single fixed-field block: mode, severity, suspect release, the single next
+check, which subagents actually ran, the prospective-only caveat on grouping/maps, the
+postmortem timestamp source, the log query (or its absence), any handoff target, and
+confirmation that no write API was called.
+
 ```
 Skill: sentry-issue-triage
 Mode: live | advisory
@@ -159,7 +173,7 @@ Writes: none
 | Error | Cause | Solution |
 |---|---|---|
 | No token and no paste | Nothing to classify | Ask for issue or event JSON. Do not guess counts or a release. |
-| Live fetch TODO | Shared client scaffold | Advisory mode on the paste. Do not hand-roll REST. |
+| Live fetch unimplemented | Shared client is paste-only for now | Advisory mode on the paste. Do not hand-roll REST. |
 | Fictional postmortem times | Hallucinated timeline | Only `firstSeen` / `lastSeen` / event `timestamp` from the script. |
 | Second sampler pasted | Forked cardinality | Stop. Point at quota `transaction-cardinality`. |
 | Filter matrix inside the postmortem | Merged jobs | Move filter work to `noise-classifier`. |
@@ -189,5 +203,5 @@ No Datadog install step.
 - `${CLAUDE_SKILL_DIR}/references/communication-template.md` — do not send
 - `${CLAUDE_SKILL_DIR}/references/symbolication-handoff.md`
 - `${CLAUDE_SKILL_DIR}/docs/PRD.md`, `ADR.md`, `ONE-PAGER.md`
-- Pack: `000-docs/008-AT-ADEC-sentry-v2-cto-decision.md` and `010` (010 wins on checklists, copies, eval negatives)
+- Pack decision record: `../../000-docs/001-AT-ADEC-sentry-v2-rebuild-decisions.md`
 - Shared client: `scripts/lib/sentry_readonly.py`

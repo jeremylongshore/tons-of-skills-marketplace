@@ -1,71 +1,72 @@
 ---
 name: sentry-install-auth
 description: |
-  DEPRECATED stub. sentry-install-auth moved or was cut in sentry-pack v2.
-  Do not use this slug for new work. See the migration map in 000-docs/phase0-kill-list.md §3.
-  Trigger retained only so saved workflows get a redirect, not a missing skill.
-# version intentionally present so reconstruct-versions sees the stub;
-# stub will be deleted in a later tag — not dual maintenance of v1 bodies.
+  Detect calls to the cut sentry-install-auth skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut).
+  Use when a saved prompt still names it. Trigger with "sentry-install-auth" or "/sentry-install-auth".
+argument-hint: "[the question you used to ask sentry-install-auth]"
 allowed-tools: Read
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
-tags: [sentry, deprecated, stub, v1-compat]
+tags: [sentry, deprecated, redirect, v1-compat]
 ---
 
-# sentry-install-auth (deprecated stub)
+# sentry-install-auth (retired in sentry-pack 2.0.0)
 
 > [!WARNING]
-> **Deprecated in sentry-pack@2.0.0.** `sentry-install-auth` is a **Cut stub redirect**.
-> It is not a supported implementation. Bodies were not copied from v1.
-> Stubs remain until a follow-up tag deletes them (Absorb / pressure-test change 5).
-
-
-**Disposition: Cut.** DSN/token setup folds into each v2 skill's Prerequisites.
-
-## Compatibility plan
-
-- Deprecation banners ship on stubs in the `2.0.0` tag.
-- Do **not** delete stub directories in the same release that removes v1 bodies.
-- Delete stubs only in a later tag after operators have migrated bookmarks.
-- Canonical map: `000-docs/phase0-kill-list.md` §3 and `000-docs/008-AT-ADEC-sentry-v2-cto-decision.md`.
-- Absorb amendment: `000-docs/010-AT-ADEC-sentry-v2-modify-absorb.md`.
-
-## What to do
-
-Do not use this slug for new work. See the migration map in `000-docs/phase0-kill-list.md` §3.
+> **Retired.** Disposition: **Cut**. Replacement: no replacement (cut).
 
 ## Overview
 
-Deprecated v1 stub redirect. This slug is not a supported implementation in sentry-pack 2.0.0. The migration map names the disposition (Keep, Merge, or Cut) and the parent skill that owns the job, if any.
+Redirect saved workflows that still name `sentry-install-auth` to the right sentry-pack 2.0.0 skill.
+
+## What changed in 2.0.0
+
+sentry-pack 1.x was 30 tutorial skills organized around SDK features. Version 2.0.0 replaces them
+with five operational skills organized around the jobs operators actually bring to Sentry: finding
+quota burn (`sentry-quota-leak-hunter`), explaining a missing or wrong event
+(`sentry-event-forensics`), repairing a release or sourcemap (`sentry-release-medic`), triaging an
+issue (`sentry-issue-triage`), and proving PII scrubbing (`sentry-pii-scrub-enforcer`). Each v1 slug
+was kept, merged into one of those five, or cut. All five are advisory: they read pasted config and
+event JSON and recommend changes; they do not change Sentry.
 
 ## Prerequisites
 
-None. Do not install SDKs or mint tokens for this stub. Read the migration map before continuing saved workflows that still name this slug.
+None. Authentication: none required. This redirect makes no Sentry calls and needs no DSN or token.
 
 ## Instructions
 
-1. Stop. Do not follow any v1 tutorial that used to live in this directory.
-2. Open `000-docs/phase0-kill-list.md` section 3 and find this slug.
-3. Switch to the parent skill named there, or drop the workflow if the disposition is Cut.
+1. Stop using `sentry-install-auth`; it no longer contains instructions.
+2. Tell the user it was cut: DSN and token setup folds into each v2 skill's Prerequisites.
+3. If part of the request maps to a v2 skill, name that skill; otherwise drop the workflow.
 
 ## Output
 
-A redirect only. No Sentry API call, no config diff, and no edited SDK file comes from this stub.
+A short message stating the skill was cut and why, plus the v2 skill that covers any part of the
+request. No Sentry data is read or changed.
 
 ## Error Handling
 
-If the migration map has no row for this slug, say so and stop. Do not invent a replacement. Do not recreate the deleted v1 body.
+If the request does not fit the replacement, say so and stop. Do not recreate the retired v1
+tutorial.
 
 ## Examples
 
-A saved prompt that still says `/sentry-install-auth` should be rewritten to the parent skill in the migration map. Example: a cost question goes to `sentry-quota-leak-hunter`, not a deleted tuning tutorial.
+A saved prompt that says `/sentry-install-auth` gets this answer: the skill was cut. DSN and token
+setup folds into each v2 skill's Prerequisites. If the question is really about quota, event loss,
+releases, triage or PII, use that v2 skill:
+
+| If the request is about | Use |
+|---|---|
+| Quota burn, sampling, rate limits | `sentry-quota-leak-hunter` |
+| A missing, dropped or wrong event | `sentry-event-forensics` |
+| Releases, sourcemaps, CI upload | `sentry-release-medic` |
+| Triage, root cause, log correlation | `sentry-issue-triage` |
+| PII scrubbing and project standards | `sentry-pii-scrub-enforcer` |
 
 ## Resources
 
-- `000-docs/phase0-kill-list.md` section 3 (migration map)
-- `000-docs/008-AT-ADEC-sentry-v2-cto-decision.md` (locked cut)
-- `000-docs/010-AT-ADEC-sentry-v2-modify-absorb.md` (stub-until-later-tag decision)
-- Pack `README.md` migration table
-
+- Migration map: `../../000-docs/phase0-kill-list.md` (section 3). Use Read to open it when the replacement is unclear.
+- Decision record: `../../000-docs/001-AT-ADEC-sentry-v2-rebuild-decisions.md`
+- This redirect is removed in a later release, after saved workflows have migrated.

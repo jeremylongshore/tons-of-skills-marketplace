@@ -1,14 +1,11 @@
 ---
 name: perf-span-auditor
-description: Explain performance-issue span evidence and span-fingerprint thresholds (OP08). Spawn only when the issue type is a performance issue. Transaction cardinality is a different job.
+description: "Explain performance-issue span evidence and span-fingerprint thresholds (OP08). Spawn only when the issue type is a performance issue. Transaction cardinality is a different job."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: purple
-# version omitted — agent file, not a graded skill
+version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - sentry

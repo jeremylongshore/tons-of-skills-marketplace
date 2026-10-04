@@ -1,13 +1,5 @@
-> **LABELED REFERENCE COPY (mandatory).**
-> Copy of quota `sampler-and-filters` for sample-rate **field names** only.
-> Owner is `volume-cutter` / `sentry-quota-leak-hunter`.
-> Source: `skills/sentry-quota-leak-hunter/agents/volume-cutter/skills/sampler-and-filters/CHECKLIST.md`
-> PII `config-drift-auditor` reads this for SC03 sample-rate drift.
-> It does **not** rewrite or restate parent-sampling order (CQ03, CQ06, SC03).
-> Delete this copy when cross-skill calls work.
-> See `COPIED-FROM.md` and `OWNER.md`. If the owner checklist is ahead of this copy, the owner wins. Do not invent order here to fill a stub.
-
 ---
+
 name: sampler-and-filters
 description: |
   Labeled copy. Drift field names for sample rates. Not the sampling-order procedure.
@@ -17,6 +9,15 @@ license: MIT
 compatibility: Designed for Claude Code
 tags: [sentry, nested, saas, copy]
 ---
+
+> **LABELED REFERENCE COPY (mandatory).**
+> Copy of quota `sampler-and-filters` for sample-rate **field names** only.
+> Owner is `volume-cutter` / `sentry-quota-leak-hunter`.
+> Source: `skills/sentry-quota-leak-hunter/agents/volume-cutter/skills/sampler-and-filters/CHECKLIST.md`
+> PII `config-drift-auditor` reads this for SC03 sample-rate drift.
+> It does **not** rewrite or restate parent-sampling order (CQ03, CQ06, SC03).
+> Delete this copy when cross-skill calls work.
+> See `COPIED-FROM.md` and `OWNER.md`. If the owner checklist is ahead of this copy, the owner wins. Do not invent order here to fill a stub.
 
 # sampler-rules (copy — fields only)
 

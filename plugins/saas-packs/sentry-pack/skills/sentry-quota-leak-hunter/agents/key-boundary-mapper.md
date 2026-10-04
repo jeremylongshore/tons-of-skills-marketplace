@@ -1,11 +1,8 @@
 ---
 name: key-boundary-mapper
-description: Map org, project, key/DSN, environment, team, alert rule. Spawn once per question, not once per environment. Refuses an environment rate limit.
+description: "Map org, project, key/DSN, environment, team, alert rule. Spawn once per question, not once per environment. Refuses an environment rate limit."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: yellow
 version: 2.0.0

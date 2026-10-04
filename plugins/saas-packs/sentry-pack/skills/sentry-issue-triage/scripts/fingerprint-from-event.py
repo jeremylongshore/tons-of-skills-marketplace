@@ -3,6 +3,7 @@
 
 Deterministic. Does not claim a rule restacks existing issues. Does not write.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -17,9 +18,7 @@ if _LIB.is_dir() and str(_LIB) not in sys.path:
     sys.path.insert(0, str(_LIB))
 from sentry_readonly import SentryReadOnlyError, client_from_env  # noqa: E402
 
-_UUID = re.compile(
-    r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b"
-)
+_UUID = re.compile(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b")
 _DIGITS = re.compile(r"\d{2,}")
 
 
@@ -78,11 +77,7 @@ def analyze(data: dict[str, Any]) -> dict[str, Any]:
         "message": message,
         "message_has_id_like_token": bool(_UUID.search(text) or _DIGITS.search(text)),
         "grouping_hint": (
-            "stack"
-            if has_stack
-            else "exception-or-message"
-            if (exc_type or exc_value or message)
-            else "unknown"
+            "stack" if has_stack else "exception-or-message" if (exc_type or exc_value or message) else "unknown"
         ),
         "prospective_only": True,
         "backfill": False,
@@ -98,7 +93,11 @@ def main() -> None:
     args = parser.parse_args()
     client = client_from_env()
     if args.apply:
-        client.refuse_write("fingerprint rule update")
+        try:
+            client.refuse_write("fingerprint rule update")
+        except SentryReadOnlyError as exc:
+            print(json.dumps({"ok": False, "wrote": False, "error": str(exc)}))
+            return 2
     if args.pasted:
         raw = Path(args.pasted).read_text(encoding="utf-8") if Path(args.pasted).is_file() else args.pasted
         if raw == "-":
@@ -121,4 +120,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

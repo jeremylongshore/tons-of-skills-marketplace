@@ -1,11 +1,10 @@
 ---
 name: debug-bundler
-description: Collect a support bundle: SDK version, init snippet, DSN host, redacted sentry-cli info. Never print a sntrys_ token. Off the default fan-out.
+description: "Collect a support bundle: SDK version, init snippet, DSN host, redacted sentry-cli info. Never print a sntrys_ token. Off the default fan-out."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(sentry-cli info:*)'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-event-forensics/scripts/*")'
 model: sonnet
 color: blue
 version: 2.0.0

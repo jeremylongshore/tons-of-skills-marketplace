@@ -1,7 +1,7 @@
 {
   "name": "sentry-pack",
   "version": "2.0.0",
-  "description": "Sentry pack v2: 5 live-detection skills (quota-leak-hunter, event-forensics, release-medic, issue-triage, pii-scrub-enforcer) plus thin v1 stub redirects until a follow-up delete. Read-only toward the Sentry API. Not the v1 30-skill curriculum.",
+  "description": "Sentry pack v2: five advisory operational skills (quota-leak-hunter, event-forensics, release-medic, issue-triage, pii-scrub-enforcer) that work on pasted config, stats and event JSON and recommend changes, plus redirects for the 30 retired v1 skills. No hooks, no MCP server.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"

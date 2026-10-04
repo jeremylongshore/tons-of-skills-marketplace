@@ -1,14 +1,13 @@
 ---
 name: sentry-event-forensics
 description: |
-  Diagnose why a Sentry event, source map, or trace did not show up — or run a
-  planned SDK / vendor migration. Recommends; does not apply, reprocess, or
-  upload. Use when events are missing, source maps are not resolving, SDKs
-  conflict, or the user wants to upgrade the Sentry SDK or switch from
-  Rollbar/Bugsnag.
+  Diagnose and detect why a Sentry event, source map, or trace is missing, or
+  scope an SDK upgrade or vendor migration. Use when events are missing,
+  maps fail to resolve, SDKs conflict, or switching vendors.
   Trigger with "sentry events missing", "source maps not resolving",
-  "sentry debug", "upgrade sentry sdk", "switch from rollbar", "sdk conflict".
-allowed-tools: Read, Glob, Grep, Bash(sentry-cli:*), Bash(jq:*), Bash(python3:*)
+  "sentry debug".
+allowed-tools: Read, Bash(sentry-cli info:*), Bash(python3 "${CLAUDE_SKILL_DIR}/scripts/*")
+argument-hint: "[pasted event JSON, init snippet, or sentry-cli output]"
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
@@ -18,9 +17,9 @@ tags: [saas, sentry, forensics, sdk, sourcemaps]
 
 # Sentry Event Forensics
 
-One cause, one layer. Layers are init, sample, `beforeSend`, transport,
-inbound filter, release mismatch, SDK conflict. "Turn on debug and look" is
-not a result.
+Diagnose one cause on one layer — init, sample, `beforeSend`, transport,
+inbound filter, release mismatch, or SDK conflict — instead of "turn on debug
+and look."
 
 `sdk-migrator` and `debug-bundler` stay nested and **off** the default fan-out.
 A 2am drop does not get an upgrade plan or a support bundle unless the user
@@ -49,12 +48,27 @@ second procedure and do not edit it into one.
   `scripts/redact-support-bundle.py`. Both import `sentry_readonly` and refuse
   writes.
 
+## Authentication
+
+Advisory only: this skill works on pasted event JSON, an init snippet, or
+`sentry-cli` text, with no token required. If a human later runs read-only
+`sentry-cli` commands, scope the token to `project:read` and set it as the
+`SENTRY_AUTH_TOKEN` environment variable — never print it or paste it into
+chat. `redact-support-bundle.py` strips any `sntrys_`-prefixed token found in
+a draft bundle.
+
 ## Instructions
 
 Nested procedures are `CHECKLIST.md`. Read them. Do not look for a nested
 `SKILL.md`.
 
-### Fan out only when the threads do not need each other
+1. Check the pasted input to isolate which layer is broken before deciding
+   whether to fan out (Step 1).
+2. Run the matching script or nested checklist for that layer (Steps 2-6).
+3. Verify the evidence names one cause and one owner for any handoff.
+4. Report the result in the `## Output` format below.
+
+### Step 1: Decide whether to fan out
 
 Spawn in parallel when the user says events are missing **and** maps are
 wrong **and** another SDK is in the process:
@@ -69,7 +83,7 @@ release-medic for the inject. Do not grow a second Debug ID essay.
 
 If only one layer is in play, spawn only that agent.
 
-### Do not spawn on a plain diagnosis
+### Step 2: Do not spawn on a plain diagnosis
 
 - `sdk-migrator` (`sdk-major-upgrade`, `vendor-cutover`) — only when the user
   asked to upgrade the SDK or cut over from Rollbar/Bugsnag.
@@ -77,7 +91,7 @@ If only one layer is in play, spawn only that agent.
 - `volume-cutter` and `gdpr-deletion` are not this skill. Do not spawn them
   from a missing-event page.
 
-### Source maps
+### Step 3: Check source maps
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/parse-resolved-with.py" \
@@ -97,10 +111,10 @@ Owner: `sourcemap-uploader`. Do not invent a second release name. Do not
 upload. Uploading maps later does not rewrite events already stored.
 
 `has debug_meta` ≠ `has a matching bundle`. `resolved_with=scraping` is not
-a Debug ID success. `resolved_with=release-old` is not the pipeline you just
-fixed.
+a Debug ID success. `resolved_with=release-old` is not evidence the upload
+just applied.
 
-### `beforeSend` is not Replay
+### Step 4: Separate `beforeSend` from Replay
 
 A `beforeSend` that returns null drops error events in the client. It does
 not cover Session Replay unmask, and it does not scrub span, log, or metric
@@ -109,7 +123,7 @@ names. If the user thinks `beforeSend` fixed privacy, hand that to
 If `beforeSend` returns null for every event, the cause is `beforeSend`, not
 the DSN.
 
-### Migration phase (only when asked)
+### Step 5: Run the migration phase (only when asked)
 
 `sdk-migrator` emits the JS v7→v8 codemod command and the breaks the codemod
 misses, or the Python 1.x→2.x breaks, or the vendor parallel-run sequence.
@@ -117,7 +131,7 @@ It does **not** claim the upgrade succeeded without a test capture. It does
 not run the codemod against the repo unless the user asked to edit code, and
 it still does not tell Sentry the upgrade worked.
 
-### Support bundle (only when asked)
+### Step 6: Build a support bundle (only when asked)
 
 `debug-bundler` collects SDK version, init snippet, DSN **host** (not a raw
 auth token), `sentry-cli info` with secrets removed, and whether a test
@@ -132,13 +146,13 @@ Output must not contain `sntrys_`.
 ## Output
 
 ```
-Cause: <one>
+Cause: SINGLE_CAUSE
 Layer: init | sample | beforeSend | transport | inbound filter | release mismatch | sdk conflict | migration | bundle
-Evidence: <event id / script field / init line>
-Handoff: <owner agent or "none">
+Evidence: EVENT_ID_OR_SCRIPT_FIELD_OR_INIT_LINE
+Handoff: OWNER_AGENT_OR_NONE
 Backfill: no — stored events are not rewritten
 Wrote to Sentry: no
-Agents spawned: <list>
+Agents spawned: AGENT_LIST
 ```
 
 Pick one cause. If two threads return evidence, say which one explains the

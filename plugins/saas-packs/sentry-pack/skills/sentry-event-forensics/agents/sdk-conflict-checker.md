@@ -1,11 +1,8 @@
 ---
 name: sdk-conflict-checker
-description: Name a double SDK init or a second OpenTelemetry/Sentry transport. Does not rewrite unrelated tracing setup.
+description: "Name a double SDK init or a second OpenTelemetry/Sentry transport. Does not rewrite unrelated tracing setup."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: yellow
 version: 2.0.0

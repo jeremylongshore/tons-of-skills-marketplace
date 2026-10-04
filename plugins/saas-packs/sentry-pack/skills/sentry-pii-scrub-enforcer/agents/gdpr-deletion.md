@@ -1,11 +1,9 @@
 ---
 name: gdpr-deletion
-description: Print GDPR delete request; do not execute unless explicit later ADR write tools.
+description: "Print GDPR delete request; do not execute unless explicit later ADR write tools."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-pii-scrub-enforcer/scripts/*")'
 model: sonnet
 color: red
 version: 2.0.0
@@ -21,7 +19,6 @@ background: false
 ## Role
 
 Print request + user id, then stop. Never run from a scrub-only review.
-
 
 ## Nested checklists (not marketplace skills)
 

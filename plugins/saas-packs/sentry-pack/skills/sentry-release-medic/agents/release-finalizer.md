@@ -1,11 +1,9 @@
 ---
 name: release-finalizer
-description: Recommend finalize, commit association, and a deploy record with an environment. Refuses to call release health fine unless assess-session-stats.py says so.
+description: "Recommend finalize, commit association, and a deploy record with an environment. Refuses to call release health fine unless assess-session-stats.py says so."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-release-medic/scripts/*")'
 model: sonnet
 color: green
 version: 2.0.0

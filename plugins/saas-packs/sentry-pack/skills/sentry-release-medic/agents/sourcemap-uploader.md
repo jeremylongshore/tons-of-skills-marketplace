@@ -1,11 +1,9 @@
 ---
 name: sourcemap-uploader
-description: Name the missing inject, upload, release-id, fetch-depth, or project step for this deploy. Requires a debugId grep. Does not upload.
+description: "Name the missing inject, upload, release-id, fetch-depth, or project step for this deploy. Requires a debugId grep. Does not upload."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-release-medic/scripts/*")'
 model: sonnet
 color: orange
 version: 2.0.0

@@ -8,7 +8,11 @@ description: |
   burns, explain a usage spike, or tune sampling without losing paging-quality issues.
   Trigger with "reduce sentry costs", "sentry quota", "sentry usage spike",
   "why is sentry bill high", "tracesSampleRate 1", "inbound filters".
-allowed-tools: Read, Glob, Grep, Bash(sentry-cli:*), Bash(jq:*), Bash(python3:*)
+allowed-tools: Read, Bash(sentry-cli info:*), Bash(python3 "${CLAUDE_SKILL_DIR}/scripts/*")
+argument-hint: "[pasted Sentry stats JSON, or a question about which quota meter moved]"
+model: inherit
+effort: medium
+user-invocable: true
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
@@ -18,10 +22,9 @@ tags: [saas, sentry, quota, finops, sampling]
 
 # Sentry Quota Leak Hunter
 
-Names which Sentry meter moved and which lever is not "buy more." The script
-prints accepted, filtered, and dropped (and rate_limited) as separate counts.
-You do not add them. You do not invent a dollar figure. You recommend a lever.
-You do not click it.
+Names which Sentry meter moved and identifies the lever that is not "buy more."
+Reads the script's accepted/filtered/dropped/rate_limited counts, separately,
+and recommends a lever without inventing a dollar figure or applying the fix.
 
 Org topology (org, project, key/DSN, environment, and the SC04 row team ≠ alert
 rule ≠ DSN) nests here on `key-boundary-mapper`. It is not a sixth parent.
@@ -40,11 +43,18 @@ There are no `error-spend`, `span-spend`, `replay-spend`, or `log-spend` agents.
 
 - Sentry SaaS. If the user says self-hosted, say the SaaS quota model may not
   match `sentry.conf` and stop. Do not size Kafka, ClickHouse, or Relay.
-- Optional read token: `SENTRY_AUTH_TOKEN` plus `sentry-cli info`. Live stats
-  fetch is not implemented in `sentry_readonly.py` yet; a missing token or a
-  unimplemented live fetch means **advisory mode**.
 - Advisory input: pasted Stats JSON. Do not guess an org slug.
 - `python3`. Arithmetic lives in the script. Do not re-sum in prose.
+
+## Authentication
+
+Advisory by default: this skill works on pasted Stats JSON and needs no token.
+A human operator who later wants a live, read-only pull sets `SENTRY_AUTH_TOKEN`
+with an Organization-read scope (minimum needed for `sentry-cli info` and the
+org usage-stats endpoint). Live read-only API fetch is a planned follow-up —
+`sentry_readonly.py` does not implement it yet, so a missing token or an
+unimplemented live fetch both fall back to advisory mode. Never print or paste
+the token value into output.
 
 ## Instructions
 
@@ -56,6 +66,12 @@ Cross-skill agent calls are **not** proven. Do not invoke `noise-classifier`
 or `config-drift-auditor`. Read the labeled copy under this skill. `OWNER.md`
 and `COPIED-FROM.md` name the owner. Delete the copy only after a spike says
 calls work.
+
+1. Run the usage-stats script against pasted Stats JSON first.
+2. Spawn `usage-auditor` for every quota audit.
+3. Spawn `volume-cutter` only when a cut was requested.
+4. Spawn `cardinality-hunter` only for raw transaction names or span explosion.
+5. Spawn `key-boundary-mapper` once per boundary question.
 
 ### Step 1 — Script first
 
@@ -69,7 +85,7 @@ not guess an org. `--sum-lost` and `--apply` are refused.
 
 Use the JSON it prints. Fields that matter:
 
-- `categories.<name>.accepted|filtered|dropped|rate_limited` — separate.
+- `categories.CATEGORY_NAME.accepted|filtered|dropped|rate_limited` — separate.
 - `lost_events_total` is always null. Leave it null in the answer.
 - `dollars` is null unless the payload itself has `subscription_screen_usd`.
   Ignore `per_event_usd` and any third-party price key.
@@ -117,16 +133,16 @@ Not once per environment. Read
 `agents/key-boundary-mapper/skills/org-key-boundaries/CHECKLIST.md`.
 
 Refuse "set environment = production on the rate limit screen." There is no
-per-environment rate limit (Help Center, 2026-07-28). Extra keys beat extra
+per-environment rate limit (per Sentry Help Center guidance). Extra keys beat extra
 projects when the only need is a ceiling.
 
-If the fix is "your projects drifted," Read the labeled copy at
+If the fix is "projects drifted," read the labeled copy at
 `agents/key-boundary-mapper/references/config-drift/CHECKLIST.md`.
 Owner is PII `config-drift-auditor`. Do not re-implement the settings diff.
 Sample-rate order stays in `sampler-and-filters`. The drift copy must not
 rewrite parent-sampling order.
 
-### Levers you may recommend (never apply)
+### Levers to recommend (never apply)
 
 | Lever | Label | What it is not |
 |---|---|---|
@@ -136,7 +152,7 @@ rewrite parent-sampling order.
 | Extension / localhost / legacy-browser / crawler toggles | Confirm on the plan screen | Filtered, not dropped. |
 | `tracesSampler` | SDK, needs a deploy | Must not override `parentSampled === true`. |
 | `beforeSend` drop of a **named** noisy error | SDK, needs a deploy | Returning null for every event is an outage. Hand to `sentry-event-forensics`. |
-| Spike protection | Plan placement **unknown — leave blank** | Drops the incident. Not a sample you can reconstruct. |
+| Spike protection | Plan placement **unknown — leave blank** | Drops the incident. Not a sample that can be reconstructed. |
 
 Do not set `sampleRate` or `tracesSampleRate` below 1 without stating what
 visibility is lost. Do not set `sampleRate: 0`. A key minute ceiling is a
@@ -146,14 +162,14 @@ ceiling, not a goal. Maps and fingerprint rules do not backfill accepted events.
 
 ```
 Mode: advisory | live
-Meter: <category> accepted=<n> filtered=<n> dropped=<n> rate_limited=<n>
+Meter: CATEGORY_NAME accepted=COUNT filtered=COUNT dropped=COUNT rate_limited=COUNT
 Other meters: <same shape, one line each>
 Lost-events total: refused
 Dollars: <subscription_screen_usd or "not in payload — open the subscription screen">
 Lever: <one recommendation> | plan gate: <Business/Enterprise or unknown or n/a> | prospective: yes/no
 Visibility lost: <what a sample rate would hide, or "n/a">
 Not a lever: environment is not a quota silo
-Agents spawned: <list> 
+Agents spawned: AGENT_LIST 
 Wrote to Sentry: no
 ```
 

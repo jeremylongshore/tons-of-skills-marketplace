@@ -1,11 +1,5 @@
-> **LABELED COPY.** Not the owner. See `OWNER.md` and `COPIED-FROM.md`.
-> Owner agent: `sentry-pii-scrub-enforcer` → `replay-privacy`.
-> Canonical: `skills/sentry-pii-scrub-enforcer/agents/replay-privacy/skills/replay-privacy/CHECKLIST.md`.
-> Caller: `sentry-quota-leak-hunter` → `volume-cutter`, and only when the usage script shows replay accepted > 0.
-> Quota does not grow a second privacy procedure. `beforeSend` does not cover Replay.
-> Delete this copy when cross-skill agent calls work.
-
 ---
+
 name: replay-privacy
 description: |
   Session Replay masking and unmask rules (PI06). Spawn only when Replay is on.
@@ -15,6 +9,13 @@ license: MIT
 compatibility: Designed for Claude Code
 tags: [sentry, nested, saas, checklist]
 ---
+
+> **LABELED COPY.** Not the owner. See `OWNER.md` and `COPIED-FROM.md`.
+> Owner agent: `sentry-pii-scrub-enforcer` → `replay-privacy`.
+> Canonical: `skills/sentry-pii-scrub-enforcer/agents/replay-privacy/skills/replay-privacy/CHECKLIST.md`.
+> Caller: `sentry-quota-leak-hunter` → `volume-cutter`, and only when the usage script shows replay accepted > 0.
+> Quota does not grow a second privacy procedure. `beforeSend` does not cover Replay.
+> Delete this copy when cross-skill agent calls work.
 
 # replay-privacy
 

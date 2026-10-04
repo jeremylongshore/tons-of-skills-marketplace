@@ -8,6 +8,7 @@ per-category spend agents.
 
 Read-only. `--apply` calls sentry_readonly.refuse_write.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -74,15 +75,11 @@ def from_category_map(categories: dict[str, Any]) -> dict[str, dict[str, int]]:
     cats: dict[str, dict[str, int]] = {}
     for name, outcomes in categories.items():
         if not isinstance(outcomes, dict):
-            raise SentryReadOnlyError(
-                f"category {name!r} must be an object of outcomes, not {type(outcomes).__name__}"
-            )
+            raise SentryReadOnlyError(f"category {name!r} must be an object of outcomes, not {type(outcomes).__name__}")
         for outcome, qty in outcomes.items():
             n = _as_int(qty)
             if n is None:
-                raise SentryReadOnlyError(
-                    f"category {name!r} outcome {outcome!r} is not a number"
-                )
+                raise SentryReadOnlyError(f"category {name!r} outcome {outcome!r} is not a number")
             _add(cats, str(name), str(outcome), n)
     return cats
 
@@ -97,9 +94,7 @@ def from_outcome_maps(data: dict[str, Any]) -> dict[str, dict[str, int]] | None:
         for category, qty in data[outcome].items():
             n = _as_int(qty)
             if n is None:
-                raise SentryReadOnlyError(
-                    f"{outcome}.{category} is not a number"
-                )
+                raise SentryReadOnlyError(f"{outcome}.{category} is not a number")
             _add(cats, str(category), outcome, n)
     return cats
 
@@ -115,8 +110,10 @@ def _total_from_group(group: dict[str, Any]) -> int | None:
     if isinstance(series, dict):
         for key in ("sum(quantity)", "quantity"):
             points = series.get(key)
-            if isinstance(points, list) and points and all(
-                isinstance(p, (int, float)) and not isinstance(p, bool) for p in points
+            if (
+                isinstance(points, list)
+                and points
+                and all(isinstance(p, (int, float)) and not isinstance(p, bool) for p in points)
             ):
                 return int(sum(points))
     return None
@@ -135,9 +132,7 @@ def from_groups(groups: list[Any]) -> dict[str, dict[str, int]]:
         outcome = str(by.get("outcome") or "unspecified")
         qty = _total_from_group(group)
         if qty is None:
-            raise SentryReadOnlyError(
-                f"group category={category!r} outcome={outcome!r} has no numeric total"
-            )
+            raise SentryReadOnlyError(f"group category={category!r} outcome={outcome!r} has no numeric total")
         _add(cats, str(category), outcome, qty)
     return cats
 
@@ -152,9 +147,7 @@ def normalize(data: dict[str, Any]) -> dict[str, dict[str, int]]:
     groups = data.get("groups")
     if isinstance(groups, list):
         return from_groups(groups)
-    raise SentryReadOnlyError(
-        "unrecognized stats JSON: expected categories{}, outcome maps, or groups[]"
-    )
+    raise SentryReadOnlyError("unrecognized stats JSON: expected categories{}, outcome maps, or groups[]")
 
 
 def dollar_report(data: dict[str, Any]) -> dict[str, Any]:
@@ -179,7 +172,6 @@ def dollar_report(data: dict[str, Any]) -> dict[str, Any]:
                 "The customer's subscription screen is the price."
             ),
         }
-    n = _as_int(cited) if not isinstance(cited, float) else cited
     return {
         "dollars": cited if isinstance(cited, (int, float)) and not isinstance(cited, bool) else None,
         "dollar_source": "customer_subscription_screen_field",
@@ -218,11 +210,15 @@ def build_report(data: dict[str, Any], *, mode: str) -> dict[str, Any]:
     previous = data.get("previous_window")
     moved = None
     if isinstance(previous, dict):
-        prev_cats = normalize(previous) if (
-            "categories" in previous or "groups" in previous or any(
-                isinstance(previous.get(o), dict) for o in KNOWN_OUTCOMES
+        prev_cats = (
+            normalize(previous)
+            if (
+                "categories" in previous
+                or "groups" in previous
+                or any(isinstance(previous.get(o), dict) for o in KNOWN_OUTCOMES)
             )
-        ) else None
+            else None
+        )
         if prev_cats is not None:
             deltas = []
             for name, slot in ordered.items():
@@ -280,14 +276,15 @@ def main(argv: list[str] | None = None) -> int:
             return 2
 
     if args.sum_lost:
-        print(json.dumps({
-            "ok": False,
-            "lost_events_total": None,
-            "error": (
-                "refusing to sum accepted + filtered + dropped. "
-                "Report each outcome on its own."
-            ),
-        }))
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "lost_events_total": None,
+                    "error": ("refusing to sum accepted + filtered + dropped. Report each outcome on its own."),
+                }
+            )
+        )
         return 2
 
     mode = "advisory"
@@ -304,13 +301,17 @@ def main(argv: list[str] | None = None) -> int:
             data = client.fetch_org_stats_usage()
             mode = "live"
         except SentryReadOnlyError as exc:
-            print(json.dumps({
-                "ok": False,
-                "mode": "advisory",
-                "org_guessed": None,
-                "error": str(exc),
-                "hint": "Pass --json <file> with pasted stats. Do not guess an org slug.",
-            }))
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "mode": "advisory",
+                        "org_guessed": None,
+                        "error": str(exc),
+                        "hint": "Pass --json <file> with pasted stats. Do not guess an org slug.",
+                    }
+                )
+            )
             return 2
 
     try:

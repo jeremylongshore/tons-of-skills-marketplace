@@ -11,6 +11,7 @@ the cap, and session.duration is not a requested field.
 
 Read-only. Does not record a deploy.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -53,19 +54,14 @@ def assess(payload: dict[str, Any]) -> dict[str, Any]:
     query = payload.get("query") if isinstance(payload.get("query"), dict) else payload
     api_read = bool(payload.get("api_read") is True)
     if not api_read:
-        reasons.append(
-            "health API was not read (api_read is not true). "
-            "Do not mark release health fine."
-        )
+        reasons.append("health API was not read (api_read is not true). Do not mark release health fine.")
 
     fields = query.get("fields") or query.get("field") or []
     if isinstance(fields, str):
         fields = [fields]
     if not isinstance(fields, list):
         fields = []
-    duration = any(
-        isinstance(f, str) and "session.duration" in f for f in fields
-    )
+    duration = any(isinstance(f, str) and "session.duration" in f for f in fields)
     if duration:
         reasons.append(
             f"session.duration stopped being recorded on {DURATION_STOPPED}. "
@@ -96,8 +92,7 @@ def assess(payload: dict[str, Any]) -> dict[str, Any]:
             max_groups = CAP // buckets
         if buckets >= CAP:
             reasons.append(
-                f"interval buckets ({buckets}) already meet the {CAP} datapoint cap "
-                "before groupBy multiplies them."
+                f"interval buckets ({buckets}) already meet the {CAP} datapoint cap before groupBy multiplies them."
             )
 
     project = query.get("project") or query.get("projects")
@@ -107,14 +102,10 @@ def assess(payload: dict[str, Any]) -> dict[str, Any]:
     broad_group = ("release" in group_by) and not project
     if broad_group:
         reasons.append(
-            "groupBy includes release without a project filter. "
-            "An org-wide crash-free number is not one number."
+            "groupBy includes release without a project filter. An org-wide crash-free number is not one number."
         )
     if not scoped:
-        reasons.append(
-            "Not scoped to one project + one environment + one release. "
-            "Do not call the series fine."
-        )
+        reasons.append("Not scoped to one project + one environment + one release. Do not call the series fine.")
     # Cap warning applies when the query can return many release groups,
     # not when it is already pinned to a single release (datapoints ~= buckets).
     if max_groups is not None and not release and "release" in group_by:
@@ -124,9 +115,7 @@ def assess(payload: dict[str, Any]) -> dict[str, Any]:
             "Narrow to one project, one environment, and the release you just shipped."
         )
     if buckets is not None and buckets > CAP:
-        reasons.append(
-            f"interval buckets ({buckets}) exceed the {CAP} datapoint cap."
-        )
+        reasons.append(f"interval buckets ({buckets}) exceed the {CAP} datapoint cap.")
 
     if stats_period == "90d" and "release" in group_by:
         reasons.append(
@@ -147,10 +136,12 @@ def assess(payload: dict[str, Any]) -> dict[str, Any]:
             dedup.append(reason)
     reasons = dedup
 
-    health_fine = bool(api_read and scoped and not duration and not any(
-        "cap" in r or "truncated" in r or "stopped being recorded" in r or "not read" in r
-        for r in reasons
-    ))
+    health_fine = bool(
+        api_read
+        and scoped
+        and not duration
+        and not any("cap" in r or "truncated" in r or "stopped being recorded" in r or "not read" in r for r in reasons)
+    )
 
     return {
         "ok": True,
@@ -167,10 +158,7 @@ def assess(payload: dict[str, Any]) -> dict[str, Any]:
         "fields": fields,
         "group_by": group_by,
         "reasons": reasons,
-        "note": (
-            "Recommend only. This script does not record a deploy and does not "
-            "call a Sentry write API."
-        ),
+        "note": ("Recommend only. This script does not record a deploy and does not call a Sentry write API."),
     }
 
 

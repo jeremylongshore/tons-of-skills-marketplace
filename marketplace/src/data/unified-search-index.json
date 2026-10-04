@@ -6,9 +6,9 @@
   },
   "stats": {
     "totalPlugins": 434,
-    "totalSkills": 2900,
+    "totalSkills": 2905,
     "totalDocs": 24,
-    "totalItems": 3358,
+    "totalItems": 3363,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -75,6 +75,7 @@
       "Bash(az:storage:*)",
       "Bash(bandit:*)",
       "Bash(bash \"${CLAUDE_PLUGIN_ROOT}/scripts/*\")",
+      "Bash(bash \"${CLAUDE_SKILL_DIR}/scripts/*\")",
       "Bash(bash:*)",
       "Bash(bc:*)",
       "Bash(bd config get:*)",
@@ -121,7 +122,6 @@
       "Bash(defaults:*)",
       "Bash(depcruise:*)",
       "Bash(diff:*)",
-      "Bash(dig:*)",
       "Bash(dmesg:*)",
       "Bash(docker-compose:*)",
       "Bash(docker:*)",
@@ -227,7 +227,7 @@
       "Bash(psql:*)",
       "Bash(pylint:*)",
       "Bash(pytest:*)",
-      "Bash(python*:*)",
+      "Bash(python3 \"${CLAUDE_SKILL_DIR}/scripts/*\")",
       "Bash(python3 ${CLAUDE_PLUGIN_ROOT}/scripts/dolt-detect.py:*)",
       "Bash(python3*)",
       "Bash(python3:*)",
@@ -255,7 +255,8 @@
       "Bash(security-test:*)",
       "Bash(security:*)",
       "Bash(sed:*)",
-      "Bash(sentry-cli:*)",
+      "Bash(sentry-cli info:*)",
+      "Bash(sentry-cli releases list:*)",
       "Bash(sha256sum:*)",
       "Bash(shellcheck*)",
       "Bash(shopify:*)",
@@ -1718,9 +1719,9 @@
       "zero-cost",
       "zod"
     ],
-    "totalAgents": 352,
+    "totalAgents": 373,
     "totalHooks": 26,
-    "pluginsWithAgents": 91,
+    "pluginsWithAgents": 96,
     "pluginsWithHooks": 18,
     "officialPlugins": 389,
     "communityPlugins": 45,
@@ -10447,7 +10448,7 @@
       "slug": "sentry-pack",
       "name": "sentry-pack",
       "displayName": "sentry pack",
-      "description": "Complete Sentry integration skill pack with 30 skills covering error monitoring, performance tracking, session replay, and observability. Flagship+ tier vendor pack.",
+      "description": "Sentry pack v2: five advisory operational skills (quota leak, event forensics, release medic, issue triage, PII scrub) plus redirects for the 30 retired v1 skills. Recommends changes; never writes to Sentry.",
       "category": "saas-packs",
       "keywords": [
         "sentry",
@@ -10464,15 +10465,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.51.0",
+      "version": "2.0.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
-      "skillCount": 30,
+      "skillCount": 35,
       "verificationScore": 91,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "sentry pack complete sentry integration skill pack with 30 skills covering error monitoring, performance tracking, session replay, and observability. flagship+ tier vendor pack. saas-packs sentry error-monitoring performance observability debugging crash-reporting apm"
+      "searchText": "sentry pack sentry pack v2: five advisory operational skills (quota leak, event forensics, release medic, issue triage, pii scrub) plus redirects for the 30 retired v1 skills. recommends changes; never writes to sentry. saas-packs sentry error-monitoring performance observability debugging crash-reporting apm"
     },
     {
       "type": "plugin",
@@ -69406,749 +69407,641 @@
       "id": "sentry-advanced-troubleshooting",
       "slug": "sentry-advanced-troubleshooting",
       "name": "sentry-advanced-troubleshooting",
-      "description": "Advanced Sentry troubleshooting for complex SDK issues, silent event drops, source map failures, distributed tracing gaps, and SDK conflicts. Use when events silently disappear, source maps fail to resolve, traces break across service boundaries, or the SDK conflicts with other libraries like OpenTelemetry or winston. Trigger with phrases like \"sentry events missing\", \"sentry source maps broken\", \"sentry debug\", \"sentry not capturing errors\", \"sentry tracing gaps\", \"sentry memory leak\", \"sentry sdk conflict\".",
+      "description": "Route the retired sentry-advanced-troubleshooting skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: Keep). Use when a saved prompt or workflow still names sentry-advanced-troubleshooting. Trigger with \"sentry-advanced-troubleshooting\" or \"/sentry-advanced-troubleshooting\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(node:*)",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(curl:*)",
-        "Bash(sentry-cli:*)",
-        "Bash(dig:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-advanced-troubleshooting advanced sentry troubleshooting for complex sdk issues, silent event drops, source map failures, distributed tracing gaps, and sdk conflicts. use when events silently disappear, source maps fail to resolve, traces break across service boundaries, or the sdk conflicts with other libraries like opentelemetry or winston. trigger with phrases like \"sentry events missing\", \"sentry source maps broken\", \"sentry debug\", \"sentry not capturing errors\", \"sentry tracing gaps\", \"sentry memory leak\", \"sentry sdk conflict\". saas-packs read write edit grep bash(node:*) bash(npm:*) bash(npx:*) bash(curl:*) bash(sentry-cli:*) bash(dig:*) "
+      "searchText": "sentry-advanced-troubleshooting route the retired sentry-advanced-troubleshooting skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: keep). use when a saved prompt or workflow still names sentry-advanced-troubleshooting. trigger with \"sentry-advanced-troubleshooting\" or \"/sentry-advanced-troubleshooting\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-architecture-variants",
       "slug": "sentry-architecture-variants",
       "name": "sentry-architecture-variants",
-      "description": "Configure Sentry error tracking and performance monitoring for different application architectures. Use when setting up Sentry for monoliths, microservices, serverless functions, event-driven systems, frontend SPAs, mobile apps, or hybrid deployments. Trigger: \"sentry monolith setup\", \"sentry microservices tracing\", \"sentry serverless lambda\", \"sentry event-driven kafka\", \"sentry react native\", \"sentry architecture pattern\".",
+      "description": "Detect calls to the cut sentry-architecture-variants skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-architecture-variants\" or \"/sentry-architecture-variants\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
-        "Bash(node:*)",
-        "Bash(npx:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-architecture-variants configure sentry error tracking and performance monitoring for different application architectures. use when setting up sentry for monoliths, microservices, serverless functions, event-driven systems, frontend spas, mobile apps, or hybrid deployments. trigger: \"sentry monolith setup\", \"sentry microservices tracing\", \"sentry serverless lambda\", \"sentry event-driven kafka\", \"sentry react native\", \"sentry architecture pattern\". saas-packs read write edit grep glob bash(node:*) bash(npx:*) "
+      "searchText": "sentry-architecture-variants detect calls to the cut sentry-architecture-variants skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-architecture-variants\" or \"/sentry-architecture-variants\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-ci-integration",
       "slug": "sentry-ci-integration",
       "name": "sentry-ci-integration",
-      "description": "Integrate Sentry into CI/CD pipelines for automated release creation, source map uploads, and deploy notifications. Use when setting up GitHub Actions, GitLab CI, or CircleCI to automate Sentry releases, upload source maps, or associate commits with deploys. Trigger with phrases like \"sentry github actions\", \"sentry CI pipeline\", \"automate sentry releases\", \"sentry source map upload CI\", \"sentry gitlab ci\", \"sentry circleci\".",
+      "description": "Route the retired sentry-ci-integration skill to sentry-release-medic, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-ci-integration. Trigger with \"sentry-ci-integration\" or \"/sentry-ci-integration\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(gh:*)",
-        "Bash(sentry-cli:*)",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Grep",
-        "Glob"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-ci-integration integrate sentry into ci/cd pipelines for automated release creation, source map uploads, and deploy notifications. use when setting up github actions, gitlab ci, or circleci to automate sentry releases, upload source maps, or associate commits with deploys. trigger with phrases like \"sentry github actions\", \"sentry ci pipeline\", \"automate sentry releases\", \"sentry source map upload ci\", \"sentry gitlab ci\", \"sentry circleci\". saas-packs read write edit bash(gh:*) bash(sentry-cli:*) bash(npm:*) bash(npx:*) grep glob "
+      "searchText": "sentry-ci-integration route the retired sentry-ci-integration skill to sentry-release-medic, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-ci-integration. trigger with \"sentry-ci-integration\" or \"/sentry-ci-integration\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-common-errors",
       "slug": "sentry-common-errors",
       "name": "sentry-common-errors",
-      "description": "Troubleshoot common Sentry integration issues and fixes. Use when encountering Sentry errors, missing events, source map failures, rate limits, or configuration problems. Trigger: \"sentry not working\", \"sentry errors missing\", \"fix sentry\", \"sentry troubleshoot\", \"sentry 429\", \"source maps not resolving\", \"sentry events not showing\", \"sentry flush\", \"sentry CORS\".",
+      "description": "Detect calls to the cut sentry-common-errors skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-common-errors\" or \"/sentry-common-errors\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Grep",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(curl:*)",
-        "Bash(npx:*)",
-        "Bash(sentry-cli:*)",
-        "Bash(python3:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-common-errors troubleshoot common sentry integration issues and fixes. use when encountering sentry errors, missing events, source map failures, rate limits, or configuration problems. trigger: \"sentry not working\", \"sentry errors missing\", \"fix sentry\", \"sentry troubleshoot\", \"sentry 429\", \"source maps not resolving\", \"sentry events not showing\", \"sentry flush\", \"sentry cors\". saas-packs read grep bash(npm:*) bash(node:*) bash(curl:*) bash(npx:*) bash(sentry-cli:*) bash(python3:*) "
+      "searchText": "sentry-common-errors detect calls to the cut sentry-common-errors skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-common-errors\" or \"/sentry-common-errors\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-cost-tuning",
       "slug": "sentry-cost-tuning",
       "name": "sentry-cost-tuning",
-      "description": "Optimize Sentry costs, reduce event volume, and manage quota spend. Use when analyzing Sentry billing, reducing error/transaction volume, configuring sampling rates, or preventing overage charges. Trigger: \"reduce sentry costs\", \"sentry billing optimization\", \"sentry quota management\", \"optimize sentry spend\", \"sentry sampling\".",
+      "description": "Route the retired sentry-cost-tuning skill to sentry-quota-leak-hunter, which now owns this job (sentry-pack 2.0.0, disposition: Keep). Use when a saved prompt or workflow still names sentry-cost-tuning. Trigger with \"sentry-cost-tuning\" or \"/sentry-cost-tuning\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Bash(npx:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-cost-tuning optimize sentry costs, reduce event volume, and manage quota spend. use when analyzing sentry billing, reducing error/transaction volume, configuring sampling rates, or preventing overage charges. trigger: \"reduce sentry costs\", \"sentry billing optimization\", \"sentry quota management\", \"optimize sentry spend\", \"sentry sampling\". saas-packs read write edit grep glob bash(curl:*) bash(node:*) bash(npx:*) "
+      "searchText": "sentry-cost-tuning route the retired sentry-cost-tuning skill to sentry-quota-leak-hunter, which now owns this job (sentry-pack 2.0.0, disposition: keep). use when a saved prompt or workflow still names sentry-cost-tuning. trigger with \"sentry-cost-tuning\" or \"/sentry-cost-tuning\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-data-handling",
       "slug": "sentry-data-handling",
       "name": "sentry-data-handling",
-      "description": "Configure GDPR-compliant data handling, PII scrubbing, and data retention policies in Sentry. Use when implementing beforeSend filters, server-side data scrubbing rules, IP anonymization, data subject deletion requests, or SOC 2 audit controls. Trigger with phrases like \"sentry pii scrubbing\", \"sentry gdpr\", \"sentry data privacy\", \"scrub sensitive data sentry\", \"sentry data retention\", \"sentry compliance\".",
+      "description": "Route the retired sentry-data-handling skill to sentry-pii-scrub-enforcer, which now owns this job (sentry-pack 2.0.0, disposition: Keep). Use when a saved prompt or workflow still names sentry-data-handling. Trigger with \"sentry-data-handling\" or \"/sentry-data-handling\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(curl:*)",
-        "Bash(node:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-data-handling configure gdpr-compliant data handling, pii scrubbing, and data retention policies in sentry. use when implementing beforesend filters, server-side data scrubbing rules, ip anonymization, data subject deletion requests, or soc 2 audit controls. trigger with phrases like \"sentry pii scrubbing\", \"sentry gdpr\", \"sentry data privacy\", \"scrub sensitive data sentry\", \"sentry data retention\", \"sentry compliance\". saas-packs read write edit grep bash(curl:*) bash(node:*) "
+      "searchText": "sentry-data-handling route the retired sentry-data-handling skill to sentry-pii-scrub-enforcer, which now owns this job (sentry-pack 2.0.0, disposition: keep). use when a saved prompt or workflow still names sentry-data-handling. trigger with \"sentry-data-handling\" or \"/sentry-data-handling\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-debug-bundle",
       "slug": "sentry-debug-bundle",
       "name": "sentry-debug-bundle",
-      "description": "Collect diagnostic information for Sentry troubleshooting and support tickets. Use when events are not appearing in Sentry, SDK initialization seems broken, DSN connectivity fails, source maps are not resolving, or preparing a support request. Trigger with \"sentry debug info\", \"sentry diagnostics\", \"debug bundle\", \"sentry support ticket\".",
+      "description": "Route the retired sentry-debug-bundle skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-debug-bundle. Trigger with \"sentry-debug-bundle\" or \"/sentry-debug-bundle\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(npx:*)",
-        "Bash(pip:*)",
-        "Bash(python:*)",
-        "Bash(curl:*)",
-        "Bash(dig:*)",
-        "Bash(sentry-cli:*)",
-        "Grep",
-        "Glob"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-debug-bundle collect diagnostic information for sentry troubleshooting and support tickets. use when events are not appearing in sentry, sdk initialization seems broken, dsn connectivity fails, source maps are not resolving, or preparing a support request. trigger with \"sentry debug info\", \"sentry diagnostics\", \"debug bundle\", \"sentry support ticket\". saas-packs read write edit bash(npm:*) bash(node:*) bash(npx:*) bash(pip:*) bash(python:*) bash(curl:*) bash(dig:*) bash(sentry-cli:*) grep glob "
+      "searchText": "sentry-debug-bundle route the retired sentry-debug-bundle skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-debug-bundle. trigger with \"sentry-debug-bundle\" or \"/sentry-debug-bundle\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-deploy-integration",
       "slug": "sentry-deploy-integration",
       "name": "sentry-deploy-integration",
-      "description": "Track deployments and release health in Sentry. Use when configuring deployment tracking, release health monitoring, or connecting CI/CD deploys to error data in Sentry. Trigger with phrases like \"sentry deploy tracking\", \"sentry release health\", \"track deployments sentry\", \"sentry deployment notification\", \"sentry suspect commits\", \"compare sentry releases\".",
+      "description": "Route the retired sentry-deploy-integration skill to sentry-release-medic, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-deploy-integration. Trigger with \"sentry-deploy-integration\" or \"/sentry-deploy-integration\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(sentry-cli:*)",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Bash(npx:*)",
-        "Grep"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-deploy-integration track deployments and release health in sentry. use when configuring deployment tracking, release health monitoring, or connecting ci/cd deploys to error data in sentry. trigger with phrases like \"sentry deploy tracking\", \"sentry release health\", \"track deployments sentry\", \"sentry deployment notification\", \"sentry suspect commits\", \"compare sentry releases\". saas-packs read write edit bash(sentry-cli:*) bash(curl:*) bash(node:*) bash(npx:*) grep "
+      "searchText": "sentry-deploy-integration route the retired sentry-deploy-integration skill to sentry-release-medic, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-deploy-integration. trigger with \"sentry-deploy-integration\" or \"/sentry-deploy-integration\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-enterprise-rbac",
       "slug": "sentry-enterprise-rbac",
       "name": "sentry-enterprise-rbac",
-      "description": "Configure enterprise role-based access control, SSO/SAML2, and SCIM provisioning in Sentry. Use when setting up organization hierarchy, team permissions, identity provider integration, API token governance, or audit logging for compliance. Trigger: \"sentry rbac\", \"sentry permissions\", \"sentry team access\", \"sentry sso setup\", \"sentry scim\", \"sentry audit log\".",
+      "description": "Detect calls to the cut sentry-enterprise-rbac skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-enterprise-rbac\" or \"/sentry-enterprise-rbac\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(curl:*)",
-        "Bash(python3:*)",
-        "Bash(jq:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-enterprise-rbac configure enterprise role-based access control, sso/saml2, and scim provisioning in sentry. use when setting up organization hierarchy, team permissions, identity provider integration, api token governance, or audit logging for compliance. trigger: \"sentry rbac\", \"sentry permissions\", \"sentry team access\", \"sentry sso setup\", \"sentry scim\", \"sentry audit log\". saas-packs read write edit grep bash(curl:*) bash(python3:*) bash(jq:*) "
+      "searchText": "sentry-enterprise-rbac detect calls to the cut sentry-enterprise-rbac skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-enterprise-rbac\" or \"/sentry-enterprise-rbac\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-error-capture",
       "slug": "sentry-error-capture",
       "name": "sentry-error-capture",
-      "description": "Implement advanced error capture and context enrichment with Sentry. Use when adding captureException/captureMessage calls, enriching errors with user context, tags, breadcrumbs, or custom fingerprinting. Trigger with \"sentry error capture\", \"sentry context\", \"enrich sentry errors\", \"sentry exception handling\", \"sentry breadcrumbs\", \"sentry fingerprint\".",
+      "description": "Detect calls to the cut sentry-error-capture skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-error-capture\" or \"/sentry-error-capture\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(pip:*)",
-        "Bash(python:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-error-capture implement advanced error capture and context enrichment with sentry. use when adding captureexception/capturemessage calls, enriching errors with user context, tags, breadcrumbs, or custom fingerprinting. trigger with \"sentry error capture\", \"sentry context\", \"enrich sentry errors\", \"sentry exception handling\", \"sentry breadcrumbs\", \"sentry fingerprint\". saas-packs read write edit grep glob bash(npm:*) bash(npx:*) bash(pip:*) bash(python:*) "
+      "searchText": "sentry-error-capture detect calls to the cut sentry-error-capture skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-error-capture\" or \"/sentry-error-capture\". saas-packs read "
+    },
+    {
+      "type": "skill",
+      "id": "sentry-event-forensics",
+      "slug": "sentry-event-forensics",
+      "name": "sentry-event-forensics",
+      "description": "Diagnose and detect why a Sentry event, source map, or trace is missing, or scope an SDK upgrade or vendor migration. Use when events are missing, maps fail to resolve, SDKs conflict, or switching vendors. Trigger with \"sentry events missing\", \"source maps not resolving\", \"sentry debug\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(sentry-cli info:*)",
+        "Bash(python3 \"${CLAUDE_SKILL_DIR}/scripts/*\")"
+      ],
+      "compatibleWith": [],
+      "version": "2.0.0",
+      "parentPlugin": {
+        "name": "sentry-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "sentry-event-forensics diagnose and detect why a sentry event, source map, or trace is missing, or scope an sdk upgrade or vendor migration. use when events are missing, maps fail to resolve, sdks conflict, or switching vendors. trigger with \"sentry events missing\", \"source maps not resolving\", \"sentry debug\". saas-packs read bash(sentry-cli info:*) bash(python3 \"${claude_skill_dir}/scripts/*\") "
     },
     {
       "type": "skill",
       "id": "sentry-hello-world",
       "slug": "sentry-hello-world",
       "name": "sentry-hello-world",
-      "description": "Capture your first test error with Sentry and verify it appears in the dashboard. Use when testing a new Sentry integration, verifying error capture works after install-auth, or learning how to enrich events with user context, tags, and breadcrumbs. Trigger with phrases like \"test sentry\", \"sentry hello world\", \"verify sentry\", \"first sentry error\", \"sentry capture test\".",
+      "description": "Detect calls to the cut sentry-hello-world skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-hello-world\" or \"/sentry-hello-world\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(node:*)",
-        "Bash(python:*)",
-        "Bash(npm:*)",
-        "Grep"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-hello-world capture your first test error with sentry and verify it appears in the dashboard. use when testing a new sentry integration, verifying error capture works after install-auth, or learning how to enrich events with user context, tags, and breadcrumbs. trigger with phrases like \"test sentry\", \"sentry hello world\", \"verify sentry\", \"first sentry error\", \"sentry capture test\". saas-packs read write edit bash(node:*) bash(python:*) bash(npm:*) grep "
+      "searchText": "sentry-hello-world detect calls to the cut sentry-hello-world skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-hello-world\" or \"/sentry-hello-world\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-incident-runbook",
       "slug": "sentry-incident-runbook",
       "name": "sentry-incident-runbook",
-      "description": "Execute incident response procedures using Sentry error monitoring. Use when investigating production outages, triaging error spikes, classifying incident severity, or building postmortem reports from Sentry data. Trigger with phrases like \"sentry incident\", \"sentry triage\", \"investigate sentry error\", \"sentry runbook\", \"production incident sentry\".",
+      "description": "Route the retired sentry-incident-runbook skill to sentry-issue-triage, which now owns this job (sentry-pack 2.0.0, disposition: Keep). Use when a saved prompt or workflow still names sentry-incident-runbook. Trigger with \"sentry-incident-runbook\" or \"/sentry-incident-runbook\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Bash(npx:*)",
-        "Bash(python3:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-incident-runbook execute incident response procedures using sentry error monitoring. use when investigating production outages, triaging error spikes, classifying incident severity, or building postmortem reports from sentry data. trigger with phrases like \"sentry incident\", \"sentry triage\", \"investigate sentry error\", \"sentry runbook\", \"production incident sentry\". saas-packs read write edit grep bash(curl:*) bash(node:*) bash(npx:*) bash(python3:*) "
+      "searchText": "sentry-incident-runbook route the retired sentry-incident-runbook skill to sentry-issue-triage, which now owns this job (sentry-pack 2.0.0, disposition: keep). use when a saved prompt or workflow still names sentry-incident-runbook. trigger with \"sentry-incident-runbook\" or \"/sentry-incident-runbook\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-install-auth",
       "slug": "sentry-install-auth",
       "name": "sentry-install-auth",
-      "description": "Install and configure Sentry SDK authentication with DSN setup. Use when setting up Sentry error tracking, configuring DSN, or initializing Sentry in a Node.js or Python project. Trigger with \"install sentry\", \"setup sentry\", \"sentry auth\", \"configure sentry DSN\".",
+      "description": "Detect calls to the cut sentry-install-auth skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-install-auth\" or \"/sentry-install-auth\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-install-auth install and configure sentry sdk authentication with dsn setup. use when setting up sentry error tracking, configuring dsn, or initializing sentry in a node.js or python project. trigger with \"install sentry\", \"setup sentry\", \"sentry auth\", \"configure sentry dsn\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
+      "searchText": "sentry-install-auth detect calls to the cut sentry-install-auth skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-install-auth\" or \"/sentry-install-auth\". saas-packs read "
+    },
+    {
+      "type": "skill",
+      "id": "sentry-issue-triage",
+      "slug": "sentry-issue-triage",
+      "name": "sentry-issue-triage",
+      "description": "Triage an existing Sentry issue end to end: severity from the payload, suspect release, grouping/fingerprint levers (prospective only), inbound noise, a performance-issue span when the issue type is performance, and the log line that carries the event id. Use when an on-call page names a Sentry issue, a split or merged issue needs a grouping decision, inbound filters need a call, or a postmortem skeleton is due. Not a generic SRE essay, not \"events never arrived\" (that is sentry-event-forensics), and not a volume cut. Trigger with \"sentry incident\", \"triage this issue\", \"sentry severity\", \"which release caused this\", \"sentry fingerprint\", \"inbound filter\", \"correlate sentry event to logs\", \"N+1 sentry issue\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(python3 \"${CLAUDE_SKILL_DIR}/scripts/*\")"
+      ],
+      "compatibleWith": [],
+      "version": "2.0.0",
+      "parentPlugin": {
+        "name": "sentry-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "sentry-issue-triage triage an existing sentry issue end to end: severity from the payload, suspect release, grouping/fingerprint levers (prospective only), inbound noise, a performance-issue span when the issue type is performance, and the log line that carries the event id. use when an on-call page names a sentry issue, a split or merged issue needs a grouping decision, inbound filters need a call, or a postmortem skeleton is due. not a generic sre essay, not \"events never arrived\" (that is sentry-event-forensics), and not a volume cut. trigger with \"sentry incident\", \"triage this issue\", \"sentry severity\", \"which release caused this\", \"sentry fingerprint\", \"inbound filter\", \"correlate sentry event to logs\", \"n+1 sentry issue\". saas-packs read bash(python3 \"${claude_skill_dir}/scripts/*\") "
     },
     {
       "type": "skill",
       "id": "sentry-known-pitfalls",
       "slug": "sentry-known-pitfalls",
       "name": "sentry-known-pitfalls",
-      "description": "Identify and fix common Sentry SDK pitfalls that cause silent data loss, cost overruns, and missed alerts. Covers 10 anti-patterns with fix code. Use when auditing Sentry config, debugging missing events, or reviewing SDK setup. Trigger: \"sentry pitfalls\", \"sentry anti-patterns\", \"sentry mistakes\", \"why are sentry events missing\".",
+      "description": "Detect calls to the cut sentry-known-pitfalls skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-known-pitfalls\" or \"/sentry-known-pitfalls\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
-        "Bash(node:*)",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(grep:*)",
-        "Bash(find:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-known-pitfalls identify and fix common sentry sdk pitfalls that cause silent data loss, cost overruns, and missed alerts. covers 10 anti-patterns with fix code. use when auditing sentry config, debugging missing events, or reviewing sdk setup. trigger: \"sentry pitfalls\", \"sentry anti-patterns\", \"sentry mistakes\", \"why are sentry events missing\". saas-packs read write edit grep glob bash(node:*) bash(npm:*) bash(npx:*) bash(grep:*) bash(find:*) "
+      "searchText": "sentry-known-pitfalls detect calls to the cut sentry-known-pitfalls skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-known-pitfalls\" or \"/sentry-known-pitfalls\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-load-scale",
       "slug": "sentry-load-scale",
       "name": "sentry-load-scale",
-      "description": "Scale Sentry for high-traffic applications handling millions of events per day. Use when optimizing SDK performance at high volume, implementing adaptive sampling, managing quotas and costs at scale, or deploying Sentry across multi-region infrastructure. Trigger with phrases like \"sentry high traffic\", \"scale sentry\", \"sentry millions events\", \"sentry high volume\", \"sentry quota management\", \"sentry load test\".",
+      "description": "Route the retired sentry-load-scale skill to sentry-quota-leak-hunter, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-load-scale. Trigger with \"sentry-load-scale\" or \"/sentry-load-scale\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(node:*)",
-        "Bash(npx:*)",
-        "Bash(k6:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-load-scale scale sentry for high-traffic applications handling millions of events per day. use when optimizing sdk performance at high volume, implementing adaptive sampling, managing quotas and costs at scale, or deploying sentry across multi-region infrastructure. trigger with phrases like \"sentry high traffic\", \"scale sentry\", \"sentry millions events\", \"sentry high volume\", \"sentry quota management\", \"sentry load test\". saas-packs read write edit grep bash(node:*) bash(npx:*) bash(k6:*) "
+      "searchText": "sentry-load-scale route the retired sentry-load-scale skill to sentry-quota-leak-hunter, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-load-scale. trigger with \"sentry-load-scale\" or \"/sentry-load-scale\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-local-dev-loop",
       "slug": "sentry-local-dev-loop",
       "name": "sentry-local-dev-loop",
-      "description": "Configure Sentry for local development with environment-aware settings. Use when setting up dev vs prod DSN routing, enabling debug mode, tuning sample rates for local work, or testing source maps locally. Trigger with phrases like \"sentry local dev\", \"sentry development config\", \"debug sentry locally\", \"sentry dev environment\", \"sentry spotlight\".",
+      "description": "Detect calls to the cut sentry-local-dev-loop skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-local-dev-loop\" or \"/sentry-local-dev-loop\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(npx:*)",
-        "Bash(python:*)",
-        "Grep",
-        "Glob"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-local-dev-loop configure sentry for local development with environment-aware settings. use when setting up dev vs prod dsn routing, enabling debug mode, tuning sample rates for local work, or testing source maps locally. trigger with phrases like \"sentry local dev\", \"sentry development config\", \"debug sentry locally\", \"sentry dev environment\", \"sentry spotlight\". saas-packs read write edit bash(npm:*) bash(node:*) bash(npx:*) bash(python:*) grep glob "
+      "searchText": "sentry-local-dev-loop detect calls to the cut sentry-local-dev-loop skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-local-dev-loop\" or \"/sentry-local-dev-loop\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-migration-deep-dive",
       "slug": "sentry-migration-deep-dive",
       "name": "sentry-migration-deep-dive",
-      "description": "Migrate to Sentry from other error tracking tools like Rollbar, Bugsnag, or New Relic. Use when replacing an existing error tracker with Sentry, running tools in parallel during a transition, or mapping API calls between providers. Trigger with phrases like \"migrate to sentry\", \"switch from rollbar to sentry\", \"replace bugsnag with sentry\", \"sentry migration plan\".",
+      "description": "Route the retired sentry-migration-deep-dive skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-migration-deep-dive. Trigger with \"sentry-migration-deep-dive\" or \"/sentry-migration-deep-dive\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(node:*)",
-        "Grep",
-        "Glob"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-migration-deep-dive migrate to sentry from other error tracking tools like rollbar, bugsnag, or new relic. use when replacing an existing error tracker with sentry, running tools in parallel during a transition, or mapping api calls between providers. trigger with phrases like \"migrate to sentry\", \"switch from rollbar to sentry\", \"replace bugsnag with sentry\", \"sentry migration plan\". saas-packs read write edit bash(npm:*) bash(npx:*) bash(node:*) grep glob "
+      "searchText": "sentry-migration-deep-dive route the retired sentry-migration-deep-dive skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-migration-deep-dive. trigger with \"sentry-migration-deep-dive\" or \"/sentry-migration-deep-dive\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-multi-env-setup",
       "slug": "sentry-multi-env-setup",
       "name": "sentry-multi-env-setup",
-      "description": "Configure Sentry across development, staging, and production environments with separate DSNs, environment-specific sample rates, per-environment alert rules, and dashboard filtering. Use when setting up Sentry for dev/staging/production, managing environment-specific configurations, isolating data between environments, or configuring .env files for per-environment DSNs. Trigger: \"sentry environments\", \"sentry staging setup\", \"multi-environment sentry\", \"sentry dev vs prod\", \"sentry DSN per env\".",
+      "description": "Detect calls to the cut sentry-multi-env-setup skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-multi-env-setup\" or \"/sentry-multi-env-setup\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(node:*)",
-        "Bash(sentry-cli:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-multi-env-setup configure sentry across development, staging, and production environments with separate dsns, environment-specific sample rates, per-environment alert rules, and dashboard filtering. use when setting up sentry for dev/staging/production, managing environment-specific configurations, isolating data between environments, or configuring .env files for per-environment dsns. trigger: \"sentry environments\", \"sentry staging setup\", \"multi-environment sentry\", \"sentry dev vs prod\", \"sentry dsn per env\". saas-packs read write edit grep glob bash(npm:*) bash(npx:*) bash(node:*) bash(sentry-cli:*) "
+      "searchText": "sentry-multi-env-setup detect calls to the cut sentry-multi-env-setup skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-multi-env-setup\" or \"/sentry-multi-env-setup\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-observability",
       "slug": "sentry-observability",
       "name": "sentry-observability",
-      "description": "Integrate Sentry with your observability stack — logging, metrics, APM, and dashboards. Use when connecting Sentry to winston/pino/structlog, correlating errors with business metrics, deciding between Sentry performance and Datadog/New Relic, building Sentry Discover dashboards, or linking events to external tools via extra context. Trigger: \"sentry observability\", \"sentry logging\", \"sentry metrics\", \"sentry grafana\", \"sentry datadog correlation\", \"sentry discover dashboard\".",
+      "description": "Route the retired sentry-observability skill to sentry-issue-triage, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-observability. Trigger with \"sentry-observability\" or \"/sentry-observability\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(node:*)",
-        "Bash(npx:*)",
-        "Bash(pip:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-observability integrate sentry with your observability stack — logging, metrics, apm, and dashboards. use when connecting sentry to winston/pino/structlog, correlating errors with business metrics, deciding between sentry performance and datadog/new relic, building sentry discover dashboards, or linking events to external tools via extra context. trigger: \"sentry observability\", \"sentry logging\", \"sentry metrics\", \"sentry grafana\", \"sentry datadog correlation\", \"sentry discover dashboard\". saas-packs read write edit grep bash(node:*) bash(npx:*) bash(pip:*) "
+      "searchText": "sentry-observability route the retired sentry-observability skill to sentry-issue-triage, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-observability. trigger with \"sentry-observability\" or \"/sentry-observability\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-performance-tracing",
       "slug": "sentry-performance-tracing",
       "name": "sentry-performance-tracing",
-      "description": "Set up performance monitoring and distributed tracing with Sentry. Use when implementing performance tracking, tracing requests, or monitoring application performance. Trigger with phrases like \"sentry performance\", \"sentry tracing\", \"sentry APM\", \"monitor performance sentry\".",
+      "description": "Detect calls to the cut sentry-performance-tracing skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-performance-tracing\" or \"/sentry-performance-tracing\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(node:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-performance-tracing set up performance monitoring and distributed tracing with sentry. use when implementing performance tracking, tracing requests, or monitoring application performance. trigger with phrases like \"sentry performance\", \"sentry tracing\", \"sentry apm\", \"monitor performance sentry\". saas-packs read write edit grep bash(node:*) "
+      "searchText": "sentry-performance-tracing detect calls to the cut sentry-performance-tracing skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-performance-tracing\" or \"/sentry-performance-tracing\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-performance-tuning",
       "slug": "sentry-performance-tuning",
       "name": "sentry-performance-tuning",
-      "description": "Optimize Sentry performance monitoring for lower overhead and higher signal. Use when tuning tracesSampleRate vs tracesSampler, configuring continuous profiling, fixing high-cardinality transaction names, adding custom span measurements, reducing SDK overhead, or setting Web Vitals thresholds. Trigger: \"sentry performance optimize\", \"tune sentry sampling\", \"reduce sentry overhead\", \"sentry web vitals\", \"sentry profiling setup\".",
+      "description": "Route the retired sentry-performance-tuning skill to sentry-quota-leak-hunter, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-performance-tuning. Trigger with \"sentry-performance-tuning\" or \"/sentry-performance-tuning\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(node:*)",
-        "Bash(sentry-cli:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-performance-tuning optimize sentry performance monitoring for lower overhead and higher signal. use when tuning tracessamplerate vs tracessampler, configuring continuous profiling, fixing high-cardinality transaction names, adding custom span measurements, reducing sdk overhead, or setting web vitals thresholds. trigger: \"sentry performance optimize\", \"tune sentry sampling\", \"reduce sentry overhead\", \"sentry web vitals\", \"sentry profiling setup\". saas-packs read write edit grep glob bash(npm:*) bash(npx:*) bash(node:*) bash(sentry-cli:*) "
+      "searchText": "sentry-performance-tuning route the retired sentry-performance-tuning skill to sentry-quota-leak-hunter, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-performance-tuning. trigger with \"sentry-performance-tuning\" or \"/sentry-performance-tuning\". saas-packs read "
+    },
+    {
+      "type": "skill",
+      "id": "sentry-pii-scrub-enforcer",
+      "slug": "sentry-pii-scrub-enforcer",
+      "name": "sentry-pii-scrub-enforcer",
+      "description": "Audits Sentry PII exposure and recommends fixes without applying them: checks SDK hook coverage (beforeSend and related hooks) backed by server scrub, prints a GDPR erasure plan and stops, and reports which projects drifted from the written scrub standard. Never applies server scrub rules and never sends a delete. Use when reviewing Sentry PII handling, scrub rules, sendDefaultPii, Replay unmask, project scrub drift, or an explicit erasure request. Trigger with \"sentry PII\", \"scrub PII\", \"sentry GDPR\", \"sendDefaultPii\", \"project scrub drift\", \"server scrub rules\", \"replay unmask\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(python3 \"${CLAUDE_SKILL_DIR}/scripts/*\")"
+      ],
+      "compatibleWith": [],
+      "version": "2.0.0",
+      "parentPlugin": {
+        "name": "sentry-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "sentry-pii-scrub-enforcer audits sentry pii exposure and recommends fixes without applying them: checks sdk hook coverage (beforesend and related hooks) backed by server scrub, prints a gdpr erasure plan and stops, and reports which projects drifted from the written scrub standard. never applies server scrub rules and never sends a delete. use when reviewing sentry pii handling, scrub rules, senddefaultpii, replay unmask, project scrub drift, or an explicit erasure request. trigger with \"sentry pii\", \"scrub pii\", \"sentry gdpr\", \"senddefaultpii\", \"project scrub drift\", \"server scrub rules\", \"replay unmask\". saas-packs read bash(python3 \"${claude_skill_dir}/scripts/*\") "
     },
     {
       "type": "skill",
       "id": "sentry-policy-guardrails",
       "slug": "sentry-policy-guardrails",
       "name": "sentry-policy-guardrails",
-      "description": "Enforce organizational governance and policy guardrails for Sentry usage. Use when standardizing Sentry configuration across services, enforcing PII scrubbing, building shared config packages, or auditing drift. Trigger with phrases like \"sentry governance\", \"sentry policy\", \"sentry standards\", \"enforce sentry config\", \"sentry compliance\".",
+      "description": "Route the retired sentry-policy-guardrails skill to sentry-pii-scrub-enforcer, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-policy-guardrails. Trigger with \"sentry-policy-guardrails\" or \"/sentry-policy-guardrails\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
-        "Bash(node:*)",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(curl:*)",
-        "Bash(grep:*)",
-        "Bash(git:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-policy-guardrails enforce organizational governance and policy guardrails for sentry usage. use when standardizing sentry configuration across services, enforcing pii scrubbing, building shared config packages, or auditing drift. trigger with phrases like \"sentry governance\", \"sentry policy\", \"sentry standards\", \"enforce sentry config\", \"sentry compliance\". saas-packs read write edit grep glob bash(node:*) bash(npm:*) bash(npx:*) bash(curl:*) bash(grep:*) bash(git:*) "
+      "searchText": "sentry-policy-guardrails route the retired sentry-policy-guardrails skill to sentry-pii-scrub-enforcer, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-policy-guardrails. trigger with \"sentry-policy-guardrails\" or \"/sentry-policy-guardrails\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-prod-checklist",
       "slug": "sentry-prod-checklist",
       "name": "sentry-prod-checklist",
-      "description": "Production deployment checklist for Sentry integration. Use when preparing a production deployment, auditing an existing Sentry setup, or running a go-live readiness review. Trigger: \"sentry production checklist\", \"deploy sentry\", \"sentry go-live\", \"audit sentry config\", \"production readiness sentry\".",
+      "description": "Detect calls to the cut sentry-prod-checklist skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-prod-checklist\" or \"/sentry-prod-checklist\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Grep",
-        "Glob",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(node:*)",
-        "Bash(curl:*)",
-        "Bash(sentry-cli:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-prod-checklist production deployment checklist for sentry integration. use when preparing a production deployment, auditing an existing sentry setup, or running a go-live readiness review. trigger: \"sentry production checklist\", \"deploy sentry\", \"sentry go-live\", \"audit sentry config\", \"production readiness sentry\". saas-packs read grep glob bash(npm:*) bash(npx:*) bash(node:*) bash(curl:*) bash(sentry-cli:*) "
+      "searchText": "sentry-prod-checklist detect calls to the cut sentry-prod-checklist skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-prod-checklist\" or \"/sentry-prod-checklist\". saas-packs read "
+    },
+    {
+      "type": "skill",
+      "id": "sentry-quota-leak-hunter",
+      "slug": "sentry-quota-leak-hunter",
+      "name": "sentry-quota-leak-hunter",
+      "description": "Hunt Sentry quota leaks — which error / transaction / replay / span / log / profile meter moved, and which lever is not \"buy more.\" Produce a ranked cut list from org stats plus concrete tracesSampler / beforeSend / inbound-filter / key-limit diffs. Recommends; does not apply. Use when a user asks to reduce Sentry costs, find quota burns, explain a usage spike, or tune sampling without losing paging-quality issues. Trigger with \"reduce sentry costs\", \"sentry quota\", \"sentry usage spike\", \"why is sentry bill high\", \"tracesSampleRate 1\", \"inbound filters\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(sentry-cli info:*)",
+        "Bash(python3 \"${CLAUDE_SKILL_DIR}/scripts/*\")"
+      ],
+      "compatibleWith": [],
+      "version": "2.0.0",
+      "parentPlugin": {
+        "name": "sentry-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "sentry-quota-leak-hunter hunt sentry quota leaks — which error / transaction / replay / span / log / profile meter moved, and which lever is not \"buy more.\" produce a ranked cut list from org stats plus concrete tracessampler / beforesend / inbound-filter / key-limit diffs. recommends; does not apply. use when a user asks to reduce sentry costs, find quota burns, explain a usage spike, or tune sampling without losing paging-quality issues. trigger with \"reduce sentry costs\", \"sentry quota\", \"sentry usage spike\", \"why is sentry bill high\", \"tracessamplerate 1\", \"inbound filters\". saas-packs read bash(sentry-cli info:*) bash(python3 \"${claude_skill_dir}/scripts/*\") "
     },
     {
       "type": "skill",
       "id": "sentry-rate-limits",
       "slug": "sentry-rate-limits",
       "name": "sentry-rate-limits",
-      "description": "Manage Sentry rate limits, quotas, and event volume optimization. Use when hitting 429 errors, tuning sampleRate/tracesSampleRate, filtering noisy browser errors with beforeSend, configuring inbound data filters, setting per-key rate limits, or monitoring quota usage via the Sentry stats API. Trigger: \"sentry rate limit\", \"sentry quota\", \"reduce sentry events\", \"sentry 429\", \"sentry spike protection\", \"sentry sampling\".",
+      "description": "Route the retired sentry-rate-limits skill to sentry-quota-leak-hunter, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-rate-limits. Trigger with \"sentry-rate-limits\" or \"/sentry-rate-limits\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Bash(python3:*)",
-        "Bash(pip:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-rate-limits manage sentry rate limits, quotas, and event volume optimization. use when hitting 429 errors, tuning samplerate/tracessamplerate, filtering noisy browser errors with beforesend, configuring inbound data filters, setting per-key rate limits, or monitoring quota usage via the sentry stats api. trigger: \"sentry rate limit\", \"sentry quota\", \"reduce sentry events\", \"sentry 429\", \"sentry spike protection\", \"sentry sampling\". saas-packs read write edit grep glob bash(curl:*) bash(node:*) bash(python3:*) bash(pip:*) "
+      "searchText": "sentry-rate-limits route the retired sentry-rate-limits skill to sentry-quota-leak-hunter, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-rate-limits. trigger with \"sentry-rate-limits\" or \"/sentry-rate-limits\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-reference-architecture",
       "slug": "sentry-reference-architecture",
       "name": "sentry-reference-architecture",
-      "description": "Design production-grade Sentry architecture for multi-service organizations. Use when planning Sentry rollout, structuring projects across teams, building shared config modules, or setting up distributed tracing. Trigger: \"sentry architecture\", \"sentry project structure\", \"sentry reference design\", \"sentry distributed tracing\".",
+      "description": "Detect calls to the cut sentry-reference-architecture skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-reference-architecture\" or \"/sentry-reference-architecture\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Glob",
-        "Grep"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-reference-architecture design production-grade sentry architecture for multi-service organizations. use when planning sentry rollout, structuring projects across teams, building shared config modules, or setting up distributed tracing. trigger: \"sentry architecture\", \"sentry project structure\", \"sentry reference design\", \"sentry distributed tracing\". saas-packs read write edit bash(npm:*) bash(npx:*) glob grep "
+      "searchText": "sentry-reference-architecture detect calls to the cut sentry-reference-architecture skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-reference-architecture\" or \"/sentry-reference-architecture\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-release-management",
       "slug": "sentry-release-management",
       "name": "sentry-release-management",
-      "description": "Manage Sentry releases with versioning, commit association, and source map uploads. Use when creating releases, linking commits to errors, uploading release artifacts, monitoring release health, or cleaning up old releases. Trigger with phrases like \"sentry release\", \"create sentry version\", \"sentry source maps\", \"sentry suspect commits\", \"release health\".",
+      "description": "Route the retired sentry-release-management skill to sentry-release-medic, which now owns this job (sentry-pack 2.0.0, disposition: Keep). Use when a saved prompt or workflow still names sentry-release-management. Trigger with \"sentry-release-management\" or \"/sentry-release-management\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(sentry-cli:*)",
-        "Bash(npx:*)",
-        "Bash(node:*)",
-        "Bash(git:*)",
-        "Grep"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-release-management manage sentry releases with versioning, commit association, and source map uploads. use when creating releases, linking commits to errors, uploading release artifacts, monitoring release health, or cleaning up old releases. trigger with phrases like \"sentry release\", \"create sentry version\", \"sentry source maps\", \"sentry suspect commits\", \"release health\". saas-packs read write edit bash(sentry-cli:*) bash(npx:*) bash(node:*) bash(git:*) grep "
+      "searchText": "sentry-release-management route the retired sentry-release-management skill to sentry-release-medic, which now owns this job (sentry-pack 2.0.0, disposition: keep). use when a saved prompt or workflow still names sentry-release-management. trigger with \"sentry-release-management\" or \"/sentry-release-management\". saas-packs read "
+    },
+    {
+      "type": "skill",
+      "id": "sentry-release-medic",
+      "slug": "sentry-release-medic",
+      "name": "sentry-release-medic",
+      "description": "Diagnose this Sentry deploy's artifacts, commits, and release health, and recommend the release, the upload, and the health read; does not create the release, upload maps, or record the deploy. Use when CI source maps fail, Debug IDs are missing, release health looks wrong, or GitHub Actions upload is broken. Trigger with \"sentry github actions\", \"sentry release health\", \"source map upload\", \"debugId missing\", \"sentry-cli releases\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Grep",
+        "Bash(sentry-cli info:*)",
+        "Bash(sentry-cli releases list:*)",
+        "Bash(python3 \"${CLAUDE_SKILL_DIR}/scripts/*\")",
+        "Bash(bash \"${CLAUDE_SKILL_DIR}/scripts/*\")"
+      ],
+      "compatibleWith": [],
+      "version": "2.0.0",
+      "parentPlugin": {
+        "name": "sentry-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "sentry-release-medic diagnose this sentry deploy's artifacts, commits, and release health, and recommend the release, the upload, and the health read; does not create the release, upload maps, or record the deploy. use when ci source maps fail, debug ids are missing, release health looks wrong, or github actions upload is broken. trigger with \"sentry github actions\", \"sentry release health\", \"source map upload\", \"debugid missing\", \"sentry-cli releases\". saas-packs read grep bash(sentry-cli info:*) bash(sentry-cli releases list:*) bash(python3 \"${claude_skill_dir}/scripts/*\") bash(bash \"${claude_skill_dir}/scripts/*\") "
     },
     {
       "type": "skill",
       "id": "sentry-reliability-patterns",
       "slug": "sentry-reliability-patterns",
       "name": "sentry-reliability-patterns",
-      "description": "Build reliable Sentry integrations with graceful degradation, circuit breakers, and offline queuing. Use when implementing fault-tolerant error tracking, handling SDK initialization failures, building retry logic for Sentry transports, or ensuring apps survive Sentry outages. Trigger with \"sentry reliability\", \"sentry circuit breaker\", \"sentry offline queue\", \"sentry graceful degradation\", \"sentry failover\", or \"resilient sentry setup\".",
+      "description": "Detect calls to the cut sentry-reliability-patterns skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-reliability-patterns\" or \"/sentry-reliability-patterns\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(node:*)",
-        "Bash(pip:*)",
-        "Bash(python*:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-reliability-patterns build reliable sentry integrations with graceful degradation, circuit breakers, and offline queuing. use when implementing fault-tolerant error tracking, handling sdk initialization failures, building retry logic for sentry transports, or ensuring apps survive sentry outages. trigger with \"sentry reliability\", \"sentry circuit breaker\", \"sentry offline queue\", \"sentry graceful degradation\", \"sentry failover\", or \"resilient sentry setup\". saas-packs read write edit grep bash(node:*) bash(pip:*) bash(python*:*) "
+      "searchText": "sentry-reliability-patterns detect calls to the cut sentry-reliability-patterns skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-reliability-patterns\" or \"/sentry-reliability-patterns\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-sdk-patterns",
       "slug": "sentry-sdk-patterns",
       "name": "sentry-sdk-patterns",
-      "description": "Best practices for using Sentry SDK in TypeScript and Python. Use when implementing structured error context with scopes, breadcrumb strategies, beforeSend/beforeBreadcrumb filtering, custom fingerprinting, user context, or performance span creation. Trigger: \"sentry best practices\", \"sentry patterns\", \"sentry sdk usage\", \"sentry scope\", \"sentry breadcrumbs\", \"sentry beforeSend\", \"sentry fingerprint\".",
+      "description": "Detect calls to the cut sentry-sdk-patterns skill and explain why it was cut (sentry-pack 2.0.0, disposition: Cut). Use when a saved prompt still names it. Trigger with \"sentry-sdk-patterns\" or \"/sentry-sdk-patterns\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-sdk-patterns best practices for using sentry sdk in typescript and python. use when implementing structured error context with scopes, breadcrumb strategies, beforesend/beforebreadcrumb filtering, custom fingerprinting, user context, or performance span creation. trigger: \"sentry best practices\", \"sentry patterns\", \"sentry sdk usage\", \"sentry scope\", \"sentry breadcrumbs\", \"sentry beforesend\", \"sentry fingerprint\". saas-packs read write edit grep "
+      "searchText": "sentry-sdk-patterns detect calls to the cut sentry-sdk-patterns skill and explain why it was cut (sentry-pack 2.0.0, disposition: cut). use when a saved prompt still names it. trigger with \"sentry-sdk-patterns\" or \"/sentry-sdk-patterns\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-security-basics",
       "slug": "sentry-security-basics",
       "name": "sentry-security-basics",
-      "description": "Configure Sentry security settings and data protection. Use when setting up PII scrubbing, managing sensitive data, configuring data scrubbing rules, or hardening Sentry for compliance. Trigger with phrases like \"sentry security\", \"sentry PII\", \"sentry data scrubbing\", \"secure sentry\", \"sentry GDPR\".",
+      "description": "Route the retired sentry-security-basics skill to sentry-pii-scrub-enforcer, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-security-basics. Trigger with \"sentry-security-basics\" or \"/sentry-security-basics\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Bash(grep:*)",
-        "Bash(curl:*)"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-security-basics configure sentry security settings and data protection. use when setting up pii scrubbing, managing sensitive data, configuring data scrubbing rules, or hardening sentry for compliance. trigger with phrases like \"sentry security\", \"sentry pii\", \"sentry data scrubbing\", \"secure sentry\", \"sentry gdpr\". saas-packs read write edit grep bash(grep:*) bash(curl:*) "
+      "searchText": "sentry-security-basics route the retired sentry-security-basics skill to sentry-pii-scrub-enforcer, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-security-basics. trigger with \"sentry-security-basics\" or \"/sentry-security-basics\". saas-packs read "
     },
     {
       "type": "skill",
       "id": "sentry-upgrade-migration",
       "slug": "sentry-upgrade-migration",
       "name": "sentry-upgrade-migration",
-      "description": "Upgrade Sentry SDK versions and migrate breaking API changes. Use when upgrading from Sentry v7 to v8, migrating Python SDK v1 to v2, replacing deprecated Hub/Transaction APIs, or running the migr8 codemod. Trigger: \"upgrade sentry\", \"sentry migration\", \"sentry breaking changes\", \"migrate sentry v7 to v8\", \"update sentry sdk\".",
+      "description": "Route the retired sentry-upgrade-migration skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: Merge). Use when a saved prompt or workflow still names sentry-upgrade-migration. Trigger with \"sentry-upgrade-migration\" or \"/sentry-upgrade-migration\".",
       "category": "saas-packs",
       "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(pip:*)",
-        "Bash(node:*)",
-        "Grep",
-        "Glob"
+        "Read"
       ],
       "compatibleWith": [],
-      "version": "1.51.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "sentry-pack",
         "category": "saas-packs"
       },
-      "searchText": "sentry-upgrade-migration upgrade sentry sdk versions and migrate breaking api changes. use when upgrading from sentry v7 to v8, migrating python sdk v1 to v2, replacing deprecated hub/transaction apis, or running the migr8 codemod. trigger: \"upgrade sentry\", \"sentry migration\", \"sentry breaking changes\", \"migrate sentry v7 to v8\", \"update sentry sdk\". saas-packs read write edit bash(npm:*) bash(npx:*) bash(pip:*) bash(node:*) grep glob "
+      "searchText": "sentry-upgrade-migration route the retired sentry-upgrade-migration skill to sentry-event-forensics, which now owns this job (sentry-pack 2.0.0, disposition: merge). use when a saved prompt or workflow still names sentry-upgrade-migration. trigger with \"sentry-upgrade-migration\" or \"/sentry-upgrade-migration\". saas-packs read "
     },
     {
       "type": "skill",

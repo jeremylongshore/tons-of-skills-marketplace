@@ -5398,7 +5398,7 @@
     {
       "name": "sentry-pack",
       "source": "./plugins/saas-packs/sentry-pack",
-      "description": "Sentry pack v2: five operational skills (quota leak, event forensics, release medic, issue triage, PII scrub) plus 30 v1 stub redirects. Read-only toward the Sentry API.",
+      "description": "Sentry pack v2: five advisory operational skills (quota leak, event forensics, release medic, issue triage, PII scrub) plus redirects for the 30 retired v1 skills. Recommends changes; never writes to Sentry.",
       "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [

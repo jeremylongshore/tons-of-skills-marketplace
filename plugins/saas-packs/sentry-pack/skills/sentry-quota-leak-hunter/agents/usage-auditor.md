@@ -1,11 +1,9 @@
 ---
 name: usage-auditor
-description: Audit Sentry org stats by category over a window and name which meter moved. Does not set sample rates and does not spawn per-category spend agents.
+description: "Audit Sentry org stats by category over a window and name which meter moved. Does not set sample rates and does not spawn per-category spend agents."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-quota-leak-hunter/scripts/*")'
 model: sonnet
 color: green
 version: 2.0.0

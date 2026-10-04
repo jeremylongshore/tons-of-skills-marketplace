@@ -3,6 +3,7 @@
 
 Does not call Sentry. Does not install an APM. If nothing matches, say so.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -30,7 +31,19 @@ def scan(root: Path) -> list[dict[str, str]]:
             continue
         if any(part in SKIP_DIRS for part in path.parts):
             continue
-        if path.suffix.lower() not in {".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".py", ".rb", ".go", ".java", ".kt"}:
+        if path.suffix.lower() not in {
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx",
+            ".mjs",
+            ".cjs",
+            ".py",
+            ".rb",
+            ".go",
+            ".java",
+            ".kt",
+        }:
             continue
         if path.stat().st_size > 1_000_000:
             continue

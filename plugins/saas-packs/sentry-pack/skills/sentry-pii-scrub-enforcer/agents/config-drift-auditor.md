@@ -1,11 +1,9 @@
 ---
 name: config-drift-auditor
-description: Diff projects against scrub/sample standard (SC03). Nested sentry-config-audit.
+description: "Diff projects against scrub/sample standard (SC03). Nested sentry-config-audit."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-pii-scrub-enforcer/scripts/*")'
 model: sonnet
 color: blue
 version: 2.0.0
@@ -21,7 +19,6 @@ background: false
 ## Role
 
 Fan out as project batches. Does not own inbound-filter matrix (triage `noise-classifier` does). For sample-rate rows (SC03 / CQ03 / CQ06), **Read** the labeled copy of quota's sampler reference at `agents/config-drift-auditor/references/sampler-rules/COPIED-FROM.md` — do not rewrite parent-sampling order.
-
 
 ## Nested checklists (not marketplace skills)
 

@@ -4,6 +4,7 @@
 Flags dirty projects only. Does not restate tracesSampler decision order.
 Does not apply settings. Read-only client; refuse_write on --apply.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -55,9 +56,11 @@ def _projects(payload: Any) -> list[dict[str, Any]]:
     for row in rows:
         if not isinstance(row, dict):
             raise SystemExit("each project must be an object")
-        settings = row.get("settings") if isinstance(row.get("settings"), dict) else {
-            k: v for k, v in row.items() if k not in {"slug", "project", "name"}
-        }
+        settings = (
+            row.get("settings")
+            if isinstance(row.get("settings"), dict)
+            else {k: v for k, v in row.items() if k not in {"slug", "project", "name"}}
+        )
         slug = str(row.get("slug") or row.get("project") or row.get("name") or "unknown")
         out.append({"slug": slug, "settings": settings})
     return out

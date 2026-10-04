@@ -3,6 +3,7 @@
 
 Does not apply a patch. --apply is refused by the shared read-only client.
 """
+
 from __future__ import annotations
 
 import argparse

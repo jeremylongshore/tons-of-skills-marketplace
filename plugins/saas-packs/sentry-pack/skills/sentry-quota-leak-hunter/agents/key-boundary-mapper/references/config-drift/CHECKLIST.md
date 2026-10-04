@@ -1,11 +1,5 @@
-> **LABELED COPY.** Not the owner. See `OWNER.md` and `COPIED-FROM.md`.
-> Owner agent: `sentry-pii-scrub-enforcer` → `config-drift-auditor`.
-> Canonical: `skills/sentry-pii-scrub-enforcer/agents/config-drift-auditor/skills/sentry-config-audit/CHECKLIST.md`.
-> Caller: `sentry-quota-leak-hunter` → `key-boundary-mapper`, when the fix is "projects drifted."
-> Do not rewrite parent-sampling order. Sampler order stays on `sampler-and-filters`.
-> Delete this copy when cross-skill agent calls work.
-
 ---
+
 name: sentry-config-audit
 description: |
   Diff projects against a written scrub standard. Dirty projects only.
@@ -15,6 +9,13 @@ license: MIT
 compatibility: Designed for Claude Code
 tags: [sentry, nested, saas, checklist]
 ---
+
+> **LABELED COPY.** Not the owner. See `OWNER.md` and `COPIED-FROM.md`.
+> Owner agent: `sentry-pii-scrub-enforcer` → `config-drift-auditor`.
+> Canonical: `skills/sentry-pii-scrub-enforcer/agents/config-drift-auditor/skills/sentry-config-audit/CHECKLIST.md`.
+> Caller: `sentry-quota-leak-hunter` → `key-boundary-mapper`, when the fix is "projects drifted."
+> Do not rewrite parent-sampling order. Sampler order stays on `sampler-and-filters`.
+> Delete this copy when cross-skill agent calls work.
 
 # sentry-config-audit
 

@@ -1,15 +1,16 @@
 ---
 name: sentry-pii-scrub-enforcer
 description: |
-  Recommends (does not apply) Sentry PII controls: stop personal data landing
-  (SDK hooks plus server scrub as a backstop), print a GDPR erasure plan and
-  stop, and show which projects drifted from the written scrub standard.
-  This skill never applies server scrub rules and never sends a delete.
-  Use for Sentry PII, scrub rules, sendDefaultPii, Replay unmask, project
-  scrub drift, or an explicit erasure request. Trigger with "sentry PII",
-  "scrub PII", "sentry GDPR", "sendDefaultPii", "project scrub drift",
-  "server scrub rules", "replay unmask".
-allowed-tools: Read, Glob, Grep, Bash(sentry-cli:*), Bash(jq:*), Bash(python3:*)
+  Audits Sentry PII exposure and recommends fixes without applying them: checks
+  SDK hook coverage (beforeSend and related hooks) backed by server scrub, prints
+  a GDPR erasure plan and stops, and reports which projects drifted from the
+  written scrub standard. Never applies server scrub rules and never sends a
+  delete. Use when reviewing Sentry PII handling, scrub rules, sendDefaultPii,
+  Replay unmask, project scrub drift, or an explicit erasure request.
+  Trigger with "sentry PII", "scrub PII", "sentry GDPR", "sendDefaultPii",
+  "project scrub drift", "server scrub rules", "replay unmask".
+allowed-tools: Read, Bash(python3 "${CLAUDE_SKILL_DIR}/scripts/*")
+argument-hint: "[paste: Sentry.init snippet | project settings JSON | event JSON | --org ORG_SLUG --user-id USER_ID]"
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
@@ -19,9 +20,9 @@ tags: [saas, sentry, pii, gdpr, compliance]
 
 # Sentry PII Scrub Enforcer
 
-**Recommends. Does not apply.** The slug says "enforcer"; the contract is
-advisory. A scrub review must not delete data, must not PUT project scrub
-settings, and must not echo `SENTRY_AUTH_TOKEN`.
+**Recommends. Does not apply.** This skill audits Sentry PII exposure and
+scrub coverage; it never deletes data, never writes project scrub settings,
+and never echoes `SENTRY_AUTH_TOKEN`.
 
 ## Overview
 
@@ -50,6 +51,17 @@ Sample-rate drift reads the labeled copy at
 - A written standard JSON for drift (see `references/project-standard.example.json`).
   Do not invent the org's standard from one clean project.
 - `python3`. Scripts call `scripts/lib/sentry_readonly.py`. No MCP. No write tool.
+
+## Authentication
+
+This skill is advisory by default and works entirely on pasted input —
+project settings JSON, event JSON, or `Sentry.init` snippets — with no token
+required.
+
+If a human later runs the read-only helper scripts against live settings, set
+`SENTRY_AUTH_TOKEN` in the environment. Minimum scopes: `project:read`,
+`org:read`. Never print or paste the token value; scope detail lives in
+`references/token-hygiene.md`.
 
 ## Instructions
 
@@ -119,7 +131,8 @@ Compare the numeric fields the script lists. Do not rewrite parent-sampling
 order (CQ03, CQ06, SC03).
 
 Live settings, when a token exists, go through `SentryReadOnlyClient.fetch_project_settings`.
-If the client is still a TODO, use the paste. Do not guess.
+Live read-only API fetch is a planned follow-up; this skill works on pasted
+settings JSON today. Do not guess.
 
 ### Step 5 — Erasure, only on an explicit ask
 
@@ -132,11 +145,11 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/print-gdpr-delete-request.py" \
   --org "$SENTRY_ORG" --user-id "$USER_ID"
 ```
 
-The script prints a plan and refuses the write. Help Center (2026-08-03):
-`DELETE /api/0/projects/{org}/{project}/users/{id}/` does not exist and does
-not erase data. `GET /api/0/projects/{org}/{project}/users/` is read-only.
-Deleting an issue deletes every event in it. Spans, logs, profiles, and
-feedback are not individually deletable. The script does not delete the
+The script prints a plan and refuses the write. Per Sentry's own documentation,
+`DELETE /api/0/projects/ORG_SLUG/PROJECT_SLUG/users/USER_ID/` does not exist
+and does not erase data. `GET /api/0/projects/ORG_SLUG/PROJECT_SLUG/users/` is
+read-only. Deleting an issue deletes every event in it. Spans, logs, profiles,
+and feedback are not individually deletable. The script does not delete the
 project. No GDPR auto-delete.
 
 ### Step 6 — Relay (PI07)
@@ -162,6 +175,23 @@ Token: not echoed
 Writes: none
 ```
 
+Every run returns this fixed report shape:
+
+1. **Contract** — states recommends-only, confirming no write occurred.
+2. **Mode** — `live` when a read-only token is set, `advisory` on pasted input.
+3. **Hooks** — presence or absence of each `beforeSend*` / `beforeBreadcrumb`
+   hook, per init surface (browser, server).
+4. **Scrub** — which fields the recommended function removes; confirms the
+   event is still returned.
+5. **Replay** — `not on`, or findings when Replay is enabled; notes that
+   `beforeSend` does not cover Replay unmask.
+6. **Drift** — dirty project slugs only, from `settings-diff.py`, or `none`.
+7. **Sample order** — always `not restated`; ownership stays with the quota
+   skill's sampler rules.
+8. **GDPR** — `not asked`, or the printed erasure plan with the write refused.
+9. **Token** — confirms `SENTRY_AUTH_TOKEN` was never echoed.
+10. **Writes** — always `none`.
+
 ## Error Handling
 
 | Error | Cause | Solution |
@@ -169,7 +199,7 @@ Writes: none
 | Hook returns null | Drops every event | Fail the recommendation. Hand to forensics. |
 | Token in output | Leak | Redact. Never print `SENTRY_AUTH_TOKEN` or `sntrys_`. |
 | Delete during scrub review | Over-help | Do not spawn `gdpr-deletion`. |
-| Fake user DELETE | Erasure scripts | Say that path does not erase (Help Center 2026-08-03). |
+| Fake user DELETE | Erasure scripts | Say that path does not erase, per Sentry's own documentation. |
 | Over-broad denylist | `*user*` / `*session*` | Keep release, transaction, request id (PI08). |
 | Self-hosted | Out of scope | Stop. |
 

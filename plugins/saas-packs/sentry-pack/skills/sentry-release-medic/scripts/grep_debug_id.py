@@ -7,6 +7,7 @@ A `.map` that contains `debug_id` does not count as the running bytes.
 
 Does not call the Sentry API. `--apply` is refused via sentry_readonly.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -24,13 +25,9 @@ JS_SUFFIXES = {".js", ".mjs", ".cjs", ".html", ".htm"}
 MAP_SUFFIXES = {".map"}
 SKIP_DIRS = {".git", "node_modules", ".next", "coverage"}
 
-HELP_CENTER = (
-    "https://www.sentry.help/en/articles/13965232-javascript-how-do-i-verify-debug-ids-for-source-maps"
-)
+HELP_CENTER = "https://www.sentry.help/en/articles/13965232-javascript-how-do-i-verify-debug-ids-for-source-maps"
 BLOG = "https://blog.sentry.io/how-to-fix-source-map-upload-errors/"
-ACTIONS_DOC = (
-    "https://docs.sentry.io/product/releases/setup/release-automation/github-actions/"
-)
+ACTIONS_DOC = "https://docs.sentry.io/product/releases/setup/release-automation/github-actions/"
 
 # Both claims stay. Do not delete one to "resolve" the conflict.
 CITATIONS = {
@@ -88,7 +85,9 @@ def scan(paths: list[Path]) -> dict:
         "js_debugId_hits": js_hits,
         "map_debug_id_hits": map_hits,
         "map_only_does_not_count": bool(map_hits) and not present,
-        "next_step": None if present else (
+        "next_step": None
+        if present
+        else (
             "debugId is absent in the built JS. Run `sentry-cli sourcemaps inject` "
             "or a current bundler plugin (>= 2.0.0) BEFORE upload, then deploy THOSE files. "
             "Do not upload maps for a different build than the one that will run."
@@ -119,12 +118,16 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         files.extend(_iter_files(path))
     if not files:
-        print(json.dumps({
-            "ok": False,
-            "verdict": "ABSENT",
-            "error": "no JS or source-map files under the given path",
-            "citations": CITATIONS,
-        }))
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "verdict": "ABSENT",
+                    "error": "no JS or source-map files under the given path",
+                    "citations": CITATIONS,
+                }
+            )
+        )
         return 2
     report = scan(files)
     if report.get("ok") is False:

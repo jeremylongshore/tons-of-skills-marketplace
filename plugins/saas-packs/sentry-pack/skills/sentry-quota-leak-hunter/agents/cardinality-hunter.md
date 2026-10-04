@@ -1,11 +1,8 @@
 ---
 name: cardinality-hunter
-description: Flag raw URL transaction names and span cardinality. Owns the one transaction-cardinality checklist. Does not rewrite parent sampling and does not cover performance-issue span fingerprints.
+description: "Flag raw URL transaction names and span cardinality. Owns the one transaction-cardinality checklist. Does not rewrite parent sampling and does not cover performance-issue span fingerprints."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: blue
 version: 2.0.0

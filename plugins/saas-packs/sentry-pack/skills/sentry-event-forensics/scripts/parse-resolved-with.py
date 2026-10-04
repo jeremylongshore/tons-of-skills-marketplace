@@ -7,6 +7,7 @@ Uploading maps later does not rewrite events already stored.
 
 Read-only. `--apply` is refused.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -55,18 +56,20 @@ def _walk_exception(values: Any, *, source: str, out: list[dict[str, Any]]) -> N
             for frame_i, frame in enumerate(_frames_from_stack(value.get(key))):
                 data = frame.get("data") if isinstance(frame.get("data"), dict) else {}
                 resolved = data.get("resolved_with")
-                out.append({
-                    "source": source,
-                    "exception_index": index,
-                    "stack": which,
-                    "frame_index": frame_i,
-                    "filename": frame.get("filename") or frame.get("abs_path"),
-                    "function": frame.get("function"),
-                    "abs_path": frame.get("abs_path"),
-                    "resolved_with": resolved,
-                    "resolved_with_known": resolved in KNOWN_RESOLVED_WITH if resolved else False,
-                    "in_app": frame.get("in_app"),
-                })
+                out.append(
+                    {
+                        "source": source,
+                        "exception_index": index,
+                        "stack": which,
+                        "frame_index": frame_i,
+                        "filename": frame.get("filename") or frame.get("abs_path"),
+                        "function": frame.get("function"),
+                        "abs_path": frame.get("abs_path"),
+                        "resolved_with": resolved,
+                        "resolved_with_known": resolved in KNOWN_RESOLVED_WITH if resolved else False,
+                        "in_app": frame.get("in_app"),
+                    }
+                )
 
 
 def collect_frames(event: dict[str, Any]) -> list[dict[str, Any]]:
@@ -84,18 +87,20 @@ def collect_frames(event: dict[str, Any]) -> list[dict[str, Any]]:
                 continue
             data = frame.get("data") if isinstance(frame.get("data"), dict) else {}
             resolved = frame.get("resolved_with", data.get("resolved_with"))
-            found.append({
-                "source": "fixture.frames",
-                "exception_index": 0,
-                "stack": "stacktrace",
-                "frame_index": frame_i,
-                "filename": frame.get("filename"),
-                "function": frame.get("function"),
-                "abs_path": frame.get("abs_path"),
-                "resolved_with": resolved,
-                "resolved_with_known": resolved in KNOWN_RESOLVED_WITH if resolved else False,
-                "in_app": frame.get("in_app"),
-            })
+            found.append(
+                {
+                    "source": "fixture.frames",
+                    "exception_index": 0,
+                    "stack": "stacktrace",
+                    "frame_index": frame_i,
+                    "filename": frame.get("filename"),
+                    "function": frame.get("function"),
+                    "abs_path": frame.get("abs_path"),
+                    "resolved_with": resolved,
+                    "resolved_with_known": resolved in KNOWN_RESOLVED_WITH if resolved else False,
+                    "in_app": frame.get("in_app"),
+                }
+            )
     return found
 
 
@@ -106,11 +111,13 @@ def debug_meta(event: dict[str, Any]) -> dict[str, Any]:
         for image in meta["images"]:
             if not isinstance(image, dict):
                 continue
-            images.append({
-                "type": image.get("type"),
-                "debug_id": image.get("debug_id"),
-                "code_file": image.get("code_file"),
-            })
+            images.append(
+                {
+                    "type": image.get("type"),
+                    "debug_id": image.get("debug_id"),
+                    "code_file": image.get("code_file"),
+                }
+            )
     return {
         "has_debug_meta": bool(images),
         "images": images,
@@ -155,11 +162,7 @@ def build(event: dict[str, Any], *, mode: str, maps_release: str | None) -> dict
         "sdk_release": sdk_release,
         "maps_release": maps_release,
         "release_mismatch": mismatch,
-        "handoff": (
-            "sentry-release-medic / sourcemap-uploader"
-            if mismatch
-            else None
-        ),
+        "handoff": ("sentry-release-medic / sourcemap-uploader" if mismatch else None),
         "handoff_note": (
             "Release id on the event differs from the release the maps were uploaded to. "
             "Do not invent a second upload procedure here. "
@@ -187,8 +190,7 @@ def build(event: dict[str, Any], *, mode: str, maps_release: str | None) -> dict
         ),
         "symbolication_scope": "javascript-debug-id-only",
         "native_note": (
-            "ProGuard, dSYM, and other native artifact types are named and unspecified. "
-            "Do not invent those steps."
+            "ProGuard, dSYM, and other native artifact types are named and unspecified. Do not invent those steps."
         ),
         "wrote": False,
     }
@@ -222,18 +224,20 @@ def main(argv: list[str] | None = None) -> int:
     else:
         try:
             if not args.event_id:
-                raise SentryReadOnlyError(
-                    "No event JSON. Pass --json. Do not guess an event id."
-                )
+                raise SentryReadOnlyError("No event JSON. Pass --json. Do not guess an event id.")
             event = client.fetch_event_json(args.event_id)
             mode = "live"
         except SentryReadOnlyError as exc:
-            print(json.dumps({
-                "ok": False,
-                "mode": "advisory",
-                "error": str(exc),
-                "hint": "Pass --json with the pasted event. Live fetch is not implemented.",
-            }))
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "mode": "advisory",
+                        "error": str(exc),
+                        "hint": "Pass --json with the pasted event. Live fetch is not implemented.",
+                    }
+                )
+            )
             return 2
 
     report = build(event, mode=mode, maps_release=args.maps_release)

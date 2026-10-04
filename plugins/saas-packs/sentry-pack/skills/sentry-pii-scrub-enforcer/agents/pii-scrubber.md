@@ -1,11 +1,9 @@
 ---
 name: pii-scrubber
-description: Client beforeSend scrub + server scrub rules.
+description: "Client beforeSend scrub + server scrub rules."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-pii-scrub-enforcer/scripts/*")'
 model: sonnet
 color: purple
 version: 2.0.0
@@ -21,7 +19,6 @@ background: false
 ## Role
 
 Scrub PII and still send. Null beforeSend is a defect.
-
 
 ## Nested checklists (not marketplace skills)
 

@@ -1,11 +1,8 @@
 ---
 name: sdk-migrator
-description: Planned SDK major upgrade or Rollbar/Bugsnag cutover. Off the default fan-out. Does not claim success without a test capture.
+description: "Planned SDK major upgrade or Rollbar/Bugsnag cutover. Off the default fan-out. Does not claim success without a test capture."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: cyan
 version: 2.0.0

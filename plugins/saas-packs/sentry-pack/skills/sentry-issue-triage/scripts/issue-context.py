@@ -4,6 +4,7 @@
 Reads pasted JSON or, when implemented, the shared read-only client.
 Does not invent timestamps, releases, or counts. Does not write.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -70,9 +71,7 @@ def severity(data: dict[str, Any]) -> dict[str, Any]:
 
     if status in {"resolved", "ignored"}:
         sev, why = "SEV-4", f"status is {status}; not an active page"
-    elif level == "fatal" or (level == "error" and users >= 100) or (
-        level == "error" and count >= 1000 and prod
-    ):
+    elif level == "fatal" or (level == "error" and users >= 100) or (level == "error" and count >= 1000 and prod):
         sev, why = "SEV-1", "fatal, or error with userCount>=100, or prod error with count>=1000"
     elif level == "error" or users >= 10 or count >= 100:
         sev, why = "SEV-2", "error, or userCount>=10, or count>=100"
@@ -95,9 +94,7 @@ def severity(data: dict[str, Any]) -> dict[str, Any]:
         "count": count,
         "environment": _environment(data),
         "suspect_release": release,
-        "suspect_release_note": None
-        if release
-        else "unknown — do not invent a release",
+        "suspect_release_note": None if release else "unknown — do not invent a release",
         "timeline_timestamps": timeline,
         "postmortem_times_rule": "use only timeline_timestamps; do not invent times",
         "filtered_plus_dropped": "do not sum; this script does not read stats",
@@ -126,7 +123,11 @@ def main() -> None:
     args = parser.parse_args()
     client = client_from_env()
     if args.apply:
-        client.refuse_write("issue status update")
+        try:
+            client.refuse_write("issue status update")
+        except SentryReadOnlyError as exc:
+            print(json.dumps({"ok": False, "wrote": False, "error": str(exc)}))
+            return 2
     data, mode = load_payload(args, client)
     out = severity(data)
     out["mode"] = "advisory" if client.advisory or mode == "advisory" else mode
@@ -136,4 +137,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

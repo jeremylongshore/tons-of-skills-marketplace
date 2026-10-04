@@ -1,11 +1,9 @@
 ---
 name: issue-investigator
-description: Classify severity, suspect release, triage checklist, postmortem skeleton. Does NOT own the inbound-filter matrix (that is noise-classifier).
+description: "Classify severity, suspect release, triage checklist, postmortem skeleton. Does NOT own the inbound-filter matrix (that is noise-classifier)."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-issue-triage/scripts/*")'
 model: sonnet
 color: red
 version: 2.0.0
@@ -21,7 +19,6 @@ background: false
 ## Role
 
 You triage one issue page. Fill severity and suspect context from the payload. Inbound-filter matrix (Ignore vs Discard, health-check globs) lives on **noise-classifier** — do not merge that into issue-triage-loop.
-
 
 ## Nested checklists (not marketplace skills)
 

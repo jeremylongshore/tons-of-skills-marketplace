@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/sentry-pack",
   "version": "2.0.0",
-  "description": "5 live-detection Sentry skills (quota-leak-hunter, event-forensics, release-medic, issue-triage, pii-scrub-enforcer). v2 rebuild draft scaffold — not published.",
+  "description": "Claude Code skill pack for Sentry: five advisory operational skills (quota leak hunter, event forensics, release medic, issue triage, PII scrub enforcer) plus redirects for the 30 retired v1 skills",
   "main": "README.md",
   "type": "module",
   "files": [
@@ -9,8 +9,8 @@
     "LICENSE",
     "CHANGELOG.md",
     ".claude-plugin/",
-    "hooks/",
     "skills/",
+    "scripts/",
     "000-docs/"
   ],
   "keywords": [
@@ -34,9 +34,11 @@
     "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/saas-packs/sentry-pack"
   },
+  "bugs": {
+    "url": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues"
+  },
   "homepage": "https://tonsofskills.com/learn/sentry/",
   "publishConfig": {
     "access": "public"
-  },
-  "private": true
+  }
 }

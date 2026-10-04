@@ -6,6 +6,7 @@ No write tools. Pasted JSON when no token is present.
 Used by the five parents' scripts. Revisit MCP only when this function
 list is boring enough to wrap (Absorb / pressure-test change 6).
 """
+
 from __future__ import annotations
 
 import json
@@ -32,31 +33,25 @@ class SentryReadOnlyClient:
         if pasted is not None:
             return self._parse_json(pasted, what="org stats usage")
         if self.advisory:
-            raise SentryReadOnlyError(
-                "No SENTRY_AUTH_TOKEN; pass pasted stats JSON for advisory mode"
-            )
-        # TODO: implement sentry-cli / REST read. Never POST/PUT/DELETE.
-        raise SentryReadOnlyError("TODO: live stats fetch not implemented in scaffold")
+            raise SentryReadOnlyError("No SENTRY_AUTH_TOKEN; pass pasted stats JSON for advisory mode")
+        # Live read-only fetch (sentry-cli or REST GET) is a planned follow-up. Never POST/PUT/DELETE.
+        raise SentryReadOnlyError("Live read-only stats fetch is not implemented yet; pass pasted JSON (advisory mode)")
 
     def fetch_event_json(self, event_id: str, *, pasted: str | None = None) -> dict[str, Any]:
         if pasted is not None:
             return self._parse_json(pasted, what="event")
         if self.advisory:
-            raise SentryReadOnlyError(
-                "No SENTRY_AUTH_TOKEN; pass pasted event JSON for advisory mode"
-            )
-        raise SentryReadOnlyError("TODO: live event fetch not implemented in scaffold")
+            raise SentryReadOnlyError("No SENTRY_AUTH_TOKEN; pass pasted event JSON for advisory mode")
+        raise SentryReadOnlyError("Live read-only event fetch is not implemented yet; pass pasted JSON (advisory mode)")
 
-    def fetch_project_settings(
-        self, project: str, *, pasted: str | None = None
-    ) -> dict[str, Any]:
+    def fetch_project_settings(self, project: str, *, pasted: str | None = None) -> dict[str, Any]:
         if pasted is not None:
             return self._parse_json(pasted, what="project settings")
         if self.advisory:
-            raise SentryReadOnlyError(
-                "No SENTRY_AUTH_TOKEN; pass pasted settings JSON for advisory mode"
-            )
-        raise SentryReadOnlyError("TODO: live settings fetch not implemented in scaffold")
+            raise SentryReadOnlyError("No SENTRY_AUTH_TOKEN; pass pasted settings JSON for advisory mode")
+        raise SentryReadOnlyError(
+            "Live read-only settings fetch is not implemented yet; pass pasted JSON (advisory mode)"
+        )
 
     @staticmethod
     def _parse_json(raw: str, *, what: str) -> dict[str, Any]:
@@ -71,8 +66,7 @@ class SentryReadOnlyClient:
     def refuse_write(self, action: str) -> None:
         """Explicit guard — skills recommend; they do not click."""
         raise SentryReadOnlyError(
-            f"read-only client refuses write action: {action}. "
-            "Print the request for the operator; do not send."
+            f"read-only client refuses write action: {action}. Print the request for the operator; do not send."
         )
 
 

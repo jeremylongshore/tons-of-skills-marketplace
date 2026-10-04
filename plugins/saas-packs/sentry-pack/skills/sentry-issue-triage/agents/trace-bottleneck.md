@@ -1,11 +1,8 @@
 ---
 name: trace-bottleneck
-description: Find span/transaction bottlenecks; load shared transaction-cardinality from quota (do not fork).
+description: "Find span/transaction bottlenecks; load shared transaction-cardinality from quota (do not fork)."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: orange
 version: 2.0.0
@@ -21,7 +18,6 @@ background: false
 ## Role
 
 You identify bottleneck spans. List transaction-cardinality; do not reimplement. Owner path is under sentry-quota-leak-hunter.
-
 
 ## Nested checklists (not marketplace skills)
 

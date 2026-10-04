@@ -1,11 +1,9 @@
 ---
 name: sourcemap-debugger
-description: Interpret debug_meta and data.resolved_with for JavaScript. Hands release-id mismatches to the labeled ci-sourcemap-upload copy. Does not upload and does not claim a backfill.
+description: "Interpret debug_meta and data.resolved_with for JavaScript. Hands release-id mismatches to the labeled ci-sourcemap-upload copy. Does not upload and does not claim a backfill."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-event-forensics/scripts/*")'
 model: sonnet
 color: purple
 version: 2.0.0

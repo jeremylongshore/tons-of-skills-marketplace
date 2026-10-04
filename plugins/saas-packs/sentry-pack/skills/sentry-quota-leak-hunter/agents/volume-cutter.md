@@ -1,11 +1,8 @@
 ---
 name: volume-cutter
-description: Propose a tracesSampler, a named beforeSend drop, an inbound filter, or a key minute ceiling. Only when the user asked to cut volume. Recommends; does not apply.
+description: "Propose a tracesSampler, a named beforeSend drop, an inbound filter, or a key minute ceiling. Only when the user asked to cut volume. Recommends; does not apply."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: orange
 version: 2.0.0

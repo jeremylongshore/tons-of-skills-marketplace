@@ -1,14 +1,16 @@
 ---
 name: sentry-release-medic
 description: |
-  Medic for this Sentry deploy's artifacts, commits, and release health.
-  Recommends the release, the upload, and the health read; does not create
+  Diagnose this Sentry deploy's artifacts, commits, and release health, and
+  recommend the release, the upload, and the health read; does not create
   the release, upload maps, or record the deploy. Use when CI source maps
   fail, Debug IDs are missing, release health looks wrong, or GitHub Actions
   upload is broken.
   Trigger with "sentry github actions", "sentry release health",
   "source map upload", "debugId missing", "sentry-cli releases".
-allowed-tools: Read, Glob, Grep, Bash(sentry-cli:*), Bash(jq:*), Bash(python3:*)
+allowed-tools: Read, Grep, Bash(sentry-cli info:*), Bash(sentry-cli releases list:*), Bash(python3 "${CLAUDE_SKILL_DIR}/scripts/*"), Bash(bash "${CLAUDE_SKILL_DIR}/scripts/*")
+argument-hint: "[pasted sentry-cli output, CI workflow file, or session query JSON]"
+model: inherit
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
@@ -18,12 +20,12 @@ tags: [saas, sentry, release, ci, sourcemaps]
 
 # Sentry Release Medic
 
-This deploy's artifacts, commits, and release health. The bytes that will run
-must be the bytes that were injected, then uploaded, then deployed. The
-source of truth for "was it injected" is a `debugId` grep of the built file,
-not a URL.
+Diagnose this deploy's artifacts, commits, and release health: the bytes
+that run must be the bytes that were injected, uploaded, then deployed.
+Treat a `debugId` grep of the built file, not a URL, as the source of truth
+for "was it injected."
 
-You recommend. You do not call `sentry-cli releases` write commands, the
+Recommend the fix. Do not call `sentry-cli releases` write commands, the
 release-create API, or the upload API.
 
 ## Overview
@@ -45,6 +47,19 @@ JavaScript Debug IDs only. Do not extend the grep into ProGuard or dSYM.
   file. Do not guess an org slug or invent a release name.
 - `python3` for `scripts/grep_debug_id.py` and `scripts/assess-session-stats.py`.
   `scripts/grep-debug-id.sh` is the same grep.
+
+## Authentication
+
+Advisory mode needs no token: it reads pasted CI output, workflow files, or
+session query JSON. No command in this skill reads or requires a secret.
+
+If a human later runs read-only commands against the Sentry API, that
+command needs `SENTRY_AUTH_TOKEN` set in the shell environment with at
+minimum the `project:releases` and `org:read` scopes (see
+`references/ci-token-scopes.md`). Verify the scopes with `sentry-cli info`,
+which reports the authenticated org and token scopes without printing the
+token value. Never print or paste the token value in chat, logs, or this
+skill's output.
 
 ## Instructions
 
@@ -113,8 +128,8 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/assess-session-stats.py" \
   --json sessions-query.json
 ```
 
-`health_fine` is true only when `api_read` is true, the query is one project
-+ one environment + one release, the shape is not the 90-day group-by-release
+`health_fine` is true only when `api_read` is true, the query is one project,
+one environment and one release, the shape is not the 90-day group-by-release
 cap, and `session.duration` is not requested. Session duration stopped
 2023-01-12. The cap is 10,000 datapoints; 90 days grouped by release is at
 most `floor(10000/91) = 109` releases. A truncated series is a false pass.
@@ -137,15 +152,20 @@ Uploading maps does not rewrite events already stored.
 
 ## Output
 
+Return one advisory report, every line populated from the current deploy's
+actual evidence (grep result, pasted JSON, workflow file) — never from
+memory of a past session. Omit no line; state "not recorded" or "none"
+rather than dropping a line that has no finding.
+
 ```
 Mode: advisory | live
-Release id (one): <sdk == cli> or MISMATCH <sdk> vs <maps>
+Release id (one): SDK_RELEASE == CLI_RELEASE, or MISMATCH: SDK_RELEASE vs MAPS_RELEASE
 Debug ID grep: PRESENT | ABSENT
 Citations: help center + blog (both)
-Missing step: <inject | upload | fetch-depth | project | none>
-Deploy environment: <name or "not recorded">
-Health: not fine | fine (<why the script said so>)
-Session duration: discontinued 2023-01-12 if anyone asked
+Missing step: inject | upload | fetch-depth | project | none
+Deploy environment: ENV_NAME or "not recorded"
+Health: not fine | fine (state why the script said so)
+Session duration: discontinued 2023-01-12  # fixed historical date, not a staleness claim
 Wrote to Sentry: no
 ```
 

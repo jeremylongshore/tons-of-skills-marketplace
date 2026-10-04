@@ -1,11 +1,9 @@
 ---
 name: log-correlator
-description: Correlate a Sentry event id to structured logs / APM line.
+description: "Correlate a Sentry event id to structured logs / APM line."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-issue-triage/scripts/*")'
 model: sonnet
 color: blue
 version: 2.0.0
@@ -21,7 +19,6 @@ background: false
 ## Role
 
 Return the log query that includes the event id, or say the codebase never writes it. Datadog tour is reference only.
-
 
 ## Nested checklists (not marketplace skills)
 

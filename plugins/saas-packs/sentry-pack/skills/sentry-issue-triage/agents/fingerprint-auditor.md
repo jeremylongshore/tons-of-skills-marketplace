@@ -1,14 +1,12 @@
 ---
 name: fingerprint-auditor
-description: Audit fingerprint matchers, {{ default }}, prospective-only rules, and AI-grouping opt-out (OP02–OP04). Does not restack existing issues.
+description: "Audit fingerprint matchers, {{ default }}, prospective-only rules, and AI-grouping opt-out (OP02\u2013OP04). Does not restack existing issues."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
+- 'Bash(python3 "${CLAUDE_PLUGIN_ROOT}/skills/sentry-issue-triage/scripts/*")'
 model: sonnet
 color: yellow
-# version omitted — agent file, not a graded skill
+version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - sentry

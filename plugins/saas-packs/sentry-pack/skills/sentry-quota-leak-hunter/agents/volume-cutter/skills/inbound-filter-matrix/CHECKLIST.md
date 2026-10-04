@@ -1,11 +1,5 @@
-> **LABELED COPY.** Not the owner. See `OWNER.md` and `COPIED-FROM.md` in this directory.
-> Owner agent: `sentry-issue-triage` → `noise-classifier`.
-> Canonical: `skills/sentry-issue-triage/agents/noise-classifier/skills/inbound-filter-matrix/CHECKLIST.md`.
-> Caller: `sentry-quota-leak-hunter` → `volume-cutter`.
-> Body below is the owner checklist as of this sync. Delete this copy when cross-skill agent calls are proven.
-> Do not edit this into a second matrix. If it drifts, the canonical file wins.
-
 ---
+
 name: inbound-filter-matrix
 description: |
   Canonical inbound-filter matrix (OP05–OP07). Owner is noise-classifier.
@@ -15,6 +9,13 @@ license: MIT
 compatibility: Designed for Claude Code
 tags: [sentry, nested, saas, checklist]
 ---
+
+> **LABELED COPY.** Not the owner. See `OWNER.md` and `COPIED-FROM.md` in this directory.
+> Owner agent: `sentry-issue-triage` → `noise-classifier`.
+> Canonical: `skills/sentry-issue-triage/agents/noise-classifier/skills/inbound-filter-matrix/CHECKLIST.md`.
+> Caller: `sentry-quota-leak-hunter` → `volume-cutter`.
+> Body below is the owner checklist as of this sync. Delete this copy when cross-skill agent calls are proven.
+> Do not edit this into a second matrix. If it drifts, the canonical file wins.
 
 # inbound-filter-matrix
 

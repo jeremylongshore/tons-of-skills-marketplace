@@ -4,6 +4,7 @@
 debug-bundler must not print sntrys_ tokens or SENTRY_AUTH_TOKEN values.
 DSN host may remain; the raw auth token may not. Read-only.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -64,16 +65,26 @@ def main(argv: list[str] | None = None) -> int:
     else:
         raw = sys.stdin.read()
     cleaned, counts = redact(raw)
-    if "sntrys_" in cleaned:
-        print(json.dumps({"ok": False, "error": "redaction failed; sntrys_ still present"}))
+    leftovers = [
+        name
+        for name, rx in (("sntrys_", SNTRYS), ("SENTRY_AUTH_TOKEN", AUTH_ASSIGN), ("Bearer", BEARER))
+        if rx.search(cleaned) and not all(m.group(0).endswith("[REDACTED]") for m in rx.finditer(cleaned))
+    ]
+    if leftovers:
+        print(json.dumps({"ok": False, "error": f"redaction failed; still present: {leftovers}"}))
         return 2
-    print(json.dumps({
-        "ok": True,
-        "wrote": False,
-        "redactions": counts,
-        "contains_sntrys": False,
-        "text": cleaned,
-    }, indent=2))
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "wrote": False,
+                "redactions": counts,
+                "contains_sntrys": False,
+                "text": cleaned,
+            },
+            indent=2,
+        )
+    )
     return 0
 
 

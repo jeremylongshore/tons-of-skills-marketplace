@@ -1,14 +1,11 @@
 ---
 name: noise-classifier
-description: Own the inbound-filter matrix (OP05–OP07): health-check globs, Ignore vs Discard, Ignore still bills, Discard plan-gated and prospective. Cross-skill callers use labeled copies until calls are proven.
+description: "Own the inbound-filter matrix (OP05\u2013OP07): health-check globs, Ignore vs Discard, Ignore still bills, Discard plan-gated and prospective. Cross-skill callers use labeled copies until calls are proven."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: orange
-# version omitted — agent file, not a graded skill
+version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - sentry

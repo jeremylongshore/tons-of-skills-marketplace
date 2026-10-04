@@ -1,14 +1,11 @@
 ---
 name: replay-privacy
-description: Session Replay privacy / unmask checklist (PI06). Spawn only when Replay is on. beforeSend does not cover Replay unmask. Quota may call this owner via labeled copy; it does not own the checklist.
+description: "Session Replay privacy / unmask checklist (PI06). Spawn only when Replay is on. beforeSend does not cover Replay unmask. Quota may call this owner via labeled copy; it does not own the checklist."
 tools:
-- Read
-- Bash(sentry-cli:*)
-- Bash(jq:*)
-- Bash(python3:*)
+- 'Read'
 model: sonnet
 color: red
-# version omitted — agent file, not a graded skill
+version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
 - sentry

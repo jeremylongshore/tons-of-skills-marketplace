@@ -1,36 +1,32 @@
 # Changelog — sentry-pack
 
-All notable changes to this pack. Format loosely follows [Keep a Changelog](https://keepachangelog.com/);
+All notable changes to this pack. Format follows [Keep a Changelog](https://keepachangelog.com/);
 versioning is SemVer on the `sentry-pack` marketplace slug.
 
-## [Unreleased] — 2.0.0
-
-### Added
-
-- Draft scaffold for the v2 rebuild: five top-level skills
-  (`sentry-quota-leak-hunter`, `sentry-event-forensics`, `sentry-release-medic`,
-  `sentry-issue-triage`, `sentry-pii-scrub-enforcer`) with agent trees, nested
-  child skills under agents, eval-spec stubs, and docs stubs.
-- Pack-level `000-docs/` (research + CTO ADR copy) and migration map pointer
-  (kill list §3).
-- Empty/minimal `hooks/hooks.json` — hooks are not default (ADR Decision 4).
+## [2.0.0]
 
 ### Changed
 
-- Ground-up rebuild vs v1's 30 documentation skills (Cut 14 / Merge 11 / Keep 5).
-  See README **Migration: v1 → v2** and `phase0-kill-list.md` §3.
+- Rebuilt the pack around five operational jobs instead of 30 SDK tutorials:
+  `sentry-quota-leak-hunter`, `sentry-event-forensics`, `sentry-release-medic`,
+  `sentry-issue-triage` and `sentry-pii-scrub-enforcer`.
+- All five skills are advisory: they work on pasted configuration, stats and event JSON (or
+  `sentry-cli` output) and recommend changes. Live read-only API fetch is a planned follow-up.
 
-### Notes
+### Added
 
-- Status: landed on `feat/plugins-saas-packs-sentry-v2` as **2.0.0** (strict semver; `2.0.0-draft` fails catalog version agreement). Not tagged. npm package stays `private` until a follow-up publish decision.
-- Locked decisions: `000-docs/008-AT-ADEC-sentry-v2-cto-decision.md`.
+- Per-skill agents whose procedures are `CHECKLIST.md` files, so they are not listed as separate
+  marketplace skills.
+- Bundled helper scripts with a shared module, `scripts/lib/sentry_readonly.py`. Scripts print to
+  stdout, make no network calls, write no files, and refuse `--apply` / `--send`.
+- `000-docs/`: the v1 → v2 migration map (`phase0-kill-list.md`) and the rebuild decision record.
 
-## 2.0.0-draft (Absorb / MODIFY) — 2026-10-03
+### Deprecated
 
-- Nested agent checklists renamed `SKILL.md` → `CHECKLIST.md` (marketplace corpus safety).
-- Amended tree: fingerprint-auditor, noise-classifier, perf-span-auditor, replay-privacy; SC04 on org-key-boundaries; quota category fan-out = script + usage-auditor.
-- Mandatory labeled reference copies (`OWNER.md` / `COPIED-FROM.md`) until cross-skill calls proven.
-- Eval negatives from pressure test 009; PII description recommends / does not apply.
-- Thin v1 stub redirects for Keep/Merge/Cut slugs; plugin.json v2 framing.
-- Shared `scripts/lib/sentry_readonly.py` (no MCP).
-- Absorb ADR: `000-docs/010-AT-ADEC-sentry-v2-modify-absorb.md`.
+- All 30 v1 skill names now resolve to short redirects that name the replacement skill or explain
+  the cut (Keep 5 · Merge 11 · Cut 14). The redirects are removed in a later release.
+
+### Security
+
+- Each skill's `allowed-tools` is limited to its own bundled scripts and read-only tooling, so the
+  advisory-only design is enforced by the permission boundary, not only by instructions.
