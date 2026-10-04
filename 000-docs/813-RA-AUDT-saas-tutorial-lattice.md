@@ -15,17 +15,17 @@ A matching skill name proves structural repetition only. It does **not** prove t
 | Measure | Count |
 | --- | ---: |
 | Active SaaS packs | 103 |
-| Active skills | 2283 |
+| Active skills | 2288 |
 | Tutorial-lattice candidates | 2132 |
 | Packs containing candidates | 97 |
 | Packs entirely inside the lattice | 82 |
-| Packs at least 80% inside the lattice | 91 |
+| Packs at least 80% inside the lattice | 90 |
 | Packs with no lattice candidates | 6 |
 | Candidates admitted by explicit prefix aliases | 78 |
 | Suffix-only names excluded by prefix policy | 1 |
 
-- Catalog SHA-256: `f6ad825084e2823eae32c2a9cd921d1a4b86472eb3dd1f822eb080a051124c05`
-- Tracked inventory SHA-256: `3eab6abed54eb895964bd94b90054a74a19b0ddf764977a334bbe8998e2c0f45`
+- Catalog SHA-256: `7c54f4d127b6b3d3044c786a55ac1c74d59e2f098f1ed957469a65083f9d518c`
+- Tracked inventory SHA-256: `badf5b77f1743a08483d7a62ffd4092e6701a9dc07692d36a72ce9244ac4dec8`
 
 The earlier 2,011-candidate census used 24 base families and literal pack-name stems. This version expands the family set with `advanced-troubleshooting`, `architecture-variants`, `known-pitfalls`, `load-scale`, `policy-guardrails`, and `reliability-patterns`, then applies versioned exact aliases for `anthropic-pack`, `claude-pack`, and `langchain-py-pack`. The current generated counts above are authoritative. Suffix-only near-matches such as `langchain-otel-observability` and the explicitly recorded content-specific Customer.io workflows remain excluded.
 
@@ -165,10 +165,10 @@ Beads is the completion authority. Search direct children before creation, selec
 | 86 | `supabase-pack` | 28 | 30 | 93.33% | A | 94 |
 | 87 | `oraclecloud-pack` | 24 | 26 | 92.31% | A | 91 |
 | 88 | `navan-pack` | 24 | 26 | 92.31% | A | 97 |
-| 89 | `sentry-pack` | 27 | 30 | 90.00% | A | 91 |
-| 90 | `customerio-pack` | 21 | 24 | 87.50% | A | 90 |
-| 91 | `coreweave-pack` | 20 | 23 | 86.96% | A | 91 |
-| 92 | `shopify-pack` | 30 | 38 | 78.95% | A | 93 |
+| 89 | `customerio-pack` | 21 | 24 | 87.50% | A | 90 |
+| 90 | `coreweave-pack` | 20 | 23 | 86.96% | A | 91 |
+| 91 | `shopify-pack` | 30 | 38 | 78.95% | A | 93 |
+| 92 | `sentry-pack` | 27 | 35 | 77.14% | A | 91 |
 | 93 | `langchain-py-pack` | 18 | 33 | 54.55% | A | 92 |
 | 94 | `guidewire-pack` | 5 | 10 | 50.00% | A | 96 |
 | 95 | `klingai-pack` | 12 | 30 | 40.00% | A | 97 |

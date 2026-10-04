@@ -1,7 +1,7 @@
 {
   "name": "sentry-pack",
-  "version": "1.51.0",
-  "description": "Claude Code skill pack for Sentry (30 skills)",
+  "version": "2.0.0",
+  "description": "Sentry pack v2: five advisory operational skills (quota-leak-hunter, event-forensics, release-medic, issue-triage, pii-scrub-enforcer) that work on pasted config, stats and event JSON and recommend changes, plus redirects for the 30 retired v1 skills. No hooks, no MCP server.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -11,6 +11,8 @@
     "sentry",
     "error-tracking",
     "monitoring",
+    "performance",
+    "observability",
     "saas",
     "sdk",
     "integration"

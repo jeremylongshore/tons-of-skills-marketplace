@@ -1,14 +1,16 @@
 {
   "name": "@intentsolutionsio/sentry-pack",
-  "version": "1.0.4",
-  "description": "Claude Code skill pack for Sentry - 30 skills covering error tracking, performance monitoring, release management, and production operations",
+  "version": "2.0.0",
+  "description": "Claude Code skill pack for Sentry: five advisory operational skills (quota leak hunter, event forensics, release medic, issue triage, PII scrub enforcer) plus redirects for the 30 retired v1 skills",
   "main": "README.md",
   "type": "module",
   "files": [
     "README.md",
     "LICENSE",
+    "CHANGELOG.md",
     ".claude-plugin/",
     "skills/",
+    "scripts/",
     "000-docs/"
   ],
   "keywords": [

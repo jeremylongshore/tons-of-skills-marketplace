@@ -1,0 +1,11 @@
+{
+  "api_read": false,
+  "query": {
+    "statsPeriod": "24h",
+    "interval": "1h",
+    "project": "web",
+    "environment": "production",
+    "release": "frontend@1.4.2",
+    "fields": ["crash_free_rate(session)"]
+  }
+}

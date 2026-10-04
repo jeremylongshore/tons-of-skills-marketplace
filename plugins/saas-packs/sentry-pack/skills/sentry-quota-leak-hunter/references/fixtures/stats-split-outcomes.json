@@ -1,0 +1,33 @@
+{
+  "org": "acme",
+  "window": "30d",
+  "categories": {
+    "error": {
+      "accepted": 1200,
+      "filtered": 400,
+      "dropped": 50
+    },
+    "span": {
+      "accepted": 900000,
+      "filtered": 10,
+      "dropped": 0,
+      "rate_limited": 12000
+    },
+    "replay": {
+      "accepted": 0,
+      "filtered": 0,
+      "dropped": 0
+    },
+    "log_item": {
+      "accepted": 50000,
+      "filtered": 0,
+      "dropped": 0
+    },
+    "profile": {
+      "accepted": 800,
+      "filtered": 0,
+      "dropped": 0
+    }
+  },
+  "third_party_per_event_usd": 0.0001
+}

@@ -1,0 +1,10 @@
+{
+  "api_read": true,
+  "groups_returned": 109,
+  "query": {
+    "statsPeriod": "90d",
+    "interval": "1d",
+    "groupBy": ["release"],
+    "fields": ["crash_free_rate(session)", "session.duration"]
+  }
+}

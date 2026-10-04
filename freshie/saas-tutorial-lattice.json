@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "f6ad825084e2823eae32c2a9cd921d1a4b86472eb3dd1f822eb080a051124c05",
+    "catalog_sha256": "7c54f4d127b6b3d3044c786a55ac1c74d59e2f098f1ed957469a65083f9d518c",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "be51518e5db184e7828ff23b375a39043a038645504041513b49693c436a48a6",
-    "tracked_inventory_sha256": "3eab6abed54eb895964bd94b90054a74a19b0ddf764977a334bbe8998e2c0f45"
+    "tracked_inventory_sha256": "badf5b77f1743a08483d7a62ffd4092e6701a9dc07692d36a72ce9244ac4dec8"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -66,11 +66,11 @@
   ],
   "summary": {
     "active_saas_packs": 103,
-    "active_skills": 2283,
+    "active_skills": 2288,
     "tutorial_lattice_skills": 2132,
     "affected_packs": 97,
     "fully_lattice_packs": 82,
-    "at_least_80_percent_lattice_packs": 91,
+    "at_least_80_percent_lattice_packs": 90,
     "unaffected_packs": 6,
     "prefix_mismatch_skills": 1,
     "prefix_override_candidate_skills": 78
@@ -1188,18 +1188,6 @@
     },
     {
       "rank": 89,
-      "pack": "sentry-pack",
-      "candidate_skills": 27,
-      "skill_count": 30,
-      "candidate_basis_points": 9000,
-      "verification_grade": "A",
-      "verification_score": 91,
-      "pack_inventory_sha256": "ff1b1b0d18bbc0643a1706957c0e8f772c50d2678122a90e14eda8299b9f151d",
-      "candidate_set_sha256": "d42da920a84825bd596272c46f9e427687e3d35ef3d5a115ba1151e4f27a3b77",
-      "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
-    },
-    {
-      "rank": 90,
       "pack": "customerio-pack",
       "candidate_skills": 21,
       "skill_count": 24,
@@ -1211,7 +1199,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 91,
+      "rank": 90,
       "pack": "coreweave-pack",
       "candidate_skills": 20,
       "skill_count": 23,
@@ -1223,7 +1211,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 92,
+      "rank": 91,
       "pack": "shopify-pack",
       "candidate_skills": 30,
       "skill_count": 38,
@@ -1232,6 +1220,18 @@
       "verification_score": 93,
       "pack_inventory_sha256": "b6e59f34901ed5706295ec13062706851fa5578407d20921081b1e419ba4e430",
       "candidate_set_sha256": "7f726e6b515bea99486e9d49c0bf8027ad32449b45f4279c88f7ff8fd91e2190",
+      "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
+    },
+    {
+      "rank": 92,
+      "pack": "sentry-pack",
+      "candidate_skills": 27,
+      "skill_count": 35,
+      "candidate_basis_points": 7714,
+      "verification_grade": "A",
+      "verification_score": 91,
+      "pack_inventory_sha256": "d4b25c3dbb836e310b0b4a778abae623eb4b6edc9dc9cd9973c9d054bb60565a",
+      "candidate_set_sha256": "cd1a0a2ead6086a3969bd7bc1176e56c39478992664a62ccd93ba71656f73b2f",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
@@ -32158,14 +32158,14 @@
     {
       "name": "sentry-pack",
       "source": "plugins/saas-packs/sentry-pack",
-      "version": "1.51.0",
+      "version": "2.0.0",
       "verification": {
         "grade": "A",
         "score": 91
       },
       "npm_candidate": {
         "name": "@intentsolutionsio/sentry-pack",
-        "version": "1.0.4",
+        "version": "2.0.0",
         "private": false,
         "files_include_skills": true,
         "live_registry_check": "REQUIRED_BEFORE_MUTATION"
@@ -32174,12 +32174,12 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "ff1b1b0d18bbc0643a1706957c0e8f772c50d2678122a90e14eda8299b9f151d",
-      "candidate_set_sha256": "d42da920a84825bd596272c46f9e427687e3d35ef3d5a115ba1151e4f27a3b77",
-      "skill_count": 30,
-      "catalog_declared_skill_count": 30,
+      "pack_inventory_sha256": "d4b25c3dbb836e310b0b4a778abae623eb4b6edc9dc9cd9973c9d054bb60565a",
+      "candidate_set_sha256": "cd1a0a2ead6086a3969bd7bc1176e56c39478992664a62ccd93ba71656f73b2f",
+      "skill_count": 35,
+      "catalog_declared_skill_count": 35,
       "tutorial_lattice_count": 27,
-      "tutorial_lattice_basis_points": 9000,
+      "tutorial_lattice_basis_points": 7714,
       "curated_skill_count": 30,
       "candidate_curated_count": 27,
       "candidate_skills": [
@@ -32592,8 +32592,13 @@
       "prefix_mismatch_skills": [],
       "non_lattice_skills": [
         "sentry-error-capture",
+        "sentry-event-forensics",
+        "sentry-issue-triage",
         "sentry-performance-tracing",
-        "sentry-release-management"
+        "sentry-pii-scrub-enforcer",
+        "sentry-quota-leak-hunter",
+        "sentry-release-management",
+        "sentry-release-medic"
       ],
       "required_blast_radius_checks": [
         "catalog",

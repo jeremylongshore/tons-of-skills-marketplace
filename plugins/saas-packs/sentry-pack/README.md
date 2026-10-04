@@ -1,6 +1,12 @@
 # Sentry Skill Pack
 
-Complete Sentry integration for Claude Code — 30 skills covering SDK v8, error tracking, performance monitoring, source maps, release management, distributed tracing, and production operations.
+**v2.0.0**: five operational skills for running Sentry in production. Version 1 was a 30-skill
+tutorial curriculum organized around SDK features; version 2 is organized around the jobs
+operators actually bring to Sentry.
+
+All five skills are **advisory**: they work on configuration, stats and event JSON you paste in
+(or `sentry-cli` output), and they recommend changes. They do not change your Sentry
+organization. Live read-only API fetch is a planned follow-up.
 
 ## Installation
 
@@ -8,83 +14,48 @@ Complete Sentry integration for Claude Code — 30 skills covering SDK v8, error
 /plugin install sentry-pack@claude-code-plugins-plus
 ```
 
-## What This Pack Does
+## The five skills
 
-Every skill contains real Sentry code: actual `Sentry.init()` configurations, real API endpoints (`sentry.io/api/0/`), real SDK patterns (`captureException`, `startSpan`, `withScope`), real CLI commands (`sentry-cli releases`, `sourcemaps upload`), and real error tables with causes and fixes. No placeholders.
+| Skill | Use it to |
+|-------|-----------|
+| `sentry-quota-leak-hunter` | Find which meter moved and which lever fixes it (sampling, filters, cardinality) before buying more quota |
+| `sentry-event-forensics` | Explain why an event, sourcemap or trace did not show up, layer by layer |
+| `sentry-release-medic` | Repair a release: CI sourcemap upload, finalize, deploy markers and release health |
+| `sentry-issue-triage` | Triage a page: severity, suspect release, slow span and the correlated log line |
+| `sentry-pii-scrub-enforcer` | Check PII scrubbing and project-standard drift; recommends changes, never applies them |
 
-## Skills (30)
+Each skill ships bundled helper scripts (shared code in `scripts/lib/sentry_readonly.py`). They read
+input and print to stdout. They make no network calls, write no files, and refuse `--apply` and
+`--send`. Each skill's `allowed-tools` is limited to its own scripts and read-only tooling.
 
-### Onboarding (6)
+## Migrating from v1
 
-| Skill | What it does |
-|-------|-------------|
-| `sentry-install-auth` | SDK v8 install, DSN config, `instrument.mjs` setup, ESM `--import` flag |
-| `sentry-hello-world` | First error capture, `captureException`, user context, breadcrumbs, dashboard verification |
-| `sentry-local-dev-loop` | Dev-optimized init, Sentry Spotlight, conditional DSN, offline mode |
-| `sentry-sdk-patterns` | Centralized error handler module, Express/React error boundaries, async patterns, testing mocks |
-| `sentry-error-capture` | `captureException`, `withScope`, `beforeSend`, custom fingerprinting, `ignoreErrors` |
-| `sentry-performance-tracing` | `startSpan`, `startSpanManual`, distributed tracing, custom measurements, `tracesSampler` |
+Every v1 skill name still resolves to a short redirect that tells you where its job went, so saved
+prompts keep working. The redirects are removed in a later release.
 
-### Operations (6)
+| v1 skill(s) | v2 skill |
+|-------------|----------|
+| `sentry-cost-tuning` (Keep) · `sentry-load-scale` · `sentry-performance-tuning` · `sentry-rate-limits` | `sentry-quota-leak-hunter` |
+| `sentry-advanced-troubleshooting` (Keep) · `sentry-debug-bundle` · `sentry-migration-deep-dive` · `sentry-upgrade-migration` | `sentry-event-forensics` |
+| `sentry-release-management` (Keep) · `sentry-ci-integration` · `sentry-deploy-integration` | `sentry-release-medic` |
+| `sentry-incident-runbook` (Keep) · `sentry-observability` | `sentry-issue-triage` |
+| `sentry-data-handling` (Keep) · `sentry-policy-guardrails` · `sentry-security-basics` | `sentry-pii-scrub-enforcer` |
+| `sentry-architecture-variants` · `sentry-common-errors` · `sentry-enterprise-rbac` · `sentry-error-capture` · `sentry-hello-world` · `sentry-install-auth` · `sentry-known-pitfalls` · `sentry-local-dev-loop` · `sentry-multi-env-setup` · `sentry-performance-tracing` · `sentry-prod-checklist` · `sentry-reference-architecture` · `sentry-reliability-patterns` · `sentry-sdk-patterns` | Cut: no direct replacement (the redirect explains why) |
 
-| Skill | What it does |
-|-------|-------------|
-| `sentry-common-errors` | 8 diagnosed problems: missing events, `beforeSend` bugs, source maps, ESM, 429s, duplicates |
-| `sentry-debug-bundle` | Diagnostic report script, network tests, source map explain, health check endpoint |
-| `sentry-rate-limits` | `sampleRate`, `tracesSampler`, `ignoreErrors`, `denyUrls`, inbound filters, spike protection |
-| `sentry-security-basics` | `sendDefaultPii: false`, `beforeSend` scrubbing, token scopes, allowed domains, audit logging |
-| `sentry-prod-checklist` | 30-item checklist: security, source maps, alerting, performance, release management |
-| `sentry-upgrade-migration` | v7-to-v8 migration: `@sentry/migr8`, integration functions, Hub removal, ESM, `startSpan` |
+Full map with reasons: [`000-docs/phase0-kill-list.md`](000-docs/phase0-kill-list.md).
 
-### CI/CD (6)
+## How the pack is organized
 
-| Skill | What it does |
-|-------|-------------|
-| `sentry-ci-integration` | GitHub Actions workflow, GitLab CI, `getsentry/action-release`, webpack/vite plugins |
-| `sentry-deploy-integration` | `sentry-cli releases deploys`, release health, multi-env tracking, rollback recording |
-| `sentry-release-management` | `releases new/finalize`, `set-commits --auto`, `sourcemaps upload --validate`, deploy API |
-| `sentry-performance-tuning` | `tracesSampler`, parameterized names, Web Vitals, profiling, SDK overhead measurement |
-| `sentry-cost-tuning` | Billing category audit, `ignoreErrors`, `denyUrls`, `beforeSend`, inbound filters, spend alerts |
-| `sentry-reference-architecture` | One-project-per-service pattern, shared config package, alert hierarchy, ownership rules |
+- Each skill keeps its agents under `skills/<skill>/agents/`. Agent procedures are
+  `CHECKLIST.md` files (not `SKILL.md`), so they are not listed as separate marketplace skills.
+- Where two skills need the same reference, it is a labeled copy (`OWNER.md` names the owning
+  skill, `COPIED-FROM.md` names the source) rather than a silent duplicate.
+- The pack ships no hooks and no MCP server.
 
-### Enterprise (6)
+## Design records
 
-| Skill | What it does |
-|-------|-------------|
-| `sentry-multi-env-setup` | Environment-specific configs, separate DSNs, env-filtered alerts, CI/CD env tagging |
-| `sentry-observability` | OpenTelemetry bridge, Winston integration, request ID correlation, custom metrics, PagerDuty/Slack |
-| `sentry-incident-runbook` | P0-P3 severity, triage checklist, API investigation, communication templates, postmortem |
-| `sentry-data-handling` | PII scrubbing (client + server), GDPR erasure, advanced regex rules, SOC 2/HIPAA patterns |
-| `sentry-enterprise-rbac` | Org/team roles, SAML SSO, SCIM provisioning, token scopes, audit log API |
-| `sentry-migration-deep-dive` | Rollbar/Bugsnag-to-Sentry mapping, parallel run, alert migration, old SDK removal |
-
-### Advanced (6)
-
-| Skill | What it does |
-|-------|-------------|
-| `sentry-advanced-troubleshooting` | Transport debugging, systematic event diagnosis, `sourcemaps explain`, memory profiling |
-| `sentry-load-scale` | Adaptive sampling, tiered transaction rates, graceful shutdown, multi-region tags, cost modeling |
-| `sentry-reliability-patterns` | Circuit breaker, offline queue, dual-write, fallback logging, health check endpoint |
-| `sentry-policy-guardrails` | Shared config package, mandatory scrubbing, project naming, CI enforcement, token rotation |
-| `sentry-architecture-variants` | Monolith/microservices/serverless/Next.js/multi-tenant/worker patterns with real configs |
-| `sentry-known-pitfalls` | 12 pitfalls: late init, string captures, `beforeSend` void, scope leaks, URL prefix mismatch |
-
-## SDK Coverage
-
-- `@sentry/node` v8 — Node.js backend
-- `@sentry/browser` — Frontend/SPA
-- `@sentry/react`, `@sentry/nextjs`, `@sentry/vue` — Framework SDKs
-- `@sentry/aws-serverless`, `@sentry/google-cloud-serverless` — Serverless
-- `@sentry/profiling-node` — Continuous profiling
-- `@sentry/cli` — Release management, source maps, deploys
-- Sentry REST API (`sentry.io/api/0/`) — Issues, releases, stats, teams
-
-## Resources
-
-- [Sentry Documentation](https://docs.sentry.io)
-- [Sentry Dashboard](https://sentry.io)
-- [SDK v7 to v8 Migration](https://docs.sentry.io/platforms/javascript/migration/v7-to-v8/)
-- [Sentry Status](https://status.sentry.io)
+- [`000-docs/000-INDEX.md`](000-docs/000-INDEX.md)
+- [`000-docs/001-AT-ADEC-sentry-v2-rebuild-decisions.md`](000-docs/001-AT-ADEC-sentry-v2-rebuild-decisions.md)
 
 ## License
 

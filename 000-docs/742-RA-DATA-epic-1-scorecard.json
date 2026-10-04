@@ -22,13 +22,13 @@
       "error_files": 279,
       "error_total": 2800,
       "grade_distribution": {
-        "A": 2875,
-        "B": 326,
+        "A": 2890,
+        "B": 316,
         "C": 132,
         "D": 154,
         "F": 4
       },
-      "rows": 3491
+      "rows": 3496
     }
   },
   "rows": {
@@ -41,8 +41,8 @@
       "target_status": "informational",
       "unpersisted_values": ["tracked_files"],
       "values": {
-        "plugin_agent_files": 352,
-        "raw_tracked_plugin_skill_files": 2991
+        "plugin_agent_files": 373,
+        "raw_tracked_plugin_skill_files": 2996
       }
     },
     "2": {
@@ -80,28 +80,28 @@
       "values": {
         "agent_lane": {
           "error_total_all_validated_surfaces": 236,
-          "fully_compliant_surfaces": 769,
+          "fully_compliant_surfaces": 790,
           "terminal_denominator": {
-            "agents": 363,
-            "files": 951,
+            "agents": 384,
+            "files": 972,
             "label": "agents_plus_plugin_manifests",
             "plugin_manifests": 588
           },
-          "validator_reported_mixed_denominator_percent": 80.9
+          "validator_reported_mixed_denominator_percent": 81.3
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3037,
-          "fully_compliant_surfaces": 2074,
+          "fully_compliant_surfaces": 2099,
           "terminal_denominator": {
-            "agents": 363,
+            "agents": 384,
             "commands": 370,
-            "files": 4812,
+            "files": 4838,
             "label": "skills_plus_commands_plus_agents_plus_plugin_manifests",
             "plugin_manifests": 588,
-            "skills": 3491
+            "skills": 3496
           },
           "validated_plugin_manifests": 595,
-          "validator_reported_mixed_denominator_percent": 43.1
+          "validator_reported_mixed_denominator_percent": 43.4
         },
         "skill_rows": {
           "a_error_total": 25,
@@ -112,13 +112,13 @@
           "error_files": 279,
           "error_total": 2800,
           "grade_distribution": {
-            "A": 2875,
-            "B": 326,
+            "A": 2890,
+            "B": 316,
             "C": 132,
             "D": 154,
             "F": 4
           },
-          "rows": 3491
+          "rows": 3496
         }
       }
     },
@@ -131,20 +131,20 @@
       "values": {
         "average_score": 91.8,
         "grade_distribution": {
-          "A": 2875,
-          "B": 326,
+          "A": 2890,
+          "B": 316,
           "C": 132,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 82.4,
-          "B": 9.3,
+          "A": 82.7,
+          "B": 9,
           "C": 3.8,
           "D": 4.4,
           "F": 0.1
         },
-        "rows": 3491
+        "rows": 3496
       }
     },
     "6": {
@@ -161,7 +161,7 @@
         "b_error_total": 147,
         "b_failing": 14,
         "certified_target": 0,
-        "skill_summary_rows": 3491
+        "skill_summary_rows": 3496
       }
     },
     "7": {
@@ -211,8 +211,8 @@
       "status": "partial",
       "values": {
         "agent_errors": 236,
-        "agent_files": 363,
-        "reported_compliance_percent": 80.9,
+        "agent_files": 384,
+        "reported_compliance_percent": 81.3,
         "target_errors": 0,
         "target_percent_max": 100
       }
@@ -270,12 +270,12 @@
       ],
       "status": "partial",
       "values": {
-        "declared": 3480,
+        "declared": 3485,
         "folded_scalar": 5,
         "malformed_frontmatter": 0,
         "malformed_shape": 0,
         "missing": 11,
-        "rows": 3491,
+        "rows": 3496,
         "target_malformed": 0
       }
     },
@@ -391,7 +391,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2231,
+            "count": 2236,
             "value": "Designed for Claude Code"
           },
           {
@@ -2398,15 +2398,15 @@
           },
           {
             "cohort": "first-party",
-            "value": 2646
+            "value": 2651
           },
           {
             "cohort": "graded",
-            "value": 3491
+            "value": 3496
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2900
+            "value": 2905
           }
         ],
         "distinct_numeric_answers": 5,
@@ -3362,7 +3362,11 @@
         "plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/eval-spec.yaml",
         "plugins/saas-packs/grammarly-pack/skills/grammarly-license-governor/eval-spec.yaml",
         "plugins/saas-packs/hubspot-pack/skills/hubspot-warehouse-sync/eval-spec.yaml",
-        "plugins/saas-packs/sentry-pack/skills/sentry-data-handling/eval-spec.yaml",
+        "plugins/saas-packs/sentry-pack/skills/sentry-event-forensics/eval-spec.yaml",
+        "plugins/saas-packs/sentry-pack/skills/sentry-issue-triage/eval-spec.yaml",
+        "plugins/saas-packs/sentry-pack/skills/sentry-pii-scrub-enforcer/eval-spec.yaml",
+        "plugins/saas-packs/sentry-pack/skills/sentry-quota-leak-hunter/eval-spec.yaml",
+        "plugins/saas-packs/sentry-pack/skills/sentry-release-medic/eval-spec.yaml",
         "plugins/saas-packs/snowflake-pack/skills/snowflake-access-guardian/eval-spec.yaml",
         "plugins/saas-packs/snowflake-pack/skills/snowflake-cost-leak-hunter/eval-spec.yaml",
         "plugins/saas-packs/snowflake-pack/skills/snowflake-data-quality-sentinel/eval-spec.yaml",
@@ -3413,11 +3417,11 @@
       ],
       "status": "measured",
       "values": {
-        "adoption_percent": 1.07,
+        "adoption_percent": 1.2,
         "curated_copies": 32,
-        "plugin_skill_rows": 2991,
-        "source_eval_specs": 32,
-        "tracked_eval_specs": 64
+        "plugin_skill_rows": 2996,
+        "source_eval_specs": 36,
+        "tracked_eval_specs": 68
       }
     },
     "58": {

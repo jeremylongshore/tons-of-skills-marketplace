@@ -54,7 +54,11 @@ cfdbcbf984d1d4353bcf89d910e258fd4cbeb57fffca94db7fcc827a128f6fa6  plugins/saas-p
 2016b189ab62d8c8b464bd2682d2f7d2ec609a0b79ff8da82fd35c966f7833b1  plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/eval-spec.yaml
 aec1ccbc2020a4a52670a8ee090dbb20c6a2d9b1bcfb6a92ae5fd76d1b74f051  plugins/saas-packs/grammarly-pack/skills/grammarly-license-governor/eval-spec.yaml
 7312747954bc4618385908f57a7dd08f7b11fa27ca762cb840e00f8fa800161d  plugins/saas-packs/hubspot-pack/skills/hubspot-warehouse-sync/eval-spec.yaml
-d543f74906821a7fa80ba90dc80d3b6ff7fbdc81078ab0a9d75e45e965b3a5d3  plugins/saas-packs/sentry-pack/skills/sentry-data-handling/eval-spec.yaml
+e9aa0f8c80274fdd45dda78765a864a23c9fa604f9e7a0232e28ec48f3763920  plugins/saas-packs/sentry-pack/skills/sentry-event-forensics/eval-spec.yaml
+fa1a6b6b08994230ef87ebdd91681202700348545c31a72f5d351f33c22805cc  plugins/saas-packs/sentry-pack/skills/sentry-issue-triage/eval-spec.yaml
+ce83c564ebfbe05c78b8b64b38bf7e241f07586bc80e87c5a1193c7f992c12aa  plugins/saas-packs/sentry-pack/skills/sentry-pii-scrub-enforcer/eval-spec.yaml
+ea79a63fa7249fc62ae74c425fdfeaccfd611352e24076752ae607c4256c3b33  plugins/saas-packs/sentry-pack/skills/sentry-quota-leak-hunter/eval-spec.yaml
+4774d7d9dadad4053ec9424dbef979fbae074204d6eadec66ff9705961d054d2  plugins/saas-packs/sentry-pack/skills/sentry-release-medic/eval-spec.yaml
 bcf6cd151df5eabc437ea58a67057fa5e3d24bf8bbcd7b969339f5824bfa00b7  plugins/saas-packs/snowflake-pack/skills/snowflake-access-guardian/eval-spec.yaml
 99e59d269093eeac93932332ceb407ba5d4bcd6b4f32eae060fa0ab07e306756  plugins/saas-packs/snowflake-pack/skills/snowflake-cost-leak-hunter/eval-spec.yaml
 40cb7643acd6e678d63bdcb5cdcc2bd8ff4372efe2e838ad0a3f992617179a05  plugins/saas-packs/snowflake-pack/skills/snowflake-data-quality-sentinel/eval-spec.yaml
