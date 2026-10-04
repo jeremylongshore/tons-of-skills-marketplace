@@ -5,9 +5,10 @@
   "type": "module",
   "main": "./dist/servers/design-converter.js",
   "scripts": {
-    "build": "tsc",
+    "build": "node scripts/build.mjs",
     "test": "vitest --passWithNoTests",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:ci": "pnpm build && git diff --exit-code -- dist/servers/design-converter.js && vitest run --passWithNoTests"
   },
   "keywords": [
     "mcp",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "esbuild": "0.28.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.7"
   }

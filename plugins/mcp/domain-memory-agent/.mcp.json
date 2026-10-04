@@ -2,7 +2,9 @@
   "mcpServers": {
     "knowledge-base": {
       "command": "node",
-      "args": ["dist/servers/knowledge-base.js"]
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/dist/servers/knowledge-base.js"
+      ]
     }
   }
 }
