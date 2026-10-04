@@ -11500,8 +11500,9 @@
       "name": "uizze",
       "source": "./plugins/design/uizze",
       "description": "STOP UI SLOP. Ground Claude Code in 800,000+ real web and iOS screens, a product-specific design contract, required states, and a hard finish gate.",
-      "version": "1.2.11",
+      "version": "1.3.1",
       "category": "design",
+      "publication": "quarantined",
       "keywords": [
         "ui",
         "design",
@@ -11516,13 +11517,7 @@
       },
       "homepage": "https://uizze.com",
       "repository": "https://github.com/uizze/uizze",
-      "license": "MIT",
-      "verification": {
-        "score": 89,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
-      }
+      "license": "MIT AND Apache-2.0"
     },
     {
       "name": "general-legal-assistant",

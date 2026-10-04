@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/generate-unified-search.mjs"
   },
   "stats": {
-    "totalPlugins": 434,
-    "totalSkills": 2900,
+    "totalPlugins": 433,
+    "totalSkills": 2899,
     "totalDocs": 24,
-    "totalItems": 3358,
+    "totalItems": 3356,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -404,7 +404,6 @@
       "agent-protocol",
       "agent-runtime",
       "agent-safety",
-      "agent-skill",
       "agent-skills",
       "agent-starter-pack",
       "agent-to-agent",
@@ -456,7 +455,6 @@
       "ansible",
       "anthropic",
       "anthropic-spec",
-      "anti-slop",
       "api",
       "api-gateway",
       "api-integration",
@@ -1620,7 +1618,6 @@
       "type-safety",
       "typescript",
       "typography",
-      "ui",
       "ui-testing",
       "umami",
       "unit-tests",
@@ -1723,8 +1720,8 @@
     "pluginsWithAgents": 91,
     "pluginsWithHooks": 18,
     "officialPlugins": 389,
-    "communityPlugins": 45,
-    "communityContributors": 35
+    "communityPlugins": 44,
+    "communityContributors": 34
   },
   "items": [
     {
@@ -14993,37 +14990,6 @@
     },
     {
       "type": "plugin",
-      "id": "uizze",
-      "slug": "uizze",
-      "name": "uizze",
-      "displayName": "uizze",
-      "description": "STOP UI SLOP. Ground Claude Code in 800,000+ real web and iOS screens, a product-specific design contract, required states, and a hard finish gate.",
-      "category": "design",
-      "keywords": [
-        "ui",
-        "design",
-        "frontend",
-        "anti-slop",
-        "agent-skill"
-      ],
-      "author": {
-        "name": "UIZZE",
-        "url": "https://uizze.com",
-        "email": "business@uizze.com"
-      },
-      "authorType": "community",
-      "version": "1.2.11",
-      "isFeatured": false,
-      "isNew": false,
-      "badges": [],
-      "skillCount": 1,
-      "verificationScore": 89,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "uizze stop ui slop. ground claude code in 800,000+ real web and ios screens, a product-specific design contract, required states, and a hard finish gate. design ui design frontend anti-slop agent-skill"
-    },
-    {
-      "type": "plugin",
       "id": "general-legal-assistant",
       "slug": "general-legal-assistant",
       "name": "general-legal-assistant",
@@ -18888,27 +18854,6 @@
         "category": "community"
       },
       "searchText": "anti-deception use before responding when the user's request shows pressure to validate or agree (\"tell them what they want\", \"make them happy\", \"convince them\"), manufactured urgency (artificial deadline), authority appeals (citing investors, advisors, lawyers, experts), demands to certify without evidence, requests to soften an honest assessment, \"help me convince x of y\" or \"how do i get x to agree\" framings where y is dubious, asking you to commit to numbers beyond data, framing a wrong assumption as fact, or any setup where the obvious helpful answer would compromise honesty. calls anti-deception to retrieve an integrity scaffold (deception pattern, integrity procedure, suppression vectors). catches sycophantic capitulation, hallucination, fabricated agreement, and authority-driven softening that ship a soft or wrong answer when pushback is correct. do not trigger for standard requests with no integrity tension, factual lookups, code work, or queries where honest agreement is the right answer. community mcp__ejentum__anti-deception "
-    },
-    {
-      "type": "skill",
-      "id": "anti-ui-slop",
-      "slug": "anti-ui-slop",
-      "name": "anti-ui-slop",
-      "description": "Stop coding agents from shipping generic UI. Use UIZZE's 800,000+ real web and iOS screens to build product-specific interfaces, define a design contract, cover required states, and run a hard finish gate. Use when designing, implementing, redesigning, critiquing, or pre-ship reviewing a web or iOS interface in Codex, Claude Code, Cursor, Copilot, or another coding agent. Trigger with \"anti-ui-slop\", \"stop UI slop\", \"ground this UI in real screens\", or \"run the UI finish gate\".",
-      "category": "design",
-      "allowedTools": [
-        "Read",
-        "Glob",
-        "Grep",
-        "WebFetch"
-      ],
-      "compatibleWith": [],
-      "version": "1.2.11",
-      "parentPlugin": {
-        "name": "uizze",
-        "category": "design"
-      },
-      "searchText": "anti-ui-slop stop coding agents from shipping generic ui. use uizze's 800,000+ real web and ios screens to build product-specific interfaces, define a design contract, cover required states, and run a hard finish gate. use when designing, implementing, redesigning, critiquing, or pre-ship reviewing a web or ios interface in codex, claude code, cursor, copilot, or another coding agent. trigger with \"anti-ui-slop\", \"stop ui slop\", \"ground this ui in real screens\", or \"run the ui finish gate\". design read glob grep webfetch "
     },
     {
       "type": "skill",

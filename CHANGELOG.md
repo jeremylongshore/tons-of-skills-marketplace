@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-10-04
+
+### Fixed
+
+- Implement the existing P5/G1 legal-provenance quarantine contract for general
+  source publication dispositions. Explicit artifact `gate: G1` carries real
+  contained evidence into the normal ledger, with source/reason association,
+  while retaining empty publication channels and public-surface exclusion.
+- Preserve G0 security precedence, exact scanner finding/reason coverage and
+  stale-declaration rejection. Reject unknown gates, unsafe or nonregular
+  evidence, empty reasons and contradictory or stale machine associations.
+- Retain the frozen UIZZE v1.3.1 mirror and declare its unknown original iOS
+  revision as a G1 hold, not a security finding or copyleft claim. The marketplace
+  gate remains 82/100, exit 1: four top-level metadata errors, five body-section
+  errors and ten warnings. No upstream acceptance, legal resolution or promotion
+  is implied.
+
 ## 2026-10-01
 
 ### Changed

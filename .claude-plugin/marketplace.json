@@ -8323,28 +8323,6 @@
       "license": "MIT"
     },
     {
-      "name": "uizze",
-      "source": "./plugins/design/uizze",
-      "description": "STOP UI SLOP. Ground Claude Code in 800,000+ real web and iOS screens, a product-specific design contract, required states, and a hard finish gate.",
-      "version": "1.2.11",
-      "category": "design",
-      "keywords": [
-        "ui",
-        "design",
-        "frontend",
-        "anti-slop",
-        "agent-skill"
-      ],
-      "author": {
-        "name": "UIZZE",
-        "url": "https://uizze.com",
-        "email": "business@uizze.com"
-      },
-      "homepage": "https://uizze.com",
-      "repository": "https://github.com/uizze/uizze",
-      "license": "MIT"
-    },
-    {
       "name": "general-legal-assistant",
       "source": "./plugins/business-tools/general-legal-assistant",
       "description": "AI-powered contract review, risk analysis, document generation, and compliance auditing with 12 skills and 5 parallel agents",

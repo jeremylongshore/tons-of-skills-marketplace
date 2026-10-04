@@ -15,10 +15,12 @@
 #   source_path / target_path  Where the plugin lives upstream vs. where we mirror it into plugins/.
 #   author / license / category  Attribution and catalog placement (credit is always preserved).
 #   include / exclude          Glob lists selecting which files the mirror copies.
-#   publication_disposition    Optional fail-closed publication quarantine. The only accepted
-#                              shape is status: quarantined + channels: []; artifacts name the
-#                              exact governed findings. The mirror remains for provenance and
-#                              upstream repair, but sync must not add it to the install catalog.
+#   publication_disposition    Fail-closed quarantine: status: quarantined, channels: [], and
+#                              a nonempty rationale. Each artifact names a real mirror-contained
+#                              evidence file and reason_codes. Omitted gate means G0: exact live
+#                              scanner findings. Explicit gate: G1 declares a legal/provenance
+#                              hold, derived into the normal ledger after G0 and before quality.
+#                              Neither kind grants publication or resolves its underlying issue.
 #
 # Two flags drive the mirror-vs-curate contract — they are ORTHOGONAL:
 #   verified: true   A maintainer vetted this source's quality and trust.
@@ -1213,15 +1215,24 @@ sources:
   - name: uizze
     description: STOP UI SLOP. Ground Claude Code in 800,000+ real web and iOS screens, a product-specific design contract, required states, and a hard finish gate.
     repo: uizze/uizze
+    branch: v1.3.1
     source_path: plugins/claude-directory
     target_path: plugins/design/uizze
     author:
       name: UIZZE
       github: samuelbushi
       email: business@uizze.com
-    license: MIT
+    license: MIT AND Apache-2.0
     category: design
     verified: false
+    publication_disposition:
+      status: quarantined
+      channels: []
+      artifacts:
+        - path: plugins/design/uizze/skills/anti-ui-slop/MANIFEST.json
+          gate: G1
+          reason_codes: [INCOMPLETE_ORIGINAL_SOURCE_PROVENANCE]
+      rationale: The selected v1.3.1 source tag resolves to 4a0224f578f65a87f328e9c533b3d8bf1023c1f7. Wrapper files are MIT; the design bundle is Apache-2.0 with retained third-party MIT notices. Its original ehmo iOS content revision remains unknown. Keep zero publication channels pending owner review of complete file-level licensing and immutable provenance, retained tool scope, and the generated mirror and lock.
     keywords:
       - ui-design
       - frontend
@@ -1230,6 +1241,7 @@ sources:
       - anti-slop
     include:
       - '/.claude-plugin/plugin.json'
+      - '/.mcp.json'
       - '/skills/anti-ui-slop/**'
       - '/README.md'
       - '/LICENSE'

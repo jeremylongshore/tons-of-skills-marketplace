@@ -7447,12 +7447,35 @@
       "path": "plugins/design/uizze/skills/anti-ui-slop/SKILL.md",
       "grade": "B",
       "score": 89,
-      "diagnostics": [],
+      "diagnostics": [
+        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
+        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
+        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
+        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
+        "[body] Required section missing: '## Resources' (or an equivalent heading: ## References, ## See also, ## Links, ## Further reading, ## Related, ## Additional resources) (marketplace tier)",
+        "[frontmatter] Missing required field: 'author' (marketplace)",
+        "[frontmatter] Missing required field: 'compatibility' (marketplace)",
+        "[frontmatter] Missing required field: 'tags' (marketplace)",
+        "[frontmatter] Missing required field: 'version' (marketplace)"
+      ],
       "disposition": "QUARANTINE",
       "gate": "G1",
       "reason_codes": [
+        "INCOMPLETE_ORIGINAL_SOURCE_PROVENANCE",
         "SOURCE_COMMIT_UNPINNED"
-      ]
+      ],
+      "source_hold": {
+        "source": "uizze",
+        "rationale": "The selected v1.3.1 source tag resolves to 4a0224f578f65a87f328e9c533b3d8bf1023c1f7. Wrapper files are MIT; the design bundle is Apache-2.0 with retained third-party MIT notices. Its original ehmo iOS content revision remains unknown. Keep zero publication channels pending owner review of complete file-level licensing and immutable provenance, retained tool scope, and the generated mirror and lock.",
+        "artifacts": [
+          {
+            "path": "plugins/design/uizze/skills/anti-ui-slop/MANIFEST.json",
+            "reason_codes": [
+              "INCOMPLETE_ORIGINAL_SOURCE_PROVENANCE"
+            ]
+          }
+        ]
+      }
     },
     {
       "path": "plugins/devops/ansible-playbook-creator/skills/creating-ansible-playbooks/SKILL.md",

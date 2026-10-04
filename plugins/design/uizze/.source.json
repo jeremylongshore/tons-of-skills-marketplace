@@ -1,22 +1,38 @@
 {
   "synced_from": {
     "repo": "uizze/uizze",
-    "path": ".",
-    "branch": "main"
+    "path": "plugins/claude-directory",
+    "branch": "v1.3.1"
   },
-  "last_sync": "2026-08-18T20:49:08.098Z",
+  "last_sync": "2026-10-04T00:46:09.132Z",
   "author": {
     "name": "UIZZE",
     "github": "samuelbushi",
     "email": "business@uizze.com"
   },
-  "license": "MIT",
-  "files_synced": 5,
+  "license": "MIT AND Apache-2.0",
+  "files_synced": 21,
   "files": [
-    ".claude-plugin/marketplace.json",
     ".claude-plugin/plugin.json",
+    ".mcp.json",
     "LICENSE",
     "README.md",
-    "skills/anti-ui-slop/SKILL.md"
+    "SECURITY.md",
+    "skills/anti-ui-slop/CHECKSUMS.sha256",
+    "skills/anti-ui-slop/LICENSE",
+    "skills/anti-ui-slop/MANIFEST.json",
+    "skills/anti-ui-slop/MODIFICATIONS.md",
+    "skills/anti-ui-slop/NOTICE",
+    "skills/anti-ui-slop/SKILL.md",
+    "skills/anti-ui-slop/agents/openai.yaml",
+    "skills/anti-ui-slop/reference/audit.md",
+    "skills/anti-ui-slop/reference/craft.md",
+    "skills/anti-ui-slop/reference/distill.md",
+    "skills/anti-ui-slop/reference/ios.md",
+    "skills/anti-ui-slop/reference/new-work.md",
+    "skills/anti-ui-slop/reference/operate.md",
+    "skills/anti-ui-slop/reference/overdrive.md",
+    "skills/anti-ui-slop/reference/polish.md",
+    "skills/anti-ui-slop/references/uizze-reference-policy.md"
   ]
 }

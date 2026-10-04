@@ -95,6 +95,16 @@ the [decision record](000-docs/694-AT-DECR-external-sync-mirror-by-default-model
   `sync-lint-ignores` block in `.markdownlint-cli2.jsonc` is generated from
   `sources.yaml` (via `scripts/sync-lint-ignores.mjs`), because upstream markdown
   style is the upstream maintainer's choice, not ours.
+- Legal/provenance holds implement [Blueprint 727 P5 and G1](000-docs/727-AT-ARCH-master-modernization-blueprint.md#7-provenance-and-licensing-policy)
+  without editing mirror bytes. In `publication_disposition.artifacts`, omitted
+  `gate` retains exact G0 scanner coverage; explicit `gate: G1` identifies a real,
+  mirror-contained legal evidence file with nonempty `reason_codes` and rationale.
+  Both require `status: quarantined` and `channels: []`. The normal disposition
+  producer binds G1 source/reasons/evidence after G0 and before mirror quality;
+  public projections remain excluded. Freshie-export grade/score fields are
+  historical inputs, not a new validator result or publication badge. Declaring a
+  hold neither resolves the legal issue nor makes a failing skill pass the
+  marketplace tier.
 
 ## Canonical documents
 

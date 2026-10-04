@@ -4,8 +4,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import { createRequire } from 'node:module';
 
 import { resolvePluginProvenance } from './plugin-provenance.mjs';
+import { safeReadFile } from './safe-fs.mjs';
+
+const require = createRequire(import.meta.url);
+const { sourcePublicationDisposition } = require('./publication-policy.cjs');
 
 function fail(message) {
   throw new Error(`check-mirror-quarantine: ${message}`);
@@ -101,24 +106,13 @@ export function checkMirrorQuarantine({ root = process.cwd() } = {}) {
   const rootReadme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
   const declared = new Map();
 
+  const legalHolds = [];
+  const evidencePaths = new Set();
   for (const source of sourceDocument.sources) {
-    const dispositions = [source?.publication_disposition, source?.copyleft_disposition].filter(
-      (value) => value !== undefined,
-    );
-    if (dispositions.length === 0) continue;
-    if (dispositions.length > 1) fail(`${source.name} has multiple publication dispositions`);
-    const disposition = dispositions[0];
-    if (
-      !disposition ||
-      typeof disposition !== 'object' ||
-      disposition.status !== 'quarantined' ||
-      !Array.isArray(disposition.channels) ||
-      disposition.channels.length !== 0 ||
-      typeof disposition.rationale !== 'string' ||
-      disposition.rationale.trim().length === 0
-    ) {
-      fail(`${source?.name ?? '<unnamed source>'} has malformed publication disposition`);
-    }
+    const disposition = sourcePublicationDisposition(source, {
+      readEvidence: (evidence) => safeReadFile(root, evidence),
+    });
+    if (disposition === null) continue;
     if (catalogRows.get(source.name)?.publication !== 'quarantined') {
       fail(`${source.name} must remain an explicitly quarantined extended-catalog record`);
     }
@@ -169,37 +163,26 @@ export function checkMirrorQuarantine({ root = process.cwd() } = {}) {
     if (leakedSurfaces.length > 0) {
       fail(`${source.name} quarantine leaks through ${leakedSurfaces.join(', ')}`);
     }
-    if (source.publication_disposition === undefined) continue;
-    if (!Array.isArray(disposition.artifacts) || disposition.artifacts.length === 0) {
-      fail(`${source.name} publication_disposition has no governed artifacts`);
+    if (disposition.legal_hold) {
+      legalHolds.push({
+        target: source.target_path,
+        hold: disposition.legal_hold,
+      });
     }
-    const target = safeRepoPath(source.target_path, `${source.name}.target_path`);
-    for (const [index, artifact] of disposition.artifacts.entries()) {
-      const artifactPath = safeRepoPath(
-        artifact?.path,
-        `${source.name}.publication_disposition.artifacts[${index}].path`,
-      );
-      if (artifactPath !== `${target}/SKILL.md` && !artifactPath.startsWith(`${target}/`)) {
-        fail(`${source.name} disposition artifact is outside its mirror: ${artifactPath}`);
+    for (const artifact of disposition.artifacts) {
+      if (evidencePaths.has(artifact.path)) {
+        fail(`duplicate publication disposition: ${artifact.path}`);
       }
-      if (!fs.statSync(path.join(root, artifactPath)).isFile()) {
-        fail(`${source.name} disposition artifact is missing: ${artifactPath}`);
-      }
-      if (
-        !Array.isArray(artifact.reason_codes) ||
-        artifact.reason_codes.length === 0 ||
-        !artifact.reason_codes.every((code) => typeof code === 'string' && code.length > 0)
-      ) {
-        fail(`${source.name} disposition artifact has no reason_codes: ${artifactPath}`);
-      }
-      if (declared.has(artifactPath)) fail(`duplicate publication disposition: ${artifactPath}`);
-      declared.set(artifactPath, artifact.reason_codes);
+      evidencePaths.add(artifact.path);
+      if (artifact.gate === 'G0') declared.set(artifact.path, artifact.reason_codes);
     }
   }
 
   const g0Mirrors = [];
   for (const row of ledger.artifacts.filter((artifact) => artifact?.gate === 'G0')) {
-    const provenance = resolvePluginProvenance(path.posix.dirname(row.path), { root });
+    const provenance = resolvePluginProvenance(path.posix.dirname(row.path), {
+      root,
+    });
     if (provenance.status !== 'mirror') {
       fail(`first-party G0 finding must be remediated, not dispositioned: ${row.path}`);
     }
@@ -219,6 +202,45 @@ export function checkMirrorQuarantine({ root = process.cwd() } = {}) {
   );
   if (staleDeclarations.length) {
     fail(`publication disposition has no live G0 finding: ${staleDeclarations.join(', ')}`);
+  }
+  for (const row of ledger.artifacts.filter((artifact) => artifact.source_hold !== undefined)) {
+    if (
+      row.gate !== 'G1' ||
+      !legalHolds.some(
+        ({ target, hold }) =>
+          row.path.startsWith(`${target}/`) && row.source_hold?.source === hold.source,
+      )
+    ) {
+      fail(`G1 source association has no matching legal hold: ${row.path}`);
+    }
+  }
+  for (const { target, hold } of legalHolds) {
+    for (const row of ledger.artifacts.filter((artifact) =>
+      artifact.path.startsWith(`${target}/`),
+    )) {
+      // Security takes precedence; its exact scanner coverage was checked above.
+      if (row.gate === 'G0') continue;
+      const associated = row.source_hold;
+      if (
+        row.gate !== 'G1' ||
+        row.disposition !== 'QUARANTINE' ||
+        associated?.source !== hold.source ||
+        associated?.rationale !== hold.rationale ||
+        !Array.isArray(associated?.artifacts) ||
+        associated.artifacts.length !== hold.artifacts.length ||
+        !Array.isArray(row.reason_codes) ||
+        !hold.artifacts.every((evidence) => {
+          const recorded = associated.artifacts.find((artifact) => artifact.path === evidence.path);
+          return (
+            Array.isArray(recorded?.reason_codes) &&
+            sameStrings(recorded.reason_codes, evidence.reason_codes) &&
+            evidence.reason_codes.every((reason) => row.reason_codes.includes(reason))
+          );
+        })
+      ) {
+        fail(`G1 source hold contradicts the ledger: ${row.path}`);
+      }
+    }
   }
 
   return {

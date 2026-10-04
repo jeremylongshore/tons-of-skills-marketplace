@@ -1488,14 +1488,30 @@
     },
     "uizze": {
       "repo": "uizze/uizze",
-      "resolved_ref": "7d97c8d126703626adb757073572cb54ac451ce5",
-      "locked_at": "2026-08-18T20:49:08.147Z",
+      "resolved_ref": "4a0224f578f65a87f328e9c533b3d8bf1023c1f7",
+      "locked_at": "2026-10-03T23:17:47.232Z",
       "files": {
-        ".claude-plugin/marketplace.json": "sha256:48cb7feb3567142975ed886b4ff08d96f5adedd0ab935a9ed87ccdb598303066",
-        ".claude-plugin/plugin.json": "sha256:ae412b89baab7095ae331357d6d4d554f6897d0cb51340e13cb62fcd1c3851d2",
+        ".claude-plugin/plugin.json": "sha256:318ed8c3c13a1a9e71121d02e9036fb81d4c4c93dcfd6b96a2cd95f1e90ea8c7",
+        ".mcp.json": "sha256:aa8bef1cc1501d7169d721839bbf35b036c9bf95a803bdc1220fc95b00e87c24",
         "LICENSE": "sha256:4a58e8025fdccc01f07a63fdec54f37ae1174e362200049e304f7841d41fb73c",
-        "README.md": "sha256:5619b713feae0ae0f1a952e0a176e4a981123f0e8ad1b3828b1634130cac69bb",
-        "skills/anti-ui-slop/SKILL.md": "sha256:1c86da86ae0471af2728433f555816bef2a7600739ac05cf486b4b5355b1b573"
+        "README.md": "sha256:9442c06a3349228662f01992b8f99cfd0fe561fe89af97e4a71b5ea159029ef2",
+        "SECURITY.md": "sha256:16168578c514df71da160cb67b459930ffe5b05bd1c3486d84901a3cfda0836a",
+        "skills/anti-ui-slop/CHECKSUMS.sha256": "sha256:7571c07b5c9031e5d170c8184f9f7d68f7819f7444dce1f951392177a4369f9e",
+        "skills/anti-ui-slop/LICENSE": "sha256:02bb8c3b4e70190e3986c0404ad2fd8d639b4f534252d82379cc1b502b6d1812",
+        "skills/anti-ui-slop/MANIFEST.json": "sha256:85ca2ea5d2d70de7265ea40e50f904cabaa1ef31bb11c23c514b9fca7f5f8904",
+        "skills/anti-ui-slop/MODIFICATIONS.md": "sha256:794dd55db721a88277513667ff983f8e3d95fb2ec67ee5e635ac34bd29126f7f",
+        "skills/anti-ui-slop/NOTICE": "sha256:e05d42aec2a6d4d48cf409c8644ceccdeedfdcbafc4088a6fef25add462ede3c",
+        "skills/anti-ui-slop/SKILL.md": "sha256:c6acdd1865bad4a7f9d381569609cee928c0572e5a0545fba1d8daf6d47616dc",
+        "skills/anti-ui-slop/agents/openai.yaml": "sha256:062dfdfaf388834ea96a5b89ae9722f25ee269a137593099d43afd525d99c571",
+        "skills/anti-ui-slop/reference/audit.md": "sha256:71b4ba9d828697e7b1badc49346c17a5fd5359561e34bb4cf04247b36bb61a6c",
+        "skills/anti-ui-slop/reference/craft.md": "sha256:6d5a51dafd71c51ff8c75026bfa6c6d13fca8fe2f5558ebf2431c5830695a95d",
+        "skills/anti-ui-slop/reference/distill.md": "sha256:5cf9acf215f145ae152a53314f3a95f119b9984aa0cf7da8d61caf75619a65e9",
+        "skills/anti-ui-slop/reference/ios.md": "sha256:f8577af62ab8f1801d415c290656f9e759f8292f9cf83795ee6bcb02d332c213",
+        "skills/anti-ui-slop/reference/new-work.md": "sha256:2c16bfccd77db167976ad3c83a689aa22a8f0bd28f24507397e6b7b3d5e06f7d",
+        "skills/anti-ui-slop/reference/operate.md": "sha256:be6eec1114d122a9a115e31ddf1568567792b33f03ce35ff9e12e96af302696d",
+        "skills/anti-ui-slop/reference/overdrive.md": "sha256:60f4ce940526793d7aa87b4705db3a5b4938ee2efecb6d9f5405a54217e62116",
+        "skills/anti-ui-slop/reference/polish.md": "sha256:8435138f1bf85d93654ca91f0e725bb271d4288ac352c6596e9a64ffcdada651",
+        "skills/anti-ui-slop/references/uizze-reference-policy.md": "sha256:8aa20fa467e80de0503a952b9094d992c93289cd3b397b445fac523071d334ab"
       }
     },
     "x-bug-triage": {
