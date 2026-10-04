@@ -90,7 +90,7 @@ Across **386 published packages** in the [claude-code-plugins](https://www.npmjs
 | 9   | [`@intentsolutionsio/elevenlabs-pack`](https://www.npmjs.com/package/@intentsolutionsio/elevenlabs-pack)               |      167 |
 | 10  | [`@intentsolutionsio/intercom-pack`](https://www.npmjs.com/package/@intentsolutionsio/intercom-pack)                   |      165 |
 
-<sub>Last refreshed 2026-10-03T21:28:09.863Z.</sub>
+<sub>Last refreshed 2026-10-04T02:02:23.166Z.</sub>
 
 <!-- NPM-STATS:END -->
 
