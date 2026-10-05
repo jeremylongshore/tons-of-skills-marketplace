@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
-    "esbuild": "0.28.0",
+    "esbuild": "0.28.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.7"
+    "vitest": "4.1.11"
   }
 }
