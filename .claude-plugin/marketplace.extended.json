@@ -11517,7 +11517,13 @@
       },
       "homepage": "https://uizze.com",
       "repository": "https://github.com/uizze/uizze",
-      "license": "MIT AND Apache-2.0"
+      "license": "MIT AND Apache-2.0",
+      "verification": {
+        "score": 82,
+        "grade": "B",
+        "badge": "silver",
+        "lastValidated": "2026-10-05T00:00:00.000Z"
+      }
     },
     {
       "name": "general-legal-assistant",
