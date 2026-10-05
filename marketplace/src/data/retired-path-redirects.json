@@ -4,16 +4,16 @@
   "stats": {
     "observedPaths": 709,
     "normalizedPaths": 611,
-    "redirected": 231,
-    "observedPathsRedirected": 258,
-    "kept404": 380,
-    "observedPathsKept404": 451,
+    "redirected": 229,
+    "observedPathsRedirected": 256,
+    "kept404": 382,
+    "observedPathsKept404": 453,
     "byRule": {
       "category-path": 2,
       "duplicate-suffix": 9,
-      "live-parent-page": 111,
+      "live-parent-page": 109,
       "malformed-path": 11,
-      "no-close-match": 169,
+      "no-close-match": 171,
       "outside-catalog": 34,
       "playbook-source-link": 10,
       "relative-link-artifact": 162,
@@ -1524,18 +1524,16 @@
       "observed": [
         "/skills/anti-ui-slop/reference/onboard.md"
       ],
-      "status": 301,
-      "to": "/skills/anti-ui-slop/",
-      "rule": "live-parent-page"
+      "status": 404,
+      "rule": "no-close-match"
     },
     {
       "from": "/skills/anti-ui-slop/reference/typeset.md",
       "observed": [
         "/skills/anti-ui-slop/reference/typeset.md"
       ],
-      "status": 301,
-      "to": "/skills/anti-ui-slop/",
-      "rule": "live-parent-page"
+      "status": 404,
+      "rule": "no-close-match"
     },
     {
       "from": "/skills/artifact-creator/references/artifact-contracts.md",
