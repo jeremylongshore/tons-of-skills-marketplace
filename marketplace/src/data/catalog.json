@@ -10542,7 +10542,7 @@
       "name": "a2a-client",
       "displayName": "a2a client",
       "description": "Security-hardened MCP client for Agent2Agent card discovery, messaging, streaming, and confirmation-gated task control",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "mcp",
       "keywords": [
         "a2a",
