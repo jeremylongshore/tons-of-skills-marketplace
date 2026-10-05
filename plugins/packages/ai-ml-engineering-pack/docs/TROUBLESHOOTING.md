@@ -1115,7 +1115,6 @@ curl 'http://localhost:9090/api/v1/query?query=llm_requests_total'
 
 - GitHub Discussions: https://github.com/jeremylongshore/claude-code-plugins/discussions
 - Q&A category for general questions
-- #plugins channel for plugin-specific issues
 
 ### Information to Include in Support Requests
 
