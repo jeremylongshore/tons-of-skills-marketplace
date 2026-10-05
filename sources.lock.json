@@ -335,20 +335,20 @@
     },
     "governed-second-brain": {
       "repo": "jeremylongshore/bobs-big-brain-plugin",
-      "resolved_ref": "e1f87d0d7c63c67f2a45303b249a9d42fa7efae8",
-      "locked_at": "2026-10-01T05:33:22.218Z",
+      "resolved_ref": "52f1962c00949dd5d9fbb1903af8f7f02cd5f5df",
+      "locked_at": "2026-10-05T02:12:31.649Z",
       "files": {
         ".claude-plugin/marketplace.json": "sha256:8d88bb14bb5df1a735a9556f2d05132f6f93887d37105126bac4da444316b9b5",
         ".claude-plugin/plugin.json": "sha256:fde877e405e4f370ac5bf834668cd857365ad5b88d3f65084081d91e159ac9aa",
         ".mcp.json": "sha256:1bd53541a222be3eba0f4e6029c66a43b2f9fa394fd9bb6f200cdbe06ff99385",
         "LICENSE": "sha256:393f9b0a3ffff1e35d5243049719ec982d0663713542fd417b64a7df4c04a361",
-        "README.md": "sha256:333ef6843a5c2b2dada58b97693cb202541f7916f44939afea68c76c6dada511",
+        "README.md": "sha256:a9231feac0d218edfc5a982b9dc8e60347e31edf273ee8be7176cebfa70b817f",
         "plugin-runtime/bootstrap.cjs": "sha256:66ce30eff81b1ddb78d8f85ee89ac1d7165e86f7401060f911d5aa2c2690fb72",
-        "plugin-runtime/governed-brain.cjs": "sha256:ddd995a0d3c3344fdf686a55fbef94eb861dd07c57487113889293ed976ab7f2",
+        "plugin-runtime/governed-brain.cjs": "sha256:dfc2dabcb95424403d66d5b11d695b8bd3e9764d8534d4243832ffa42bf24799",
         "plugin-runtime/package-lock.json": "sha256:20cd0ae1e63b44874dff0e6dd53ce897abc7751253ac7886164588169c81523c",
         "plugin-runtime/package.json": "sha256:486fdccd22a64b801eaaf799591deb987f76eb45cc41b35090be0d7ed4dfb560",
-        "skills/brain-save/SKILL.md": "sha256:09414cb0e6bb92ad33e870e4140495f7d65adb91dfa91a999bee3ed5c5bc8fdf",
-        "skills/brain-save/references/runtime-contract.md": "sha256:9e12bdbaf1ce6f9b727332a22b330385ff84e2e0db628fc4b26384962ed07ea5",
+        "skills/brain-save/SKILL.md": "sha256:7f68834d0fdbda43429fec14d91ffea979f8ca0972d6abd2b2e80d78c1fa9c68",
+        "skills/brain-save/references/runtime-contract.md": "sha256:7c8658ca06c1438bd7a389aabb0a04ba3b0306ad4f61421af222ffcfc0bf3065",
         "skills/brain/SKILL.md": "sha256:126ea9468b82c0165f26ef8f886330a0172c19217a47d7318f8648a4bd913608",
         "skills/brain/references/runtime-contract.md": "sha256:4cd0150cd95c6e9677a35224f1c3eebdbc05fce453717a8f032d9e2382693d6b"
       }

@@ -28,6 +28,13 @@ Both modes accept required `title` and `content`, plus optional `category` and `
 are `decision`, `pattern`, `convention`, `architecture`, `troubleshooting`, `onboarding`, or
 `reference`.
 
+Both modes also accept optional `subjects`: up to 8 lowercase dot/hyphen slugs (max 96 characters
+each, for example `hosting.vps`) naming what the memory is authoritative about. On promotion, a
+`decision`, `architecture`, or `convention` capture retires active memories sharing a subject key.
+Keys are exact-match identities, never normalized: an invalid key or more than 8 keys returns
+`{ ok: false, error }` and captures nothing. Omit `subjects` unless the memory is the current source
+of truth for that subject.
+
 Team mode additionally accepts optional `sessionId` and `learningIndex`. Session-end capture must pass
 both, with `learningIndex` from 0 through 4, so each learning has a stable idempotency slot. Manual
 one-off capture omits both.

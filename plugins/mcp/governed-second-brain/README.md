@@ -210,8 +210,10 @@ per-platform walkthrough (incl. the **Claude Desktop** `mcpServers` config) in
 [`onboarding/`](onboarding/README.md).
 
 In team mode the tool surface is **`brain_search`** + **`brain_status`** (read),
-**`brain_capture`** (propose), and **`brain_inbox`** / **`brain_approve`** / **`brain_reject`** /
-**`brain_transition`** (admin review and lifecycle). Govern runs server-side, so there's no client
+**`brain_capture`** (propose), **`brain_inbox`** / **`brain_approve`** / **`brain_reject`** /
+**`brain_transition`** (admin review and lifecycle), and **`brain_holds`** /
+**`brain_hold_recommend`** (see the human-escalation hold queue and attach a recommendation;
+resolving a hold is a person's decision and is not a tool). Govern runs server-side, so there's no client
 `brain_govern`: **the model proposes, the server disposes**, and each promotion gets a hash-chained
 receipt. A member token can read + propose; admin actions return a clear 403 otherwise.
 

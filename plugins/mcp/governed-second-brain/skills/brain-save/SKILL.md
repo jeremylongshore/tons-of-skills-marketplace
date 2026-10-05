@@ -70,7 +70,10 @@ genuinely-new delta:
    debugging steps, throwaway preferences, secrets, or anything already in a CLAUDE.md/README.
 2. Pick a category: `decision`, `pattern`, `convention`, `architecture`, `troubleshooting`,
    `onboarding`, or `reference`.
-3. Call **`brain_capture`** with `{ title, content, category, filePaths? }`. In **team mode**,
+3. Call **`brain_capture`** with `{ title, content, category, filePaths?, subjects? }`. Add
+   `subjects` (at most 8 lowercase dot/hyphen slugs, e.g. `hosting.vps`) only for a decision that is
+   the new source of truth for those subjects, so it can supersede older memories about them.
+   In **team mode**,
    SessionEnd/autocapture must also pass `sessionId` + `learningIndex` (0..4) so each learning has its
    own idempotency slot; manual captures omit both. The team inbox deduplicates at intake, but the
    pre-save search still reduces noise.
