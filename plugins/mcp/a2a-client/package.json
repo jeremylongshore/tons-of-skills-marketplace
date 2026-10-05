@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/a2a-client",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Security-hardened MCP client for the Agent2Agent protocol",
   "type": "module",
   "main": "./dist/index.js",
