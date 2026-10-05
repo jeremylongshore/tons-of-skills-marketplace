@@ -3,7 +3,7 @@
 > 📘 **First time contributing?** Read both:
 >
 > 1. [CONTRIBUTING.md](CONTRIBUTING.md) § Before You Submit — the contract and the workflow
-> 2. **Plugin & Skill Spec** (v3.6.0 baseline; enforced schema 3.15.2 — see `000-docs/SCHEMA_CHANGELOG.md`) — the authoritative spec the validator scores against (8-field frontmatter, 7 body sections, 100-point rubric, all source-cited)
+> 2. **Plugin & Skill Spec** (v3.6.0 baseline; the currently enforced schema is the latest entry in `000-docs/SCHEMA_CHANGELOG.md`) — the authoritative spec the validator scores against (8-field frontmatter, 7 body sections, 100-point rubric, all source-cited)
 >
 > The PR Pre-screen workflow sets an advisory `prescreen-grade` status on every
 > run and posts a structured comment with the exact validator findings only when

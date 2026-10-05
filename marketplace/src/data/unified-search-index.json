@@ -5535,7 +5535,7 @@
         "name": "Claude Code Plugins Team"
       },
       "authorType": "official",
-      "version": "0.16.0",
+      "version": "0.17.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -9238,7 +9238,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -9267,7 +9267,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -13106,7 +13106,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "2.10.0",
+      "version": "2.12.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -13726,7 +13726,7 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -23613,7 +23613,7 @@
         "Bash(api:websocket-*)"
       ],
       "compatibleWith": [],
-      "version": "1.24.0",
+      "version": "1.25.0",
       "parentPlugin": {
         "name": "websocket-server-builder",
         "category": "api-development"
@@ -30670,7 +30670,7 @@
         "Bash(api:webhook-*)"
       ],
       "compatibleWith": [],
-      "version": "1.26.0",
+      "version": "1.27.0",
       "parentPlugin": {
         "name": "webhook-handler-creator",
         "category": "api-development"
@@ -37157,7 +37157,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "0.16.0",
+      "version": "0.17.0",
       "parentPlugin": {
         "name": "file-to-code",
         "category": "skill-enhancers"
@@ -62826,7 +62826,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62851,7 +62851,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62876,7 +62876,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62902,7 +62902,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62927,7 +62927,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62952,7 +62952,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -62977,7 +62977,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -63002,7 +63002,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -63026,7 +63026,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"
@@ -63051,7 +63051,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "2.10.0",
+      "version": "2.12.0",
       "parentPlugin": {
         "name": "podium-pack",
         "category": "saas-packs"

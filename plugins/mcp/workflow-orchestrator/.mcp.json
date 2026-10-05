@@ -2,7 +2,9 @@
   "mcpServers": {
     "workflow-engine": {
       "command": "node",
-      "args": ["dist/servers/workflow-engine.js"]
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/dist/servers/workflow-engine.js"
+      ]
     }
   }
 }

@@ -14,7 +14,7 @@
     "validate:routes": "node scripts/validate-routes.mjs",
     "validate:playbooks": "node scripts/validate-playbook-routes.mjs",
     "validate:internal-links": "node scripts/validate-internal-links.mjs",
-    "validate": "node --test scripts/skill-redirects.test.mjs scripts/install-skill-redirects.test.mjs scripts/internal-link-utils.test.mjs scripts/sitemap-xml.test.mjs && node scripts/validate-playbook-routes.mjs && node scripts/validate-routes.mjs",
+    "validate": "node --test scripts/skill-redirects.test.mjs scripts/retired-path-redirects.test.mjs scripts/install-skill-redirects.test.mjs scripts/internal-link-utils.test.mjs scripts/sitemap-xml.test.mjs && node scripts/validate-playbook-routes.mjs && node scripts/validate-routes.mjs",
     "verify:redirects:production": "node scripts/verify-skill-redirects-production.mjs",
     "validate:dist": "node scripts/validate-playbook-routes.mjs --dist && node scripts/validate-internal-links.mjs",
     "test:a11y": "npx playwright test tests/a11y/",

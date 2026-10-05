@@ -2345,7 +2345,7 @@
       "name": "file-to-code",
       "source": "./plugins/skill-enhancers/file-to-code",
       "description": "Converts file references into executable code implementations",
-      "version": "0.16.0",
+      "version": "0.17.0",
       "category": "skill-enhancers",
       "keywords": [
         "files",
@@ -4610,7 +4610,7 @@
       "name": "webhook-handler-creator",
       "source": "./plugins/api-development/webhook-handler-creator",
       "description": "Create secure webhook endpoints with signature verification and retry logic",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "api-development",
       "keywords": [
         "webhook",
@@ -4627,7 +4627,7 @@
       "name": "websocket-server-builder",
       "source": "./plugins/api-development/websocket-server-builder",
       "description": "Build WebSocket servers for real-time bidirectional communication",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "websocket",
@@ -7052,7 +7052,7 @@
       "name": "podium-pack",
       "source": "./plugins/saas-packs/podium-pack",
       "description": "Claude Code skill pack for Podium (10 production-engineer skills covering OAuth, webhook reliability, rate-limit survival, call transcripts, webchat, review automation, history export, RAG context, multi-location routing, contact dedup)",
-      "version": "2.10.0",
+      "version": "2.12.0",
       "category": "saas-packs",
       "keywords": [
         "podium",
@@ -7440,7 +7440,7 @@
       "name": "a2a-client",
       "source": "./plugins/mcp/a2a-client",
       "description": "Security-hardened MCP client for Agent2Agent card discovery, messaging, streaming, and confirmation-gated task control",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "mcp",
       "keywords": [
         "a2a",

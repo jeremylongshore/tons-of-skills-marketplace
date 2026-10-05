@@ -7,6 +7,7 @@ including error handling, dependency injection, and endpoint definitions.
 """
 
 import logging
+import re
 from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, Depends, status
@@ -15,6 +16,26 @@ from pydantic import BaseModel, ValidationError
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+_CONTROL_CHARS = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def sanitize_for_log(value) -> str:
+    """
+    Strips CR/LF/control characters from a request-controlled value before it
+    is written to the log, preventing log-injection / forged log entries.
+
+    Args:
+        value: Any value destined for a log message.
+
+    Returns:
+        str: A single-line, control-character-free representation of value.
+    """
+    # Remove CR/LF with str.replace first (the pattern CodeQL recognizes as
+    # a log-injection sanitizer), then strip the remaining control chars.
+    text = str(value).replace("\r", "").replace("\n", "")
+    return _CONTROL_CHARS.sub("", text)
+
 
 app = FastAPI(
     title="FastAPI API Template",
@@ -97,7 +118,7 @@ async def create_item(item: RequestModel, db: dict = Depends(get_db)):
     Endpoint to create a new item.
     """
     try:
-        logging.info(f"Creating item: {item}")
+        logging.info(f"Creating item: {sanitize_for_log(item)}")
         db["items"].append(item.dict())
         return ResponseModel(message="Item created successfully", data=item.dict())
     except Exception as e:
@@ -111,7 +132,7 @@ async def read_item(item_id: int, db: dict = Depends(get_db)):
     Endpoint to read an item by its ID.
     """
     try:
-        logging.info(f"Reading item with ID: {item_id}")
+        logging.info(f"Reading item with ID: {sanitize_for_log(item_id)}")
         item = next((item for item in db["items"] if item["item_id"] == item_id), None)
         if item is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")

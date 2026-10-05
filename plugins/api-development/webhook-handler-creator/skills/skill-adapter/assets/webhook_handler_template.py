@@ -11,6 +11,7 @@ import hmac
 import json
 import logging
 import os
+import re
 import time
 from functools import wraps
 from http import HTTPStatus
@@ -20,6 +21,27 @@ from flask import Flask, request, jsonify
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+_CONTROL_CHARS = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def sanitize_for_log(value) -> str:
+    """
+    Strips CR/LF/control characters from a user- or payload-controlled value
+    before it is written to the log, preventing log-injection / forged log
+    entries.
+
+    Args:
+        value: Any value destined for a log message.
+
+    Returns:
+        str: A single-line, control-character-free representation of value.
+    """
+    # Remove CR/LF with str.replace first (the pattern CodeQL recognizes as
+    # a log-injection sanitizer), then strip the remaining control chars.
+    text = str(value).replace("\r", "").replace("\n", "")
+    return _CONTROL_CHARS.sub("", text)
+
 
 # Environment variables (replace with your actual values)
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "your_secret_key")
@@ -158,9 +180,9 @@ def handle_webhook():
 
     try:
         verify_signature(request_data, signature, WEBHOOK_SECRET)
-    except SignatureVerificationError as e:
-        logging.warning(f"Signature verification failed: {e}")
-        return jsonify({"error": str(e)}), HTTPStatus.UNAUTHORIZED
+    except SignatureVerificationError:
+        logging.warning("Signature verification failed")
+        return jsonify({"error": "Signature verification failed"}), HTTPStatus.UNAUTHORIZED
 
     try:
         payload = json.loads(request_data.decode("utf-8"))
@@ -172,7 +194,7 @@ def handle_webhook():
         elif event_type == "payment.succeeded":
             process_payment_succeeded_event(payload)
         else:
-            logging.warning(f"Unhandled event type: {event_type}")
+            logging.warning(f"Unhandled event type: {sanitize_for_log(event_type)}")
             return jsonify({"status": "unhandled"}), HTTPStatus.OK  # Acknowledge the event
 
         return jsonify({"status": "success"}), HTTPStatus.OK
@@ -194,7 +216,7 @@ def process_user_created_event(payload: Dict) -> None:
         payload: The event payload as a dictionary.
     """
     user_id = payload.get("user_id")
-    logging.info(f"Processing user.created event for user ID: {user_id}")
+    logging.info(f"Processing user.created event for user ID: {sanitize_for_log(user_id)}")
     # Add your business logic here (e.g., create user in your system)
     time.sleep(0.1)  # Simulate some processing time
 
@@ -208,7 +230,7 @@ def process_payment_succeeded_event(payload: Dict) -> None:
         payload: The event payload as a dictionary.
     """
     payment_id = payload.get("payment_id")
-    logging.info(f"Processing payment.succeeded event for payment ID: {payment_id}")
+    logging.info(f"Processing payment.succeeded event for payment ID: {sanitize_for_log(payment_id)}")
     # Add your business logic here (e.g., update order status)
     time.sleep(0.2)  # Simulate some processing time
 

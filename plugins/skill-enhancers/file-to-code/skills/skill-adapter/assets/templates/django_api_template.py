@@ -47,9 +47,9 @@ class GenericAPIView(View):
         except json.JSONDecodeError as e:
             self.logger.error(f"Invalid JSON: {e}")
             return False, "Invalid JSON in request body."
-        except Exception as e:
+        except Exception:
             self.logger.exception("Unexpected error during request validation.")
-            return False, f"Unexpected validation error: {e}"
+            return False, "Unexpected validation error."
 
     def process_data(self, data):
         """
@@ -88,7 +88,7 @@ class GenericAPIView(View):
             A JsonResponse object with an error message and appropriate status code.
         """
         self.logger.exception("Exception occurred during request processing.")
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": "Internal server error."}, status=500)
 
     def post(self, request, *args, **kwargs):
         """

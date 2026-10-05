@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { matcherId } from './build-retired-path-redirects.mjs';
 
 const installer = fileURLToPath(new URL('../ops/install-skill-redirects.sh', import.meta.url));
 const source = fileURLToPath(new URL('../ops/snowflake-v2-redirects.caddy', import.meta.url));
@@ -53,4 +54,84 @@ test('installer refuses a matcher collision before touching live state', () => {
   } finally {
     rmSync(paths.directory, { recursive: true, force: true });
   }
+});
+
+test('installer defaults to every generated fragment, in order, without matcher collisions', () => {
+  const paths = fixture();
+  try {
+    const result = spawnSync('bash', [installer, '--check', '', paths.target, paths.main], {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${paths.bin}:${process.env.PATH}` },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /candidate valid; sha256=[0-9a-f]{64}/);
+  } finally {
+    rmSync(paths.directory, { recursive: true, force: true });
+  }
+});
+
+test('installer refuses a retired-path matcher already present in the live file', () => {
+  const paths = fixture();
+  try {
+    const taken = matcherId(
+      JSON.parse(readFileSync(new URL('../src/data/retired-path-redirects.json', import.meta.url), 'utf8'))
+        .entries.find((entry) => entry.status === 301).from,
+    );
+    writeFileSync(paths.target, `${taken} path /collision\nredir ${taken} /new permanent\n`);
+    const result = spawnSync('bash', [installer, '--check', '', paths.target, paths.main], {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${paths.bin}:${process.env.PATH}` },
+    });
+    assert.equal(result.status, 65);
+    assert.match(result.stderr, /matcher collision/);
+  } finally {
+    rmSync(paths.directory, { recursive: true, force: true });
+  }
+});
+
+function runRollback(validateSucceeds) {
+  const directory = mkdtempSync(join(tmpdir(), 'skill-redirect-rollback-'));
+  const bin = join(directory, 'bin');
+  mkdirSync(bin);
+  const reloaded = join(directory, 'reloaded');
+  writeFileSync(join(bin, 'sudo'), `#!/usr/bin/env sh\nexit ${validateSucceeds ? 0 : 1}\n`);
+  writeFileSync(join(bin, 'systemctl'), `#!/usr/bin/env sh\ntouch '${reloaded}'\n`);
+  chmodSync(join(bin, 'sudo'), 0o755);
+  chmodSync(join(bin, 'systemctl'), 0o755);
+  const backup = join(directory, 'backup.caddy');
+  const target = join(directory, 'target.caddy');
+  writeFileSync(backup, 'good\n');
+  writeFileSync(target, 'bad\n');
+  // Load only the rollback handler from the real installer and drive it directly.
+  const script = `
+    eval "$(sed -n '/^cleanup()/,/^}/p;/^rollback_on_error()/,/^}/p' '${installer}')"
+    TMP_DIR='${join(directory, 'tmp')}'; mkdir -p "$TMP_DIR"
+    INSTALLED=1; BACKUP='${backup}'; TARGET='${target}'; MAIN_CONFIG=/dev/null
+    false || rollback_on_error
+  `;
+  const result = spawnSync('bash', ['-c', script], {
+    encoding: 'utf8',
+    env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+  });
+  const outcome = {
+    status: result.status,
+    stderr: result.stderr,
+    reloaded: existsSync(reloaded),
+    restored: readFileSync(target, 'utf8'),
+  };
+  rmSync(directory, { recursive: true, force: true });
+  return outcome;
+}
+
+test('rollback reloads Caddy only when the restored config validates', () => {
+  const ok = runRollback(true);
+  assert.equal(ok.restored, 'good\n');
+  assert.equal(ok.reloaded, true);
+  assert.match(ok.stderr, /rolled back to/);
+
+  const bad = runRollback(false);
+  assert.equal(bad.restored, 'good\n');
+  assert.equal(bad.reloaded, false, 'must not reload an unvalidated config');
+  assert.equal(bad.status, 70);
+  assert.match(bad.stderr, /CRITICAL: .* does not validate; NOT reloading Caddy/);
 });

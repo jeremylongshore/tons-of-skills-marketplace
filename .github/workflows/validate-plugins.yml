@@ -188,7 +188,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git fetch --no-tags origin "${{ github.base_ref }}"
           node scripts/sync-lint-ignores.mjs --check-source-anchoring --base="origin/${{ github.base_ref }}"
 
       # @intentsolutions/audit-harness verify — exit 0 when policy hashes
@@ -302,7 +302,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git fetch --no-tags origin "${{ github.base_ref }}"
           python3 scripts/check-catalog-format.py "origin/${{ github.base_ref }}"
 
       - name: Verify README TOC is in sync with catalog
@@ -1143,10 +1143,14 @@ jobs:
       - name: Validate Internal Links (dist)
         run: node marketplace/scripts/validate-internal-links.mjs
 
+      - name: Check retired-path redirect map is current
+        run: node marketplace/scripts/build-retired-path-redirects.mjs --check
+
       - name: Run marketplace regression tests
         run: >-
           node --test
           marketplace/scripts/skill-redirects.test.mjs
+          marketplace/scripts/retired-path-redirects.test.mjs
           marketplace/scripts/install-skill-redirects.test.mjs
           marketplace/scripts/internal-link-utils.test.mjs
           marketplace/scripts/sitemap-xml.test.mjs
@@ -1631,7 +1635,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          git fetch --no-tags origin "$BASE_REF"
           # The bot's own sync PR already REFUSE-scanned upstream at sync time;
           # re-grade it with --warn-only so dual-use CHALLENGE churn doesn't wall
           # the automated PR (REFUSE still hard-blocks). Human PRs get full grading.
@@ -1717,7 +1721,7 @@ jobs:
           BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          git fetch --no-tags origin "$BASE_REF"
           node scripts/check-submission-docs.mjs --changed-only --base "origin/$BASE_REF"
 
   # Conventional-commit gate. This repo squash-merges, so the PR TITLE is the
