@@ -468,7 +468,7 @@ MIT License - See LICENSE file for details
 ## Support
 
 - GitHub Issues: [Report bugs](https://github.com/jeremylongshore/claude-code-plugins/issues)
-- Discord: Claude Code community
+- Discussions: [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
 - Documentation: Full docs
 
 ## Changelog

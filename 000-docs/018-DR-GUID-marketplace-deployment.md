@@ -300,7 +300,7 @@ When adding new plugins, update these files:
 ## Support
 
 - **GitHub Issues**: https://github.com/jeremylongshore/claude-code-plugins/issues
-- **Discord**: https://discord.com/invite/6PPFFzqPDZ (#claude-code channel)
+- **Discussions**: https://github.com/jeremylongshore/claude-code-plugins/discussions
 - **Documentation**: https://docs.claude.com/en/docs/claude-code/plugins
 
 ---

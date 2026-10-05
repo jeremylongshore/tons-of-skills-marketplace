@@ -270,7 +270,7 @@ Found a bug or want to add checks? Contribute at:
 
 - **Claude Code Docs:** https://docs.claude.com/en/docs/claude-code/
 - **Plugin Marketplace:** https://tonsofskills.com/
-- **Discord Community:** https://discord.com/invite/6PPFFzqPDZ (#claude-code)
+- **Community:** https://github.com/jeremylongshore/claude-code-plugins/discussions
 
 ## License
 

@@ -298,7 +298,7 @@ MIT License - See individual plugin directories for details.
 ## Support
 
 - Documentation: https://docs.claude.com/en/docs/claude-code/plugins
-- Discord: https://discord.com/invite/6PPFFzqPDZ (#claude-code channel)
+- Discussions: https://github.com/jeremylongshore/claude-code-plugins/discussions
 - Issues: https://github.com/jeremylongshore/claude-code-plugins/issues
 
 ---

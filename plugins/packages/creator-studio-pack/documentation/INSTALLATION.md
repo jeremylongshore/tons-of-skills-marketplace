@@ -358,7 +358,7 @@ Once installed, see:
 
 - **Documentation**: `/documentation` folder
 - **Issues**: [GitHub Issues](https://github.com/jeremylongshore/claude-code-plugins/issues)
-- **Discord**: [Claude Code Community](https://discord.com/invite/6PPFFzqPDZ)
+- **Discussions**: [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
 
 ---
 

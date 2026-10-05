@@ -336,7 +336,7 @@ When contacting support, include:
 ### Community
 
 - **GitHub Issues:** Report bugs and request features
-- **Discord:** Join our community for tips and help
+- **GitHub Discussions:** Ask questions and share tips at https://github.com/jeremylongshore/claude-code-plugins/discussions
 - **Documentation Updates:** Check back for new guides
 
 ---

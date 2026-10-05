@@ -190,7 +190,7 @@ claude plugin install security-pro-pack
 - **Email:** [email protected]
 - **GitHub Issues:** https://github.com/jeremylongshore/claude-code-plugins/issues
 - **Documentation:** security-pro-pack
-- **Discord:** https://discord.gg/claude-code-plugins
+- **Discussions:** https://github.com/jeremylongshore/claude-code-plugins/discussions
 
 ---
 

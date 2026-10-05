@@ -619,7 +619,6 @@ supervisor = create_supervisor_agent(
 
 ### Community
 
-- **Discord:** https://discord.com/invite/6PPFFzqPDZ (#claude-code channel)
 - **GitHub Discussions:** https://github.com/jeremylongshore/claude-code-plugins/discussions
 
 ---

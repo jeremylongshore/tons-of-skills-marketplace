@@ -387,7 +387,6 @@ chmod +x .git/hooks/pre-commit
 
 **Community**:
 - [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
-- [Discord - #claude-code](https://discord.com/invite/6PPFFzqPDZ)
 
 ---
 
