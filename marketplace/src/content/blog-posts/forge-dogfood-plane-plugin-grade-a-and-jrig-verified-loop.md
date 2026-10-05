@@ -6,6 +6,8 @@ tags: ["claude-code", "ai-agents", "automation", "release-engineering", "archite
 featured: false
 canonical: "https://startaitools.com/posts/forge-dogfood-plane-plugin-grade-a-and-jrig-verified-loop/"
 ---
+> **Update (October 2026):** The "JRig-Verified" badge described in this post was withdrawn in August 2026. Its data file could be changed by any merged pull request with no evidence check behind it, so it could not honestly certify a plugin. No Tons of Skills page shows a JRig verification today. Behavioral-evaluation results stay internal governed evidence until they can be published with retained, hash-matched proof. The rest of this post is the original May 2026 record.
+
 A plugin generator is theoretical until it produces something a marketplace will actually accept. May 7 turned the `/skill-creator --forge` workflow from an 8-gate diagram into a real artifact — a Plane plugin that scored Grade A (97/100), passed Tier 2 GREEN with zero warnings, and cleared all 12 deterministic j-rig checks across the 7-layer behavioral framework. On the same day, the JRig-Verified provenance pipe closed end-to-end: a schema, a build-time enrichment step, a per-plugin verification page, and a validator tier all landed in the same window. The thesis the day proves: compound commands and build-time enrichment beat raw API surfaces and runtime joins, and the way to find that out is to run the full pipeline once on something real.
 
 ## What "theoretical" looked like on May 6

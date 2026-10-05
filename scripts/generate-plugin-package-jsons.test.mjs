@@ -16,6 +16,11 @@ import {
   trackingPostinstall,
 } from './generate-plugin-package-jsons.mjs';
 
+// A cold `npm` start on a hosted Windows runner can exceed 10s; a killed npm can
+// leave a child holding the temp dir, so cleanup retries instead of failing EBUSY.
+const NPM_TIMEOUT_MS = 60_000;
+const RM_RETRY = { maxRetries: 5, retryDelay: 200 };
+
 const canonicalRepository = {
   type: 'git',
   url: 'git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git',
@@ -275,7 +280,7 @@ test('npm dry-run does not announce public access for a repaired mirror', () => 
       cwd: root,
       encoding: 'utf8',
       env: { ...process.env, npm_config_offline: 'true' },
-      timeout: 10_000,
+      timeout: NPM_TIMEOUT_MS,
     });
 
     assert.equal(result.error, undefined, result.error?.message);
@@ -283,7 +288,7 @@ test('npm dry-run does not announce public access for a repaired mirror', () => 
     assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /public access/i);
     assert.doesNotThrow(() => JSON.parse(result.stdout));
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    rmSync(root, { recursive: true, force: true, ...RM_RETRY });
   }
 });
 
@@ -305,7 +310,7 @@ test('real npm publish path refuses a private mirror before loopback connection'
         '--json',
         '--//127.0.0.1:9/:_authToken=fake-local-token',
       ],
-      { cwd: root, encoding: 'utf8', timeout: 10_000 },
+      { cwd: root, encoding: 'utf8', timeout: NPM_TIMEOUT_MS },
     );
 
     assert.equal(result.error, undefined, result.error?.message);
@@ -313,7 +318,7 @@ test('real npm publish path refuses a private mirror before loopback connection'
     assert.match(`${result.stdout}\n${result.stderr}`, /EPRIVATE/);
     assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /ECONNREFUSED|ENOTFOUND/);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    rmSync(root, { recursive: true, force: true, ...RM_RETRY });
   }
 });
 

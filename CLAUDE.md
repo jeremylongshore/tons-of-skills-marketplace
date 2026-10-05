@@ -65,7 +65,7 @@ node --test scripts/<name>.test.mjs                            # a root script's
 # JRig behavioral eval — the published @intentsolutions/jrig-cli (bin `j-rig`),
 # pinned as a root devDep. Invoke via `pnpm exec j-rig` so it resolves the
 # repo's pinned version (node_modules/.bin/j-rig), NOT a global shim.
-pnpm exec j-rig --version         # → 0.2.0 (the real 7-layer CLI)
+pnpm exec j-rig --version         # → 0.3.0 (the real 7-layer CLI)
 pnpm exec j-rig check <skill-dir> # Tier 3A: deterministic (~seconds, free, no API key, no DB)
 
 # Real behavioral eval (opt-in, ~$2-5/skill) — needs the native better-sqlite3
@@ -252,7 +252,7 @@ The validator itself does a kernel-loaded **shadow read** of `ALWAYS_REQUIRED` (
 
 **The kernel pin and the authority flip are two SEPARATE axes — do not conflate them.** The pin is _intended_ to track the latest published kernel; bumping it keeps the shadow lane reading a current, byte-frozen `authoring/v1` contract and is a routine governance/coupling update, not an authority change.
 
-> **Current coupling receipt (2026-08-30).** The root pins are exactly `@intentsolutions/core@0.10.0` and `@intentsolutions/jrig-cli@0.2.0`; a narrow root override keeps the CLI's published `core@0.9.0` dependency on the governed `0.10.0` root copy, and the lockfile resolves one kernel version. `@intentsolutions/audit-harness` is exactly `1.4.0` (verify against `package.json`, not this line — it has drifted before). The pin bump is complete, but it is **not** an authority flip: both kernel lanes remain advisory and `validate-skills-schema.py` remains authoritative.
+> **Current coupling receipt (2026-10-01).** The root pins are exactly `@intentsolutions/core@0.10.0` and `@intentsolutions/jrig-cli@0.3.0` (bumped 2026-10-01); jrig-cli 0.3.0 itself depends on exactly `core@0.10.0`, so the lockfile resolves one kernel version natively, and the root override stays as a guard. `@intentsolutions/audit-harness` is exactly `1.4.0` (verify against `package.json`, not this line — it has drifted before). The pin bump is complete, but it is **not** an authority flip: both kernel lanes remain advisory and `validate-skills-schema.py` remains authoritative.
 
 What stays frozen is the **authority**: do **NOT** flip the kernel-shadow lane from advisory to authoritative (blocking) until ALL of these hold:
 
@@ -265,7 +265,7 @@ What stays frozen is the **authority**: do **NOT** flip the kernel-shadow lane f
 
 As of 2026-08-30 the soak has **not** met the bar. The current 3,630-file report has strict `authoring/v2` `existing-PASS / kernel-FAIL = 0` and `authoring/v1` frontmatter agreement of 3,624/3,630 (99.83%), but six real frontmatter disagreements remain and the deterministic-fold 100% condition is not proven. The new-pin soak is under 30 days, open P0s remain, and the rollback, sign-off, and public-notice conditions are not complete. Until every condition above is satisfied, validator authority stays with `validate-skills-schema.py` and both kernel lanes stay advisory. Promotion to blocking is a separate, later cutover step gated by these conditions — never a side effect of an unrelated PR.
 
-**Alignment note (`@intentsolutions/jrig-cli`).** The `j-rig` behavioral-eval CLI is a root devDep pinned to **exactly `@intentsolutions/jrig-cli@0.2.0`**. Its published manifest still depends on **`@intentsolutions/core@0.9.0` (exact)**, so the root `pnpm.overrides` entry deliberately forces the single governed `@intentsolutions/core@0.10.0` copy across the graph; `pnpm list --depth 20` and the lockfile must continue to prove that single-version result. The pin bump is a coupling update only; the authority flip to `authoring/v2` remains the separate, six-condition cutover above.
+**Alignment note (`@intentsolutions/jrig-cli`).** The `j-rig` behavioral-eval CLI is a root devDep pinned to **exactly `@intentsolutions/jrig-cli@0.3.0`**. Its published manifest depends on **`@intentsolutions/core@0.10.0` (exact)**, matching the governed root copy; the root `pnpm.overrides` entry stays as a guard so a future CLI release cannot pull a second kernel copy; `pnpm list --depth 20` and the lockfile must continue to prove that single-version result. The pin bump is a coupling update only; the authority flip to `authoring/v2` remains the separate, six-condition cutover above.
 
 ### Validator consolidation (already landed)
 

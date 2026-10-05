@@ -19,9 +19,9 @@
     "G9"
   ],
   "counts": {
-    "AUTO-MIGRATE": 2,
+    "AUTO-MIGRATE": 1,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 3143,
+    "CERTIFY-PENDING-EVIDENCE": 3144,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
     "QUARANTINE": 345
@@ -28575,15 +28575,11 @@
       "path": "plugins/saas-packs/podium-pack/skills/podium-rate-limit-survival/SKILL.md",
       "grade": "A",
       "score": 92,
-      "diagnostics": [
-        "[relative-link] Link escapes skill directory: [podium-auth SKILL.md](../podium-auth/SKILL.md)",
-        "[relative-link] Link escapes skill directory: [podium-auth skill](../podium-auth/SKILL.md)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[relative-link] Link escapes skill directory: [podium-auth SKILL.md](../podium-auth/SKILL.md)",
-        "[relative-link] Link escapes skill directory: [podium-auth skill](../podium-auth/SKILL.md)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {

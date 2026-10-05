@@ -14,13 +14,13 @@
     "source": "scripts/validate-skills-schema.py --marketplace --skills-only --json",
     "status": "measured",
     "values": {
-      "a_error_total": 25,
-      "a_failing": 8,
-      "ab_error_total": 172,
-      "ab_failing": 22,
+      "a_error_total": 23,
+      "a_failing": 7,
+      "ab_error_total": 170,
+      "ab_failing": 21,
       "b_failing": 14,
-      "error_files": 283,
-      "error_total": 2832,
+      "error_files": 282,
+      "error_total": 2830,
       "grade_distribution": {
         "A": 2878,
         "B": 322,
@@ -90,7 +90,7 @@
           "validator_reported_mixed_denominator_percent": 81.3
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3065,
+          "error_total_all_validated_surfaces": 3063,
           "fully_compliant_surfaces": 2085,
           "terminal_denominator": {
             "agents": 363,
@@ -104,13 +104,13 @@
           "validator_reported_mixed_denominator_percent": 43.3
         },
         "skill_rows": {
-          "a_error_total": 25,
-          "a_failing": 8,
-          "ab_error_total": 172,
-          "ab_failing": 22,
+          "a_error_total": 23,
+          "a_failing": 7,
+          "ab_error_total": 170,
+          "ab_failing": 21,
           "b_failing": 14,
-          "error_files": 283,
-          "error_total": 2832,
+          "error_files": 282,
+          "error_total": 2830,
           "grade_distribution": {
             "A": 2878,
             "B": 322,
@@ -154,10 +154,10 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "a_error_total": 25,
-        "a_failing": 8,
-        "ab_error_total": 172,
-        "ab_failing": 22,
+        "a_error_total": 23,
+        "a_failing": 7,
+        "ab_error_total": 170,
+        "ab_failing": 21,
         "b_error_total": 147,
         "b_failing": 14,
         "certified_target": 0,
@@ -2328,6 +2328,7 @@
       ],
       "reproduce": "pnpm run measure:e1 --row=22 --stdout",
       "source": [
+        "marketplace/scripts/build-retired-path-redirects.mjs",
         "marketplace/scripts/discover-skills.mjs",
         "marketplace/scripts/generate-unified-search.mjs",
         "marketplace/scripts/sync-catalog.mjs"
@@ -2340,6 +2341,12 @@
             "path": "marketplace/src/data/catalog.json",
             "producers": ["marketplace/scripts/sync-catalog.mjs"],
             "wired_checkers": ["marketplace/scripts/sync-catalog.mjs"]
+          },
+          {
+            "content_drift_gate": true,
+            "path": "marketplace/src/data/retired-path-redirects.json",
+            "producers": ["marketplace/scripts/build-retired-path-redirects.mjs"],
+            "wired_checkers": ["marketplace/scripts/build-retired-path-redirects.mjs"]
           },
           {
             "content_drift_gate": true,
@@ -2376,6 +2383,7 @@
       ],
       "source": [
         "marketplace/src/data/catalog.json",
+        "marketplace/src/data/retired-path-redirects.json",
         "marketplace/src/data/skills-catalog.json",
         "marketplace/src/data/skills-index.json",
         "marketplace/src/data/unified-search-index.json"
@@ -2475,10 +2483,10 @@
       "source": ["sources.lock.json", "sources.yaml"],
       "status": "measured",
       "values": {
-        "lock_keys": 38,
+        "lock_keys": 43,
         "lock_only": [],
         "target_equal": true,
-        "yaml_keys": 38,
+        "yaml_keys": 43,
         "yaml_only": []
       }
     },
@@ -2875,7 +2883,7 @@
       "cohort": "exact root pins, retained npm registry observation, and coupling workflow",
       "dimension": "Kernel, eval CLI, and harness pins",
       "limitations": [
-        "retained package-registry observation in 000-docs/810-RA-DATA-epic-9-boundary-evidence.json does not match the exact root pins (@intentsolutions/audit-harness: observed 1.3.1, pinned 1.4.0); capture a new versioned boundary observation without rewriting retained evidence"
+        "retained package-registry observation in 000-docs/810-RA-DATA-epic-9-boundary-evidence.json does not match the exact root pins (@intentsolutions/audit-harness: observed 1.3.1, pinned 1.4.0, @intentsolutions/jrig-cli: observed 0.2.0, pinned 0.3.0); capture a new versioned boundary observation without rewriting retained evidence"
       ],
       "reproduce": "pnpm run measure:e1 --row=38 --stdout",
       "source": [
@@ -2899,7 +2907,7 @@
           },
           "@intentsolutions/jrig-cli": {
             "exact": true,
-            "version": "0.2.0"
+            "version": "0.3.0"
           }
         },
         "published_latest_versions": {

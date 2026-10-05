@@ -1,0 +1,5254 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "marketplace/scripts/build-retired-path-redirects.mjs",
+  "stats": {
+    "observedPaths": 709,
+    "normalizedPaths": 611,
+    "redirected": 231,
+    "observedPathsRedirected": 258,
+    "kept404": 380,
+    "observedPathsKept404": 451,
+    "byRule": {
+      "category-path": 2,
+      "duplicate-suffix": 9,
+      "live-parent-page": 111,
+      "malformed-path": 11,
+      "no-close-match": 169,
+      "outside-catalog": 34,
+      "playbook-source-link": 10,
+      "relative-link-artifact": 162,
+      "retired-learn-section-index": 3,
+      "retired-plugin-section-index": 39,
+      "reviewed-keep-404": 4,
+      "reviewed-override": 2,
+      "same-name-plugin": 1,
+      "similar-plugin": 1,
+      "vendor-pack-page": 53
+    }
+  },
+  "entries": [
+    {
+      "from": "/)",
+      "observed": [
+        "/)"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/ACCESS.md",
+      "observed": [
+        "/ACCESS.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/architect.md",
+      "observed": [
+        "/agents/architect.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/brain.md",
+      "observed": [
+        "/agents/brain.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/compliance-reviewer.md",
+      "observed": [
+        "/agents/compliance-reviewer.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/debugger.md",
+      "observed": [
+        "/agents/debugger.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/designer.md",
+      "observed": [
+        "/agents/designer.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/mobile.md",
+      "observed": [
+        "/agents/mobile.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/motion.md",
+      "observed": [
+        "/agents/motion.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/searcher.md",
+      "observed": [
+        "/agents/searcher.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/security-reviewer.md",
+      "observed": [
+        "/agents/security-reviewer.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/agents/vulnerability-reviewer.md",
+      "observed": [
+        "/agents/vulnerability-reviewer.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/audit/SKILL.md",
+      "observed": [
+        "/audit/SKILL.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/audit/references/review-levels.md",
+      "observed": [
+        "/audit/references/review-levels.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/audit/references/security.md",
+      "observed": [
+        "/audit/references/security.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/deployment-thesis",
+      "observed": [
+        "/deployment-thesis/"
+      ],
+      "status": 404,
+      "rule": "reviewed-keep-404",
+      "note": "Never a tonsofskills.com page; a dual-published blog post linked it relative to the wrong host."
+    },
+    {
+      "from": "/dispatch/SKILL.md",
+      "observed": [
+        "/dispatch/SKILL.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/docs/contributing/submit-to-marketplace",
+      "observed": [
+        "/docs/contributing/submit-to-marketplace/"
+      ],
+      "status": 301,
+      "to": "/docs/guides/publish-to-marketplace/",
+      "rule": "reviewed-override",
+      "note": "The contributing guide moved into the docs guides section under this name."
+    },
+    {
+      "from": "/hyperflow/brainstorming-advanced.md",
+      "observed": [
+        "/hyperflow/brainstorming-advanced.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/consultation.md",
+      "observed": [
+        "/hyperflow/consultation.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/design-system.md",
+      "observed": [
+        "/hyperflow/design-system.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/feature-phases.md",
+      "observed": [
+        "/hyperflow/feature-phases.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/flow-profiles.md",
+      "observed": [
+        "/hyperflow/flow-profiles.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/git-workflow.md",
+      "observed": [
+        "/hyperflow/git-workflow.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/latency-patterns.md",
+      "observed": [
+        "/hyperflow/latency-patterns.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/memory-system.md",
+      "observed": [
+        "/hyperflow/memory-system.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/mobile.md",
+      "observed": [
+        "/hyperflow/mobile.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/motion.md",
+      "observed": [
+        "/hyperflow/motion.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/reviewer-prompt-batched.md",
+      "observed": [
+        "/hyperflow/reviewer-prompt-batched.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/task-templates.md",
+      "observed": [
+        "/hyperflow/task-templates.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/task-tracking.md",
+      "observed": [
+        "/hyperflow/task-tracking.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/task-triage.md",
+      "observed": [
+        "/hyperflow/task-triage.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/worker-prompt-lean.md",
+      "observed": [
+        "/hyperflow/worker-prompt-lean.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/hyperflow/worker-prompt.md",
+      "observed": [
+        "/hyperflow/worker-prompt.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/issue/SKILL.md",
+      "observed": [
+        "/issue/SKILL.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/learn/algolia",
+      "observed": [
+        "/learn/algolia/"
+      ],
+      "status": 301,
+      "to": "/plugins/algolia-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/anima",
+      "observed": [
+        "/learn/anima/"
+      ],
+      "status": 301,
+      "to": "/plugins/anima-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/elevenlabs",
+      "observed": [
+        "/learn/elevenlabs",
+        "/learn/elevenlabs/"
+      ],
+      "status": 301,
+      "to": "/plugins/elevenlabs-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/evernote",
+      "observed": [
+        "/learn/evernote/"
+      ],
+      "status": 301,
+      "to": "/plugins/evernote-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/flyio",
+      "observed": [
+        "/learn/flyio/"
+      ],
+      "status": 301,
+      "to": "/plugins/flyio-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/framer",
+      "observed": [
+        "/learn/framer/"
+      ],
+      "status": 301,
+      "to": "/plugins/framer-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/glean",
+      "observed": [
+        "/learn/glean/"
+      ],
+      "status": 301,
+      "to": "/plugins/glean-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/grammarly",
+      "observed": [
+        "/learn/grammarly/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/guidewire",
+      "observed": [
+        "/learn/guidewire/"
+      ],
+      "status": 301,
+      "to": "/plugins/guidewire-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/hootsuite",
+      "observed": [
+        "/learn/hootsuite"
+      ],
+      "status": 301,
+      "to": "/plugins/hootsuite-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/maintainx",
+      "observed": [
+        "/learn/maintainx/"
+      ],
+      "status": 301,
+      "to": "/plugins/maintainx-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/perplexity",
+      "observed": [
+        "/learn/perplexity",
+        "/learn/perplexity/"
+      ],
+      "status": 301,
+      "to": "/learn/",
+      "rule": "retired-learn-section-index"
+    },
+    {
+      "from": "/learn/persona",
+      "observed": [
+        "/learn/persona"
+      ],
+      "status": 301,
+      "to": "/plugins/persona-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/quicknode",
+      "observed": [
+        "/learn/quicknode"
+      ],
+      "status": 301,
+      "to": "/plugins/quicknode-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/replit",
+      "observed": [
+        "/learn/replit",
+        "/learn/replit/"
+      ],
+      "status": 301,
+      "to": "/learn/",
+      "rule": "retired-learn-section-index"
+    },
+    {
+      "from": "/learn/salesloft",
+      "observed": [
+        "/learn/salesloft"
+      ],
+      "status": 301,
+      "to": "/plugins/salesloft-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/snowflake",
+      "observed": [
+        "/learn/snowflake/"
+      ],
+      "status": 301,
+      "to": "/plugins/snowflake-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/speak",
+      "observed": [
+        "/learn/speak/"
+      ],
+      "status": 301,
+      "to": "/plugins/speak-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/techsmith",
+      "observed": [
+        "/learn/techsmith",
+        "/learn/techsmith/"
+      ],
+      "status": 301,
+      "to": "/plugins/techsmith-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/together",
+      "observed": [
+        "/learn/together"
+      ],
+      "status": 301,
+      "to": "/plugins/together-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/learn/wispr",
+      "observed": [
+        "/learn/wispr/"
+      ],
+      "status": 301,
+      "to": "/learn/",
+      "rule": "retired-learn-section-index"
+    },
+    {
+      "from": "/plans",
+      "observed": [
+        "/plans"
+      ],
+      "status": 404,
+      "rule": "reviewed-keep-404",
+      "note": "The site has no plans or pricing page; a redirect would mislead."
+    },
+    {
+      "from": "/playbooks/01-multi-agent-rate-limits.md",
+      "observed": [
+        "/playbooks/01-multi-agent-rate-limits.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/01-multi-agent-rate-limits/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/03-mcp-reliability/01-multi-agent-rate-limits.md",
+      "observed": [
+        "/playbooks/03-mcp-reliability/01-multi-agent-rate-limits.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/01-multi-agent-rate-limits/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/06-self-hosted-stack/03-mcp-reliability.md",
+      "observed": [
+        "/playbooks/06-self-hosted-stack/03-mcp-reliability.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/03-mcp-reliability/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/07-compliance-audit/03-mcp-reliability.md",
+      "observed": [
+        "/playbooks/07-compliance-audit/03-mcp-reliability.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/03-mcp-reliability/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/08-team-presets.md",
+      "observed": [
+        "/playbooks/08-team-presets.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/08-team-presets/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/09-cost-attribution.md",
+      "observed": [
+        "/playbooks/09-cost-attribution.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/09-cost-attribution/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/11-advanced-tool-use/01-multi-agent-rate-limits.md",
+      "observed": [
+        "/playbooks/11-advanced-tool-use/01-multi-agent-rate-limits.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/01-multi-agent-rate-limits/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/11-advanced-tool-use/03-mcp-reliability.md",
+      "observed": [
+        "/playbooks/11-advanced-tool-use/03-mcp-reliability.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/03-mcp-reliability/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/11-advanced-tool-use/09-cost-attribution.md",
+      "observed": [
+        "/playbooks/11-advanced-tool-use/09-cost-attribution.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/09-cost-attribution/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/playbooks/11-advanced-tool-use/10-progressive-enhancement.md",
+      "observed": [
+        "/playbooks/11-advanced-tool-use/10-progressive-enhancement.md"
+      ],
+      "status": 301,
+      "to": "/playbooks/10-progressive-enhancement/",
+      "rule": "playbook-source-link"
+    },
+    {
+      "from": "/plugins/CHANGELOG.md",
+      "observed": [
+        "/plugins/CHANGELOG.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/README.es.md",
+      "observed": [
+        "/plugins/README.es.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/README.fr.md",
+      "observed": [
+        "/plugins/README.fr.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/README.hi.md",
+      "observed": [
+        "/plugins/README.hi.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/agent-systems-toolkit/references/roles",
+      "observed": [
+        "/plugins/agent-systems-toolkit/references/roles/"
+      ],
+      "status": 301,
+      "to": "/plugins/agent-systems-toolkit/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/aomi/LICENSE",
+      "observed": [
+        "/plugins/aomi/LICENSE"
+      ],
+      "status": 301,
+      "to": "/plugins/aomi/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/apify-pack/references/pricing-model.md",
+      "observed": [
+        "/plugins/apify-pack/references/pricing-model.md"
+      ],
+      "status": 301,
+      "to": "/plugins/apify-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/boycott-filter",
+      "observed": [
+        "/plugins/boycott-filter/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/brand-forge/assets/how-it-works.svg",
+      "observed": [
+        "/plugins/brand-forge/assets/how-it-works.svg"
+      ],
+      "status": 301,
+      "to": "/plugins/brand-forge/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/claude-reflect",
+      "observed": [
+        "/plugins/claude-reflect",
+        "/plugins/claude-reflect/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/claudebase/LICENSE",
+      "observed": [
+        "/plugins/claudebase/LICENSE"
+      ],
+      "status": 301,
+      "to": "/plugins/claudebase/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/code-quality/code-cleanup",
+      "observed": [
+        "/plugins/code-quality/code-cleanup"
+      ],
+      "status": 301,
+      "to": "/plugins/code-cleanup/",
+      "rule": "category-path"
+    },
+    {
+      "from": "/plugins/content-consistency-validator",
+      "observed": [
+        "/plugins/content-consistency-validator"
+      ],
+      "status": 301,
+      "to": "/plugins/000-jeremy-content-consistency-validator/",
+      "rule": "similar-plugin"
+    },
+    {
+      "from": "/plugins/devops-automation-pack/blob/master/docs/INSTALLATION.md",
+      "observed": [
+        "/plugins/devops-automation-pack/blob/master/docs/INSTALLATION.md"
+      ],
+      "status": 301,
+      "to": "/plugins/devops-automation-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/devops-automation-pack/docs/QUICK_START.md",
+      "observed": [
+        "/plugins/devops-automation-pack/docs/QUICK_START.md"
+      ],
+      "status": 301,
+      "to": "/plugins/devops-automation-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/devops/engineer-design-diagram",
+      "observed": [
+        "/plugins/devops/engineer-design-diagram"
+      ],
+      "status": 301,
+      "to": "/plugins/engineer-design-diagram/",
+      "rule": "category-path"
+    },
+    {
+      "from": "/plugins/dolt-mcp-vcs/blob/master/DOGFOOD.md",
+      "observed": [
+        "/plugins/dolt-mcp-vcs/blob/master/DOGFOOD.md"
+      ],
+      "status": 301,
+      "to": "/plugins/dolt-mcp-vcs/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/evernote-pack/references/implementation-guide.md",
+      "observed": [
+        "/plugins/evernote-pack/references/implementation-guide.md"
+      ],
+      "status": 301,
+      "to": "/plugins/evernote-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/executive-assistant-skills",
+      "observed": [
+        "/plugins/executive-assistant-skills",
+        "/plugins/executive-assistant-skills/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/fullstack-starter-pack/blob/master/QUICK_START.md",
+      "observed": [
+        "/plugins/fullstack-starter-pack/blob/master/QUICK_START.md"
+      ],
+      "status": 301,
+      "to": "/plugins/fullstack-starter-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/fullstack-starter-pack/blob/master/USE_CASES.md",
+      "observed": [
+        "/plugins/fullstack-starter-pack/blob/master/USE_CASES.md"
+      ],
+      "status": 301,
+      "to": "/plugins/fullstack-starter-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/gastown",
+      "observed": [
+        "/plugins/gastown",
+        "/plugins/gastown/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/hyperflow",
+      "observed": [
+        "/plugins/hyperflow",
+        "/plugins/hyperflow/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/hyperfocus",
+      "observed": [
+        "/plugins/hyperfocus",
+        "/plugins/hyperfocus/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/jeremy-vertex-terraform/${CLAUDE<em>SKILL</em>DIR}/references/implementation.md",
+      "observed": [
+        "/plugins/jeremy-vertex-terraform/${CLAUDE<em>SKILL</em>DIR}/references/implementation.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/plugins/llm-box",
+      "observed": [
+        "/plugins/llm-box",
+        "/plugins/llm-box/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/local-tts",
+      "observed": [
+        "/plugins/local-tts/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/mnemos/LICENSE",
+      "observed": [
+        "/plugins/mnemos/LICENSE"
+      ],
+      "status": 301,
+      "to": "/plugins/mnemos/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/perplexity-pack",
+      "observed": [
+        "/plugins/perplexity-pack",
+        "/plugins/perplexity-pack/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/promptbook",
+      "observed": [
+        "/plugins/promptbook/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/references/bulk-operations.md",
+      "observed": [
+        "/plugins/references/bulk-operations.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/ci-policy-pipeline.md",
+      "observed": [
+        "/plugins/references/ci-policy-pipeline.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/connection-reference.md",
+      "observed": [
+        "/plugins/references/connection-reference.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/dolt-internals.md",
+      "observed": [
+        "/plugins/references/dolt-internals.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/event-handler-pattern.md",
+      "observed": [
+        "/plugins/references/event-handler-pattern.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/flyio-deployment.md",
+      "observed": [
+        "/plugins/references/flyio-deployment.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/liquid-profiling.md",
+      "observed": [
+        "/plugins/references/liquid-profiling.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/patterns.md",
+      "observed": [
+        "/plugins/references/patterns.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/pitfall-examples.md",
+      "observed": [
+        "/plugins/references/pitfall-examples.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/pitfalls.md",
+      "observed": [
+        "/plugins/references/pitfalls.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/platform-deployment.md",
+      "observed": [
+        "/plugins/references/platform-deployment.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/product-update-mutation.md",
+      "observed": [
+        "/plugins/references/product-update-mutation.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/query-cost-budget.md",
+      "observed": [
+        "/plugins/references/query-cost-budget.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/response-caching.md",
+      "observed": [
+        "/plugins/references/response-caching.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/sdk-initialization-pitfalls.md",
+      "observed": [
+        "/plugins/references/sdk-initialization-pitfalls.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/secret-detection-eslint.md",
+      "observed": [
+        "/plugins/references/secret-detection-eslint.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/thread-id-discipline.md",
+      "observed": [
+        "/plugins/references/thread-id-discipline.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/triggers.md",
+      "observed": [
+        "/plugins/references/triggers.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/references/vitest-shopify-mock.md",
+      "observed": [
+        "/plugins/references/vitest-shopify-mock.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/plugins/replit-pack",
+      "observed": [
+        "/plugins/replit-pack/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/sentry-pack/references/monolith-architecture.md",
+      "observed": [
+        "/plugins/sentry-pack/references/monolith-architecture.md"
+      ],
+      "status": 301,
+      "to": "/plugins/sentry-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/shopify-pack/references/cost-aware-rate-limiter.md",
+      "observed": [
+        "/plugins/shopify-pack/references/cost-aware-rate-limiter.md"
+      ],
+      "status": 301,
+      "to": "/plugins/shopify-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/shopify-pack/references/data-retention-policy.md",
+      "observed": [
+        "/plugins/shopify-pack/references/data-retention-policy.md"
+      ],
+      "status": 301,
+      "to": "/plugins/shopify-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/shopify-pack/references/hydrogen-storefront.md",
+      "observed": [
+        "/plugins/shopify-pack/references/hydrogen-storefront.md"
+      ],
+      "status": 301,
+      "to": "/plugins/shopify-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/shopify-pack/references/permission-middleware-and-location-access.md",
+      "observed": [
+        "/plugins/shopify-pack/references/permission-middleware-and-location-access.md"
+      ],
+      "status": 301,
+      "to": "/plugins/shopify-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/shopify-pack/references/theme-app-extension.md",
+      "observed": [
+        "/plugins/shopify-pack/references/theme-app-extension.md"
+      ],
+      "status": 301,
+      "to": "/plugins/shopify-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/shopify-pack/references/usage-tracker-class.md",
+      "observed": [
+        "/plugins/shopify-pack/references/usage-tracker-class.md"
+      ],
+      "status": 301,
+      "to": "/plugins/shopify-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/shopify-pack/references/wasm-constraints.md",
+      "observed": [
+        "/plugins/shopify-pack/references/wasm-constraints.md"
+      ],
+      "status": 301,
+      "to": "/plugins/shopify-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/skyvern",
+      "observed": [
+        "/plugins/skyvern"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/slack-channel/LICENSE",
+      "observed": [
+        "/plugins/slack-channel/LICENSE"
+      ],
+      "status": 301,
+      "to": "/plugins/slack-channel/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/supabase-pack/references/rls-and-pii.md",
+      "observed": [
+        "/plugins/supabase-pack/references/rls-and-pii.md"
+      ],
+      "status": 301,
+      "to": "/plugins/supabase-pack/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/plugins/veeva-pack",
+      "observed": [
+        "/plugins/veeva-pack",
+        "/plugins/veeva-pack/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/walkie-talkie",
+      "observed": [
+        "/plugins/walkie-talkie"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wispr-pack",
+      "observed": [
+        "/plugins/wispr-pack",
+        "/plugins/wispr-pack/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-blue-ocean-strategy",
+      "observed": [
+        "/plugins/wondelai-blue-ocean-strategy",
+        "/plugins/wondelai-blue-ocean-strategy/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-contagious",
+      "observed": [
+        "/plugins/wondelai-contagious",
+        "/plugins/wondelai-contagious/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-cro-methodology",
+      "observed": [
+        "/plugins/wondelai-cro-methodology",
+        "/plugins/wondelai-cro-methodology/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-crossing-the-chasm",
+      "observed": [
+        "/plugins/wondelai-crossing-the-chasm"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-design-everyday-things",
+      "observed": [
+        "/plugins/wondelai-design-everyday-things"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-design-sprint",
+      "observed": [
+        "/plugins/wondelai-design-sprint",
+        "/plugins/wondelai-design-sprint/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-drive-motivation",
+      "observed": [
+        "/plugins/wondelai-drive-motivation/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-hooked-ux",
+      "observed": [
+        "/plugins/wondelai-hooked-ux"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-hundred-million-offers",
+      "observed": [
+        "/plugins/wondelai-hundred-million-offers/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-influence-psychology",
+      "observed": [
+        "/plugins/wondelai-influence-psychology",
+        "/plugins/wondelai-influence-psychology/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-ios-hig-design",
+      "observed": [
+        "/plugins/wondelai-ios-hig-design",
+        "/plugins/wondelai-ios-hig-design/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-jobs-to-be-done",
+      "observed": [
+        "/plugins/wondelai-jobs-to-be-done/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-lean-startup",
+      "observed": [
+        "/plugins/wondelai-lean-startup",
+        "/plugins/wondelai-lean-startup/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-made-to-stick",
+      "observed": [
+        "/plugins/wondelai-made-to-stick"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-negotiation",
+      "observed": [
+        "/plugins/wondelai-negotiation"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-predictable-revenue",
+      "observed": [
+        "/plugins/wondelai-predictable-revenue/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-refactoring-ui",
+      "observed": [
+        "/plugins/wondelai-refactoring-ui/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-scorecard-marketing",
+      "observed": [
+        "/plugins/wondelai-scorecard-marketing"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-storybrand-messaging",
+      "observed": [
+        "/plugins/wondelai-storybrand-messaging/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-top-design",
+      "observed": [
+        "/plugins/wondelai-top-design"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-traction-eos",
+      "observed": [
+        "/plugins/wondelai-traction-eos"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-ux-heuristics",
+      "observed": [
+        "/plugins/wondelai-ux-heuristics",
+        "/plugins/wondelai-ux-heuristics/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/wondelai-web-typography",
+      "observed": [
+        "/plugins/wondelai-web-typography/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/plugins/zai-cli",
+      "observed": [
+        "/plugins/zai-cli/"
+      ],
+      "status": 301,
+      "to": "/plugins/",
+      "rule": "retired-plugin-section-index"
+    },
+    {
+      "from": "/pr/SKILL.md",
+      "observed": [
+        "/pr/SKILL.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    },
+    {
+      "from": "/pricing",
+      "observed": [
+        "/pricing",
+        "/pricing/"
+      ],
+      "status": 404,
+      "rule": "reviewed-keep-404",
+      "note": "The site has no pricing page (/pro itself redirects home); a redirect would mislead."
+    },
+    {
+      "from": "/pricing.html",
+      "observed": [
+        "/pricing.html"
+      ],
+      "status": 404,
+      "rule": "reviewed-keep-404",
+      "note": "The site has no pricing page (/pro itself redirects home); a redirect would mislead."
+    },
+    {
+      "from": "/skills/${CLAUDE<em>SKILL</em>DIR}/references/errors.md",
+      "observed": [
+        "/skills/${CLAUDE<em>SKILL</em>DIR}/references/errors.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/${CLAUDE<em>SKILL</em>DIR}/references/implementation.md",
+      "observed": [
+        "/skills/${CLAUDE<em>SKILL</em>DIR}/references/implementation.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/000-jeremy-content-consistency-validator",
+      "observed": [
+        "/skills/000-jeremy-content-consistency-validator/"
+      ],
+      "status": 301,
+      "to": "/plugins/000-jeremy-content-consistency-validator/",
+      "rule": "same-name-plugin"
+    },
+    {
+      "from": "/skills/action-items-todoist",
+      "observed": [
+        "/skills/action-items-todoist",
+        "/skills/action-items-todoist/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/adobe-core-workflow-a/references/official-docs.md",
+      "observed": [
+        "/skills/adobe-core-workflow-a/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/adobe-core-workflow-a/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/adobe-core-workflow-b/references/official-docs.md",
+      "observed": [
+        "/skills/adobe-core-workflow-b/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/adobe-core-workflow-b/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/agents/merge-rewriter.md",
+      "observed": [
+        "/skills/agents/merge-rewriter.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/alchemy-common-errors/references/official-docs.md",
+      "observed": [
+        "/skills/alchemy-common-errors/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/alchemy-common-errors/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/alchemy-cost-tuning/references/official-docs.md",
+      "observed": [
+        "/skills/alchemy-cost-tuning/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/alchemy-cost-tuning/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/alchemy-install-auth/references/official-docs.md",
+      "observed": [
+        "/skills/alchemy-install-auth/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/alchemy-install-auth/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/alchemy-rate-limits/references/official-docs.md",
+      "observed": [
+        "/skills/alchemy-rate-limits/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/alchemy-rate-limits/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/alchemy-upgrade-migration/references/official-docs.md",
+      "observed": [
+        "/skills/alchemy-upgrade-migration/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/alchemy-upgrade-migration/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/anti-ui-slop/reference/onboard.md",
+      "observed": [
+        "/skills/anti-ui-slop/reference/onboard.md"
+      ],
+      "status": 301,
+      "to": "/skills/anti-ui-slop/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/anti-ui-slop/reference/typeset.md",
+      "observed": [
+        "/skills/anti-ui-slop/reference/typeset.md"
+      ],
+      "status": 301,
+      "to": "/skills/anti-ui-slop/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/artifact-creator/references/artifact-contracts.md",
+      "observed": [
+        "/skills/artifact-creator/references/artifact-contracts.md"
+      ],
+      "status": 301,
+      "to": "/skills/artifact-creator/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/artifact-creator/references/host-adapters.md",
+      "observed": [
+        "/skills/artifact-creator/references/host-adapters.md"
+      ],
+      "status": 301,
+      "to": "/skills/artifact-creator/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/assemblyai-core-workflow-b/references/official-docs.md",
+      "observed": [
+        "/skills/assemblyai-core-workflow-b/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/assemblyai-core-workflow-b/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/audit",
+      "observed": [
+        "/skills/audit"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/background",
+      "observed": [
+        "/skills/background/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/blue-ocean-strategy",
+      "observed": [
+        "/skills/blue-ocean-strategy",
+        "/skills/blue-ocean-strategy/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/blue-ocean-strategy/references/value-innovation.md",
+      "observed": [
+        "/skills/blue-ocean-strategy/references/value-innovation.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/boycott-filter",
+      "observed": [
+        "/skills/boycott-filter"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/cache",
+      "observed": [
+        "/skills/cache/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/channels/newsletter.md",
+      "observed": [
+        "/skills/channels/newsletter.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/claude-reflect",
+      "observed": [
+        "/skills/claude-reflect",
+        "/skills/claude-reflect/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/clickhouse-ci-integration/references/implementation.md",
+      "observed": [
+        "/skills/clickhouse-ci-integration/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/clickhouse-ci-integration/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/clickup-data-handling/references/official-docs.md",
+      "observed": [
+        "/skills/clickup-data-handling/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/clickup-data-handling/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/contagious",
+      "observed": [
+        "/skills/contagious",
+        "/skills/contagious/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/contagious/references/stories-trojan-horse.md",
+      "observed": [
+        "/skills/contagious/references/stories-trojan-horse.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/cro-methodology",
+      "observed": [
+        "/skills/cro-methodology",
+        "/skills/cro-methodology/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/cro-methodology/references/PERSUASION.md",
+      "observed": [
+        "/skills/cro-methodology/references/PERSUASION.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/cro-methodology/references/testing-methodology.md",
+      "observed": [
+        "/skills/cro-methodology/references/testing-methodology.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/crossing-the-chasm",
+      "observed": [
+        "/skills/crossing-the-chasm",
+        "/skills/crossing-the-chasm/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/databricks-cost-leak-hunter/references/system-tables-setup.md",
+      "observed": [
+        "/skills/databricks-cost-leak-hunter/references/system-tables-setup.md"
+      ],
+      "status": 301,
+      "to": "/skills/databricks-cost-leak-hunter/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/databricks-debug-bundle",
+      "observed": [
+        "/skills/databricks-debug-bundle/"
+      ],
+      "status": 301,
+      "to": "/plugins/databricks-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/databricks-rate-limits",
+      "observed": [
+        "/skills/databricks-rate-limits/"
+      ],
+      "status": 301,
+      "to": "/plugins/databricks-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/databricks-sdk-patterns",
+      "observed": [
+        "/skills/databricks-sdk-patterns/"
+      ],
+      "status": 301,
+      "to": "/plugins/databricks-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/deploy",
+      "observed": [
+        "/skills/deploy"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/design",
+      "observed": [
+        "/skills/design/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/design-everyday-things",
+      "observed": [
+        "/skills/design-everyday-things",
+        "/skills/design-everyday-things/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/design-everyday-things/references/signifiers.md",
+      "observed": [
+        "/skills/design-everyday-things/references/signifiers.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/design-sprint",
+      "observed": [
+        "/skills/design-sprint",
+        "/skills/design-sprint/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/design-sprint/references/facilitation.md",
+      "observed": [
+        "/skills/design-sprint/references/facilitation.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/dispatch",
+      "observed": [
+        "/skills/dispatch"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/doctor",
+      "observed": [
+        "/skills/doctor"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/drive-motivation",
+      "observed": [
+        "/skills/drive-motivation",
+        "/skills/drive-motivation/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/elevenlabs-ci-integration/references/implementation.md",
+      "observed": [
+        "/skills/elevenlabs-ci-integration/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/elevenlabs-ci-integration/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/elevenlabs-core-workflow-b/references/implementation.md",
+      "observed": [
+        "/skills/elevenlabs-core-workflow-b/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/elevenlabs-core-workflow-b/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/email-drafting",
+      "observed": [
+        "/skills/email-drafting",
+        "/skills/email-drafting/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/engineer-design-diagram/scripts/validate_html.py",
+      "observed": [
+        "/skills/engineer-design-diagram/scripts/validate_html.py"
+      ],
+      "status": 301,
+      "to": "/skills/engineer-design-diagram/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/evernote-deploy-integration/references/implementation-guide.md",
+      "observed": [
+        "/skills/evernote-deploy-integration/references/implementation-guide.md"
+      ],
+      "status": 301,
+      "to": "/skills/evernote-deploy-integration/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/examples",
+      "observed": [
+        "/skills/examples"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/executive-digest",
+      "observed": [
+        "/skills/executive-digest"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/freshie-inventory/references/examples.md",
+      "observed": [
+        "/skills/freshie-inventory/references/examples.md"
+      ],
+      "status": 301,
+      "to": "/skills/freshie-inventory/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/gastown",
+      "observed": [
+        "/skills/gastown",
+        "/skills/gastown/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/grammarly-ci-integration",
+      "observed": [
+        "/skills/grammarly-ci-integration/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-common-errors",
+      "observed": [
+        "/skills/grammarly-common-errors/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-core-workflow-a",
+      "observed": [
+        "/skills/grammarly-core-workflow-a/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-data-handling",
+      "observed": [
+        "/skills/grammarly-data-handling/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-debug-bundle",
+      "observed": [
+        "/skills/grammarly-debug-bundle",
+        "/skills/grammarly-debug-bundle/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-incident-runbook",
+      "observed": [
+        "/skills/grammarly-incident-runbook",
+        "/skills/grammarly-incident-runbook/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-install-auth",
+      "observed": [
+        "/skills/grammarly-install-auth"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-local-dev-loop",
+      "observed": [
+        "/skills/grammarly-local-dev-loop/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-migration-deep-dive",
+      "observed": [
+        "/skills/grammarly-migration-deep-dive"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-multi-env-setup",
+      "observed": [
+        "/skills/grammarly-multi-env-setup"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-observability",
+      "observed": [
+        "/skills/grammarly-observability/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-performance-tuning",
+      "observed": [
+        "/skills/grammarly-performance-tuning/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-prod-checklist",
+      "observed": [
+        "/skills/grammarly-prod-checklist"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-rate-limits",
+      "observed": [
+        "/skills/grammarly-rate-limits/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-sdk-patterns",
+      "observed": [
+        "/skills/grammarly-sdk-patterns",
+        "/skills/grammarly-sdk-patterns/"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/grammarly-upgrade-migration",
+      "observed": [
+        "/skills/grammarly-upgrade-migration"
+      ],
+      "status": 301,
+      "to": "/plugins/grammarly-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/groq-core-workflow-a/references/implementation.md",
+      "observed": [
+        "/skills/groq-core-workflow-a/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/groq-core-workflow-a/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/groq-hello-world/references/models-and-response.md",
+      "observed": [
+        "/skills/groq-hello-world/references/models-and-response.md"
+      ],
+      "status": 301,
+      "to": "/skills/groq-hello-world/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/groq-incident-runbook/references/triage-and-diagnostics.md",
+      "observed": [
+        "/skills/groq-incident-runbook/references/triage-and-diagnostics.md"
+      ],
+      "status": 301,
+      "to": "/skills/groq-incident-runbook/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/groq-multi-env-setup/references/implementation.md",
+      "observed": [
+        "/skills/groq-multi-env-setup/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/groq-multi-env-setup/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/groq-prod-checklist/references/go-live.md",
+      "observed": [
+        "/skills/groq-prod-checklist/references/go-live.md"
+      ],
+      "status": 301,
+      "to": "/skills/groq-prod-checklist/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/guidewire-data-handling",
+      "observed": [
+        "/skills/guidewire-data-handling/"
+      ],
+      "status": 301,
+      "to": "/plugins/guidewire-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/guidewire-hello-world",
+      "observed": [
+        "/skills/guidewire-hello-world/"
+      ],
+      "status": 301,
+      "to": "/plugins/guidewire-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/guidewire-incident-runbook",
+      "observed": [
+        "/skills/guidewire-incident-runbook/"
+      ],
+      "status": 301,
+      "to": "/plugins/guidewire-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/guidewire-reference-architecture/references/implementation-guide.md",
+      "observed": [
+        "/skills/guidewire-reference-architecture/references/implementation-guide.md"
+      ],
+      "status": 301,
+      "to": "/plugins/guidewire-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/guidewire-security-basics",
+      "observed": [
+        "/skills/guidewire-security-basics/"
+      ],
+      "status": 301,
+      "to": "/plugins/guidewire-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/hooked-ux",
+      "observed": [
+        "/skills/hooked-ux",
+        "/skills/hooked-ux/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hooked-ux/references/rewards.md",
+      "observed": [
+        "/skills/hooked-ux/references/rewards.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hubspot-advanced-troubleshooting",
+      "observed": [
+        "/skills/hubspot-advanced-troubleshooting/"
+      ],
+      "status": 301,
+      "to": "/plugins/hubspot-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/hubspot-core-workflow-b",
+      "observed": [
+        "/skills/hubspot-core-workflow-b/"
+      ],
+      "status": 301,
+      "to": "/plugins/hubspot-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/hundred-million-offers",
+      "observed": [
+        "/skills/hundred-million-offers/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hyperflow-audit",
+      "observed": [
+        "/skills/hyperflow-audit"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hyperflow-cache",
+      "observed": [
+        "/skills/hyperflow-cache"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hyperflow-deploy",
+      "observed": [
+        "/skills/hyperflow-deploy"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hyperflow-design",
+      "observed": [
+        "/skills/hyperflow-design"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hyperflow-plan",
+      "observed": [
+        "/skills/hyperflow-plan"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hyperflow-status",
+      "observed": [
+        "/skills/hyperflow-status"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hyperflow-trace",
+      "observed": [
+        "/skills/hyperflow-trace"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/hyperfocus",
+      "observed": [
+        "/skills/hyperfocus",
+        "/skills/hyperfocus/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/ideogram-cost-tuning/references/official-docs.md",
+      "observed": [
+        "/skills/ideogram-cost-tuning/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/ideogram-cost-tuning/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/influence-psychology",
+      "observed": [
+        "/skills/influence-psychology/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/influence-psychology/references/scarcity.md",
+      "observed": [
+        "/skills/influence-psychology/references/scarcity.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/influence-psychology/references/social-proof.md",
+      "observed": [
+        "/skills/influence-psychology/references/social-proof.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/intercom-core-workflow-a/references/implementation.md",
+      "observed": [
+        "/skills/intercom-core-workflow-a/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/intercom-core-workflow-a/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/intercom-rate-limits/references/implementation.md",
+      "observed": [
+        "/skills/intercom-rate-limits/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/intercom-rate-limits/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/intercom-reference-architecture/references/implementation.md",
+      "observed": [
+        "/skills/intercom-reference-architecture/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/intercom-reference-architecture/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/ios-hig-design",
+      "observed": [
+        "/skills/ios-hig-design/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/ios-hig-design/references/app-icons.md",
+      "observed": [
+        "/skills/ios-hig-design/references/app-icons.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/ios-hig-design/references/colors-depth.md",
+      "observed": [
+        "/skills/ios-hig-design/references/colors-depth.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/ios-hig-design/references/keyboard-input.md",
+      "observed": [
+        "/skills/ios-hig-design/references/keyboard-input.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/ios-hig-design/references/privacy-permissions.md",
+      "observed": [
+        "/skills/ios-hig-design/references/privacy-permissions.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/ios-hig-design/references/system-integration.md",
+      "observed": [
+        "/skills/ios-hig-design/references/system-integration.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/jobs-to-be-done",
+      "observed": [
+        "/skills/jobs-to-be-done",
+        "/skills/jobs-to-be-done/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/klaviyo-debug-bundle/references/examples.md",
+      "observed": [
+        "/skills/klaviyo-debug-bundle/references/examples.md"
+      ],
+      "status": 301,
+      "to": "/skills/klaviyo-debug-bundle/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/klaviyo-enterprise-rbac/references/implementation.md",
+      "observed": [
+        "/skills/klaviyo-enterprise-rbac/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/klaviyo-enterprise-rbac/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/klaviyo-install-auth/references/implementation.md",
+      "observed": [
+        "/skills/klaviyo-install-auth/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/klaviyo-install-auth/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/klaviyo-local-dev-loop/references/implementation.md",
+      "observed": [
+        "/skills/klaviyo-local-dev-loop/references/implementation.md"
+      ],
+      "status": 301,
+      "to": "/skills/klaviyo-local-dev-loop/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/klaviyo-migration-deep-dive/references/implementation.md#migration-checklist",
+      "observed": [
+        "/skills/klaviyo-migration-deep-dive/references/implementation.md#migration-checklist"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/langchain-ci-integration-2/references/github-actions-workflow.md",
+      "observed": [
+        "/skills/langchain-ci-integration-2/references/github-actions-workflow.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-ci-integration/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/langchain-deploy-integration-2/references/langserve-patterns.md",
+      "observed": [
+        "/skills/langchain-deploy-integration-2/references/langserve-patterns.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-deploy-integration/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/langchain-eval-harness/references/ci-integration.md",
+      "observed": [
+        "/skills/langchain-eval-harness/references/ci-integration.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-eval-harness/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/langchain-install-auth",
+      "observed": [
+        "/skills/langchain-install-auth/"
+      ],
+      "status": 301,
+      "to": "/plugins/langchain-py-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/langchain-langgraph-agents/references/agent-executor-migration.md",
+      "observed": [
+        "/skills/langchain-langgraph-agents/references/agent-executor-migration.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-langgraph-agents/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/langchain-langgraph-checkpointing/references/time-travel-and-replay.md",
+      "observed": [
+        "/skills/langchain-langgraph-checkpointing/references/time-travel-and-replay.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-langgraph-checkpointing/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/langchain-local-dev-loop-2",
+      "observed": [
+        "/skills/langchain-local-dev-loop-2/"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-local-dev-loop/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/langchain-migration-deep-dive",
+      "observed": [
+        "/skills/langchain-migration-deep-dive/"
+      ],
+      "status": 301,
+      "to": "/plugins/langchain-py-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/langchain-model-inference/references/token-accounting.md",
+      "observed": [
+        "/skills/langchain-model-inference/references/token-accounting.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-model-inference/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/langchain-observability-2",
+      "observed": [
+        "/skills/langchain-observability-2/"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-observability/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/langchain-reference-architecture-2/references/llm-factory-pattern.md",
+      "observed": [
+        "/skills/langchain-reference-architecture-2/references/llm-factory-pattern.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-reference-architecture/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/langchain-sdk-patterns-2",
+      "observed": [
+        "/skills/langchain-sdk-patterns-2/"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-sdk-patterns/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/langchain-security-basics/references/compliance-posture.md",
+      "observed": [
+        "/skills/langchain-security-basics/references/compliance-posture.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-security-basics/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/langchain-webhooks-events-2/references/idempotency-and-retry.md",
+      "observed": [
+        "/skills/langchain-webhooks-events-2/references/idempotency-and-retry.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-webhooks-events/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/langchain-webhooks-events-2/references/subgraph-propagation.md",
+      "observed": [
+        "/skills/langchain-webhooks-events-2/references/subgraph-propagation.md"
+      ],
+      "status": 301,
+      "to": "/skills/langchain-webhooks-events/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/lean-startup",
+      "observed": [
+        "/skills/lean-startup",
+        "/skills/lean-startup/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/lean-startup/references/applications.md",
+      "observed": [
+        "/skills/lean-startup/references/applications.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/lean-startup/references/assumptions.md",
+      "observed": [
+        "/skills/lean-startup/references/assumptions.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/local-tts",
+      "observed": [
+        "/skills/local-tts",
+        "/skills/local-tts/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/made-to-stick",
+      "observed": [
+        "/skills/made-to-stick",
+        "/skills/made-to-stick/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/meeting-prep-2",
+      "observed": [
+        "/skills/meeting-prep-2",
+        "/skills/meeting-prep-2/"
+      ],
+      "status": 301,
+      "to": "/skills/meeting-prep/",
+      "rule": "duplicate-suffix"
+    },
+    {
+      "from": "/skills/miro-reference-architecture/references/official-docs.md",
+      "observed": [
+        "/skills/miro-reference-architecture/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/miro-reference-architecture/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/mistral-rate-limits/references/official-docs.md",
+      "observed": [
+        "/skills/mistral-rate-limits/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/mistral-rate-limits/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/negotiation",
+      "observed": [
+        "/skills/negotiation"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/neurodivergent-visual-org/references/accessibility-modes.md",
+      "observed": [
+        "/skills/neurodivergent-visual-org/references/accessibility-modes.md"
+      ],
+      "status": 301,
+      "to": "/skills/neurodivergent-visual-org/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/neurodivergent-visual-org/references/configuration-schema.md",
+      "observed": [
+        "/skills/neurodivergent-visual-org/references/configuration-schema.md"
+      ],
+      "status": 301,
+      "to": "/skills/neurodivergent-visual-org/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/neurodivergent-visual-org/references/mode-detection-algorithm.md",
+      "observed": [
+        "/skills/neurodivergent-visual-org/references/mode-detection-algorithm.md"
+      ],
+      "status": 301,
+      "to": "/skills/neurodivergent-visual-org/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-advanced-troubleshooting/references/examples.md",
+      "observed": [
+        "/skills/notion-advanced-troubleshooting/references/examples.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-advanced-troubleshooting/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-common-errors/references/error-codes.md",
+      "observed": [
+        "/skills/notion-common-errors/references/error-codes.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-common-errors/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-load-scale/references/examples.md",
+      "observed": [
+        "/skills/notion-load-scale/references/examples.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-load-scale/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-rate-limits/references/examples.md",
+      "observed": [
+        "/skills/notion-rate-limits/references/examples.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-rate-limits/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-rate-limits/references/official-docs.md",
+      "observed": [
+        "/skills/notion-rate-limits/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-rate-limits/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-reference-architecture/references/event-driven-and-testing.md",
+      "observed": [
+        "/skills/notion-reference-architecture/references/event-driven-and-testing.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-reference-architecture/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-reliability-patterns/references/examples.md",
+      "observed": [
+        "/skills/notion-reliability-patterns/references/examples.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-reliability-patterns/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-search-retrieve/references/examples.md",
+      "observed": [
+        "/skills/notion-search-retrieve/references/examples.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-search-retrieve/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/notion-search-retrieve/references/official-docs.md",
+      "observed": [
+        "/skills/notion-search-retrieve/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/notion-search-retrieve/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/obviously-awesome",
+      "observed": [
+        "/skills/obviously-awesome",
+        "/skills/obviously-awesome/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/one-page-marketing",
+      "observed": [
+        "/skills/one-page-marketing"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/openrouter-compliance-review/${CLAUDE<em>SKILL</em>DIR}/references/examples.md",
+      "observed": [
+        "/skills/openrouter-compliance-review/${CLAUDE<em>SKILL</em>DIR}/references/examples.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/openrouter-context-optimization/${CLAUDE<em>SKILL</em>DIR}/references/examples.md",
+      "observed": [
+        "/skills/openrouter-context-optimization/${CLAUDE<em>SKILL</em>DIR}/references/examples.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/openrouter-debug-bundle/${CLAUDE<em>SKILL</em>DIR}/references/examples.md",
+      "observed": [
+        "/skills/openrouter-debug-bundle/${CLAUDE<em>SKILL</em>DIR}/references/examples.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/openrouter-model-availability/${CLAUDE<em>SKILL</em>DIR}/references/errors.md",
+      "observed": [
+        "/skills/openrouter-model-availability/${CLAUDE<em>SKILL</em>DIR}/references/errors.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/openrouter-sdk-patterns/${CLAUDE<em>SKILL</em>DIR}/references/errors.md",
+      "observed": [
+        "/skills/openrouter-sdk-patterns/${CLAUDE<em>SKILL</em>DIR}/references/errors.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/openrouter-usage-analytics/${CLAUDE<em>SKILL</em>DIR}/references/examples.md",
+      "observed": [
+        "/skills/openrouter-usage-analytics/${CLAUDE<em>SKILL</em>DIR}/references/examples.md"
+      ],
+      "status": 404,
+      "rule": "malformed-path"
+    },
+    {
+      "from": "/skills/palantir-core-workflow-b/references/official-docs.md",
+      "observed": [
+        "/skills/palantir-core-workflow-b/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/palantir-core-workflow-b/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/perplexity-advanced-troubleshooting",
+      "observed": [
+        "/skills/perplexity-advanced-troubleshooting",
+        "/skills/perplexity-advanced-troubleshooting/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-architecture-variants",
+      "observed": [
+        "/skills/perplexity-architecture-variants",
+        "/skills/perplexity-architecture-variants/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-ci-integration",
+      "observed": [
+        "/skills/perplexity-ci-integration"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-common-errors",
+      "observed": [
+        "/skills/perplexity-common-errors",
+        "/skills/perplexity-common-errors/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-core-workflow-a",
+      "observed": [
+        "/skills/perplexity-core-workflow-a",
+        "/skills/perplexity-core-workflow-a/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-core-workflow-b",
+      "observed": [
+        "/skills/perplexity-core-workflow-b/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-cost-tuning",
+      "observed": [
+        "/skills/perplexity-cost-tuning",
+        "/skills/perplexity-cost-tuning/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-data-handling",
+      "observed": [
+        "/skills/perplexity-data-handling",
+        "/skills/perplexity-data-handling/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-debug-bundle",
+      "observed": [
+        "/skills/perplexity-debug-bundle/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-deploy-integration",
+      "observed": [
+        "/skills/perplexity-deploy-integration"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-enterprise-rbac",
+      "observed": [
+        "/skills/perplexity-enterprise-rbac",
+        "/skills/perplexity-enterprise-rbac/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-hello-world",
+      "observed": [
+        "/skills/perplexity-hello-world",
+        "/skills/perplexity-hello-world/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-known-pitfalls",
+      "observed": [
+        "/skills/perplexity-known-pitfalls/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-load-scale",
+      "observed": [
+        "/skills/perplexity-load-scale/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-local-dev-loop",
+      "observed": [
+        "/skills/perplexity-local-dev-loop",
+        "/skills/perplexity-local-dev-loop/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-migration-deep-dive",
+      "observed": [
+        "/skills/perplexity-migration-deep-dive/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-multi-env-setup",
+      "observed": [
+        "/skills/perplexity-multi-env-setup",
+        "/skills/perplexity-multi-env-setup/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-observability",
+      "observed": [
+        "/skills/perplexity-observability",
+        "/skills/perplexity-observability/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-performance-tuning",
+      "observed": [
+        "/skills/perplexity-performance-tuning",
+        "/skills/perplexity-performance-tuning/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-policy-guardrails",
+      "observed": [
+        "/skills/perplexity-policy-guardrails"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-prod-checklist",
+      "observed": [
+        "/skills/perplexity-prod-checklist",
+        "/skills/perplexity-prod-checklist/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-rate-limits",
+      "observed": [
+        "/skills/perplexity-rate-limits",
+        "/skills/perplexity-rate-limits/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-reference-architecture",
+      "observed": [
+        "/skills/perplexity-reference-architecture"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-reliability-patterns",
+      "observed": [
+        "/skills/perplexity-reliability-patterns",
+        "/skills/perplexity-reliability-patterns/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-sdk-patterns",
+      "observed": [
+        "/skills/perplexity-sdk-patterns",
+        "/skills/perplexity-sdk-patterns/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-security-basics",
+      "observed": [
+        "/skills/perplexity-security-basics",
+        "/skills/perplexity-security-basics/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-upgrade-migration",
+      "observed": [
+        "/skills/perplexity-upgrade-migration",
+        "/skills/perplexity-upgrade-migration/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/perplexity-webhooks-events",
+      "observed": [
+        "/skills/perplexity-webhooks-events",
+        "/skills/perplexity-webhooks-events/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/persona-deploy-integration/references/official-docs.md",
+      "observed": [
+        "/skills/persona-deploy-integration/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/persona-deploy-integration/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/persona-local-dev-loop/references/official-docs.md",
+      "observed": [
+        "/skills/persona-local-dev-loop/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/persona-local-dev-loop/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/podium-rate-limit-survival/scripts/bucket_simulator.py",
+      "observed": [
+        "/skills/podium-rate-limit-survival/scripts/bucket_simulator.py"
+      ],
+      "status": 301,
+      "to": "/skills/podium-rate-limit-survival/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/podium-rate-limits",
+      "observed": [
+        "/skills/podium-rate-limits/"
+      ],
+      "status": 301,
+      "to": "/plugins/podium-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/podium-review-request-automation/scripts/cooldown_check.py",
+      "observed": [
+        "/skills/podium-review-request-automation/scripts/cooldown_check.py"
+      ],
+      "status": 301,
+      "to": "/skills/podium-review-request-automation/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/podium-review-request-automation/scripts/optout_compliance_audit.py",
+      "observed": [
+        "/skills/podium-review-request-automation/scripts/optout_compliance_audit.py"
+      ],
+      "status": 301,
+      "to": "/skills/podium-review-request-automation/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/predictable-revenue",
+      "observed": [
+        "/skills/predictable-revenue"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/predictable-revenue/references/cold-calling-2.md",
+      "observed": [
+        "/skills/predictable-revenue/references/cold-calling-2.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/production-upgrade/references/roles",
+      "observed": [
+        "/skills/production-upgrade/references/roles/"
+      ],
+      "status": 301,
+      "to": "/skills/production-upgrade/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/refactoring-ui",
+      "observed": [
+        "/skills/refactoring-ui/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/refactoring-ui/references/data-visualization.md",
+      "observed": [
+        "/skills/refactoring-ui/references/data-visualization.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/reference/adapt.md",
+      "observed": [
+        "/skills/reference/adapt.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/adapt.native.md",
+      "observed": [
+        "/skills/reference/adapt.native.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/animate.md",
+      "observed": [
+        "/skills/reference/animate.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/audit.md",
+      "observed": [
+        "/skills/reference/audit.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/audit.native.md",
+      "observed": [
+        "/skills/reference/audit.native.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/bolder.md",
+      "observed": [
+        "/skills/reference/bolder.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/clarify.md",
+      "observed": [
+        "/skills/reference/clarify.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/colorize.md",
+      "observed": [
+        "/skills/reference/colorize.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/craft-floor.md",
+      "observed": [
+        "/skills/reference/craft-floor.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/craft.md",
+      "observed": [
+        "/skills/reference/craft.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/critique.md",
+      "observed": [
+        "/skills/reference/critique.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/delight.md",
+      "observed": [
+        "/skills/reference/delight.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/distill.md",
+      "observed": [
+        "/skills/reference/distill.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/doctor.md",
+      "observed": [
+        "/skills/reference/doctor.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/document.md",
+      "observed": [
+        "/skills/reference/document.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/extract.md",
+      "observed": [
+        "/skills/reference/extract.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/harden.md",
+      "observed": [
+        "/skills/reference/harden.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/hooks.md",
+      "observed": [
+        "/skills/reference/hooks.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/init.md",
+      "observed": [
+        "/skills/reference/init.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/layout.md",
+      "observed": [
+        "/skills/reference/layout.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/live.md",
+      "observed": [
+        "/skills/reference/live.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/new-work.md",
+      "observed": [
+        "/skills/reference/new-work.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/onboard.md",
+      "observed": [
+        "/skills/reference/onboard.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/operate.md",
+      "observed": [
+        "/skills/reference/operate.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/optimize.md",
+      "observed": [
+        "/skills/reference/optimize.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/overdrive.md",
+      "observed": [
+        "/skills/reference/overdrive.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/polish.md",
+      "observed": [
+        "/skills/reference/polish.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/quieter.md",
+      "observed": [
+        "/skills/reference/quieter.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/routing.md",
+      "observed": [
+        "/skills/reference/routing.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/shape.md",
+      "observed": [
+        "/skills/reference/shape.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/reference/typeset.md",
+      "observed": [
+        "/skills/reference/typeset.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/01-when-to-use.md",
+      "observed": [
+        "/skills/references/01-when-to-use.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/03-workflow.md",
+      "observed": [
+        "/skills/references/03-workflow.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/accessibility-depth.md",
+      "observed": [
+        "/skills/references/accessibility-depth.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/account-abstraction.md",
+      "observed": [
+        "/skills/references/account-abstraction.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/alert-configuration.md",
+      "observed": [
+        "/skills/references/alert-configuration.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/apps.md",
+      "observed": [
+        "/skills/references/apps.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/authentication.md",
+      "observed": [
+        "/skills/references/authentication.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/authorization-model.md",
+      "observed": [
+        "/skills/references/authorization-model.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/autoloader-schema-evolution.md",
+      "observed": [
+        "/skills/references/autoloader-schema-evolution.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/autonomy.md",
+      "observed": [
+        "/skills/references/autonomy.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/brand-script.md",
+      "observed": [
+        "/skills/references/brand-script.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/bulk-metafield-ops.md",
+      "observed": [
+        "/skills/references/bulk-metafield-ops.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/callback-propagation.md",
+      "observed": [
+        "/skills/references/callback-propagation.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/checkpoint-recovery.md",
+      "observed": [
+        "/skills/references/checkpoint-recovery.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/cli-inspect-commands.md",
+      "observed": [
+        "/skills/references/cli-inspect-commands.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/client-module.md",
+      "observed": [
+        "/skills/references/client-module.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/codemod-patterns.md",
+      "observed": [
+        "/skills/references/codemod-patterns.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/collectors.md",
+      "observed": [
+        "/skills/references/collectors.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/common-queries.md",
+      "observed": [
+        "/skills/references/common-queries.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/concrete.md",
+      "observed": [
+        "/skills/references/concrete.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/concurrency-conflicts.md",
+      "observed": [
+        "/skills/references/concurrency-conflicts.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/curse-of-knowledge.md",
+      "observed": [
+        "/skills/references/curse-of-knowledge.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/custom-metrics-and-health-checks.md",
+      "observed": [
+        "/skills/references/custom-metrics-and-health-checks.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/cutover-and-recovery.md",
+      "observed": [
+        "/skills/references/cutover-and-recovery.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/data-visualization.md",
+      "observed": [
+        "/skills/references/data-visualization.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/diagnostic-queries.md",
+      "observed": [
+        "/skills/references/diagnostic-queries.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/diagnostic-scripts.md",
+      "observed": [
+        "/skills/references/diagnostic-scripts.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/directory-layout.md",
+      "observed": [
+        "/skills/references/directory-layout.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/dlt-rebuild-safety.md",
+      "observed": [
+        "/skills/references/dlt-rebuild-safety.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/drain-vectors.md",
+      "observed": [
+        "/skills/references/drain-vectors.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/errors.md",
+      "observed": [
+        "/skills/references/errors.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/errors/import-migration.md",
+      "observed": [
+        "/skills/references/errors/import-migration.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/errors/triage-decision-tree.md",
+      "observed": [
+        "/skills/references/errors/triage-decision-tree.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/event-driven-architecture.md",
+      "observed": [
+        "/skills/references/event-driven-architecture.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/event-handler-pattern.md",
+      "observed": [
+        "/skills/references/event-handler-pattern.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/fake-model-fixtures.md",
+      "observed": [
+        "/skills/references/fake-model-fixtures.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/few-shot-selectors.md",
+      "observed": [
+        "/skills/references/few-shot-selectors.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/file.md",
+      "observed": [
+        "/skills/references/file.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/git-workflow.md",
+      "observed": [
+        "/skills/references/git-workflow.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/gotchas.md",
+      "observed": [
+        "/skills/references/gotchas.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/gpu-cost-leak-categories.md",
+      "observed": [
+        "/skills/references/gpu-cost-leak-categories.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/health-check-endpoint.md",
+      "observed": [
+        "/skills/references/health-check-endpoint.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/hydrogen-storefront.md",
+      "observed": [
+        "/skills/references/hydrogen-storefront.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/identity-types-and-inventory.md",
+      "observed": [
+        "/skills/references/identity-types-and-inventory.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/incoming-webhooks.md",
+      "observed": [
+        "/skills/references/incoming-webhooks.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/integration-tests.md",
+      "observed": [
+        "/skills/references/integration-tests.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/inventory-and-redirects.md",
+      "observed": [
+        "/skills/references/inventory-and-redirects.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/json-serializability-rules.md",
+      "observed": [
+        "/skills/references/json-serializability-rules.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/krug-principles.md",
+      "observed": [
+        "/skills/references/krug-principles.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/langsmith-prompt-hub.md",
+      "observed": [
+        "/skills/references/langsmith-prompt-hub.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/locale-checklist.md",
+      "observed": [
+        "/skills/references/locale-checklist.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/loop-caps-and-budgets.md",
+      "observed": [
+        "/skills/references/loop-caps-and-budgets.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/managed-access-and-future-grants.md",
+      "observed": [
+        "/skills/references/managed-access-and-future-grants.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/mcp-oauth-role-scoping.md",
+      "observed": [
+        "/skills/references/mcp-oauth-role-scoping.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/mcp-tools.md",
+      "observed": [
+        "/skills/references/mcp-tools.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/metrics-collection.md",
+      "observed": [
+        "/skills/references/metrics-collection.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/migration-patterns.md",
+      "observed": [
+        "/skills/references/migration-patterns.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/mitigation.md",
+      "observed": [
+        "/skills/references/mitigation.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/multimodal-composition.md",
+      "observed": [
+        "/skills/references/multimodal-composition.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/network-failure-handling.md",
+      "observed": [
+        "/skills/references/network-failure-handling.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/observability-queries.md",
+      "observed": [
+        "/skills/references/observability-queries.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/one-liners.md",
+      "observed": [
+        "/skills/references/one-liners.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/one-pager.md",
+      "observed": [
+        "/skills/references/one-pager.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/optimization.md",
+      "observed": [
+        "/skills/references/optimization.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/organization-api-and-audit-trail.md",
+      "observed": [
+        "/skills/references/organization-api-and-audit-trail.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/performance-compliance-checklist.md",
+      "observed": [
+        "/skills/references/performance-compliance-checklist.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/post-deploy-verification.md",
+      "observed": [
+        "/skills/references/post-deploy-verification.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/privilege-and-boundaries.md",
+      "observed": [
+        "/skills/references/privilege-and-boundaries.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/process.md",
+      "observed": [
+        "/skills/references/process.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/production-error-monitoring.md",
+      "observed": [
+        "/skills/references/production-error-monitoring.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/project-analysis.md",
+      "observed": [
+        "/skills/references/project-analysis.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/project-structure.md",
+      "observed": [
+        "/skills/references/project-structure.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/prometheus-grafana.md",
+      "observed": [
+        "/skills/references/prometheus-grafana.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/purpose.md",
+      "observed": [
+        "/skills/references/purpose.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/pytest-config.md",
+      "observed": [
+        "/skills/references/pytest-config.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/python-patterns.md",
+      "observed": [
+        "/skills/references/python-patterns.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/quality-gates.md",
+      "observed": [
+        "/skills/references/quality-gates.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/queries-and-filters.md",
+      "observed": [
+        "/skills/references/queries-and-filters.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/query-analytics-and-log-drains.md",
+      "observed": [
+        "/skills/references/query-analytics-and-log-drains.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/query-cost-budget.md",
+      "observed": [
+        "/skills/references/query-cost-budget.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/recovery-matrix.md",
+      "observed": [
+        "/skills/references/recovery-matrix.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/retriever-per-request.md",
+      "observed": [
+        "/skills/references/retriever-per-request.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/review-memory-policy.md",
+      "observed": [
+        "/skills/references/review-memory-policy.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/rewards.md",
+      "observed": [
+        "/skills/references/rewards.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/rocksdb-state-store-tuning.md",
+      "observed": [
+        "/skills/references/rocksdb-state-store-tuning.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/scarcity.md",
+      "observed": [
+        "/skills/references/scarcity.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/schemachange-integrity.md",
+      "observed": [
+        "/skills/references/schemachange-integrity.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/sdk-initialization-pitfalls.md",
+      "observed": [
+        "/skills/references/sdk-initialization-pitfalls.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/serverless-and-multi-tenant.md",
+      "observed": [
+        "/skills/references/serverless-and-multi-tenant.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/session-middleware-deep-dive.md",
+      "observed": [
+        "/skills/references/session-middleware-deep-dive.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/source-notes.md",
+      "observed": [
+        "/skills/references/source-notes.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/spa-and-mobile.md",
+      "observed": [
+        "/skills/references/spa-and-mobile.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/storage.md",
+      "observed": [
+        "/skills/references/storage.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/stream-mode-comparison.md",
+      "observed": [
+        "/skills/references/stream-mode-comparison.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/table-recreation.md",
+      "observed": [
+        "/skills/references/table-recreation.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/target-customers.md",
+      "observed": [
+        "/skills/references/target-customers.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/templates.md",
+      "observed": [
+        "/skills/references/templates.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/terraform-provider-2x.md",
+      "observed": [
+        "/skills/references/terraform-provider-2x.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/testing.md",
+      "observed": [
+        "/skills/references/testing.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/thread.md",
+      "observed": [
+        "/skills/references/thread.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/toolchain-bcr.md",
+      "observed": [
+        "/skills/references/toolchain-bcr.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/upgrade-procedure.md",
+      "observed": [
+        "/skills/references/upgrade-procedure.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/vcr-cassette-hygiene.md",
+      "observed": [
+        "/skills/references/vcr-cassette-hygiene.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/verification-and-rollback.md",
+      "observed": [
+        "/skills/references/verification-and-rollback.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/worker-prompt.md",
+      "observed": [
+        "/skills/references/worker-prompt.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/workload-auth-options.md",
+      "observed": [
+        "/skills/references/workload-auth-options.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/references/zero-change-rollback.md",
+      "observed": [
+        "/skills/references/zero-change-rollback.md"
+      ],
+      "status": 404,
+      "rule": "relative-link-artifact"
+    },
+    {
+      "from": "/skills/replit-advanced-troubleshooting",
+      "observed": [
+        "/skills/replit-advanced-troubleshooting",
+        "/skills/replit-advanced-troubleshooting/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-architecture-variants",
+      "observed": [
+        "/skills/replit-architecture-variants",
+        "/skills/replit-architecture-variants/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-ci-integration",
+      "observed": [
+        "/skills/replit-ci-integration",
+        "/skills/replit-ci-integration/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-core-workflow-a",
+      "observed": [
+        "/skills/replit-core-workflow-a",
+        "/skills/replit-core-workflow-a/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-core-workflow-b",
+      "observed": [
+        "/skills/replit-core-workflow-b"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-cost-tuning",
+      "observed": [
+        "/skills/replit-cost-tuning",
+        "/skills/replit-cost-tuning/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-data-handling",
+      "observed": [
+        "/skills/replit-data-handling"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-debug-bundle",
+      "observed": [
+        "/skills/replit-debug-bundle/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-deploy-integration",
+      "observed": [
+        "/skills/replit-deploy-integration",
+        "/skills/replit-deploy-integration/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-enterprise-rbac",
+      "observed": [
+        "/skills/replit-enterprise-rbac",
+        "/skills/replit-enterprise-rbac/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-hello-world",
+      "observed": [
+        "/skills/replit-hello-world",
+        "/skills/replit-hello-world/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-incident-runbook",
+      "observed": [
+        "/skills/replit-incident-runbook",
+        "/skills/replit-incident-runbook/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-install-auth",
+      "observed": [
+        "/skills/replit-install-auth",
+        "/skills/replit-install-auth/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-known-pitfalls",
+      "observed": [
+        "/skills/replit-known-pitfalls",
+        "/skills/replit-known-pitfalls/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-load-scale",
+      "observed": [
+        "/skills/replit-load-scale",
+        "/skills/replit-load-scale/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-local-dev-loop",
+      "observed": [
+        "/skills/replit-local-dev-loop"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-migration-deep-dive",
+      "observed": [
+        "/skills/replit-migration-deep-dive",
+        "/skills/replit-migration-deep-dive/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-multi-env-setup",
+      "observed": [
+        "/skills/replit-multi-env-setup",
+        "/skills/replit-multi-env-setup/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-observability",
+      "observed": [
+        "/skills/replit-observability",
+        "/skills/replit-observability/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-performance-tuning",
+      "observed": [
+        "/skills/replit-performance-tuning",
+        "/skills/replit-performance-tuning/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-policy-guardrails",
+      "observed": [
+        "/skills/replit-policy-guardrails/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-prod-checklist",
+      "observed": [
+        "/skills/replit-prod-checklist",
+        "/skills/replit-prod-checklist/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-rate-limits",
+      "observed": [
+        "/skills/replit-rate-limits",
+        "/skills/replit-rate-limits/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-reference-architecture",
+      "observed": [
+        "/skills/replit-reference-architecture"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-reliability-patterns",
+      "observed": [
+        "/skills/replit-reliability-patterns",
+        "/skills/replit-reliability-patterns/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-sdk-patterns",
+      "observed": [
+        "/skills/replit-sdk-patterns",
+        "/skills/replit-sdk-patterns/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-security-basics",
+      "observed": [
+        "/skills/replit-security-basics",
+        "/skills/replit-security-basics/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-upgrade-migration",
+      "observed": [
+        "/skills/replit-upgrade-migration"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/replit-webhooks-events",
+      "observed": [
+        "/skills/replit-webhooks-events",
+        "/skills/replit-webhooks-events/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/runway-prod-checklist/references/official-docs.md",
+      "observed": [
+        "/skills/runway-prod-checklist/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/runway-prod-checklist/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/scorecard-marketing",
+      "observed": [
+        "/skills/scorecard-marketing"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/scorecard-marketing/references/technical-implementation.md",
+      "observed": [
+        "/skills/scorecard-marketing/references/technical-implementation.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/sd25-pe",
+      "observed": [
+        "/skills/sd25-pe"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/setup-2",
+      "observed": [
+        "/skills/setup-2"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/shopify-architecture-variants/references/theme-app-extension.md",
+      "observed": [
+        "/skills/shopify-architecture-variants/references/theme-app-extension.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-architecture-variants/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/shopify-common-errors/references/diagnostic-script.md",
+      "observed": [
+        "/skills/shopify-common-errors/references/diagnostic-script.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-common-errors/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/shopify-core-workflow-b/references/customer-search-query.md",
+      "observed": [
+        "/skills/shopify-core-workflow-b/references/customer-search-query.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-core-workflow-b/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/shopify-core-workflow-b/references/fulfillment-processing.md",
+      "observed": [
+        "/skills/shopify-core-workflow-b/references/fulfillment-processing.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-core-workflow-b/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/shopify-cost-tuning/references/usage-tracker-class.md",
+      "observed": [
+        "/skills/shopify-cost-tuning/references/usage-tracker-class.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-cost-tuning/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/shopify-graphql-cost-optimizer/references/cost-calculation-rules.md",
+      "observed": [
+        "/skills/shopify-graphql-cost-optimizer/references/cost-calculation-rules.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-graphql-cost-optimizer/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/shopify-performance-tuning/references/bulk-operations.md",
+      "observed": [
+        "/skills/shopify-performance-tuning/references/bulk-operations.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-performance-tuning/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/shopify-performance-tuning/references/response-caching.md",
+      "observed": [
+        "/skills/shopify-performance-tuning/references/response-caching.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-performance-tuning/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/shopify-policy-guardrails/references/ci-policy-pipeline.md",
+      "observed": [
+        "/skills/shopify-policy-guardrails/references/ci-policy-pipeline.md"
+      ],
+      "status": 301,
+      "to": "/skills/shopify-policy-guardrails/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/skyvern",
+      "observed": [
+        "/skills/skyvern"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/snowflake-access-guardian/references/authorization-model.md",
+      "observed": [
+        "/skills/snowflake-access-guardian/references/authorization-model.md"
+      ],
+      "status": 301,
+      "to": "/skills/snowflake-access-guardian/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/snowflake-cost-leak-hunter/references/attribution-and-staleness.md",
+      "observed": [
+        "/skills/snowflake-cost-leak-hunter/references/attribution-and-staleness.md"
+      ],
+      "status": 301,
+      "to": "/skills/snowflake-cost-leak-hunter/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/snowflake-deploy-medic/references/zero-change-rollback.md",
+      "observed": [
+        "/skills/snowflake-deploy-medic/references/zero-change-rollback.md"
+      ],
+      "status": 301,
+      "to": "/skills/snowflake-deploy-medic/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/snowflake-pipeline-guardian/scripts/analyze_pipeline_state.py",
+      "observed": [
+        "/skills/snowflake-pipeline-guardian/scripts/analyze_pipeline_state.py"
+      ],
+      "status": 301,
+      "to": "/skills/snowflake-pipeline-guardian/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/snowflake-query-forensics/references/query-insights-boundaries.md",
+      "observed": [
+        "/skills/snowflake-query-forensics/references/query-insights-boundaries.md"
+      ],
+      "status": 301,
+      "to": "/skills/snowflake-query-forensics/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/snowflake-query-forensics/scripts/analyze_query_evidence.py",
+      "observed": [
+        "/skills/snowflake-query-forensics/scripts/analyze_query_evidence.py"
+      ],
+      "status": 301,
+      "to": "/skills/snowflake-query-forensics/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/stackblitz-debug-bundle/references/official-docs.md",
+      "observed": [
+        "/skills/stackblitz-debug-bundle/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/stackblitz-debug-bundle/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/stackblitz-deploy-integration",
+      "observed": [
+        "/skills/stackblitz-deploy-integration/"
+      ],
+      "status": 301,
+      "to": "/plugins/stackblitz-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/stackblitz-performance-tuning",
+      "observed": [
+        "/skills/stackblitz-performance-tuning/"
+      ],
+      "status": 301,
+      "to": "/plugins/stackblitz-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/stackblitz-prod-checklist",
+      "observed": [
+        "/skills/stackblitz-prod-checklist/"
+      ],
+      "status": 301,
+      "to": "/plugins/stackblitz-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/stackblitz-webhooks-events",
+      "observed": [
+        "/skills/stackblitz-webhooks-events/"
+      ],
+      "status": 301,
+      "to": "/plugins/stackblitz-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/storybrand-messaging",
+      "observed": [
+        "/skills/storybrand-messaging"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/storybrand-messaging/references/multi-channel-consistency.md",
+      "observed": [
+        "/skills/storybrand-messaging/references/multi-channel-consistency.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/supabase-architecture-variants/references/serverless-and-multi-tenant.md",
+      "observed": [
+        "/skills/supabase-architecture-variants/references/serverless-and-multi-tenant.md"
+      ],
+      "status": 301,
+      "to": "/skills/supabase-architecture-variants/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/supabase-load-scale/references/table-partitioning.md",
+      "observed": [
+        "/skills/supabase-load-scale/references/table-partitioning.md"
+      ],
+      "status": 301,
+      "to": "/skills/supabase-load-scale/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/techsmith-performance-tuning/references/official-docs.md",
+      "observed": [
+        "/skills/techsmith-performance-tuning/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/techsmith-performance-tuning/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/todoist-due-drafts",
+      "observed": [
+        "/skills/todoist-due-drafts"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/together-debug-bundle",
+      "observed": [
+        "/skills/together-debug-bundle",
+        "/skills/together-debug-bundle/"
+      ],
+      "status": 301,
+      "to": "/plugins/together-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/together-performance-tuning",
+      "observed": [
+        "/skills/together-performance-tuning",
+        "/skills/together-performance-tuning/"
+      ],
+      "status": 301,
+      "to": "/plugins/together-pack/",
+      "rule": "vendor-pack-page"
+    },
+    {
+      "from": "/skills/together-upgrade-migration/references/official-docs.md",
+      "observed": [
+        "/skills/together-upgrade-migration/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/together-upgrade-migration/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/top-design",
+      "observed": [
+        "/skills/top-design/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/traction-eos",
+      "observed": [
+        "/skills/traction-eos",
+        "/skills/traction-eos/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/traction-eos/references/data.md",
+      "observed": [
+        "/skills/traction-eos/references/data.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/ux-heuristics",
+      "observed": [
+        "/skills/ux-heuristics"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/validator-expert/references/monitoring-checklist.md",
+      "observed": [
+        "/skills/validator-expert/references/monitoring-checklist.md"
+      ],
+      "status": 301,
+      "to": "/skills/validator-expert/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/veeva-ci-integration",
+      "observed": [
+        "/skills/veeva-ci-integration/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-common-errors",
+      "observed": [
+        "/skills/veeva-common-errors",
+        "/skills/veeva-common-errors/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-core-workflow-a",
+      "observed": [
+        "/skills/veeva-core-workflow-a/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-cost-tuning",
+      "observed": [
+        "/skills/veeva-cost-tuning"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-data-handling",
+      "observed": [
+        "/skills/veeva-data-handling/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-deploy-integration",
+      "observed": [
+        "/skills/veeva-deploy-integration/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-enterprise-rbac",
+      "observed": [
+        "/skills/veeva-enterprise-rbac/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-incident-runbook",
+      "observed": [
+        "/skills/veeva-incident-runbook/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-install-auth",
+      "observed": [
+        "/skills/veeva-install-auth/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-local-dev-loop",
+      "observed": [
+        "/skills/veeva-local-dev-loop"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-multi-env-setup",
+      "observed": [
+        "/skills/veeva-multi-env-setup/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-observability",
+      "observed": [
+        "/skills/veeva-observability/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-performance-tuning",
+      "observed": [
+        "/skills/veeva-performance-tuning"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-prod-checklist",
+      "observed": [
+        "/skills/veeva-prod-checklist"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-rate-limits",
+      "observed": [
+        "/skills/veeva-rate-limits"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-reference-architecture",
+      "observed": [
+        "/skills/veeva-reference-architecture"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-sdk-patterns",
+      "observed": [
+        "/skills/veeva-sdk-patterns",
+        "/skills/veeva-sdk-patterns/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-security-basics",
+      "observed": [
+        "/skills/veeva-security-basics"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-upgrade-migration",
+      "observed": [
+        "/skills/veeva-upgrade-migration",
+        "/skills/veeva-upgrade-migration/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/veeva-webhooks-events",
+      "observed": [
+        "/skills/veeva-webhooks-events/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/walkie-talkie",
+      "observed": [
+        "/skills/walkie-talkie"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/web-typography",
+      "observed": [
+        "/skills/web-typography/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/web-typography/references/typeface-anatomy.md",
+      "observed": [
+        "/skills/web-typography/references/typeface-anatomy.md"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/webflow-upgrade-migration/references/official-docs.md",
+      "observed": [
+        "/skills/webflow-upgrade-migration/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/webflow-upgrade-migration/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/windsurf-reliability-patterns/references/official-docs.md",
+      "observed": [
+        "/skills/windsurf-reliability-patterns/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/windsurf-reliability-patterns/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/windsurf-webhooks-events/references/official-docs.md",
+      "observed": [
+        "/skills/windsurf-webhooks-events/references/official-docs.md"
+      ],
+      "status": 301,
+      "to": "/skills/windsurf-webhooks-events/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/wispr-common-errors",
+      "observed": [
+        "/skills/wispr-common-errors",
+        "/skills/wispr-common-errors/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-core-workflow-a",
+      "observed": [
+        "/skills/wispr-core-workflow-a/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-core-workflow-b",
+      "observed": [
+        "/skills/wispr-core-workflow-b/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-cost-tuning",
+      "observed": [
+        "/skills/wispr-cost-tuning",
+        "/skills/wispr-cost-tuning/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-debug-bundle",
+      "observed": [
+        "/skills/wispr-debug-bundle",
+        "/skills/wispr-debug-bundle/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-install-auth",
+      "observed": [
+        "/skills/wispr-install-auth"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-local-dev-loop",
+      "observed": [
+        "/skills/wispr-local-dev-loop",
+        "/skills/wispr-local-dev-loop/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-performance-tuning",
+      "observed": [
+        "/skills/wispr-performance-tuning/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-prod-checklist",
+      "observed": [
+        "/skills/wispr-prod-checklist",
+        "/skills/wispr-prod-checklist/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-rate-limits",
+      "observed": [
+        "/skills/wispr-rate-limits"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-reference-architecture",
+      "observed": [
+        "/skills/wispr-reference-architecture",
+        "/skills/wispr-reference-architecture/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-sdk-patterns",
+      "observed": [
+        "/skills/wispr-sdk-patterns"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/wispr-security-basics",
+      "observed": [
+        "/skills/wispr-security-basics/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/workflow",
+      "observed": [
+        "/skills/workflow"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/workflow-2",
+      "observed": [
+        "/skills/workflow-2/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/x-bug-triage/references/escalation-rules.md",
+      "observed": [
+        "/skills/x-bug-triage/references/escalation-rules.md"
+      ],
+      "status": 301,
+      "to": "/skills/x-bug-triage/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/x-bug-triage/references/routing-rules.md",
+      "observed": [
+        "/skills/x-bug-triage/references/routing-rules.md"
+      ],
+      "status": 301,
+      "to": "/skills/x-bug-triage/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/zai-cli",
+      "observed": [
+        "/skills/zai-cli",
+        "/skills/zai-cli/"
+      ],
+      "status": 404,
+      "rule": "no-close-match"
+    },
+    {
+      "from": "/skills/zero-tech-debt/references",
+      "observed": [
+        "/skills/zero-tech-debt/references/"
+      ],
+      "status": 301,
+      "to": "/skills/zero-tech-debt/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/zero-tech-debt/references/01-when-to-use.md",
+      "observed": [
+        "/skills/zero-tech-debt/references/01-when-to-use.md"
+      ],
+      "status": 301,
+      "to": "/skills/zero-tech-debt/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/skills/zero-tech-debt/references/03-workflow.md",
+      "observed": [
+        "/skills/zero-tech-debt/references/03-workflow.md"
+      ],
+      "status": 301,
+      "to": "/skills/zero-tech-debt/",
+      "rule": "live-parent-page"
+    },
+    {
+      "from": "/submit",
+      "observed": [
+        "/submit"
+      ],
+      "status": 301,
+      "to": "/docs/guides/publish-to-marketplace/",
+      "rule": "reviewed-override",
+      "note": "Submission instructions now live in the publish-to-marketplace guide."
+    },
+    {
+      "from": "/trace/SKILL.md",
+      "observed": [
+        "/trace/SKILL.md"
+      ],
+      "status": 404,
+      "rule": "outside-catalog"
+    }
+  ]
+}

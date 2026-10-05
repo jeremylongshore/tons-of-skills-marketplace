@@ -29,6 +29,18 @@
         "skills/sync-status/SKILL.md": "sha256:98a7aaec07bf527f1f728754980232cdfb459201e9fd87dd64f657d565f32c1f"
       }
     },
+    "agent-memory-discipline": {
+      "repo": "mnemoverse/agent-memory-discipline",
+      "resolved_ref": "77578ac18f29c69b1b45f34268ac0ed16df72fca",
+      "locked_at": "2026-10-03T20:01:12.431Z",
+      "files": {
+        ".claude-plugin/plugin.json": "sha256:dc322cffa37775449cd559cd6565ba0ea29a2bb793cd3ef852ef04735c8be88b",
+        "LICENSE": "sha256:a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+        "README.md": "sha256:4a4b338a22d7fdd7772ae08af12a2b9e94dff865d81fbf6647b3a66e330fa4ed",
+        "skills/agent-memory-discipline/SKILL.md": "sha256:4a865359a58cf87283a1239f0485926b3d1945d15f55bedc89de0a2cdbbc3fa2",
+        "skills/agent-memory-discipline/references/entry-format.md": "sha256:097dd075d4288e97c7a4e9cba49273e0f770ec91d3e8896dbc95bec79122f363"
+      }
+    },
     "aomi": {
       "repo": "aomi-labs/skills",
       "resolved_ref": "783b6debae3182aa4906fbbc301cb2a27510d0c9",
@@ -258,6 +270,31 @@
         "skills/dolt-mcp-vcs/references/connection-descriptor-and-profiles.md": "sha256:f9d86828cb8e0cb14531d93e6253bc8104ccdfa5e473fd7fd22447aaab83c3f1",
         "skills/dolt-mcp-vcs/references/dolt-internals.md": "sha256:e4b2c11c55447526a8fa02d5f5dce8bab7ad793dc430be7da9cba3f2936cd0d9",
         "skills/dolt-mcp-vcs/safety-eval.yaml": "sha256:7c167aba635dedf2296b78b063939a989873946815f74ad4ba327cc72e20b981"
+      }
+    },
+    "dvera": {
+      "repo": "SuresoftTechnologies/dvera-plugin",
+      "resolved_ref": "92e1256bdcf4fb26f035e7933d990e921ca5b66c",
+      "locked_at": "2026-10-03T20:01:13.230Z",
+      "files": {
+        ".claude-plugin/marketplace.json": "sha256:ff298378f2818d49d2ddbafb4df3941b83f58fcac1b466173cdece194d1b9bdd",
+        ".claude-plugin/plugin.json": "sha256:e5bedf202a02fb4bdafdc91d98fc041fa0e0475b5aaba84daef8557b66bd72e9",
+        "LICENSE": "sha256:61f23eb18302318a4090c52ed35f542ea8894ff2be45a1bc501819e8f77edc9a",
+        "README.md": "sha256:6be520abb75a514705318399b703cb011d7cfc49875f41e2bc8256d64897b40f",
+        "skills/ct-analysis-loop/SKILL.md": "sha256:d3a2c8ce50d2b5916b5c23cd212cbb47d741dddaa9e64bae37f3ffa8725a2ad6",
+        "skills/ct-extract-macro/SKILL.md": "sha256:ac0e076765c89b4dd2e2ca046b845012039eff1ef0e24941b6e7759189473608",
+        "skills/ct-init-project/SKILL.md": "sha256:3c06c74eef76c609bc724de837477e1cdfd3ef70c78ee64256ce11c55c46f01f",
+        "skills/ct-kb-update/SKILL.md": "sha256:2e127acbaed92a48dc68a8520ed39e4cfd079fdbe42fa0269ab89ed1d64436d4",
+        "skills/ct-make-conf/SKILL.md": "sha256:1b37a24941ffca3a3c5c8d7ac255abac8d45991a72bb804eed8f2a1e1a3c9094",
+        "skills/ct-open/SKILL.md": "sha256:a25417d5bcc92c4c49c383554916eacf3a2029097b3660149de49390ea0ae147",
+        "skills/ct-orchestrator/SKILL.md": "sha256:f645b500f5008699cf1a370e5df7f3528e852684eb943af70887b0d25f8c2034",
+        "skills/ct-regression/SKILL.md": "sha256:af9abb383c059c59a83b12874c618c1cd545537723aab9220b6b8695600e20dd",
+        "skills/ct-report/SKILL.md": "sha256:eddadefbf452cc705139e26cacf33f1dd346de5b44f7af2ee5fd72bef16b3ff7",
+        "skills/ct-req-to-test/SKILL.md": "sha256:91391580fdce46deabdbe1da11a3a8769c33d5a0861632ffb60b22b5fdacc3c2",
+        "skills/ct-run-gtest/SKILL.md": "sha256:5825c97a7c25f2dd7a7112a2b200019e7ce0acab06405762ad147f429fb6c23a",
+        "skills/ct-self-healing/SKILL.md": "sha256:117d0eca42b4fbcf46271c04b361a74e21505209f428b1e0bab36b46a095474a",
+        "skills/ct-setup-project/SKILL.md": "sha256:1d0b249929e97f698100f08ea9a984f78c0b5d5ab6ab51a2c2b96d7662e9bea2",
+        "skills/ct-test-loop/SKILL.md": "sha256:ee8bf6ef616c4dba1efe54ce2dbf802f8061e565c41cc280b633a902a0196c56"
       }
     },
     "ejentum-anti-deception": {
@@ -608,6 +645,15 @@
         "skills/obsidian-project-documentation/project-template.md": "sha256:c5ed99270d892c3a87dc999248f12c249d47f1eb9a97bdae7f031d0c3fd5721e"
       }
     },
+    "orca-replay": {
+      "repo": "Continuum-AI-Corp/OrcaReplay",
+      "resolved_ref": "a9178ca26af95cfd3231b8eb2da4ae11dbbd0a84",
+      "locked_at": "2026-10-03T20:01:34.974Z",
+      "files": {
+        "LICENSE": "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "SKILL.md": "sha256:63ec141afb1468c877dc5c8c240672a27ffec0328011f3e9d6db4fa4d4cf5bf7"
+      }
+    },
     "over-50s-health": {
       "repo": "ali5ter/over-50s-health-advisor",
       "resolved_ref": "aa58bc9bfebf41f96de7bcd49deea446c0ca5da0",
@@ -726,6 +772,15 @@
         "LICENSE": "sha256:9406450e19aae35301ee058fa7c8d21fbd9ad702b3ac0c5d14d05d1ca58cfbc7",
         "README.md": "sha256:1bf05090a2f3dd95c69e597f978887176bf640e5382f433d0d15e13d92d949c1",
         "skills/schedule-after-usage-reset/SKILL.md": "sha256:c7d6d232358a10733271c22dcc22de182493e3327df67502379a7fbcc7f8d94a"
+      }
+    },
+    "schliff": {
+      "repo": "Zandereins/schliff",
+      "resolved_ref": "9f9d58c4d456b1aff73479a91b2cb02d722bc06b",
+      "locked_at": "2026-10-03T20:01:11.679Z",
+      "files": {
+        "LICENSE": "sha256:2e9e59c101e3bb2678f5c745555e3fba08b02a62b1e0907372153631ef4e17a2",
+        "SKILL.md": "sha256:c0cb9d17fb10241c464a876dda9b2915370c8fcb6df054db9b671d1c4e762b79"
       }
     },
     "servicegraph": {
@@ -935,6 +990,28 @@
         "mcp-server/package.json": "sha256:5c174db28b5e58aaf48962bff63e07c89ef734de9699b08ccefb0deb6090e210",
         "mcp-server/sugar-mcp.js": "sha256:4f6bb0a8a8b7e3a76b61fc6d62b6cf23aae8058b18bec6f5be3ab9b9f390d702",
         "plugin.json": "sha256:5c0c564f8cd524d2685e0e28c04a1b3e861b8fcef9ec8a74ba3226bbac914130"
+      }
+    },
+    "swift-ship": {
+      "repo": "chsistrying/swift-ship-skills",
+      "resolved_ref": "b2b0b9b5de94877cbcf2764234234a4334517e68",
+      "locked_at": "2026-10-03T20:01:35.695Z",
+      "files": {
+        ".claude-plugin/marketplace.json": "sha256:df166c32a924c475f750c59cf91d0ec4deb4e358c9219ee208f16042e7372259",
+        ".claude-plugin/plugin.json": "sha256:aee9a6ed9213c15aa4b839d3a8effec7688c7fdd92889f2d7602183bc5969e03",
+        "LICENSE": "sha256:8b58d717add03a779c13f70bb665d8ea68be4fdd71e22fc3992e7f91c649b086",
+        "README.md": "sha256:3359fc2774c2d9b0f418e7511b51be5cc43a8f7c94aa52a6665126ef158c1583",
+        "skills/macos-app-icon/SKILL.md": "sha256:c870e99e4c874407581db11956a8e316d4c68a620b93f1ef3957be6824dc34b4",
+        "skills/macos-app-icon/scripts/make_icns.sh": "sha256:86b3e5e3690394a993b001e526c33227bb699c84245a1c82d6389fad2388f07a",
+        "skills/oss-readiness-audit/SKILL.md": "sha256:a0997d8ecfd4213686409f03478c5ce65705b0928518d189480e57d078f34c7c",
+        "skills/swift-ci-portability/SKILL.md": "sha256:2c58f22eeb0725d659839ae045b336d4162db36cc50eb4a5115b3a55db62de30",
+        "skills/swift-ci-portability/assets/ci.yml.template": "sha256:473fa7814e421a02c69434363023189460082375a1683a81176cf083d32da88f",
+        "skills/swift-ci-portability/references/portability-traps.md": "sha256:1c39b5dc8b700ff435ab137313a73b3207ef7ad5c013e7e475ab09a3f6699455",
+        "skills/swift-release-flow/SKILL.md": "sha256:eb5e57a7357fa6f455a961d8583a0e55db611f490dfc7471249bb746a57bcdd8",
+        "skills/swiftpm-app-bundle/SKILL.md": "sha256:484ad1981681ca30c1893b3536f41b46b980f11ce7465914e7fd5fb0f04b8229",
+        "skills/swiftpm-app-bundle/assets/Info.plist.template": "sha256:4c2b6922ccd63aaf30574534c701a3d2bf0ecc2cfdcff8940359cfe427021044",
+        "skills/swiftpm-app-bundle/references/signing-notarization.md": "sha256:c44ab7066620abf406f0b44cbe235d64fb8b34b283ddf25a178b74f10da6b1f5",
+        "skills/swiftpm-app-bundle/scripts/package_app.sh": "sha256:3192eeee90d1ea6cb2f11da5726036f139991f4d88af745660fbd9a12ea4c18a"
       }
     },
     "tonone": {

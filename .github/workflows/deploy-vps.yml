@@ -50,7 +50,8 @@ jobs:
         run: |
           node marketplace/scripts/validate-routes.mjs
           node marketplace/scripts/validate-links.mjs
-          node --test marketplace/scripts/skill-redirects.test.mjs marketplace/scripts/install-skill-redirects.test.mjs
+          node marketplace/scripts/build-retired-path-redirects.mjs --check
+          node --test marketplace/scripts/skill-redirects.test.mjs marketplace/scripts/retired-path-redirects.test.mjs marketplace/scripts/install-skill-redirects.test.mjs
 
       - name: Verify build artifacts
         run: |
@@ -98,5 +99,5 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '22'
-      - name: Assert both legacy URL forms return exact permanent redirects
+      - name: Assert legacy and retired-path URLs return exact permanent redirects
         run: node marketplace/scripts/verify-skill-redirects-production.mjs

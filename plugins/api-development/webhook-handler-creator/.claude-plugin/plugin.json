@@ -1,6 +1,6 @@
 {
   "name": "webhook-handler-creator",
-  "version": "1.26.0",
+  "version": "1.27.0",
   "description": "Create secure webhook endpoints with signature verification and retry logic",
   "author": {
     "name": "Jeremy Longshore",

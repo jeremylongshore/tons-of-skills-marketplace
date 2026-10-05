@@ -2,7 +2,9 @@
   "mcpServers": {
     "design-converter": {
       "command": "node",
-      "args": ["dist/servers/design-converter.js"]
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/dist/servers/design-converter.js"
+      ]
     }
   }
 }

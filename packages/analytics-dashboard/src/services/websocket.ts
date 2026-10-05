@@ -3,6 +3,17 @@
  */
 import type { AnalyticsEvent, ConnectionStatus } from '../types';
 
+/**
+ * Strip CR/LF and other control characters before a server-sent value is
+ * written to the console. Incoming WebSocket events are not trusted input,
+ * so logging them raw risks forged/injected log lines (CodeQL
+ * js/log-injection).
+ */
+function sanitizeForLog(value: unknown): string {
+  const str = typeof value === 'string' ? value : JSON.stringify(value);
+  return str.replace(/[\r\n\x00-\x1f\x7f]/g, '');
+}
+
 export type WebSocketEventHandler = (event: AnalyticsEvent) => void;
 export type ConnectionStatusHandler = (status: ConnectionStatus) => void;
 export type ErrorHandler = (error: Error) => void;
@@ -146,7 +157,7 @@ export class WebSocketService {
    * Handle incoming event
    */
   private handleEvent(event: AnalyticsEvent): void {
-    console.log('Received event:', event.type, event);
+    console.log('Received event:', sanitizeForLog(event.type), sanitizeForLog(event));
     this.eventHandlers.forEach((handler) => handler(event));
   }
 

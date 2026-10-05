@@ -1,6 +1,6 @@
 {
   "name": "websocket-server-builder",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Build WebSocket servers for real-time bidirectional communication",
   "author": {
     "name": "Jeremy Longshore",

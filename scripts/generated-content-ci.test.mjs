@@ -75,7 +75,8 @@ test('generated content drift job is unconditional, credential-free, and exact',
   assert.match(block, /persist-credentials: false/);
   assert.match(block, /name: Fetch pinned README presentation source/);
   assert.match(block, /\[\[ "\$source_commit" =~ \^\[0-9a-f\]\{40\}\$ \]\]/);
-  assert.match(block, /git fetch --no-tags --depth=1 origin "\$source_commit"/);
+  assert.match(block, /for source_commit in "\$\{source_commits\[@\]\}"; do/);
+  assert.match(block, /git fetch --no-tags --depth=1 origin "\$\{source_commits\[@\]\}"/);
   assert.match(block, /timeout-minutes: 10/);
   assert.doesNotMatch(block, /(?:npm|pnpm)\s+(?:ci|install)/);
   assert.match(

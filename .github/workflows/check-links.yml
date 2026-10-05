@@ -21,6 +21,12 @@ on:
     - cron: '0 5 * * 1'
   workflow_dispatch:
 
+concurrency:
+  # #1450: a superseded push to a PR branch cancels its stale run; main and
+  # scheduled runs are never cancelled.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 permissions:
   contents: read
 
