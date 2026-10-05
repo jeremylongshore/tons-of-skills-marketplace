@@ -227,7 +227,6 @@ All plugins are licensed under MIT License. See individual plugin directories fo
 
 - **Issues**: [GitHub Issues](https://github.com/jeremylongshore/claude-code-plugins/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
-- **Discord**: [Claude Code Discord](https://discord.com/invite/6PPFFzqPDZ)
 
 ---
 

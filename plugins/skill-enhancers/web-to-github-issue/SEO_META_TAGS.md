@@ -539,7 +539,7 @@ New to Claude Code? Read our [getting started guide](#) first.
 - View on GitHub
 - Report an Issue
 - Request a Feature
-- Join Discord Community
+- Join GitHub Discussions
 - Browse All Plugins
 
 ## Image Requirements

@@ -623,7 +623,6 @@ exports.onUserCreate = functions.firestore
 
 ### Community
 
-- [Discord](https://discord.com/invite/6PPFFzqPDZ) (#claude-code channel)
 - [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
 
 ---
@@ -636,6 +635,6 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## Support
 
-Need help? Open an issue on GitHub or ask in Discord!
+Need help? Open an issue on GitHub or ask in GitHub Discussions!
 
 **Made with** by [Jeremy Longshore](https://intentsolutions.io)

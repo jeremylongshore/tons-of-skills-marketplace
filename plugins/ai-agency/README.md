@@ -348,7 +348,7 @@ With these plugins:
 
 ### Community
 
-- [Discord: Claude Code Community](https://discord.gg/claudecode)
+- [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
 - [Reddit: r/n8n](https://reddit.com/r/n8n)
 - [Reddit: r/nocode](https://reddit.com/r/nocode)
 - [Make.com Community](https://community.make.com)
