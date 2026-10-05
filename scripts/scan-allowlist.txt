@@ -934,3 +934,9 @@ plugins/mcp/domain-memory-agent/dist/servers/knowledge-base.js:dynamic-exec  AJV
 plugins/mcp/project-health-auditor/dist/servers/code-metrics.js:dynamic-exec  AJV schema compiler (new Function over opts.code.process / self / scope) bundled from @modelcontextprotocol/sdk, compiling the SDK's fixed schemas; no untrusted source text reaches it - same finding as the reviewed a2a-client bundle
 plugins/mcp/workflow-orchestrator/dist/servers/workflow-engine.js:dynamic-exec  AJV schema compiler (new Function over opts.code.process / self / scope) bundled from @modelcontextprotocol/sdk, compiling the SDK's fixed schemas; no untrusted source text reaches it - same finding as the reviewed a2a-client bundle
 plugins/mcp/project-health-auditor/dist/servers/code-metrics.js:secret-exfil-cooccur  the only env read is minimatch's process.env.__MINIMATCH_TESTING_PLATFORM__ (a test-platform flag, not a credential); the debug package's whole-env iteration is stubbed out of the bundle (scripts/debug-stub.mjs)
+
+# ── Discord community-link removal (2026-10-05). ──
+# Pre-existing documentation examples surfaced because the PR edited an unrelated
+# support line in each file. Neither flagged line changed in that PR.
+plugins/crypto/defi-yield-optimizer/README.md:secret-exfil-cooccur  README config sample: ALCHEMY_RPC is read as the user's own RPC endpoint value; the two URLs beside it (api.llama.fi, api.coingecko.com) are public keyless data APIs and receive no credential
+plugins/packages/ai-ml-engineering-pack/docs/TROUBLESHOOTING.md:secret-exfil-cooccur  documentation snippets pass each provider key (COHERE_API_KEY and the other provider keys in this guide) only to that provider's own API host or SDK client; no arbitrary network sink

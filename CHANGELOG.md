@@ -8,15 +8,17 @@
   already listed there), and the support and community sections of the
   first-party packs and plugins (`plugins/packages/*`, `plugins/devops`,
   `plugins/api-development`, `plugins/ai-agency`, five `plugins/crypto` READMEs,
-  `jeremy-firebase`, `jeremy-firestore`, `project-health-auditor`, two
-  `skill-enhancers` docs), the `claude-plugin-validator` README, the release
+  `jeremy-firebase`, `jeremy-firestore`, `project-health-auditor`, the
+  `research-to-deploy` README), the `claude-plugin-validator` README, the release
   checklist and `000-docs/008` and `018` now point to GitHub Discussions. Three
   of the removed invites were dead or led to an unrelated server
   (`discord.gg/claude-code-plugins`, `discord.com/invite/claude-code`,
   `discord.gg/claudecode`); the rest pointed at Anthropic's server under a
   community heading that read as ours. Third-party plugin docs (PortalJS,
   Kobiton, Obsidian, OpenBB, Ollama and the SaaS packs) and skills about
-  Discord itself are unchanged. Docs only: no plugin version changes.
+  Discord itself are unchanged. Docs only: no plugin version changes. Two
+  path-scoped `scripts/scan-allowlist.txt` waivers cover pre-existing API-client
+  examples in two of the edited files (`secret-exfil-cooccur`, unchanged lines).
 
 ## 2026-10-01
 
