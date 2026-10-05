@@ -1,20 +1,19 @@
 ---
 name: brain
 description: |
-  Answers questions about your own systems, notes, decisions, runbooks, and
-  conventions from your governed knowledge brain, returning a qmd:// citation for
-  every claim — receipts, not recall. Use when you want to know what your brain has
-  captured about your own architecture, infrastructure, decisions, or conventions
-  (e.g. "what does my system map say about the proxy", "why did I pick Apache-2.0",
-  "what's my deploy runbook"). Trigger with "/brain", "ask the brain",
-  "what do I know about", or "check my knowledge base".
-allowed-tools: 'mcp__governed-brain__brain_search'
-version: 1.2.0
+  Search and analyze governed notes, decisions, runbooks, and conventions, returning
+  a qmd:// citation for every supported claim. Use when checking what the brain has
+  captured about architecture, infrastructure, decisions, or operating practices.
+  Trigger with "/brain", "ask the brain", or "check my knowledge base".
+allowed-tools: "mcp__governed-brain__brain_search"
+version: 1.2.1
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: Apache-2.0
-compatibility: 'Designed for Claude Code; ships with the bobs-big-brain (governed-brain) plugin, which auto-wires the governed-brain MCP server. Works in both modes: local (in-process, needs qmd on PATH) and team (proxies to your team brain when TEAMKB_API_URL is set). Same brain_search either way.'
+compatibility: "Designed for Claude Code; ships with the bobs-big-brain (governed-brain) plugin, which auto-wires the governed-brain MCP server. Works in both modes: local (in-process, needs qmd on PATH) and team (proxies to your team brain when TEAMKB_API_URL is set). Same brain_search either way."
 tags: [brain, knowledge, search, citations, governance, local-first, team]
-argument-hint: '[question]'
+argument-hint: "[question]"
+model: inherit
+effort: low
 ---
 
 # Brain — cited answers from your governed knowledge base
@@ -43,6 +42,8 @@ to answer beyond what the citations support.
   Operators can use `scripts/bbb-qmd` from bobs-big-brain-registrar so XDG points at the team
   index, not personal `~/.cache/qmd`. In **team mode** (`TEAMKB_API_URL` set) search
   proxies to the team brain. Every hit is a `qmd://` citation.
+- See [the runtime contract](references/runtime-contract.md) for exact inputs, result shapes,
+  authentication, and mode-specific failures.
 
 ## Instructions
 
@@ -124,12 +125,12 @@ Sources:
 
 ## Error Handling
 
-| Situation                                | Response                                                                                  |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `brain_search` returns empty `results`   | Run the empty-result ladder (keywords → scope all); only then refuse. Do not fabricate. |
-| `qmd` missing / index empty              | Retrieval degrades to empty. Tell operator: install `@tobilu/qmd`, run INTKB `pnpm search-canary -- --heal` or `bbb-qmd status`. |
-| MCP tool unavailable                     | Plugin not enabled; install/enable bobs-big-brain / governed-brain. |
-| User asks to write/capture               | Out of scope here — direct them to `/brain-save`.                                          |
+| Situation                              | Response                                                                                                                         |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `brain_search` returns empty `results` | Run the empty-result ladder (keywords → scope all); only then refuse. Do not fabricate.                                          |
+| `qmd` missing / index empty            | Retrieval degrades to empty. Tell operator: install `@tobilu/qmd`, run INTKB `pnpm search-canary -- --heal` or `bbb-qmd status`. |
+| MCP tool unavailable                   | Plugin not enabled; install/enable bobs-big-brain / governed-brain.                                                              |
+| User asks to write/capture             | Out of scope here — direct them to `/brain-save`.                                                                                |
 
 ## Guardrails
 
@@ -148,6 +149,6 @@ Sources:
 - [Bob's Big Brain umbrella](https://github.com/intent-solutions-io/bobs-big-brain-umbrella) — stack map.
 - [bobs-big-brain-plugin](https://github.com/jeremylongshore/bobs-big-brain-plugin) — this plugin.
 - [bobs-big-brain-registrar](https://github.com/jeremylongshore/bobs-big-brain-registrar) — govern layer (Bob's Big Brain Registrar) + `bbb-qmd`.
-- [tobi/qmd](https://github.com/tobi/qmd) (npm `@tobilu/qmd`) — retrieve engine (OSS; we pin, we do not fork).
+- [tobi/qmd](https://github.com/tobi/qmd) (npm `@tobilu/qmd`) — retrieve engine (OSS; the stack pins it rather than forking it).
 - [bobs-big-brain-compiler](https://github.com/jeremylongshore/bobs-big-brain-compiler) — compile layer (Bob's Big Brain Compiler).
 - The write counterpart: the `/brain-save` skill (governed capture).

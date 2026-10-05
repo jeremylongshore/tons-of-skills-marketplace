@@ -140,6 +140,11 @@ sources:
       - 'dist/index.js'
       - 'dist/index.d.ts'
       - 'dist/core/**'
+      # Since 52c329d, upstream .mcp.json launches the ncc bundle
+      # (${CLAUDE_PLUGIN_ROOT}/dist/mcp-bundle/index.js) instead of
+      # dist/servers/. Without this glob, the mirror ships a server entry
+      # point that does not exist.
+      - 'dist/mcp-bundle/**'
       - 'README.md'
       - 'LICENSE'
     exclude:
@@ -942,6 +947,10 @@ sources:
       # upstream stores its license file as lowercase `license`; the sync
       # glob match is case-sensitive, so the casing must match theirs
       - '/license'
+    # The hardened license reader defaults to an uppercase `LICENSE`, so
+    # without this the sync refuses the source ("upstream license file
+    # LICENSE is unavailable"), as it did on the 09-14/21/28 runs.
+    license_path: license
     exclude:
       - 'node_modules/**'
       - '.git/**'

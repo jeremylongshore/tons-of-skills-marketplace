@@ -2,7 +2,7 @@
 name: mnemos
 description: Persistent memory and learning-loop skills for AI coding agents using mnemos MCP tools. Use whenever mnemos_* MCP tools are available and you are doing work worth remembering. Cross-session memory, conventions, corrections, and architectural decisions surface back into context automatically. Triggers on session start (record a goal), session end (record a summary), the user says "save", "remember", "record this", "we were wrong about", and on any genuine correction or architectural decision. Keeps mnemos's memory store alive across sessions so the next session starts smarter. Without this skill, agents silently edit and the store goes empty.
 allowed-tools: mcp__mnemos
-version: 0.9.0
+version: 0.12.0
 author: André Figueira <andre@polyxmedia.com>
 license: MIT
 compatibility: "Designed for Claude Code; the same MCP server also works in Claude Desktop, Cursor, Windsurf, and OpenAI Codex CLI. Requires the mnemos binary on PATH — run mnemos init to wire the MCP server and mnemos doctor to verify."

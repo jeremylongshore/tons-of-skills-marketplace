@@ -58,7 +58,10 @@ Full step-by-step workflow:
    URL and API key authenticate.
 3. Detect the source type from the URL (or `--source`) and verify reachability.
 4. Read the source into canonical dataset entries, per the source's field table in
-   the reference doc.
+   the reference doc, applying the metadata hygiene rules (license sentinel — never
+   fabricate CC-BY; description sanitizer + fallback chain; source dates preserved
+   with `migratedAt` separate; `cleanTitle` display-name cleanup with slugs from the
+   raw title; `category` from a meaningful theme).
 5. For a static target, resolve resource paths by copy mode: `link` keeps source
    URLs; `download` copies files into the repo under Git LFS, pushed to R2.
 6. Print a dry-run preview; stop if `--dry-run` was passed.

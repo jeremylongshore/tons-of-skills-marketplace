@@ -31,29 +31,36 @@ channels, repeat per channel.
 **Symptom**: Channels plugin doesn't load at all; `claude --channels ...`
 either errors or starts without the plugin active.
 
-**Why**: Channels requires v2.1.80 minimum (Research Preview floor).
+**Why**: the installed build does not expose the current Channels contract.
 
 **Fix**:
 
 ```bash
-claude --version    # confirm < 2.1.80
-# upgrade per https://docs.claude.com/claude-code/install
+claude --version
+claude --help | grep -- --channels
+# upgrade per https://code.claude.com/docs/en/setup
 ```
 
-## 3. `claude.ai` login missing (API-key-only auth)
+## 3. Authentication or organization policy blocks Channels
 
 **Symptom**: plugin fails to register, or registers but channel events
 don't arrive. Logs at `~/.claude/logs/` show auth-related errors.
 
-**Why**: Channels is Research Preview and gates on `claude.ai` session
-identity. `ANTHROPIC_API_KEY` alone is not accepted.
+**Why**: Channels accepts a `claude.ai` account or an Anthropic Console API
+key, but not Bedrock, Google Cloud Agent Platform, or Microsoft Foundry
+authentication. Team and Enterprise organizations must also enable Channels.
 
 **Fix**:
 
 ```bash
-claude login    # complete the browser flow
-claude auth status    # confirm claude.ai session active
+claude auth status
+# claude.ai users can complete the browser flow when needed:
+claude login
 ```
+
+If authentication is valid, ask an organization Owner to check **Admin
+settings → Claude Code → Channels**, or inspect managed settings for
+`channelsEnabled`. Do not rotate Slack tokens to fix an Anthropic policy block.
 
 ## 4. Bun not installed
 

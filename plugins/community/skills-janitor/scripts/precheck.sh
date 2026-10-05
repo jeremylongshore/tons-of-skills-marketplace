@@ -87,8 +87,14 @@ if [[ "$SOURCE" == http* ]]; then
     # https://github.com/user/repo -> try main branch SKILL.md
     # https://github.com/user/repo/tree/main/skills/name -> specific path
     if echo "$SOURCE" | grep -qE 'github\.com/[^/]+/[^/]+/tree/[^/]+/'; then
-        # Has a path: extract owner/repo/branch/path
-        RAW_URL=$(echo "$SOURCE" | sed -E 's|github\.com/([^/]+)/([^/]+)/tree/([^/]+)/(.*)|raw.githubusercontent.com/\1/\2/\3/\4/SKILL.md|')
+        # Has a path: extract owner/repo/branch/path. The branch is in the
+        # URL, so no main/master guessing — but DO fetch it (this branch
+        # historically computed RAW_URL and never downloaded it).
+        RAW_URL=$(echo "$SOURCE" | sed -E 's|github\.com/([^/]+)/([^/]+)/tree/([^/]+)/(.*)|raw.githubusercontent.com/\1/\2/\3/\4/SKILL.md|; s|/+SKILL\.md$|/SKILL.md|')
+        NEW_SKILL_CONTENT=$(curl -sL -f "$RAW_URL" 2>/dev/null || true)
+        if [[ -z "$NEW_SKILL_CONTENT" ]]; then
+            NEW_SKILL_CONTENT=$(curl -sL -f "${RAW_URL%SKILL.md}Skill.md" 2>/dev/null || true)
+        fi
     elif echo "$SOURCE" | grep -qE 'github\.com/[^/]+/[^/]+/?$'; then
         # Just repo root - try common locations
         REPO_PATH=$(echo "$SOURCE" | sed -E 's|https?://github\.com/||; s|/$||')
@@ -165,6 +171,25 @@ fi
 # Save new skill content for Python
 echo "$NEW_SKILL_CONTENT" > "$TMPFILE.new"
 
+# --- Security scan of the candidate (v1.6) ---
+# Local path: scan the real directory (includes bundled scripts).
+# Remote URL: scan the fetched SKILL.md (injection phrases, hidden unicode,
+# smuggled payloads — scripts aren't fetched, note that in the output).
+SEC_JSON=""
+SEC_SCOPE_NOTE=""
+SCRIPT_DIR_PC="$(cd "$(dirname "$0")" && pwd)"
+if [[ "$SOURCE" != http* && -d "$SOURCE" ]]; then
+    SEC_JSON=$(bash "$SCRIPT_DIR_PC/security.sh" --path "$SOURCE" --json 2>/dev/null || echo "")
+    SEC_SCOPE_NOTE="full directory (SKILL.md + bundled files)"
+else
+    SEC_TMPDIR=$(mktemp -d -t janitor-precheck.XXXXXX)
+    printf '%s\n' "$NEW_SKILL_CONTENT" > "$SEC_TMPDIR/SKILL.md"
+    SEC_JSON=$(bash "$SCRIPT_DIR_PC/security.sh" --path "$SEC_TMPDIR" --json 2>/dev/null || echo "")
+    rm -rf "$SEC_TMPDIR"
+    SEC_SCOPE_NOTE="fetched SKILL.md only — bundled scripts are NOT fetched; re-check after cloning"
+fi
+export SEC_JSON SEC_SCOPE_NOTE
+
 # --- Export for Python ---
 export JSON_OUTPUT SOURCE
 
@@ -177,6 +202,16 @@ import sys
 SOURCE = os.environ.get("SOURCE", "")
 JSON_OUTPUT = os.environ.get("JSON_OUTPUT", "false") == "true"
 TMPFILE = os.environ.get("TMPFILE", "")
+
+# Security scan results (from security.sh, run by the bash wrapper)
+SEC_SCOPE_NOTE = os.environ.get("SEC_SCOPE_NOTE", "")
+try:
+    _sec = json.loads(os.environ.get("SEC_JSON", "") or "{}")
+    _sec_skill = (_sec.get("skills") or [{}])[0]
+    SEC_VERDICT = _sec_skill.get("verdict", "UNKNOWN")
+    SEC_FINDINGS = _sec_skill.get("findings", [])
+except Exception:
+    SEC_VERDICT, SEC_FINDINGS = "UNKNOWN", []
 
 # --- Stop words (same as detect_dupes.sh) ---
 STOP_WORDS = {
@@ -283,6 +318,11 @@ if JSON_OUTPUT:
             "keywords": sorted(new_keywords),
         },
         "verdict": verdict,
+        "security": {
+            "verdict": SEC_VERDICT,
+            "scope": SEC_SCOPE_NOTE,
+            "findings": SEC_FINDINGS,
+        },
         "overlaps": overlaps[:10],
         "installed_count": len(installed),
     }
@@ -328,6 +368,20 @@ else:
     else:
         print("  No overlaps found with installed skills.")
         print()
+
+    # Security section
+    print()
+    print(f"  --- Security ({SEC_SCOPE_NOTE}) ---")
+    if SEC_VERDICT == "PASS":
+        print("  No suspicious patterns found.")
+    elif SEC_VERDICT == "UNKNOWN":
+        print("  Security scan unavailable.")
+    else:
+        print(f"  VERDICT: {SEC_VERDICT}")
+        for fnd in SEC_FINDINGS:
+            print(f"    {fnd.get('severity','?'):<6} {fnd.get('title','')}")
+            print(f"           {fnd.get('evidence','')[:110]}")
+    print()
 
     # Verdict
     if verdict == "HIGH_OVERLAP":

@@ -15,10 +15,14 @@ the user asks to import from a URL (that one step is opt-in network use).
    Ask for the slug if not given.
 2. **Seed from the starter.** Copy `templates/brand/` (`color-system.json`,
    `typography.json`, `visual-identity.md`) into the target directory.
-3. **Optional import.** If the user supplied a website URL, logo file, or brand PDF,
-   extract palette + fonts (Plan 4 wires `lib/extract-brand.mjs`; until then, read
-   the material and fill the fields by hand). If a source is unreachable or a PDF has
-   no embedded fonts, fall back to Q&A for the missing fields.
+3. **Optional import.** If the user supplied a source, propose a starter palette and
+   fonts, then present them for the user to confirm or edit — never adopt them silently:
+   - **Local SVG / PDF / CSS / HTML** → `import { extractFromFile } from '../../lib/extract-brand.mjs'` (no network).
+   - **Website URL** → `import { extractFromUrl } from '../../lib/extract-brand-url.mjs'` — the one opt-in
+     network call; http(s) only, private/loopback addresses refused, body size- and time-capped.
+
+   Raster images (PNG/JPEG) aren't parsed locally — ask for an SVG, a PDF, or a URL. If a source is
+   unreachable, yields nothing, or a PDF has no embedded fonts, fall back to Q&A for the missing fields.
 4. **Guided Q&A** to fill the rest: brand name, three personality adjectives, tone,
    imagery style, colors (if not imported), heading/body fonts, do/don't rules.
 5. **Validate** with `lib/brand.mjs` → `validateProfile`; fix any flagged field

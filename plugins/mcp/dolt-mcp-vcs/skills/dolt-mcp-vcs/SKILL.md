@@ -119,6 +119,7 @@ bd dolt push --remote origin
 - The push is **history-preserving** — it transfers the full Dolt commit history, not a snapshot. (Flat-file dolt table import would lose history; do not use it for an existing bd database.)
 - A PermissionDenied that reaches "Uploading…" first means **the creds work but the DoltHub repo doesn't exist yet** — create it, then re-push.
 - Verify without cloning, via DoltHub's SQL API:
+
   ```bash
   curl -s "https://www.dolthub.com/api/v1alpha1/ORG/REPO/main?q=SELECT%20COUNT(*)%20FROM%20issues"
   ```

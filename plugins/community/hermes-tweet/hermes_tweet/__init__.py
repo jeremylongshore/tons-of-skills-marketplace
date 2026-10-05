@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Xquik Contributors
+# SPDX-License-Identifier: MIT
+
 from __future__ import annotations
 
 import logging
@@ -48,7 +51,7 @@ def register(ctx: Any) -> None:
         check_fn=check_api_available,
         requires_env=["XQUIK_API_KEY"],
         is_async=False,
-        description="Call catalog-listed read-only Xquik endpoints.",
+        description="Call catalog-listed read-only Xquik routes.",
         emoji="📖",
     )
 
@@ -60,7 +63,7 @@ def register(ctx: Any) -> None:
         check_fn=action_enabled,
         requires_env=["XQUIK_API_KEY", "HERMES_TWEET_ENABLE_ACTIONS"],
         is_async=False,
-        description="Call write-like or private Xquik endpoints.",
+        description="Call catalog-listed write-like or private Xquik routes.",
         emoji="✍️",
     )
 
@@ -73,7 +76,7 @@ def register(ctx: Any) -> None:
 
     _register_bundled_skills(ctx)
     logger.info(
-        "Hermes Tweet loaded with actions=%s",
+        "Hermes Tweet loaded. actions_enabled=%s",
         os.getenv("HERMES_TWEET_ENABLE_ACTIONS", "false"),
     )
 

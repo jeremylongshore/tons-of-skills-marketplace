@@ -4,14 +4,14 @@
     "path": ".",
     "branch": "main"
   },
-  "last_sync": "2026-07-13T17:27:21.364Z",
+  "last_sync": "2026-10-01T05:34:42.549Z",
   "author": {
     "name": "Datopian",
     "github": "datopian",
     "email": "anuar.ustayev@datopian.com"
   },
   "license": "MIT",
-  "files_synced": 32,
+  "files_synced": 33,
   "files": [
     ".claude-plugin/marketplace.json",
     ".claude-plugin/plugin.json",
@@ -19,6 +19,7 @@
     "license",
     "skills/arcgis-to-portaljs/SKILL.md",
     "skills/arcgis-to-portaljs/references/reference.md",
+    "skills/arcgis-to-portaljs/references/sync-and-cutover.md",
     "skills/portaljs-add-chart/SKILL.md",
     "skills/portaljs-add-chart/references/reference.md",
     "skills/portaljs-add-dataset/SKILL.md",

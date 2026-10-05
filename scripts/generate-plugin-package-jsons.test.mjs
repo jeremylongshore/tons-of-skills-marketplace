@@ -89,6 +89,7 @@ const expectedManagedMirrorDirectories = [
   'plugins/productivity/publishing-skills',
   'plugins/productivity/schedule-after-usage-reset',
   'plugins/productivity/skyvern',
+  'plugins/security/hol-guard',
   'plugins/testing/cli-ux-tester',
   'plugins/testing/kobiton-automate',
 ];
@@ -238,7 +239,7 @@ test('upstream-owned source package remains byte/object unchanged', () => {
   assert.equal(JSON.stringify(result.pkg), before);
 });
 
-test('current source-owned package census has exactly 31 managed and 6 upstream manifests', () => {
+test('current source-owned package census has exactly 32 managed and 6 upstream manifests', () => {
   const rows = sourcePackageRows(repositoryRoot);
   const managed = rows
     .filter((row) => isRepositoryGeneratedTrackingManifest(row.package, row.directory))
@@ -247,7 +248,7 @@ test('current source-owned package census has exactly 31 managed and 6 upstream 
     .filter((row) => !isRepositoryGeneratedTrackingManifest(row.package, row.directory))
     .map((row) => row.directory);
 
-  assert.equal(rows.length, 37);
+  assert.equal(rows.length, 38);
   assert.deepEqual(managed, expectedManagedMirrorDirectories);
   assert.deepEqual(upstream, expectedUpstreamMirrorDirectories);
 });

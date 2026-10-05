@@ -109,6 +109,7 @@ When `color-system.json` holds an invalid hex, the skill stops at step 2 and rep
 ## Resources
 
 - `references/logo-construction.md` — variant geometry, clear-space rules, color roles, and accessibility notes the generator applies.
+- Rendered previews — `lib/context/wordmark.png`, `monogram.png`, and `favicon.png`. Some marketplaces omit binary assets from that directory; if your copy did, view them at [localplugins/plugins](https://github.com/localplugins/plugins/tree/main/brand-forge/lib/context).
 - Sibling skills: generate-social for platform posts, and generate-doc-template for letterheads and slides — route between them with the `/brand-make` command.
 - [SVG on MDN](https://developer.mozilla.org/en-US/docs/Web/SVG) — the vector format every asset is emitted in.
 - [Agent Skills documentation](https://code.claude.com/docs/en/skills) — how skills are authored and invoked.
