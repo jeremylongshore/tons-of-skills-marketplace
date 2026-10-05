@@ -168,6 +168,12 @@ dist/
 # entrypoint before any package-manager lifecycle runs.
 !plugins/mcp/a2a-client/dist/
 !plugins/mcp/a2a-client/dist/index.js
+# pr-to-spec (mirror) launches a self-contained upstream bundle; it is locked in
+# sources.lock.json and must be committed or the MCP server is missing after install.
+!plugins/mcp/pr-to-spec/dist/
+!plugins/mcp/pr-to-spec/dist/mcp-bundle/
+!plugins/mcp/pr-to-spec/dist/mcp-bundle/index.js
+!plugins/mcp/pr-to-spec/dist/mcp-bundle/package.json
 # MCP plugins launched from a committed bundle (claude-e1mk.10): the marketplace
 # installs by copying the plugin directory, so the .mcp.json target must exist.
 !plugins/mcp/project-health-auditor/dist/
