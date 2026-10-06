@@ -1425,7 +1425,7 @@ sources:
   # ============================================================
 
   - name: maqami-travel
-    description: Hotel and flight search and booking through MAQAMI's remote MCP server (https://mcp.maqami.co/, no API key; 3M+ hotels), plus a skill for the search, prebook, confirm and book flow. Booking creates a real reservation with guest and payment details, so the skill confirms with the user first.
+    description: Hotel and flight search and booking through MAQAMI's remote MCP server (https://mcp.maqami.co/, no API key; 3M+ hotels), plus a skill for the search, confirm and checkout-link flow. Customers pay only on book.maqami.co, and the skill confirms with the user first.
     repo: negm17111995/mcp-server
     source_path: .
     target_path: plugins/mcp/maqami-travel
