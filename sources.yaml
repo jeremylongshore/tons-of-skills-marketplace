@@ -1419,6 +1419,34 @@ sources:
       - '.git/**'
       - '*.log'
 
+  # ============================================================
+  # MAQAMI Travel (negm17111995)
+  # https://github.com/negm17111995/mcp-server
+  # ============================================================
+
+  - name: maqami-travel
+    description: Hotel and flight search and booking through MAQAMI's remote MCP server (https://mcp.maqami.co/, no API key; 3M+ hotels), plus a skill for the search, prebook, confirm and book flow. Booking creates a real reservation with guest and payment details, so the skill confirms with the user first.
+    repo: negm17111995/mcp-server
+    source_path: .
+    target_path: plugins/mcp/maqami-travel
+    author:
+      name: MAQAMI
+      github: negm17111995
+      email: info@maqami.co
+    license: MIT
+    category: mcp
+    verified: false
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/.mcp.json'
+      - '/skills/**'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
