@@ -615,14 +615,14 @@
     },
     "maqami-travel": {
       "repo": "negm17111995/mcp-server",
-      "resolved_ref": "4d40cd865da9a21288b3123993a85dab7a00cdc2",
-      "locked_at": "2026-10-06T14:47:22.000Z",
+      "resolved_ref": "94c8570a72c974b71ec6335bc561e0d625f718a9",
+      "locked_at": "2026-10-06T14:54:14.000Z",
       "files": {
         ".claude-plugin/plugin.json": "sha256:69f3235f1f816b3b768a3e6afa14901846ded3e0b057c5702a4e4b5c99120c62",
         ".mcp.json": "sha256:7f03aa6f267975f92f58184cf906bf6079da774f5cc2b56fec3606a579bd4def",
         "LICENSE": "sha256:36c1e1296c382a7934e66f1c7fd24bf27382bc918983bda4f1dc8e16aadd209d",
         "README.md": "sha256:2471d3ecb0924a46db8364e505aded14244b7cf1798ca116e64e9700f2c5d718",
-        "skills/maqami-travel-booking/SKILL.md": "sha256:e87863ac9f162b058961442b0cf2023f961abe56f07aeefc5bd8e90c390ae65d"
+        "skills/maqami-travel-booking/SKILL.md": "sha256:bc4cab56c65c6d6f4f4da8f3f06d00b7580dc7fff0d1a3a0793573f65ed150c9"
       }
     },
     "mnemos": {
