@@ -16,11 +16,11 @@
     "values": {
       "a_error_total": 23,
       "a_failing": 7,
-      "ab_error_total": 170,
-      "ab_failing": 21,
-      "b_failing": 14,
-      "error_files": 278,
-      "error_total": 2798,
+      "ab_error_total": 179,
+      "ab_failing": 22,
+      "b_failing": 15,
+      "error_files": 279,
+      "error_total": 2807,
       "grade_distribution": {
         "A": 2875,
         "B": 326,
@@ -90,7 +90,7 @@
           "validator_reported_mixed_denominator_percent": 80.9
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3035,
+          "error_total_all_validated_surfaces": 3044,
           "fully_compliant_surfaces": 2074,
           "terminal_denominator": {
             "agents": 363,
@@ -106,11 +106,11 @@
         "skill_rows": {
           "a_error_total": 23,
           "a_failing": 7,
-          "ab_error_total": 170,
-          "ab_failing": 21,
-          "b_failing": 14,
-          "error_files": 278,
-          "error_total": 2798,
+          "ab_error_total": 179,
+          "ab_failing": 22,
+          "b_failing": 15,
+          "error_files": 279,
+          "error_total": 2807,
           "grade_distribution": {
             "A": 2875,
             "B": 326,
@@ -156,10 +156,10 @@
       "values": {
         "a_error_total": 23,
         "a_failing": 7,
-        "ab_error_total": 170,
-        "ab_failing": 21,
-        "b_error_total": 147,
-        "b_failing": 14,
+        "ab_error_total": 179,
+        "ab_failing": 22,
+        "b_error_total": 156,
+        "b_failing": 15,
         "certified_target": 0,
         "skill_summary_rows": 3491
       }
@@ -286,7 +286,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 441,
+        "distinct_values": 440,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -405,10 +405,6 @@
           {
             "count": 1,
             "value": "Designed for Claude Code · Output works in any surface that loads CLAUDE.md"
-          },
-          {
-            "count": 1,
-            "value": "Designed for Claude Code, Codex, Cursor, and GitHub Copilot; works in any agent that can read project files and fetch a URL."
           },
           {
             "count": 2,
@@ -2406,7 +2402,7 @@
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2900
+            "value": 2899
           }
         ],
         "distinct_numeric_answers": 5,

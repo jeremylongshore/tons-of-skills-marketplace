@@ -40,6 +40,7 @@ import os from 'os';
 import { fileURLToPath } from 'url';
 import { execFileSync } from 'child_process';
 import yaml from 'js-yaml';
+import { createRequire } from 'node:module';
 import {
   computeFileDigest,
   loadLock,
@@ -62,6 +63,8 @@ import {
   safeWriteFileAtomic,
   splitSafeRelative,
 } from './safe-fs.mjs';
+const require = createRequire(import.meta.url);
+const { sourcePublicationDisposition } = require('./publication-policy.cjs');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -174,7 +177,13 @@ export function validateSourceSpec(source, defaultBranch = 'main') {
       `license_path "${licensePath}" must name a root LICENSE/COPYING file; refusing sync`,
     );
   }
-  return { repo, branch, sourceRel, licenseRel, targetRel: mirrorTargetRel(source?.target_path) };
+  return {
+    repo,
+    branch,
+    sourceRel,
+    licenseRel,
+    targetRel: mirrorTargetRel(source?.target_path),
+  };
 }
 
 /**
@@ -301,7 +310,10 @@ export function findTargetOverlaps(sources) {
   const targets = [];
   for (const source of sources) {
     try {
-      targets.push({ name: source.name, rel: mirrorTargetRel(source.target_path) });
+      targets.push({
+        name: source.name,
+        rel: mirrorTargetRel(source.target_path),
+      });
     } catch {
       // Invalid targets are reported by the per-source validation.
     }
@@ -389,7 +401,10 @@ export function mirrorFiles({
     } else {
       // Git's two canonical modes keyed on the upstream executable bit, set
       // through the descriptor so the result is umask-independent.
-      safeWriteFileAtomic(root, rel, file.content, { mode: wantMode, createParents: true });
+      safeWriteFileAtomic(root, rel, file.content, {
+        mode: wantMode,
+        createParents: true,
+      });
       report(`   ✅ ${reason === 'new' ? 'Created' : 'Updated'}: ${file.path}`, colors.green);
     }
     changes.push({ path: file.path, action: reason });
@@ -457,34 +472,17 @@ function catalogEntry(pluginName, catalogFile = CATALOG_FILE, root = ROOT_DIR) {
  * provenance/upstream repair, but it has no publication channel. Unknown or
  * malformed disposition shapes fail closed instead of silently publishing.
  */
-export function sourceAllowsPublication(source) {
-  const dispositions = [
-    ['publication_disposition', source?.publication_disposition],
-    ['copyleft_disposition', source?.copyleft_disposition],
-  ].filter(([, value]) => value !== undefined);
-  if (dispositions.length === 0) return true;
-  if (dispositions.length > 1) {
-    throw new Error(`${source?.name ?? '<unnamed source>'}: multiple publication dispositions`);
-  }
-  const [field, disposition] = dispositions[0];
-  if (
-    !disposition ||
-    typeof disposition !== 'object' ||
-    disposition.status !== 'quarantined' ||
-    !Array.isArray(disposition.channels) ||
-    disposition.channels.length !== 0
-  ) {
-    throw new Error(
-      `${source?.name ?? '<unnamed source>'}: ${field} must be ` +
-        '`status: quarantined` with an empty `channels` list',
-    );
-  }
-  return false;
+export function sourceAllowsPublication(source, { root } = {}) {
+  return (
+    sourcePublicationDisposition(source, {
+      readEvidence: root ? (evidence) => safeReadFile(root, evidence) : undefined,
+    }) === null
+  );
 }
 
 /** Require an existing catalog row to agree exactly with its source disposition. */
-export function assertCatalogPublicationParity(source, plugin) {
-  const publishable = sourceAllowsPublication(source);
+export function assertCatalogPublicationParity(source, plugin, { root } = {}) {
+  const publishable = sourceAllowsPublication(source, { root });
   if (plugin === null || plugin === undefined) return publishable;
   if (!plugin || typeof plugin !== 'object' || Array.isArray(plugin)) {
     throw new Error(`${source?.name ?? '<unnamed source>'}: catalog entry must be an object`);
@@ -694,7 +692,9 @@ export function ensureCatalogEntry(
   { root = ROOT_DIR, catalogFile = CATALOG_FILE, dryRun = options.dryRun } = {},
 ) {
   const existing = catalogEntry(source.name, catalogFile, root);
-  const publishable = assertCatalogPublicationParity(source, existing);
+  const publishable = assertCatalogPublicationParity(source, existing, {
+    root,
+  });
   if (existing) {
     return false; // already present, no action
   }
@@ -852,7 +852,12 @@ async function syncSource(source, config, lock) {
     return {
       source: source.name,
       changes: catalogAdded
-        ? [{ path: '.claude-plugin/marketplace.extended.json', action: 'catalog' }]
+        ? [
+            {
+              path: '.claude-plugin/marketplace.extended.json',
+              action: 'catalog',
+            },
+          ]
         : [],
       error: null,
       curated: true,
@@ -881,7 +886,11 @@ async function syncSource(source, config, lock) {
 
     if (files.length === 0) {
       log(`   ⚠️  No files found at source path`, colors.yellow);
-      return { source: source.name, changes: [], error: 'No files found at source path' };
+      return {
+        source: source.name,
+        changes: [],
+        error: 'No files found at source path',
+      };
     }
     logVerbose(`Discovered ${files.length} files in source`);
 
@@ -1097,7 +1106,10 @@ async function syncSource(source, config, lock) {
     if (!options.dryRun) {
       const pluginJsonAdded = ensurePluginJson(source);
       if (pluginJsonAdded) {
-        changes.push({ path: '.claude-plugin/plugin.json', action: 'plugin-json' });
+        changes.push({
+          path: '.claude-plugin/plugin.json',
+          action: 'plugin-json',
+        });
       }
       const readmeAdded = ensureReadme(source);
       if (readmeAdded) {
@@ -1111,7 +1123,10 @@ async function syncSource(source, config, lock) {
     // entries documented in claude-x1el all stuck here.
     const catalogAdded = ensureCatalogEntry(source);
     if (catalogAdded) {
-      changes.push({ path: '.claude-plugin/marketplace.extended.json', action: 'catalog' });
+      changes.push({
+        path: '.claude-plugin/marketplace.extended.json',
+        action: 'catalog',
+      });
     }
 
     // `.source.json` is the provenance authority for a mirrored artifact. A

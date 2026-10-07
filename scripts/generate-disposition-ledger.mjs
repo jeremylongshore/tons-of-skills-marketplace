@@ -28,10 +28,17 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+import yaml from 'js-yaml';
 
 import { resolveCorpus } from './corpus-resolver.mjs';
 import { resolvePluginProvenance } from './plugin-provenance.mjs';
 import { GRADE, scanContent } from './scan-synced-content.mjs';
+import { safeReadFile, safeReadFileIfExists } from './safe-fs.mjs';
+
+const require = createRequire(import.meta.url);
+const { sourcePublicationDisposition } = require('./publication-policy.cjs');
+const SOURCE_HOLDS = Symbol('source-legal-holds');
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STRUCTURAL_ERROR =
@@ -220,6 +227,23 @@ function sourceCommit(markerPath) {
   }
 }
 
+function sourceLegalHolds(root) {
+  const sourceFile = safeReadFileIfExists(root, 'sources.yaml');
+  const holds = new Map();
+  if (sourceFile === null) return holds;
+  const document = yaml.load(sourceFile.content.toString('utf8'));
+  if (!Array.isArray(document?.sources)) fail('sources.yaml has no sources array');
+  for (const source of document.sources) {
+    const disposition = sourcePublicationDisposition(source, {
+      readEvidence: (evidence) => safeReadFile(root, evidence),
+    });
+    if (!disposition?.legal_hold) continue;
+    if (holds.has(source.target_path)) fail(`duplicate G1 source target: ${source.target_path}`);
+    holds.set(source.target_path, disposition.legal_hold);
+  }
+  return holds;
+}
+
 function mirrorRefuseFindings(root, markerPath) {
   const mirrorRoot = relative(root, path.dirname(markerPath));
   const paths = execFileSync('git', ['ls-files', '-z', '--', mirrorRoot], {
@@ -263,7 +287,12 @@ export function classifyArtifact({ root, row, validation, cache = new Map() }) {
     : validation.errors;
   const provenance = resolvePluginProvenance(path.dirname(row.path), { root });
   const reasonCodes = [];
-  const resolved = { path: row.path, grade: row.grade, score: row.score, diagnostics };
+  const resolved = {
+    path: row.path,
+    grade: row.grade,
+    score: row.score,
+    diagnostics,
+  };
 
   // G0: non-waivable security facts take precedence over every later gate.
   // Consume the canonical validator diagnostic instead of maintaining a
@@ -285,7 +314,12 @@ export function classifyArtifact({ root, row, validation, cache = new Map() }) {
       cache.set(marker, refuses);
     }
     if (refuses.length > 0) {
-      return { ...resolved, disposition: 'QUARANTINE', gate: 'G0', reason_codes: refuses };
+      return {
+        ...resolved,
+        disposition: 'QUARANTINE',
+        gate: 'G0',
+        reason_codes: refuses,
+      };
     }
   }
 
@@ -295,8 +329,27 @@ export function classifyArtifact({ root, row, validation, cache = new Map() }) {
   if (provenance.status === 'mirror' && !sourceCommit(provenance.markerPath)) {
     reasonCodes.push('SOURCE_COMMIT_UNPINNED');
   }
+  let holds = cache.get(SOURCE_HOLDS);
+  if (!holds) {
+    holds = sourceLegalHolds(root);
+    cache.set(SOURCE_HOLDS, holds);
+  }
+  let legalHold = null;
+  for (const [target, hold] of holds) {
+    if (row.path.startsWith(`${target}/`)) {
+      legalHold = hold;
+      for (const artifact of hold.artifacts) reasonCodes.push(...artifact.reason_codes);
+      break;
+    }
+  }
   if (reasonCodes.length > 0) {
-    return { ...resolved, disposition: 'QUARANTINE', gate: 'G1', reason_codes: reasonCodes.sort() };
+    return {
+      ...resolved,
+      disposition: 'QUARANTINE',
+      gate: 'G1',
+      reason_codes: [...new Set(reasonCodes)].sort(),
+      ...(legalHold ? { source_hold: legalHold } : {}),
+    };
   }
 
   // G2: objective broken references and capability-path claims are quarantined.
@@ -313,14 +366,29 @@ export function classifyArtifact({ root, row, validation, cache = new Map() }) {
   // G3: upstream-owned trees are never remediated locally.
   if (provenance.status === 'mirror') {
     return errorCount === 0 && ['A', 'B'].includes(row.grade)
-      ? { ...resolved, disposition: 'CERTIFY-UPSTREAM', gate: 'G3', reason_codes: ['MIRROR_CLEAN'] }
-      : { ...resolved, disposition: 'QUARANTINE', gate: 'G3', reason_codes: ['MIRROR_NOT_CLEAN'] };
+      ? {
+          ...resolved,
+          disposition: 'CERTIFY-UPSTREAM',
+          gate: 'G3',
+          reason_codes: ['MIRROR_CLEAN'],
+        }
+      : {
+          ...resolved,
+          disposition: 'QUARANTINE',
+          gate: 'G3',
+          reason_codes: ['MIRROR_NOT_CLEAN'],
+        };
   }
 
   // G4: high-risk authoring safety failures receive a human-only remediation.
   const unsafe = diagnostics.filter((diagnostic) => UNSAFE_ERROR.test(diagnostic));
   if (unsafe.length > 0) {
-    return { ...resolved, disposition: 'DEEP-REMEDIATE', gate: 'G4', reason_codes: unsafe.sort() };
+    return {
+      ...resolved,
+      disposition: 'DEEP-REMEDIATE',
+      gate: 'G4',
+      reason_codes: unsafe.sort(),
+    };
   }
 
   // G5: only enumerated deterministic structural failures are eligible for an
@@ -354,6 +422,7 @@ export function classifyArtifact({ root, row, validation, cache = new Map() }) {
 
 export function buildLedger({ root, grades, validations }) {
   const cache = new Map();
+  cache.set(SOURCE_HOLDS, sourceLegalHolds(root));
   const artifacts = grades.map((row) => {
     const validation = validations.get(row.path);
     if (!validation) fail(`validator has no result for graded artifact ${row.path}`);
@@ -373,7 +442,11 @@ export function buildLedger({ root, grades, validations }) {
   return {
     schema_version: 'disposition-ledger/v1',
     authority: 'Blueprint 727 §8; Freshie graded export',
-    source: { path: 'freshie/grades.csv', sha256: gradesHash, artifact_count: artifacts.length },
+    source: {
+      path: 'freshie/grades.csv',
+      sha256: gradesHash,
+      artifact_count: artifacts.length,
+    },
     rule_order: ['G0', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9'],
     counts,
     artifacts,

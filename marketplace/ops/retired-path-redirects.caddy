@@ -210,10 +210,6 @@ redir @retiredf86907b44163 /skills/alchemy-install-auth/{?query} permanent
 redir @retired03b51cc7cc63 /skills/alchemy-rate-limits/{?query} permanent
 @retired4a29ef861153 path /skills/alchemy-upgrade-migration/references/official-docs.md /skills/alchemy-upgrade-migration/references/official-docs.md/
 redir @retired4a29ef861153 /skills/alchemy-upgrade-migration/{?query} permanent
-@retired894b39cb83a8 path /skills/anti-ui-slop/reference/onboard.md /skills/anti-ui-slop/reference/onboard.md/
-redir @retired894b39cb83a8 /skills/anti-ui-slop/{?query} permanent
-@retiredef1dc0a27098 path /skills/anti-ui-slop/reference/typeset.md /skills/anti-ui-slop/reference/typeset.md/
-redir @retiredef1dc0a27098 /skills/anti-ui-slop/{?query} permanent
 @retired9b16c9cc55b9 path /skills/artifact-creator/references/artifact-contracts.md /skills/artifact-creator/references/artifact-contracts.md/
 redir @retired9b16c9cc55b9 /skills/artifact-creator/{?query} permanent
 @retiredc121b3ae285d path /skills/artifact-creator/references/host-adapters.md /skills/artifact-creator/references/host-adapters.md/
