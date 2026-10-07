@@ -1143,6 +1143,9 @@ jobs:
       - name: Validate Internal Links (dist)
         run: node marketplace/scripts/validate-internal-links.mjs
 
+      - name: Crawl skill and plugin detail-page links (dist)
+        run: node marketplace/scripts/validate-detail-page-links.mjs
+
       - name: Check retired-path redirect map is current
         run: node marketplace/scripts/build-retired-path-redirects.mjs --check
 
@@ -1153,6 +1156,8 @@ jobs:
           marketplace/scripts/retired-path-redirects.test.mjs
           marketplace/scripts/install-skill-redirects.test.mjs
           marketplace/scripts/internal-link-utils.test.mjs
+          marketplace/scripts/relative-link-resolver.test.mjs
+          marketplace/scripts/validate-detail-page-links.test.mjs
           marketplace/scripts/sitemap-xml.test.mjs
 
       - name: Smoke Test - Verify Build Output
