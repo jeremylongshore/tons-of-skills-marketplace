@@ -1419,6 +1419,35 @@ sources:
       - '.git/**'
       - '*.log'
 
+  # ============================================================
+  # PriceWin (PriceDotWin)
+  # https://github.com/PriceDotWin/pricewin-agent-plugin
+  # ============================================================
+
+  - name: pricewin
+    description: Live hotel and flight prices compared across Booking.com, Agoda, Trip.com and Traveloka, in USD, through PriceWin's remote MCP server (https://mcp.price.win/mcp, no API key), plus a skill for running the two-step search. Can also send a booking request to an OpenTravel partner hotel, which charges nothing.
+    repo: PriceDotWin/pricewin-agent-plugin
+    source_path: .
+    target_path: plugins/mcp/pricewin
+    author:
+      name: PriceWin
+      github: PriceDotWin
+      email: support@price.win
+    license: MIT
+    category: mcp
+    verified: false
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/.claude-plugin/icon.png'
+      - '/.mcp.json'
+      - '/skills/**'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)

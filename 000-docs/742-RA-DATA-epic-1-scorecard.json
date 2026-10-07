@@ -2467,10 +2467,10 @@
       "source": ["sources.lock.json", "sources.yaml"],
       "status": "measured",
       "values": {
-        "lock_keys": 43,
+        "lock_keys": 44,
         "lock_only": [],
         "target_equal": true,
-        "yaml_keys": 43,
+        "yaml_keys": 44,
         "yaml_only": []
       }
     },
