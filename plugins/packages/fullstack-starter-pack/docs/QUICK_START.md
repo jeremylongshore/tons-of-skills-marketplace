@@ -212,7 +212,7 @@ Generated code is a starting point—modify to fit your needs.
 
 1. **Explore Use Cases:** See `docs/USE_CASES.md` for real-world examples
 2. **Review Plugins:** Check individual plugin documentation
-3. **Join Community:** Discord server for support and feedback
+3. **Join Community:** [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions) for support and feedback
 
 ---
 

@@ -196,7 +196,7 @@ Use this checklist for all future releases of the Claude Code Plugins Marketplac
   gh issue pin <issue-number>
   ```
 
-- [ ] **Post in Discord** (#claude-code channel)
+- [ ] **Post in GitHub Discussions** (Announcements category)
   - Brief summary
   - Link to GitHub release
   - Call to action (try it out!)

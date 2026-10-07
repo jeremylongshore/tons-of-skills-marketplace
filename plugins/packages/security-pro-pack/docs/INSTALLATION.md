@@ -408,7 +408,7 @@ After successful installation:
 
 **Community:**
 
-- Discord: https://discord.gg/claude-code-plugins
+- GitHub Discussions: https://github.com/jeremylongshore/claude-code-plugins/discussions
 - Slack:
 
 ---

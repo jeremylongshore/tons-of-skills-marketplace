@@ -679,7 +679,6 @@ Track: accuracy, retrieval time, cost per query
 
 ### Community
 
-- [Discord](https://discord.com/invite/6PPFFzqPDZ) - #claude-code channel
 - [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/claude-code) - `claude-code` tag
 
@@ -692,7 +691,7 @@ What's included:
 - All 12 plugins (lifetime access)
 - Free updates and new plugins
 - Email support
-- Community Discord access
+- Community support in GitHub Discussions
 - Documentation and examples
 
 **Compare to alternatives:**
@@ -713,7 +712,7 @@ Buy Now on Gumroad | [Volume Licensing](mailto:[email protected])
 
 **Response time:** Within 24 hours (usually faster)
 
-**Community:** Join Discord for community support
+**Community:** Ask in [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions) for community support
 
 ## Updates
 
@@ -752,7 +751,7 @@ Built with:
 1. **Install the pack** - 5-minute setup
 2. **Complete Quick Start** - Build your first AI feature in 10 minutes
 3. **Explore use cases** - See real-world ROI examples
-4. **[Join the community](https://discord.com/invite/6PPFFzqPDZ)** - Connect with other AI/ML engineers
+4. **[Join the community](https://github.com/jeremylongshore/claude-code-plugins/discussions)** - Connect with other AI/ML engineers
 
 ---
 

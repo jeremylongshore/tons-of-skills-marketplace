@@ -189,7 +189,7 @@ ROI: Pays for itself with 1-2 videos
 - **Documentation**: See `/documentation` folder
 - **Examples**: See `/documentation/EXAMPLES.md`
 - **Issues**: [GitHub Issues](https://github.com/jeremylongshore/claude-code-plugins/issues)
-- **Discord**: [Claude Code Community](https://discord.com/invite/6PPFFzqPDZ)
+- **Discussions**: [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
 
 ## 📄 License
 

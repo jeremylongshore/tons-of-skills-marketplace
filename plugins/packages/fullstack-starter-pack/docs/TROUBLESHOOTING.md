@@ -330,7 +330,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 **4. Community Support:**
 
-- Discord: https://discord.com/invite/claude-code
+- GitHub Discussions: https://github.com/jeremylongshore/claude-code-plugins/discussions
 - GitHub Issues: https://github.com/jeremylongshore/claude-code-plugins/issues
 
 **5. Report Bugs:**

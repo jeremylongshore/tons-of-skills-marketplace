@@ -53,9 +53,10 @@ import * as nodePath from 'node:path';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { assertGeneratedContentCurrent } from '../../scripts/check-generated-artifacts.mjs';
-import { resolveCorpus } from '../../scripts/corpus-resolver.mjs';
+import { listTrackedPaths, resolveCorpus } from '../../scripts/corpus-resolver.mjs';
 import { parseSkillFrontmatter } from '../../scripts/skill-frontmatter.mjs';
 import { mdToHtml } from './md-to-html.mjs';
+import { createRelativeLinkResolver, createTrackedTreeLookup } from './relative-link-resolver.mjs';
 
 const require = createRequire(import.meta.url);
 const { publishedPlugins } = require('../../scripts/publication-policy.cjs');
@@ -283,6 +284,15 @@ function projectL0(skill) {
  *   metadataOnly skips the mdToHtml body conversion — significant speedup
  *   on metadata-only builds.
  */
+// Tracked-tree lookup for relative-link resolution, built once on first use.
+// The tracked tree (not the working tree) keeps the projection identical to
+// what CI regenerates from a clean checkout.
+let trackedTreeKindOf = null;
+function trackedKindOf(path) {
+  trackedTreeKindOf ??= createTrackedTreeLookup(listTrackedPaths(ROOT_DIR));
+  return trackedTreeKindOf(path);
+}
+
 function processSkillFile(filePath, opts = {}) {
   const metadataOnly = opts.metadataOnly === true;
   try {
@@ -391,7 +401,15 @@ function processSkillFile(filePath, opts = {}) {
       version,
       author: authorStr,
       license,
-      content: metadataOnly ? '' : mdToHtml(markdownContent),
+      content: metadataOnly
+        ? ''
+        : mdToHtml(markdownContent, {
+            resolveLink: createRelativeLinkResolver({
+              sourcePath: relativePath,
+              pluginRoot: repositoryRelativePath(ROOT_DIR, pluginDir),
+              kindOf: trackedKindOf,
+            }),
+          }),
       parentPlugin: {
         name: pluginMetadata.name,
         category: category,

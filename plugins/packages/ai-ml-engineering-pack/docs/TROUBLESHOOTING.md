@@ -1111,11 +1111,10 @@ curl 'http://localhost:9090/api/v1/query?query=llm_requests_total'
 - [email protected]
 - Include plugin version, Claude Code version, and detailed description
 
-**Community Discord:**
+**Community Discussions:**
 
-- Join Claude Code Discord: https://discord.com/invite/6PPFFzqPDZ
-- #claude-code channel for general questions
-- #plugins channel for plugin-specific issues
+- GitHub Discussions: https://github.com/jeremylongshore/claude-code-plugins/discussions
+- Q&A category for general questions
 
 ### Information to Include in Support Requests
 

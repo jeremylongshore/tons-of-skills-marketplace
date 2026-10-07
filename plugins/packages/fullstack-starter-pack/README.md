@@ -151,7 +151,7 @@ Complete documentation for the Fullstack Starter Pack plugin collection for Clau
 
 **Community:**
 
-- Discord: https://discord.com/invite/claude-code (#claude-code channel)
+- Discussions: https://github.com/jeremylongshore/claude-code-plugins/discussions
 - GitHub: https://github.com/jeremylongshore/claude-code-plugins
 - Issues: Report bugs and request features
 

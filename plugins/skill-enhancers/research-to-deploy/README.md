@@ -42,7 +42,7 @@ This plugin will be available to Enterprise tier sponsors ($199/month):
 - ✅ All Pro features +
 - ✅ Custom plugin development (1/month)
 - ✅ Private plugin hosting (claude-code-marketplace repo)
-- ✅ Dedicated support channel (Slack/Discord)
+- ✅ Dedicated support channel
 - ✅ 2 hours consulting/month
 - ✅ SLA guarantees (99.9% uptime)
 - ✅ Team training (2-hour workshop/quarter)
