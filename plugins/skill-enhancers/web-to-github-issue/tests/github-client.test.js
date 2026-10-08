@@ -4,7 +4,8 @@ import { GitHubClient } from '../src/github-client.js';
 // Mock Octokit
 vi.mock('@octokit/rest', () => {
   return {
-    Octokit: vi.fn().mockImplementation(() => {
+    // Vitest 4: a mock invoked with `new` needs a constructible implementation.
+    Octokit: vi.fn().mockImplementation(function () {
       return {
         issues: {
           create: vi.fn(),

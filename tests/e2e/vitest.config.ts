@@ -19,11 +19,9 @@ export default defineConfig({
     teardownTimeout: 10000,
     // Run tests sequentially for E2E isolation
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true, // Run one test at a time for isolation
-      }
-    },
+    // Vitest 4 removed poolOptions; one worker runs test files one at a time,
+    // each still in its own isolated module graph (isolate defaults to true).
+    maxWorkers: 1,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
