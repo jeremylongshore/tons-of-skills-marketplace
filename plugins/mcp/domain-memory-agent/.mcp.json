@@ -1,10 +1,16 @@
 {
   "mcpServers": {
     "knowledge-base": {
+      "name": "knowledge-base",
+      "description": "Knowledge base with semantic search, document storage, and automatic summarization. Perfect for domain-specific knowledge management.",
+      "version": "1.0.0",
+      "enabled": true,
+      "type": "stdio",
       "command": "node",
       "args": [
         "${CLAUDE_PLUGIN_ROOT}/dist/servers/knowledge-base.js"
-      ]
+      ],
+      "env": {}
     }
   }
 }

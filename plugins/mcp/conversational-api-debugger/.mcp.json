@@ -1,10 +1,16 @@
 {
   "mcpServers": {
     "api-debugger": {
+      "name": "api-debugger",
+      "description": "Debug REST API failures using OpenAPI specs and HTTP logs. Analyzes errors, suggests fixes, and generates test commands.",
+      "version": "1.0.0",
+      "enabled": true,
+      "type": "stdio",
       "command": "node",
       "args": [
         "${CLAUDE_PLUGIN_ROOT}/dist/servers/api-debugger.js"
-      ]
+      ],
+      "env": {}
     }
   }
 }
