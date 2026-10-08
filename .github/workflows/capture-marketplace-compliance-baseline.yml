@@ -29,7 +29,7 @@ jobs:
           test "$REF_NAME" = "$DEFAULT_BRANCH"
 
       - name: Check out the requested quiet tree
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0

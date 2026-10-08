@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Rebuild skills/.curated/ and open a PR on change
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           # BOT_PR_TOKEN (fine-grained PAT, contents:write + pull-requests:write) re-triggers required checks; GITHUB_TOKEN cannot (anti-recursion). See ops-review bead claude-k0h2.
@@ -67,7 +67,7 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
