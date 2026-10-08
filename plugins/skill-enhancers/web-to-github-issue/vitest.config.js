@@ -14,7 +14,7 @@ export default defineConfig({
         '**/*.test.js',
         '**/*.spec.js',
       ],
-      all: true,
+      // Vitest 4 removed coverage.all; coverage.include above sets the file scope.
       // Migrated from the Vitest 0.x flat format to nested thresholds.
       // `thresholds: {}`. Floor documented in tests/README.md.
       thresholds: {

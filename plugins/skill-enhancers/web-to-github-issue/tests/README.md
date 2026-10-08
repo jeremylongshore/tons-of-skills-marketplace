@@ -291,10 +291,10 @@ Tests the markdown formatter that creates formatted GitHub issue bodies.
 ```javascript
 vi.mock('@octokit/rest', () => {
   return {
-    Octokit: vi.fn().mockImplementation(() => ({
+    Octokit: vi.fn().mockImplementation(function () { return ({
       issues: { create: vi.fn() },
       repos: { get: vi.fn() }
-    }))
+    }); })
   };
 });
 ```
