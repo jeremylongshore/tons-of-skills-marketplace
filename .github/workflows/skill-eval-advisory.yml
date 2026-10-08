@@ -138,7 +138,7 @@ jobs:
 
       - name: Sticky advisory comment
         if: always() && steps.detect.outputs.count != '0' && steps.detect.outputs.count != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
