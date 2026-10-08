@@ -131,7 +131,7 @@ test('standalone E2E owns vendored parser changes and uses immutable credential-
   );
   assert.match(
     STANDALONE_E2E_WORKFLOW,
-    /actions\/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6\n {8}with:\n {10}persist-credentials: false/,
+    /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7\.0\.1\n {8}with:\n {10}persist-credentials: false/,
   );
   assert.match(
     STANDALONE_E2E_WORKFLOW,
@@ -139,7 +139,7 @@ test('standalone E2E owns vendored parser changes and uses immutable credential-
   );
   assert.match(
     STANDALONE_E2E_WORKFLOW,
-    /actions\/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6/,
+    /actions\/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7\.0\.0/,
   );
   assert.doesNotMatch(STANDALONE_E2E_WORKFLOW, /uses: [^\n]+@v\d+/);
 });
