@@ -1,10 +1,16 @@
 {
   "mcpServers": {
     "workflow-engine": {
+      "name": "workflow-engine",
+      "description": "Orchestrate complex workflows with DAG-based execution, parallel tasks, and run history tracking",
+      "version": "1.0.0",
+      "enabled": true,
+      "type": "stdio",
       "command": "node",
       "args": [
         "${CLAUDE_PLUGIN_ROOT}/dist/servers/workflow-engine.js"
-      ]
+      ],
+      "env": {}
     }
   }
 }

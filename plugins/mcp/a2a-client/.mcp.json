@@ -2,12 +2,14 @@
   "mcpServers": {
     "a2a-client": {
       "name": "a2a-client",
-      "description": "Security-hardened MCP client for the Agent2Agent protocol",
+      "description": "Security-hardened Agent2Agent (A2A) client as an MCP server — discover cards, send and stream messages, and use confirmation-gated task control",
       "version": "0.1.0",
       "enabled": true,
       "type": "stdio",
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/index.js"],
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/dist/index.js"
+      ],
       "env": {
         "A2A_ALLOWED_HOSTS": "${A2A_ALLOWED_HOSTS:-}",
         "A2A_ALLOWED_DESTINATIONS": "${A2A_ALLOWED_DESTINATIONS:-}",

@@ -1,6 +1,11 @@
 {
   "mcpServers": {
     "code-metrics": {
+      "name": "code-metrics",
+      "description": "Analyze local repos for code health, complexity, test coverage gaps - multi-dimensional health analysis combining complexity + churn + coverage",
+      "version": "1.0.0",
+      "enabled": true,
+      "type": "stdio",
       "command": "node",
       "args": [
         "${CLAUDE_PLUGIN_ROOT}/dist/servers/code-metrics.js"
