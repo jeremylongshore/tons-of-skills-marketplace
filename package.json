@@ -125,6 +125,7 @@
       "express@4.22.2>body-parser": "1.20.6",
       "express@5.2.1>body-parser": "2.3.0",
       "express-rate-limit>ip-address": "10.7.3",
+      "proxy-addr": "2.0.8",
       "form-data": "4.0.6",
       "gray-matter>js-yaml": "3.15.2",
       "hono": "4.13.13",
