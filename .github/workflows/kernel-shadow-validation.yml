@@ -61,7 +61,7 @@ jobs:
           node-version: '22'
 
       - name: Setup Python (for the existing prose-spec validator)
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
