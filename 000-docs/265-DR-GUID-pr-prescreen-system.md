@@ -14,11 +14,11 @@ scanner, classifies the result via `scripts/pr-prescreen/classify.py`,
 optionally asks MiniMax for a 5-line human summary via
 `scripts/pr-prescreen/summarize.py`, and emits one of three verdicts:
 
-| Verdict | What it means | PR action | Slack action |
-|---|---|---|---|
-| `PASS` | zero errors, every changed skill graded C or better | comment on PR | ping `#operation-hired` |
-| `CHANGES_REQUESTED` | validator errors OR any skill graded D/F | request-changes review | silent — contributor is the audience |
-| `HARD_BLOCK` | structural concern (fatal frontmatter, missing catalog entry, no implementation files, etc.) | request-changes review | ping `#operation-hired` |
+| Verdict             | What it means                                                                                | PR action              | Slack action                         |
+| ------------------- | -------------------------------------------------------------------------------------------- | ---------------------- | ------------------------------------ |
+| `PASS`              | zero errors, every changed skill graded C or better                                          | comment on PR          | ping `#operation-hired`              |
+| `CHANGES_REQUESTED` | validator errors OR any skill graded D/F                                                     | request-changes review | silent — contributor is the audience |
+| `HARD_BLOCK`        | structural concern (fatal frontmatter, missing catalog entry, no implementation files, etc.) | request-changes review | ping `#operation-hired`              |
 
 The workflow is **advisory**. A failure here NEVER blocks a merge. The
 required checks are still `validate` and `marketplace-validation`.
@@ -29,36 +29,42 @@ The workflow is split into **two jobs** that pass an artifact between
 them. This makes the fork-safe design **structural** instead of a
 per-review invariant.
 
+> **Update 2026-10-08 (bead `claude-j5gs`).** The July split put `respond` in
+> the same `pull_request` workflow, gated on `vars.ENABLE_PR_PRESCREEN`. GitHub
+> passes no repository variables or secrets to fork `pull_request` runs, so both
+> jobs were skipped on every fork PR (e.g. runs 37250406168, 37534515952, 37689026376) — the pre-screen never reached outside contributors. The
+> privileged half now lives in its own `workflow_run` workflow:
+
 ```
-  validate  (pull_request)        — checks out main + PR; runs the
-                                    validator + classifier; bundles
-                                    verdict.json + meta.json into an
-                                    artifact. NO secrets.
-       ↓ artifact
-  respond   (pull_request_target) — downloads the artifact; posts the
-                                    trusted PR comment + Slack ping +
-                                    audit log. Checks out MAIN only.
-                                    NO PR checkout. NO execution of
-                                    any PR-controlled code.
+  pr-prescreen.yml          (pull_request) — checks out main + PR; runs the
+                                             validator + classifier; uploads
+                                             verdict.json + meta.json. NO
+                                             secrets, read-only token, no vars
+                                             gate (so fork PRs run too).
+       ↓ artifact (attacker-controllable on fork PRs)
+  pr-prescreen-respond.yml  (workflow_run) — base token; holds the kill switch.
+                                             Checks out MAIN only (default
+                                             self-checkout). NO PR checkout.
 ```
 
-Why two jobs and not one:
+The responder treats the artifact as untrusted input:
 
-- The privileged job (`respond`) runs under `pull_request_target`, so
-  it has access to `MINIMAX_API_KEY` and
-  `SLACK_OPERATION_HIRED_WEBHOOK_URL`. It must NOT execute PR-controlled
-  code (the "pwn request" pattern that compromised Nx, PostHog, and
-  TanStack in 2025–2026).
-- `actions/checkout@v6`/`v7` blocks checking out fork PR code from a
-  `pull_request_target` workflow by default. The opt-out
-  (`allow-unsafe-pr-checkout: true`) exists, but GitHub's
-  [guidance](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target)
-  is explicit: do not check out fork code in a privileged workflow.
-- The validator still runs in the same fork-context it always did
-  (no secrets). It now lives in `validate` (a `pull_request` job).
-- The trusted-comment + Slack + audit-log posting lives in `respond`,
-  which physically cannot execute PR bytes — there is no `actions/checkout`
-  for the PR ref in that job.
+- The PR number and head SHA come from GitHub — `workflow_run.head_sha` plus
+  the pulls API — never from `meta.json`.
+- On `pull_request`, GitHub takes the workflow file from the PR's merge commit,
+  so a PR that edits `pr-prescreen.yml` could forge any verdict. Such PRs get a
+  neutral `error` status ("Not evaluated") and nothing else. A PR that does not
+  touch the file ran byte-identical base workflow code, so its verdict is sound.
+- The verdict must be `PASS`, `CHANGES_REQUESTED` or `HARD_BLOCK`; the
+  artifact's `head_sha` must equal the trusted head SHA; `diff_count` must be
+  numeric; each file is capped at 2 MB.
+- `actions/checkout@v7` refuses fork-PR checkouts under `workflow_run` unless
+  `allow-unsafe-pr-checkout` is set; the responder never overrides `ref`, so
+  the guard never applies and no opt-in exists.
+- The Slack ping was removed with the split (Slack is retired).
+
+`tests/ci/test_prescreen_trust_split.py` pins these properties and runs the
+responder's artifact check against forged bundles.
 
 The MiniMax prompt (`scripts/pr-prescreen/summarize.py`) explicitly
 treats the payload as data, not as instructions. Prompt-injection
@@ -101,7 +107,7 @@ Workflow stays defined in `.github/workflows/pr-prescreen.yml`; only the
    - `failed: http 429` → MiniMax rate limit hit; will recover
      on next run.
    - `failed: TimeoutError` → 5s deadline exceeded; usually transient.
-   The deterministic verdict is always present regardless of MiniMax state.
+     The deterministic verdict is always present regardless of MiniMax state.
 
 4. **Slack ping never arrived.**
    `SLACK_OPERATION_HIRED_WEBHOOK_URL` secret must be set. The workflow
@@ -150,22 +156,22 @@ fired before this step runs).
 
 ## Operator-provisioned secrets and variables
 
-| Name | Type | Scope | Purpose |
-|---|---|---|---|
-| `SLACK_OPERATION_HIRED_WEBHOOK_URL` | secret | repo | Incoming webhook to `#operation-hired`. Shared with 3 other workflows. |
-| `MINIMAX_API_KEY` | secret | repo | OpenAI-compatible key from MiniMax (paid annual plan). Optional — workflow falls back to deterministic-only if absent. Used by `summarize.py` for the 5-line reviewer summary. |
-| `ENABLE_PR_PRESCREEN` | variable | repo | `true` enables the workflow. Set to `false` to disable in an emergency. |
+| Name                                | Type     | Scope | Purpose                                                                                                                                                                        |
+| ----------------------------------- | -------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SLACK_OPERATION_HIRED_WEBHOOK_URL` | secret   | repo  | Incoming webhook to `#operation-hired`. Shared with 3 other workflows.                                                                                                         |
+| `MINIMAX_API_KEY`                   | secret   | repo  | OpenAI-compatible key from MiniMax (paid annual plan). Optional — workflow falls back to deterministic-only if absent. Used by `summarize.py` for the 5-line reviewer summary. |
+| `ENABLE_PR_PRESCREEN`               | variable | repo  | `true` enables the workflow. Set to `false` to disable in an emergency.                                                                                                        |
 
 ## Critical files
 
-| File | Role |
-|---|---|
-| `.github/workflows/pr-prescreen.yml` | The workflow itself. |
-| `scripts/pr-prescreen/classify.py` | Pure function: validator JSON → verdict. |
-| `scripts/pr-prescreen/summarize.py` | Optional MiniMax layer with deterministic fallback. |
-| `scripts/pr-prescreen/audit.py` | Appends one row per run to the audit log. |
-| `scripts/pr-prescreen/test_classify.py` | Unit tests for the classifier (12 tests). |
-| `scripts/pr-prescreen/test_summarize.py` | Unit tests for the summarizer (9 tests). |
+| File                                     | Role                                                |
+| ---------------------------------------- | --------------------------------------------------- |
+| `.github/workflows/pr-prescreen.yml`     | The workflow itself.                                |
+| `scripts/pr-prescreen/classify.py`       | Pure function: validator JSON → verdict.            |
+| `scripts/pr-prescreen/summarize.py`      | Optional MiniMax layer with deterministic fallback. |
+| `scripts/pr-prescreen/audit.py`          | Appends one row per run to the audit log.           |
+| `scripts/pr-prescreen/test_classify.py`  | Unit tests for the classifier (12 tests).           |
+| `scripts/pr-prescreen/test_summarize.py` | Unit tests for the summarizer (9 tests).            |
 
 Run all tests locally:
 
