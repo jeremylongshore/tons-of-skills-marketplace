@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           # BOT_PR_TOKEN (fine-grained PAT, contents:write + pull-requests:write) re-triggers required checks; GITHUB_TOKEN cannot (anti-recursion). See ops-review bead claude-k0h2.
@@ -68,7 +68,7 @@ jobs:
           token: ${{ secrets.BOT_PR_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           # Astro requires >=22.12.0 as of 2026-05-30; sync runs
           # sync-marketplace.cjs which the build pipeline expects on 22+.

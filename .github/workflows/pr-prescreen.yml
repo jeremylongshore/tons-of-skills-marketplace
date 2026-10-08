@@ -80,14 +80,14 @@ jobs:
       # HEAD is checked out separately into ./pr. Both are fork-context
       # checkouts under `pull_request` — no secrets exposed.
       - name: Checkout base (validator source)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.pr.outputs.base_sha }}
           persist-credentials: false
           path: base
 
       - name: Checkout PR HEAD into ./pr
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.pr.outputs.head_sha }}
           persist-credentials: false

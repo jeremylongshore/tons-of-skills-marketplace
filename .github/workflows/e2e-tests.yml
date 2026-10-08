@@ -90,10 +90,10 @@ jobs:
     # keeps its existing PR / push:main / dispatch triggers only.
     if: github.event_name != 'workflow_run'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           # Astro requires >=22.12.0 as of 2026-05-30. Job builds the
           # marketplace before running Playwright, so it needs Node 22.
@@ -136,7 +136,7 @@ jobs:
           CI: true
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report
@@ -144,7 +144,7 @@ jobs:
           retention-days: 30
 
       - name: Upload test screenshots
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-screenshots
@@ -152,7 +152,7 @@ jobs:
           retention-days: 30
 
       - name: Upload test videos
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-videos
@@ -174,10 +174,10 @@ jobs:
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success')
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           # The runner installs marketplace/package.json, whose engine follows
           # the repository floor even though this job does not rebuild Astro.
@@ -204,7 +204,7 @@ jobs:
           CI: true
 
       - name: Upload production E2E report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: production-e2e-report

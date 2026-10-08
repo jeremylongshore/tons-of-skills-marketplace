@@ -64,7 +64,7 @@ jobs:
       !contains(github.event.pull_request.body, '[skip auto-bump]')
     steps:
       - name: Checkout PR head with full history
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Push to the PR head branch directly. `pull_request` events run
           # against the merge ref by default, which can't be pushed to.
@@ -82,7 +82,7 @@ jobs:
           # never exposed to fork code.
           token: ${{ secrets.BOT_PR_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 

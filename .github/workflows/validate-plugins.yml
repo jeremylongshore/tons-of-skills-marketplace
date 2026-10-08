@@ -25,7 +25,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         # Full history + tags are required for the secret-fingerprint verifier:
         # it proves every ignored finding is ancestral to an exact, pinned
         # annotated release tag rather than trusting a PR-created ref.
@@ -49,7 +49,7 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -648,7 +648,7 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # E6.6 compares the PR range to origin/main. The default one-commit
           # checkout makes Git treat both refs as shallow roots, so the
@@ -716,7 +716,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -729,7 +729,7 @@ jobs:
         run: pip install 'PyYAML==6.0.1'
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -744,7 +744,7 @@ jobs:
 
       - name: Upload verification results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: verification-results
           path: ${{ runner.temp }}/verification-summary.json
@@ -759,11 +759,11 @@ jobs:
         test-type: [mcp-plugins, python-tests, validation-scripts]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
         if: matrix.test-type == 'mcp-plugins'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           # astro@6.x (marketplace dep) requires Node >=22.12.0; the
           # `pnpm build` step below builds the marketplace via astro. Node 20
@@ -1025,7 +1025,7 @@ jobs:
 
       - name: Setup Node.js for validation
         if: matrix.test-type == 'validation-scripts'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1101,10 +1101,10 @@ jobs:
   check-package-manager:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -1115,10 +1115,10 @@ jobs:
   marketplace-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           # Astro requires >=22.12.0 as of 2026-05-30. Bumped to clear the
           # pre-existing failure that started 2026-05-30 22:58Z on main.
@@ -1265,10 +1265,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: marketplace-validation
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -1392,7 +1392,7 @@ jobs:
   shellcheck-skills:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install shellcheck
         run: |
@@ -1427,7 +1427,7 @@ jobs:
   skill-codeblock-syntax:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -1435,7 +1435,7 @@ jobs:
           python-version: '3.12'
 
       - name: Setup Node.js (for js codeblock syntax checks)
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1459,7 +1459,7 @@ jobs:
   typescript-coverage-audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -1478,13 +1478,13 @@ jobs:
   eslint-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1499,13 +1499,13 @@ jobs:
   format-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1521,7 +1521,7 @@ jobs:
   ruff-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -1543,7 +1543,7 @@ jobs:
   ruff-format-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -1562,10 +1562,10 @@ jobs:
   markdownlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1621,12 +1621,12 @@ jobs:
     runs-on: ubuntu-latest
     name: scan-synced-content (supply-chain)
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1685,7 +1685,7 @@ jobs:
   promote-curated-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -1708,12 +1708,12 @@ jobs:
     runs-on: ubuntu-latest
     name: check-submission-docs (intake gate)
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1741,7 +1741,7 @@ jobs:
   commit-scope-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Validate PR title (conventional-commit + area scope)
         uses: actions/github-script@v8
@@ -1826,10 +1826,10 @@ jobs:
   codeowners-drift:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1846,7 +1846,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # The exact historical source is fetched from the reviewed registry
           # below, so this checkout can stay shallow without relying on the
@@ -1864,7 +1864,7 @@ jobs:
           git fetch --no-tags --depth=1 origin "$source_commit"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -1881,7 +1881,7 @@ jobs:
   doc-governance:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -1898,7 +1898,7 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -2090,7 +2090,7 @@ jobs:
     runs-on: ubuntu-latest
     name: secret-diff-scan (unverified, PR diff)
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
