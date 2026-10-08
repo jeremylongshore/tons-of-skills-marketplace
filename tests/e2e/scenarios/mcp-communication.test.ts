@@ -517,7 +517,13 @@ async function createIgnoringSignalMcpServer(basePath: string, name: string): Pr
   const serverDir = path.join(basePath, 'mcp-servers', name);
   await fs.mkdir(serverDir, { recursive: true });
 
+  // Install the SIGTERM handler BEFORE announcing readiness: startMcpServer
+  // resolves on the first stdout line, so writing first left a window where a
+  // prompt stop() delivered SIGTERM before the handler existed and the process
+  // died immediately (the "should not resolve stop on a process error" flake).
   const serverCode = `#!/usr/bin/env node
+
+process.on('SIGTERM', () => {});
 
 process.stdout.write(JSON.stringify({
   jsonrpc: '2.0',
@@ -525,7 +531,6 @@ process.stdout.write(JSON.stringify({
   params: { tools: [] }
 }) + '\\n');
 
-process.on('SIGTERM', () => {});
 setInterval(() => {}, 60000);
 `;
 
