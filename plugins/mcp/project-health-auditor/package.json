@@ -23,9 +23,9 @@
   "author": "Intent Solutions IO",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "glob": "^13.0.6",
-    "simple-git": "^3.36.0",
+    "simple-git": "^4.0.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {
