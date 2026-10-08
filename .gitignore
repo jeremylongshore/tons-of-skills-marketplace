@@ -168,6 +168,23 @@ dist/
 # entrypoint before any package-manager lifecycle runs.
 !plugins/mcp/a2a-client/dist/
 !plugins/mcp/a2a-client/dist/index.js
+# MCP plugins launched from a committed bundle (claude-e1mk.10): the marketplace
+# installs by copying the plugin directory, so the .mcp.json target must exist.
+!plugins/mcp/project-health-auditor/dist/
+!plugins/mcp/project-health-auditor/dist/servers/
+!plugins/mcp/project-health-auditor/dist/servers/code-metrics.js
+!plugins/mcp/workflow-orchestrator/dist/
+!plugins/mcp/workflow-orchestrator/dist/servers/
+!plugins/mcp/workflow-orchestrator/dist/servers/workflow-engine.js
+!plugins/mcp/domain-memory-agent/dist/
+!plugins/mcp/domain-memory-agent/dist/servers/
+!plugins/mcp/domain-memory-agent/dist/servers/knowledge-base.js
+!plugins/mcp/design-to-code/dist/
+!plugins/mcp/design-to-code/dist/servers/
+!plugins/mcp/design-to-code/dist/servers/design-converter.js
+!plugins/mcp/conversational-api-debugger/dist/
+!plugins/mcp/conversational-api-debugger/dist/servers/
+!plugins/mcp/conversational-api-debugger/dist/servers/api-debugger.js
 ehthumbs.db
 google-adk-reference/
 logs/

@@ -29,13 +29,13 @@ jobs:
           test "$REF_NAME" = "$DEFAULT_BRANCH"
 
       - name: Check out the requested quiet tree
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 

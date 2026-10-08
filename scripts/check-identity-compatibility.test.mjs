@@ -168,6 +168,265 @@ test('unreachable nested functions cannot satisfy the program identity contract'
   assert.match(violations, /tons skills/);
 });
 
+test('shadowed and unreachable calls cannot satisfy the program identity contract', () => {
+  const controlFlowSpoof = snapshot({
+    cliProgramSource: [
+      'export function buildProgram() {',
+      '  const program = new Command();',
+      "  { const program = { name() {}, command() {} }; program.name('ccpi'); }",
+      "  const skills = false && program.command('skills');",
+      '  return program;',
+      '}',
+    ].join('\n'),
+  });
+
+  const violations = checkIdentityCompatibility(controlFlowSpoof).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('the registered command instance must be returned from buildProgram', () => {
+  const wrongReturn = snapshot({
+    cliProgramSource: LIVE.cliProgramSource.replace('return program;', 'return new Command();'),
+  });
+  const violations = checkIdentityCompatibility(wrongReturn).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('aliases and computed calls cannot mutate identity outside the constrained build flow', () => {
+  for (const injected of [
+    "const alias = program; alias.name('attacker');",
+    "program['name']('attacker');",
+  ]) {
+    const candidate = snapshot({
+      cliProgramSource: LIVE.cliProgramSource.replace(
+        'return program;',
+        `${injected}\n  return program;`,
+      ),
+    });
+    const violations = checkIdentityCompatibility(candidate).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+});
+
+test('registration bindings cannot be mutated through eagerly evaluated call arguments', () => {
+  const nestedArgument = snapshot({
+    cliProgramSource: LIVE.cliProgramSource.replace(
+      'return program;',
+      "program.description((program.name('attacker'), 'description'));\n  return program;",
+    ),
+  });
+  const violations = checkIdentityCompatibility(nestedArgument).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('the checked buildProgram must be the direct named export used by the CLI', () => {
+  const aliasedExport = snapshot({
+    cliProgramSource: [
+      "import { Command } from 'commander';",
+      'function buildProgram() {',
+      '  const program = new Command();',
+      "  program.name('ccpi');",
+      "  const skills = program.command('skills');",
+      '  return program;',
+      '}',
+      'function evil() { return new Command(); }',
+      'export { evil as buildProgram };',
+    ].join('\n'),
+  });
+  const violations = checkIdentityCompatibility(aliasedExport).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('module-scope code cannot replace the checked buildProgram export', () => {
+  const reassignedExport = snapshot({
+    cliProgramSource: `${LIVE.cliProgramSource}\nbuildProgram = () => new Command();\n`,
+  });
+  const violations = checkIdentityCompatibility(reassignedExport).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('the Commander import cannot be shadowed inside buildProgram', () => {
+  const shadowedConstructor = snapshot({
+    cliProgramSource: [
+      "import { Command } from 'commander';",
+      'export function buildProgram(Command = class FakeCommand {}) {',
+      '  const program = new Command();',
+      "  program.name('ccpi');",
+      "  const skills = program.command('skills');",
+      '  return program;',
+      '}',
+    ].join('\n'),
+  });
+  const violations = checkIdentityCompatibility(shadowedConstructor).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('registration bindings must be declared before they are used', () => {
+  const forwardUse = snapshot({
+    cliProgramSource: [
+      "import { Command } from 'commander';",
+      'export function buildProgram() {',
+      "  const skills = program.command('skills');",
+      '  const program = new Command();',
+      "  program.name('ccpi');",
+      '  return program;',
+      '}',
+    ].join('\n'),
+  });
+  const violations = checkIdentityCompatibility(forwardUse).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('a renamed real skills command cannot be hidden behind an empty decoy', () => {
+  const decoySkills = snapshot({
+    cliProgramSource: [
+      "import { Command } from 'commander';",
+      'export function buildProgram() {',
+      '  const program = new Command();',
+      "  program.name('ccpi');",
+      "  const skills = program.command('skills');",
+      "  skills.command('doctor');",
+      "  skills.name('attacker');",
+      "  program.command('skills');",
+      '  return program;',
+      '}',
+    ].join('\n'),
+  });
+  const violations = checkIdentityCompatibility(decoySkills).join('\n');
+  assert.match(violations, /tons skills/);
+});
+
+test('async, generator, and type-only constructor variants are rejected', () => {
+  const variants = [
+    LIVE.cliProgramSource.replace(
+      'export function buildProgram()',
+      'export async function buildProgram()',
+    ),
+    LIVE.cliProgramSource.replace(
+      'export function buildProgram()',
+      'export function* buildProgram()',
+    ),
+    LIVE.cliProgramSource.replace(
+      "import { Command } from 'commander';",
+      "import type { Command } from 'commander';",
+    ),
+  ];
+  for (const cliProgramSource of variants) {
+    const violations = checkIdentityCompatibility(snapshot({ cliProgramSource })).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+});
+
+test('eager registration arguments cannot execute hidden identity mutations', () => {
+  const variants = [
+    LIVE.cliProgramSource.replace(
+      ".description('Claude Code Plugins - Install and manage plugins from tonsofskills.com')",
+      `.description(eval('program.command("attacker")'))`,
+    ),
+    LIVE.cliProgramSource.replace(
+      ".name('ccpi')",
+      ".name('ccpi', (() => { Command.prototype.action = function () { return this; }; })())",
+    ),
+  ];
+  for (const cliProgramSource of variants) {
+    const violations = checkIdentityCompatibility(snapshot({ cliProgramSource })).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+});
+
+test('portable command chains cannot hide nested command registrations', () => {
+  const nestedCommand = snapshot({
+    cliProgramSource: LIVE.cliProgramSource.replace(
+      ".command('list-harnesses')",
+      ".command('list-harnesses').action(() => {}).command('nested-doctor')",
+    ),
+  });
+  const violations = checkIdentityCompatibility(nestedCommand).join('\n');
+  assert.match(violations, /ccpi program identity/);
+  assert.match(violations, /tons skills/);
+});
+
+test('imports and action callbacks cannot add direct identity mutation channels', () => {
+  const extraImport = snapshot({
+    cliProgramSource: LIVE.cliProgramSource.replace(
+      "import { Command } from 'commander';",
+      [
+        "import { Command } from 'commander';",
+        "import { installBackdoor } from './commands/backdoor.js';",
+      ].join('\n'),
+    ),
+  });
+  assert.match(checkIdentityCompatibility(extraImport).join('\n'), /ccpi program identity/);
+
+  for (const injected of [
+    "Command.prototype.name = () => 'attacker';",
+    "await import('commander');",
+    "arguments[0].parent.name('attacker');",
+    'eval("program.name(\'attacker\')");',
+    'options.constructor.constructor("program.name(\'attacker\')")();',
+    'globalThis.eval("program.name(\'attacker\')");',
+    "process.getBuiltinModule('node:module');",
+    [
+      "const loader = (process as any)['get' + 'Builtin' + 'Module']('node:module');",
+      'const requireFromCli = loader.createRequire(import.meta.url);',
+      "const commanderModule = requireFromCli('commander');",
+      "commanderModule['Com' + 'mand'].prototype.name = () => 'attacker';",
+    ].join(' '),
+    "console.log['con' + 'structor']('program.name(\\'attacker\\')')();",
+    [
+      'const AsyncFn = Object.getOwnPropertyDescriptor(',
+      'Object.getPrototypeOf(async () => {}),',
+      "'constructor',",
+      ').value;',
+      'const run = AsyncFn("globalThis.process.getBuiltinModule(\'node:module\')");',
+      'await run(import.meta.url);',
+    ].join(' '),
+    "const run = options.execute; run('attacker');",
+    'const run = options.execute; run`attacker`;',
+    "const String = options.execute; String('attacker');",
+    "const console = { log: options.execute }; console.log('attacker');",
+    "const spinner = options; spinner.fail('attacker');",
+  ]) {
+    const actionMutation = snapshot({
+      cliProgramSource: LIVE.cliProgramSource.replace(
+        '.action(async (options) => listHarnesses(!!options.json));',
+        `.action(async (options) => { ${injected} return listHarnesses(!!options.json); });`,
+      ),
+    });
+    const violations = checkIdentityCompatibility(actionMutation).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+
+  for (const callback of [
+    "async (_options, command) => command.parent.name('attacker')",
+    "async (_options, command) => command['parent']['name']('attacker')",
+    "async (_options, command) => { const c = command; c.parent.name('attacker'); }",
+    "async (_options, command) => { Object.getPrototypeOf(command).name = () => 'attacker'; }",
+    "function (_options) { this.parent.name('attacker'); }",
+  ]) {
+    const parentMutation = snapshot({
+      cliProgramSource: LIVE.cliProgramSource.replace(
+        'async (options) => listHarnesses(!!options.json)',
+        callback,
+      ),
+    });
+    const violations = checkIdentityCompatibility(parentMutation).join('\n');
+    assert.match(violations, /ccpi program identity/);
+    assert.match(violations, /tons skills/);
+  }
+});
+
 test('live redirect verifier follows every legacy route to the canonical destination', async () => {
   const seen = [];
   const results = await checkLiveRedirects(async (url) => {

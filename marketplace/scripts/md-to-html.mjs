@@ -219,7 +219,14 @@ function findClosingDelimiter(text, start, length, marker) {
   return -1;
 }
 
-export function inlineFormat(text) {
+/**
+ * @param {string} text
+ * @param {{ resolveLink?: (target: string) => string | null }} [options]
+ *   resolveLink rewrites a link target before the safety allowlist runs; a
+ *   null result renders the label as plain text (see relative-link-resolver).
+ */
+export function inlineFormat(text, options = {}) {
+  const { resolveLink } = options;
   let html = '';
   let literal = '';
 
@@ -254,9 +261,10 @@ export function inlineFormat(text) {
         const targetEnd = findClosingParenthesis(text, labelEnd + 2);
         if (targetEnd !== -1) {
           flushLiteral();
-          const label = inlineFormat(text.slice(cursor + 1, labelEnd));
-          const target = text.slice(labelEnd + 2, targetEnd);
-          html += isSafeLinkTarget(target)
+          const label = inlineFormat(text.slice(cursor + 1, labelEnd), options);
+          const rawTarget = text.slice(labelEnd + 2, targetEnd);
+          const target = resolveLink ? resolveLink(rawTarget) : rawTarget;
+          html += target !== null && isSafeLinkTarget(target)
             ? `<a href="${escapeHtml(target)}">${label}</a>`
             : label;
           cursor = targetEnd + 1;
@@ -277,7 +285,7 @@ export function inlineFormat(text) {
         if (end !== -1) {
           flushLiteral();
           const tag = delimiterLength === 2 ? 'strong' : 'em';
-          html += `<${tag}>${inlineFormat(text.slice(cursor + delimiterLength, end))}</${tag}>`;
+          html += `<${tag}>${inlineFormat(text.slice(cursor + delimiterLength, end), options)}</${tag}>`;
           cursor = end + delimiterLength;
           continue;
         }
@@ -299,8 +307,13 @@ export function inlineFormat(text) {
  * `data-lang`), GFM-style pipe tables, headings (h1–h6), horizontal rules,
  * ordered and unordered lists, and inline formatting (bold, italic, code,
  * links).
+ *
+ * `options.resolveLink` (optional) rewrites link targets; callers rendering
+ * repository markdown pass a relative-link resolver so links relative to the
+ * source file do not become dead links relative to the page URL.
  */
-export function mdToHtml(md) {
+export function mdToHtml(md, options = {}) {
+  const format = (value) => inlineFormat(value, options);
   const lines = md.split('\n');
   const out = [];
   let inCodeBlock = false;
@@ -312,13 +325,13 @@ export function mdToHtml(md) {
 
   const flushParagraph = () => {
     if (paragraphLines.length === 0) return;
-    out.push(`<p>${inlineFormat(paragraphLines.join(' '))}</p>`);
+    out.push(`<p>${format(paragraphLines.join(' '))}</p>`);
     paragraphLines = [];
   };
 
   const flushListItem = () => {
     if (listItemLines.length === 0) return;
-    out.push(`<li>${inlineFormat(listItemLines.join(' '))}</li>`);
+    out.push(`<li>${format(listItemLines.join(' '))}</li>`);
     listItemLines = [];
   };
 
@@ -375,14 +388,14 @@ export function mdToHtml(md) {
 
       if (!inTable) {
         out.push('<table><thead><tr>');
-        cells.forEach(c => out.push(`<th>${inlineFormat(c)}</th>`));
+        cells.forEach(c => out.push(`<th>${format(c)}</th>`));
         out.push('</tr></thead><tbody>');
         inTable = true;
         continue;
       }
 
       out.push('<tr>');
-      cells.forEach(c => out.push(`<td>${inlineFormat(c)}</td>`));
+      cells.forEach(c => out.push(`<td>${format(c)}</td>`));
       out.push('</tr>');
       continue;
     }
@@ -403,7 +416,7 @@ export function mdToHtml(md) {
       flushParagraph();
       closeList();
       const level = headingMatch[1].length;
-      out.push(`<h${level}>${inlineFormat(headingMatch[2])}</h${level}>`);
+      out.push(`<h${level}>${format(headingMatch[2])}</h${level}>`);
       continue;
     }
 

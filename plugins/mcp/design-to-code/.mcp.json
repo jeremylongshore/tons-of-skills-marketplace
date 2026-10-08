@@ -1,8 +1,16 @@
 {
   "mcpServers": {
     "design-converter": {
+      "name": "design-converter",
+      "description": "Convert Figma designs and screenshots into production-ready code components with accessibility built-in",
+      "version": "1.0.0",
+      "enabled": true,
+      "type": "stdio",
       "command": "node",
-      "args": ["dist/servers/design-converter.js"]
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/dist/servers/design-converter.js"
+      ],
+      "env": {}
     }
   }
 }

@@ -1,0 +1,283 @@
+name: 'PR Pre-screen Respond'
+# Privileged half of the PR pre-screen (bead claude-j5gs, 2026-10-08).
+#
+# pr-prescreen.yml (`pull_request`, no secrets, no write token) grades the PR
+# and uploads a verdict artifact. GitHub passes no repository variables or
+# secrets to fork `pull_request` runs, so the posting half cannot live there:
+# it runs here, on `workflow_run`, with the base repository's token.
+#
+# Trust model — this job NEVER checks out or executes PR bytes, and it treats
+# the artifact as attacker-controlled input:
+#   * The PR number and head SHA come from GitHub (the workflow_run event and
+#     the pulls API), never from the artifact.
+#   * On `pull_request`, GitHub takes the workflow file from the PR's merge
+#     commit, so a PR that edits pr-prescreen.yml could forge any verdict.
+#     Such PRs get a neutral "not evaluated" status and nothing else.
+#   * The verdict must be one of the known values, the artifact's head SHA must
+#     match the trusted head SHA, and each artifact file is size-capped.
+#
+# Advisory only. Never a required check. Failures here NEVER block merges.
+on:
+  workflow_run:
+    workflows: ['PR Pre-screen']
+    types: [completed]
+
+concurrency:
+  group: 'pr-prescreen-respond-${{ github.event.workflow_run.head_sha }}'
+  cancel-in-progress: true
+
+jobs:
+  respond:
+    name: prescreen/respond
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event.workflow_run.conclusion == 'success' && vars.ENABLE_PR_PRESCREEN == 'true'
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+      statuses: write
+    steps:
+      # Default self-checkout: no `ref` or `repository` override, so this is the
+      # default branch. Base-authored scripts only.
+      - name: Checkout base (summarize + audit scripts)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          path: base
+
+      - name: Resolve the PR from GitHub, not from the artifact
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event.workflow_run.event }}
+          RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "pull_request" ]; then
+            HEAD_SHA="$RUN_HEAD_SHA"
+            NUMBERS=$(gh api --paginate "repos/${REPO}/pulls?state=open&base=main&per_page=100" \
+              --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number")
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
+            # A dispatch runs the default-branch workflow, started by a maintainer;
+            # its input PR number is read back from the run, then re-checked below.
+            NUMBERS=$(gh api "repos/${REPO}/actions/runs/${RUN_ID}" --jq '.display_title' \
+              | grep -oE '[0-9]+' | head -1 || true)
+            HEAD_SHA=""
+          else
+            echo "Unsupported triggering event: $EVENT"; exit 1
+          fi
+          COUNT=$(printf '%s\n' "$NUMBERS" | grep -c '^[0-9]\+$' || true)
+          if [ "$COUNT" != "1" ]; then
+            echo "Expected exactly one open PR for this run, found ${COUNT}; nothing to post."
+            echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          NUMBER=$(printf '%s\n' "$NUMBERS" | grep '^[0-9]\+$')
+          PR_JSON=$(gh api "repos/${REPO}/pulls/${NUMBER}")
+          LIVE_SHA=$(printf '%s' "$PR_JSON" | jq -r '.head.sha')
+          if [ -n "$HEAD_SHA" ] && [ "$LIVE_SHA" != "$HEAD_SHA" ]; then
+            echo "PR #${NUMBER} moved on (${LIVE_SHA} != ${HEAD_SHA}); a newer run will respond."
+            echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          {
+            echo "number=${NUMBER}"
+            echo "head_sha=${LIVE_SHA}"
+            echo "skip=false"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Refuse to grade a PR that edits the pre-screen workflow
+        id: guard
+        if: steps.pr.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ steps.pr.outputs.number }}
+          SHA: ${{ steps.pr.outputs.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          set -euo pipefail
+          if gh api --paginate "repos/${REPO}/pulls/${NUMBER}/files?per_page=100" --jq '.[].filename' \
+              | grep -qxF '.github/workflows/pr-prescreen.yml'; then
+            gh api "repos/${REPO}/statuses/${SHA}" -f state=error -f context='prescreen-grade' \
+              -f description='Not evaluated: this PR modifies the pre-screen workflow.' \
+              -f target_url="$RUN_URL" >/dev/null
+            echo "tooling_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tooling_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download validate artifacts
+        if: steps.pr.outputs.skip == 'false' && steps.guard.outputs.tooling_changed == 'false'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: prescreen-bundle
+          path: /tmp/prescreen-bundle/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Check the artifact as untrusted input
+        id: read-verdict
+        if: steps.pr.outputs.skip == 'false' && steps.guard.outputs.tooling_changed == 'false'
+        env:
+          TRUSTED_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, pathlib
+          bundle = pathlib.Path('/tmp/prescreen-bundle')
+          for f in bundle.iterdir():
+              if f.stat().st_size > 2_000_000:
+                  raise SystemExit(f'artifact file too large: {f.name}')
+          verdict = json.loads((bundle / 'verdict.json').read_text())
+          meta = json.loads((bundle / 'meta.json').read_text())
+          if verdict.get('verdict') not in {'PASS', 'CHANGES_REQUESTED', 'HARD_BLOCK'}:
+              raise SystemExit(f"unknown verdict: {verdict.get('verdict')!r}")
+          if meta.get('head_sha') != os.environ['TRUSTED_SHA']:
+              raise SystemExit('artifact head_sha does not match the PR head reported by GitHub')
+          diff_count = str(meta.get('diff_count', ''))
+          if not diff_count.isdigit():
+              raise SystemExit('artifact diff_count is not a number')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f"verdict={verdict['verdict']}\ndiff_count={diff_count}\n")
+          PY
+
+      - name: Set up Python (for summarize + comment-builder)
+        if: steps.read-verdict.outputs.verdict != ''
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install comment-builder deps
+        if: steps.read-verdict.outputs.verdict != ''
+        run: python -m pip install --quiet pyyaml
+
+      - name: DeepSeek LLM summary
+        if: steps.read-verdict.outputs.verdict != ''
+        id: llm-summary
+        continue-on-error: true
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+        run: |
+          set -euo pipefail
+          mv /tmp/prescreen-bundle/verdict.json /tmp/prescreen-bundle/verdict.pre-llm.json
+          python3 base/scripts/pr-prescreen/summarize.py /tmp/prescreen-bundle/verdict.pre-llm.json \
+            > /tmp/prescreen-bundle/verdict.json
+          jq -r '.llm_status // "unknown"' /tmp/prescreen-bundle/verdict.json >&2
+          jq -r '.summary_lines // ""' /tmp/prescreen-bundle/verdict.json >&2
+
+      - name: Build PR comment body
+        id: comment
+        if: steps.read-verdict.outputs.verdict != ''
+        run: |
+          set -euo pipefail
+          python3 - > /tmp/pr-comment.md <<'PY'
+          import json, pathlib
+          GITHUB_BODY_MAX = 65000
+          MAX_TABLE_ROWS = 100
+
+          v = json.loads(pathlib.Path('/tmp/prescreen-bundle/verdict.json').read_text())
+          verdict = v['verdict']
+          icon = {'PASS': '✅', 'CHANGES_REQUESTED': '⚠️', 'HARD_BLOCK': '🛑'}[verdict]
+          lines = [f"## {icon} PR pre-screen: **{verdict}**", "", f"_{v['summary']}_", ""]
+          if v.get('summary_lines'):
+              lines += ["### Reviewer summary", "", "```", v['summary_lines'], "```", ""]
+              if v.get('llm_status') and v['llm_status'] != 'ok':
+                  lines += [f"_LLM status: {v['llm_status']}_", ""]
+          if v.get('blockers'):
+              lines += ["### Blockers", ""]
+              lines += [f"- {b}" for b in v['blockers']]
+              lines.append("")
+          if v.get('warnings'):
+              lines += ["### Warnings", ""]
+              lines += [f"- {w}" for w in v['warnings']]
+              lines.append("")
+          results = v.get('results') or []
+          if results:
+              truncated = len(results) > MAX_TABLE_ROWS
+              shown = results[:MAX_TABLE_ROWS]
+              lines += ["### Per-skill results", "", "| Path | Grade | Score | Errors | Warnings |", "|---|---|---|---|---|"]
+              for r in shown:
+                  if 'fatal' in r:
+                      lines.append(f"| `{r.get('path','?')}` | — | — | FATAL | {r['fatal']} |")
+                  else:
+                      lines.append(
+                          f"| `{r.get('path','?')}` | {r.get('grade','?')} | "
+                          f"{r.get('score','?')} | {r.get('errors',0)} | {r.get('warnings',0)} |"
+                      )
+              if truncated:
+                  lines.append(f"| _(+{len(results) - MAX_TABLE_ROWS} more skills not shown — see workflow logs for full list)_ |||||")
+              lines.append("")
+          lines += [
+              "---",
+              "_This is an **advisory** pre-screen, not a required check. Required "
+              "checks: `ci-required`, `gitleaks`, `skill-conform`._",
+          ]
+          body = "\n".join(lines)
+          if len(body) > GITHUB_BODY_MAX:
+              body = body[:GITHUB_BODY_MAX - 200] + "\n\n_…body truncated to fit GitHub's 64KB review-body cap._\n"
+          print(body)
+          PY
+          echo "Wrote PR comment body to /tmp/pr-comment.md"
+
+
+      - name: Post prescreen-grade commit status
+        if: steps.read-verdict.outputs.verdict != '' && steps.read-verdict.outputs.diff_count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ steps.pr.outputs.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          set -euo pipefail
+          VERDICT=$(jq -r '.verdict' /tmp/prescreen-bundle/verdict.json)
+          SUMMARY=$(jq -r '.summary' /tmp/prescreen-bundle/verdict.json)
+          case "$VERDICT" in
+            PASS) STATE=success ;;
+            CHANGES_REQUESTED|HARD_BLOCK) STATE=failure ;;
+            *) STATE=error ;;
+          esac
+          case "$SUMMARY" in
+            "$VERDICT"*) DESC="$(printf '%s' "$SUMMARY" | cut -c1-138)" ;;
+            *) DESC="$(printf '%s: %s' "$VERDICT" "$SUMMARY" | cut -c1-138)" ;;
+          esac
+          gh api "repos/${REPO}/statuses/${SHA}" \
+            -f state="$STATE" \
+            -f context='prescreen-grade' \
+            -f description="$DESC" \
+            -f target_url="$RUN_URL" >/dev/null
+          echo "Posted prescreen-grade=$STATE ($VERDICT) on $SHA"
+
+      - name: Upsert prescreen comment (changes-requested / hard-block only)
+        if: steps.read-verdict.outputs.diff_count != '0' && (steps.read-verdict.outputs.verdict == 'CHANGES_REQUESTED' || steps.read-verdict.outputs.verdict == 'HARD_BLOCK')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          set -euo pipefail
+          MARKER='<!-- pr-prescreen-marker -->'
+          { printf '%s\n\n' "$MARKER"; cat /tmp/pr-comment.md; } > /tmp/pr-comment-marked.md
+          existing=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments?per_page=100" \
+            --jq "map(select(.body | contains(\"$MARKER\"))) | .[0].id // empty")
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/${REPO}/issues/comments/${existing}" \
+              -F body=@/tmp/pr-comment-marked.md >/dev/null
+            echo "Edited existing prescreen comment $existing"
+          else
+            gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file /tmp/pr-comment-marked.md
+            echo "Created prescreen comment"
+          fi
+
+      - name: Append audit log row
+        if: always() && steps.read-verdict.outputs.verdict != ''
+        continue-on-error: true
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          set -euo pipefail
+          python3 base/scripts/pr-prescreen/audit.py \
+            --db base/freshie/inventory.sqlite \
+            --pr-number "$PR_NUMBER" \
+            --verdict-file /tmp/prescreen-bundle/verdict.json

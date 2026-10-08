@@ -298,7 +298,7 @@ Jeremy Longshore
 ## Support
 
 - Issues: https://github.com/jeremylongshore/claude-code-plugins/issues
-- Discord: https://discord.com/invite/6PPFFzqPDZ (#claude-code channel)
+- Discussions: https://github.com/jeremylongshore/claude-code-plugins/discussions
 
 ---
 

@@ -316,6 +316,22 @@ function curatedMirror(entries, root, inventory) {
   return files;
 }
 
+/**
+ * Every tracked repository path (POSIX, repository-relative). Falls back to a
+ * filesystem walk outside a git checkout, exactly as resolveCorpus does.
+ */
+export function listTrackedPaths(root = process.cwd()) {
+  let rootPath;
+  try {
+    rootPath = fs.realpathSync(path.resolve(root));
+  } catch (error) {
+    fail(
+      `cannot resolve repository root: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  return trackedPaths(rootPath).map(normalizePath);
+}
+
 export function resolveCorpus(cohort, { root = process.cwd(), paths } = {}) {
   if (!CORPUS_COHORTS.includes(cohort)) {
     fail(`unknown cohort ${JSON.stringify(cohort)}; expected ${CORPUS_COHORTS.join(', ')}`);

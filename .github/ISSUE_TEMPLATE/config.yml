@@ -9,9 +9,6 @@ contact_links:
   - name: 📚 Official Documentation
     url: https://docs.claude.com/en/docs/claude-code/plugins
     about: Read the official Claude Code plugin documentation
-  - name: 🗨️ Discord Community
-    url: https://discord.com/invite/6PPFFzqPDZ
-    about: Join the Claude Developers Discord (#claude-code channel)
   - name: 🌐 Live Marketplace
     url: https://tonsofskills.com/
     about: Browse plugins on the live marketplace website

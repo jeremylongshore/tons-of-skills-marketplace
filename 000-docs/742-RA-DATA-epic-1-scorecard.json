@@ -14,13 +14,13 @@
     "source": "scripts/validate-skills-schema.py --marketplace --skills-only --json",
     "status": "measured",
     "values": {
-      "a_error_total": 25,
-      "a_failing": 8,
-      "ab_error_total": 172,
-      "ab_failing": 22,
+      "a_error_total": 23,
+      "a_failing": 7,
+      "ab_error_total": 170,
+      "ab_failing": 21,
       "b_failing": 14,
-      "error_files": 279,
-      "error_total": 2800,
+      "error_files": 278,
+      "error_total": 2798,
       "grade_distribution": {
         "A": 2890,
         "B": 316,
@@ -90,7 +90,7 @@
           "validator_reported_mixed_denominator_percent": 81.3
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3037,
+          "error_total_all_validated_surfaces": 3035,
           "fully_compliant_surfaces": 2099,
           "terminal_denominator": {
             "agents": 384,
@@ -104,13 +104,13 @@
           "validator_reported_mixed_denominator_percent": 43.4
         },
         "skill_rows": {
-          "a_error_total": 25,
-          "a_failing": 8,
-          "ab_error_total": 172,
-          "ab_failing": 22,
+          "a_error_total": 23,
+          "a_failing": 7,
+          "ab_error_total": 170,
+          "ab_failing": 21,
           "b_failing": 14,
-          "error_files": 279,
-          "error_total": 2800,
+          "error_files": 278,
+          "error_total": 2798,
           "grade_distribution": {
             "A": 2890,
             "B": 316,
@@ -154,10 +154,10 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "a_error_total": 25,
-        "a_failing": 8,
-        "ab_error_total": 172,
-        "ab_failing": 22,
+        "a_error_total": 23,
+        "a_failing": 7,
+        "ab_error_total": 170,
+        "ab_failing": 21,
         "b_error_total": 147,
         "b_failing": 14,
         "certified_target": 0,
@@ -2966,7 +2966,7 @@
           },
           {
             "blocking_candidate": false,
-            "line": 172,
+            "line": 174,
             "path": ".github/workflows/pr-prescreen.yml"
           },
           {

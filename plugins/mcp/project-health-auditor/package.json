@@ -6,9 +6,9 @@
   "main": "dist/servers/code-metrics.js",
   "scripts": {
     "dev": "tsx watch servers/code-metrics.ts",
-    "build": "tsc",
+    "build": "node scripts/build.mjs",
     "test": "vitest",
-    "test:ci": "vitest run",
+    "test:ci": "pnpm build && git diff --exit-code -- dist/servers/code-metrics.js && vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
@@ -31,10 +31,11 @@
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@types/node": "^25.9.1",
+    "esbuild": "0.28.2",
     "eslint": "^9.39.4",
     "tsx": "^4.22.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.60.0",
-    "vitest": "^4.1.7"
+    "vitest": "4.1.11"
   }
 }

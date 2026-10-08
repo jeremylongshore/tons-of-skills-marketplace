@@ -5,10 +5,11 @@
   "type": "module",
   "main": "./dist/servers/api-debugger.js",
   "scripts": {
-    "build": "tsc",
+    "build": "node scripts/build.mjs",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:ci": "pnpm build && git diff --exit-code -- dist/servers/api-debugger.js && vitest run --passWithNoTests"
   },
   "keywords": [
     "mcp",
@@ -33,8 +34,9 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
-    "@vitest/coverage-v8": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.11",
+    "esbuild": "0.28.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.7"
+    "vitest": "4.1.11"
   }
 }

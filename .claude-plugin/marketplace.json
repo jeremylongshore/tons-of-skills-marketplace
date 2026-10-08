@@ -7052,7 +7052,7 @@
       "name": "podium-pack",
       "source": "./plugins/saas-packs/podium-pack",
       "description": "Claude Code skill pack for Podium (10 production-engineer skills covering OAuth, webhook reliability, rate-limit survival, call transcripts, webchat, review automation, history export, RAG context, multi-location routing, contact dedup)",
-      "version": "2.11.0",
+      "version": "2.12.0",
       "category": "saas-packs",
       "keywords": [
         "podium",
@@ -7440,7 +7440,7 @@
       "name": "a2a-client",
       "source": "./plugins/mcp/a2a-client",
       "description": "Security-hardened MCP client for Agent2Agent card discovery, messaging, streaming, and confirmation-gated task control",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "mcp",
       "keywords": [
         "a2a",

@@ -302,7 +302,7 @@ plugin-name/
 - **Documentation**: Each plugin has detailed README
 - **Examples**: Production-ready code examples included
 - **Issues**: [GitHub Issues](https://github.com/jeremylongshore/claude-code-plugins/issues)
-- **Discord**: [Claude Code Discord](https://discord.com/invite/6PPFFzqPDZ)
+- **Discussions**: [GitHub Discussions](https://github.com/jeremylongshore/claude-code-plugins/discussions)
 
 ## Maintenance
 

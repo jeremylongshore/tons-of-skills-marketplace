@@ -12,7 +12,9 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { createRequire } from 'node:module';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { mdToHtml } from './md-to-html.mjs';
+import { mdToHtml as renderMarkdown } from './md-to-html.mjs';
+import { createRelativeLinkResolver, createTrackedTreeLookup } from './relative-link-resolver.mjs';
+import { listTrackedPaths } from '../../scripts/corpus-resolver.mjs';
 import { truncateHtml } from './truncate-html.mjs';
 
 const require = createRequire(import.meta.url);
@@ -97,7 +99,7 @@ function saveSection(sections, heading, lines) {
 /**
  * Parse troubleshooting sections into Q&A format from H3 subheadings.
  */
-function parseTroubleshooting(md) {
+function parseTroubleshooting(md, mdToHtml) {
   const items = [];
   const parts = md.split(/^###\s+/m);
 
@@ -124,6 +126,8 @@ function parseTroubleshooting(md) {
 
 // ── Main ──
 
+const trackedKindOf = createTrackedTreeLookup(listTrackedPaths(ROOT_DIR));
+
 const catalog = JSON.parse(readFileSync(CATALOG_PATH, 'utf-8'));
 const result = {};
 let found = 0;
@@ -138,6 +142,15 @@ for (const plugin of publishedPlugins(catalog.plugins, 'extended catalog')) {
   }
 
   const raw = readFileSync(readmePath, 'utf-8');
+  // README links are relative to the README in the repository, not to the
+  // /plugins/<name>/ page they render on.
+  const pluginRoot = `plugins/${plugin.category}/${plugin.name}`;
+  const resolveLink = createRelativeLinkResolver({
+    sourcePath: `${pluginRoot}/README.md`,
+    pluginRoot,
+    kindOf: trackedKindOf,
+  });
+  const mdToHtml = (markdown) => renderMarkdown(markdown, { resolveLink });
   const sections = extractSections(raw);
 
   const entry = {};
@@ -165,7 +178,7 @@ for (const plugin of publishedPlugins(catalog.plugins, 'extended catalog')) {
 
   // Troubleshooting — parsed as Q&A
   if (sections.troubleshooting) {
-    const faqItems = parseTroubleshooting(sections.troubleshooting);
+    const faqItems = parseTroubleshooting(sections.troubleshooting, mdToHtml);
     if (faqItems) {
       entry.troubleshooting = faqItems;
     }
