@@ -135,7 +135,7 @@ test('standalone E2E owns vendored parser changes and uses immutable credential-
   );
   assert.match(
     STANDALONE_E2E_WORKFLOW,
-    /pnpm\/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4/,
+    /pnpm\/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6/,
   );
   assert.match(
     STANDALONE_E2E_WORKFLOW,
