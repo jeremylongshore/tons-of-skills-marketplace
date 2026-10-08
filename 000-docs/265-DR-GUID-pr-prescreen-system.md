@@ -14,14 +14,14 @@ scanner, classifies the result via `scripts/pr-prescreen/classify.py`,
 optionally asks MiniMax for a 5-line human summary via
 `scripts/pr-prescreen/summarize.py`, and emits one of three verdicts:
 
-| Verdict             | What it means                                                                                | PR action              | Slack action                         |
-| ------------------- | -------------------------------------------------------------------------------------------- | ---------------------- | ------------------------------------ |
-| `PASS`              | zero errors, every changed skill graded C or better                                          | comment on PR          | ping `#operation-hired`              |
-| `CHANGES_REQUESTED` | validator errors OR any skill graded D/F                                                     | request-changes review | silent — contributor is the audience |
-| `HARD_BLOCK`        | structural concern (fatal frontmatter, missing catalog entry, no implementation files, etc.) | request-changes review | ping `#operation-hired`              |
+| Verdict             | What it means                                                                                | What the responder posts                                     |
+| ------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `PASS`              | zero errors, every changed skill graded C or better                                          | `prescreen-grade` status `success`; no comment               |
+| `CHANGES_REQUESTED` | validator errors OR any skill graded D/F                                                     | `prescreen-grade` status `failure` + one upserted PR comment |
+| `HARD_BLOCK`        | structural concern (fatal frontmatter, missing catalog entry, no implementation files, etc.) | `prescreen-grade` status `failure` + one upserted PR comment |
 
 The workflow is **advisory**. A failure here NEVER blocks a merge. The
-required checks are still `validate` and `marketplace-validation`.
+required checks are `ci-required`, `gitleaks` and `skill-conform`.
 
 ## How it stays fork-safe
 
@@ -109,10 +109,10 @@ Workflow stays defined in `.github/workflows/pr-prescreen.yml`; only the
    - `failed: TimeoutError` → 5s deadline exceeded; usually transient.
      The deterministic verdict is always present regardless of MiniMax state.
 
-4. **Slack ping never arrived.**
-   `SLACK_OPERATION_HIRED_WEBHOOK_URL` secret must be set. The workflow
-   exits 0 silently if it's missing (matches the rest of the Slack
-   surfaces in this repo).
+4. **No status or comment on a fork PR.**
+   Check the `PR Pre-screen Respond` run for that head SHA. It skips when
+   the PR moved on, when no single open PR matches the head SHA, and posts
+   a neutral "Not evaluated" status when the PR edits `pr-prescreen.yml`.
 
 5. **The verdict feels wrong.**
    Reproduce locally:
@@ -151,16 +151,15 @@ sqlite3 freshie/inventory.sqlite "
 ```
 
 The audit step is `continue-on-error: true`, so a DB write failure can
-never mask the primary signal (the PR comment + Slack ping already
+never mask the primary signal (the status and comment already
 fired before this step runs).
 
 ## Operator-provisioned secrets and variables
 
-| Name                                | Type     | Scope | Purpose                                                                                                                                                                        |
-| ----------------------------------- | -------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SLACK_OPERATION_HIRED_WEBHOOK_URL` | secret   | repo  | Incoming webhook to `#operation-hired`. Shared with 3 other workflows.                                                                                                         |
-| `MINIMAX_API_KEY`                   | secret   | repo  | OpenAI-compatible key from MiniMax (paid annual plan). Optional — workflow falls back to deterministic-only if absent. Used by `summarize.py` for the 5-line reviewer summary. |
-| `ENABLE_PR_PRESCREEN`               | variable | repo  | `true` enables the workflow. Set to `false` to disable in an emergency.                                                                                                        |
+| Name                  | Type     | Scope | Purpose                                                                                                                                                                        |
+| --------------------- | -------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `MINIMAX_API_KEY`     | secret   | repo  | OpenAI-compatible key from MiniMax (paid annual plan). Optional — workflow falls back to deterministic-only if absent. Used by `summarize.py` for the 5-line reviewer summary. |
+| `ENABLE_PR_PRESCREEN` | variable | repo  | `true` lets the responder post. Set to `false` to silence it in an emergency; `validate` always runs because fork runs cannot read variables.                                  |
 
 ## Critical files
 
