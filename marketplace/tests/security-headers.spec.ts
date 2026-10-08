@@ -16,8 +16,29 @@ const pages = [
   '/acceptable-use/',
 ];
 
+// Third-party requests (analytics, Google Tag Manager, Google Fonts) are answered
+// locally so the test never waits on hosts outside our control. This does not weaken
+// the CSP check: the browser evaluates the policy before a request is issued, so a
+// blocked resource never reaches the route handler and still fires a
+// securitypolicyviolation event; an allowed one gets an empty, correctly typed body.
+const EMPTY_BY_RESOURCE: Record<string, { contentType: string; body: string }> = {
+  script: { contentType: 'application/javascript', body: '' },
+  stylesheet: { contentType: 'text/css', body: '' },
+  font: { contentType: 'font/woff2', body: '' },
+  image: { contentType: 'image/gif', body: '' },
+};
+
 for (const path of pages) {
-  test(`${path} emits the reviewed CSP without runtime violations`, async ({ page }) => {
+  test(`${path} emits the reviewed CSP without runtime violations`, async ({ page, baseURL }) => {
+    const ownHost = new URL(baseURL ?? 'http://localhost:4321').host;
+    await page.route('**/*', (route) => {
+      const request = route.request();
+      if (new URL(request.url()).host === ownHost) return route.continue();
+      const empty = EMPTY_BY_RESOURCE[request.resourceType()];
+      return empty
+        ? route.fulfill({ status: 200, ...empty })
+        : route.fulfill({ status: 204, body: '' });
+    });
     await page.addInitScript(() => {
       const violations: string[] = [];
       Object.defineProperty(window, '__cspViolations', { value: violations });
