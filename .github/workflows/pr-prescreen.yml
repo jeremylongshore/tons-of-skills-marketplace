@@ -1,4 +1,5 @@
 name: 'PR Pre-screen'
+run-name: "PR Pre-screen #${{ github.event.pull_request.number || inputs.pr_number }}"
 
 # Two-job split (2026-07): a `pull_request_target` workflow that checks out
 # fork PR code can leak base-repo secrets (the "pwn request" pattern that
@@ -7,17 +8,19 @@ name: 'PR Pre-screen'
 # opt-out flag `allow-unsafe-pr-checkout: true` exists, but GitHub's
 # guidance is explicit: don't check out fork code in a privileged workflow.
 #
-# This workflow now runs as two jobs that pass a single artifact between them:
+# The pre-screen is split across two workflows (bead claude-j5gs, 2026-10-08):
 #
-#   validate  (pull_request)       — runs the validator on the PR code in
-#                                   fork context. No secrets. Produces a
-#                                   small JSON file with the verdict.
-#   respond   (pull_request_target) — receives the JSON artifact, posts
-#                                   the trusted PR comment + Slack ping +
-#                                   audit log. NEVER checks out PR code.
+#   pr-prescreen.yml          (pull_request) — this file. Runs the validator on
+#                              the PR code with no secrets and a read-only token,
+#                              and uploads a small verdict artifact. Not gated on
+#                              repository variables: GitHub passes none to fork
+#                              runs, which used to skip this job for every fork PR.
+#   pr-prescreen-respond.yml  (workflow_run) — posts the prescreen-grade status
+#                              and the upserted comment with the base token. It
+#                              never checks out PR code, takes the PR number and
+#                              head SHA from GitHub rather than the artifact, and
+#                              holds the ENABLE_PR_PRESCREEN kill switch.
 #
-# The privileged job physically cannot execute PR-controlled bytes; the
-# fork-safe design is now structural, not a per-review invariant.
 # See 000-docs/265-DR-GUID-pr-prescreen-system.md for the full rationale.
 #
 # Advisory only. Never a required check. Failures here NEVER block merges.
@@ -47,7 +50,6 @@ jobs:
     name: prescreen/validate
     runs-on: ubuntu-latest
     timeout-minutes: 8
-    if: ${{ vars.ENABLE_PR_PRESCREEN == 'true' }}
     permissions:
       contents: read
       pull-requests: read
@@ -272,216 +274,3 @@ jobs:
           path: /tmp/prescreen-bundle/
           if-no-files-found: error
           retention-days: 1
-
-  # =========================================================================
-  # Job B — RESPOND (pull_request_target, secrets, never checks out PR code)
-  # =========================================================================
-  respond:
-    name: prescreen/respond
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: validate
-    if: needs.validate.result == 'success' && vars.ENABLE_PR_PRESCREEN == 'true'
-    permissions:
-      contents: read
-      pull-requests: write
-      statuses: write
-    steps:
-      # CRITICAL: this job checks out BASE ONLY (main), not the PR. The
-      # scripts in base/scripts/pr-prescreen/ run from base-authored bytes;
-      # fork-controlled code cannot reach this runner. The only data the
-      # job consumes from the PR is the artifact produced by validate (a
-      # small JSON file written by us, not by the PR author).
-      - name: Checkout base (summarize + audit scripts)
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.repository.default_branch }}
-          persist-credentials: false
-          path: base
-
-      - name: Download validate artifacts
-        uses: actions/download-artifact@v7
-        with:
-          name: prescreen-bundle
-          path: /tmp/prescreen-bundle/
-          merge-multiple: true
-
-      - name: Set up Python (for summarize + comment-builder)
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-
-      - name: Install comment-builder deps
-        run: |
-          python -m pip install --quiet pyyaml
-
-      # DeepSeek LLM summary — advisory, never blocking. Single attempt, 5s
-      # deadline. Any failure (missing key, non-2xx, timeout, malformed
-      # response) leaves the verdict augmented only with a diagnostic
-      # llm_status field. The LLM call sees only the validator's JSON
-      # output (from the validate job), NOT any PR-controlled text.
-      - name: DeepSeek LLM summary
-        id: llm-summary
-        continue-on-error: true
-        env:
-          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-        run: |
-          set -euo pipefail
-          mv /tmp/prescreen-bundle/verdict.json /tmp/prescreen-bundle/verdict.pre-llm.json
-          python3 base/scripts/pr-prescreen/summarize.py /tmp/prescreen-bundle/verdict.pre-llm.json \
-            > /tmp/prescreen-bundle/verdict.json
-          jq -r '.llm_status // "unknown"' /tmp/prescreen-bundle/verdict.json >&2
-          jq -r '.summary_lines // ""' /tmp/prescreen-bundle/verdict.json >&2
-
-      - name: Build PR comment body
-        id: comment
-        run: |
-          set -euo pipefail
-          python3 - > /tmp/pr-comment.md <<'PY'
-          import json, pathlib
-          GITHUB_BODY_MAX = 65000
-          MAX_TABLE_ROWS = 100
-
-          v = json.loads(pathlib.Path('/tmp/prescreen-bundle/verdict.json').read_text())
-          verdict = v['verdict']
-          icon = {'PASS': '✅', 'CHANGES_REQUESTED': '⚠️', 'HARD_BLOCK': '🛑'}[verdict]
-          lines = [f"## {icon} PR pre-screen: **{verdict}**", "", f"_{v['summary']}_", ""]
-          if v.get('summary_lines'):
-              lines += ["### Reviewer summary", "", "```", v['summary_lines'], "```", ""]
-              if v.get('llm_status') and v['llm_status'] != 'ok':
-                  lines += [f"_LLM status: {v['llm_status']}_", ""]
-          if v.get('blockers'):
-              lines += ["### Blockers", ""]
-              lines += [f"- {b}" for b in v['blockers']]
-              lines.append("")
-          if v.get('warnings'):
-              lines += ["### Warnings", ""]
-              lines += [f"- {w}" for w in v['warnings']]
-              lines.append("")
-          results = v.get('results') or []
-          if results:
-              truncated = len(results) > MAX_TABLE_ROWS
-              shown = results[:MAX_TABLE_ROWS]
-              lines += ["### Per-skill results", "", "| Path | Grade | Score | Errors | Warnings |", "|---|---|---|---|---|"]
-              for r in shown:
-                  if 'fatal' in r:
-                      lines.append(f"| `{r.get('path','?')}` | — | — | FATAL | {r['fatal']} |")
-                  else:
-                      lines.append(
-                          f"| `{r.get('path','?')}` | {r.get('grade','?')} | "
-                          f"{r.get('score','?')} | {r.get('errors',0)} | {r.get('warnings',0)} |"
-                      )
-              if truncated:
-                  lines.append(f"| _(+{len(results) - MAX_TABLE_ROWS} more skills not shown — see workflow logs for full list)_ |||||")
-              lines.append("")
-          lines += [
-              "---",
-              "_This is an **advisory** pre-screen, not a required check. Required "
-              "checks: `validate`, `marketplace-validation`._",
-          ]
-          body = "\n".join(lines)
-          if len(body) > GITHUB_BODY_MAX:
-              body = body[:GITHUB_BODY_MAX - 200] + "\n\n_…body truncated to fit GitHub's 64KB review-body cap._\n"
-          print(body)
-          PY
-          echo "Wrote PR comment body to /tmp/pr-comment.md"
-
-      - name: Read verdict from artifact
-        id: read-verdict
-        run: |
-          set -euo pipefail
-          VERDICT=$(jq -r '.verdict' /tmp/prescreen-bundle/verdict.json)
-          DIFF_COUNT=$(jq -r '.diff_count' /tmp/prescreen-bundle/meta.json)
-          echo "verdict=$VERDICT" >> "$GITHUB_OUTPUT"
-          echo "diff_count=$DIFF_COUNT" >> "$GITHUB_OUTPUT"
-
-      - name: Post prescreen-grade commit status
-        if: steps.read-verdict.outputs.diff_count != '0'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          SHA=$(jq -r '.head_sha' /tmp/prescreen-bundle/meta.json)
-          VERDICT=$(jq -r '.verdict' /tmp/prescreen-bundle/verdict.json)
-          SUMMARY=$(jq -r '.summary' /tmp/prescreen-bundle/verdict.json)
-          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          case "$VERDICT" in
-            PASS) STATE=success ;;
-            CHANGES_REQUESTED|HARD_BLOCK) STATE=failure ;;
-            *) STATE=error ;;
-          esac
-          case "$SUMMARY" in
-            "$VERDICT"*) DESC="$(printf '%s' "$SUMMARY" | cut -c1-138)" ;;
-            *) DESC="$(printf '%s: %s' "$VERDICT" "$SUMMARY" | cut -c1-138)" ;;
-          esac
-          gh api "repos/${REPO}/statuses/${SHA}" \
-            -f state="$STATE" \
-            -f context='prescreen-grade' \
-            -f description="$DESC" \
-            -f target_url="$RUN_URL" >/dev/null
-          echo "Posted prescreen-grade=$STATE ($VERDICT) on $SHA"
-
-      - name: Upsert prescreen comment (changes-requested / hard-block only)
-        if: steps.read-verdict.outputs.diff_count != '0' && (steps.read-verdict.outputs.verdict == 'CHANGES_REQUESTED' || steps.read-verdict.outputs.verdict == 'HARD_BLOCK')
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          PR_NUMBER=$(jq -r '.pr_number' /tmp/prescreen-bundle/meta.json)
-          MARKER='<!-- pr-prescreen-marker -->'
-          { printf '%s\n\n' "$MARKER"; cat /tmp/pr-comment.md; } > /tmp/pr-comment-marked.md
-          existing=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments?per_page=100" \
-            --jq "map(select(.body | contains(\"$MARKER\"))) | .[0].id // empty")
-          if [ -n "$existing" ]; then
-            gh api -X PATCH "repos/${REPO}/issues/comments/${existing}" \
-              -F body=@/tmp/pr-comment-marked.md >/dev/null
-            echo "Edited existing prescreen comment $existing"
-          else
-            gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file /tmp/pr-comment-marked.md
-            echo "Created prescreen comment"
-          fi
-
-      - name: Notify Slack (PASS / HARD_BLOCK only)
-        if: steps.read-verdict.outputs.diff_count != '0' && (steps.read-verdict.outputs.verdict == 'PASS' || steps.read-verdict.outputs.verdict == 'HARD_BLOCK')
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_OPERATION_HIRED_WEBHOOK_URL }}
-          REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          case "${SLACK_WEBHOOK:-}" in
-            https://*) ;;
-            *) echo "No usable Slack webhook configured; skipping notification."; exit 0 ;;
-          esac
-          PR_NUMBER=$(jq -r '.pr_number' /tmp/prescreen-bundle/meta.json)
-          PR_AUTHOR=$(jq -r '.author' /tmp/prescreen-bundle/meta.json)
-          PR_TITLE=$(jq -r '.title' /tmp/prescreen-bundle/meta.json)
-          VERDICT=$(jq -r '.verdict' /tmp/prescreen-bundle/verdict.json)
-          SUMMARY=$(jq -r '.summary' /tmp/prescreen-bundle/verdict.json)
-          if [ "$VERDICT" = "PASS" ]; then
-            ICON=":white_check_mark:"; CTA="ready for editorial review"
-          else
-            ICON=":warning:"; CTA="needs your attention"
-          fi
-          PR_URL="https://github.com/${REPO}/pull/${PR_NUMBER}"
-          BLOCKERS=$(jq -r 'if .blockers and (.blockers|length>0) then "Blockers: " + (.blockers | join(", ")) else "" end' /tmp/prescreen-bundle/verdict.json)
-          LLM_LINES=$(jq -r '.summary_lines // ""' /tmp/prescreen-bundle/verdict.json)
-          TEXT="${ICON} PR #${PR_NUMBER} from @${PR_AUTHOR} — *${VERDICT}*\n${PR_TITLE}\n${SUMMARY}"
-          if [ -n "$LLM_LINES" ]; then TEXT="${TEXT}\n\`\`\`\n${LLM_LINES}\n\`\`\`"; fi
-          if [ -n "$BLOCKERS" ]; then TEXT="${TEXT}\n${BLOCKERS}"; fi
-          TEXT="${TEXT}\n<@U099CBRE7CL> ${CTA} · ${PR_URL}"
-          payload=$(jq -n --arg text "$(printf '%b' "$TEXT")" '{text: $text}')
-          curl -sS --fail -X POST -H 'Content-type: application/json' \
-            --data "$payload" "$SLACK_WEBHOOK"
-
-      - name: Append audit log row
-        if: always()
-        continue-on-error: true
-        run: |
-          set -euo pipefail
-          PR_NUMBER=$(jq -r '.pr_number' /tmp/prescreen-bundle/meta.json)
-          python3 base/scripts/pr-prescreen/audit.py \
-            --db base/freshie/inventory.sqlite \
-            --pr-number "$PR_NUMBER" \
-            --verdict-file /tmp/prescreen-bundle/verdict.json
