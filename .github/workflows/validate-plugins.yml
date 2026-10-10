@@ -1146,6 +1146,16 @@ jobs:
       - name: Crawl skill and plugin detail-page links (dist)
         run: node marketplace/scripts/validate-detail-page-links.mjs
 
+      # Bead claude-i076: every executable inline script and inline event handler in
+      # the built site must be in ops/csp-inline-inventory.json, so new inline code
+      # is reviewed instead of riding on script-src 'unsafe-inline'. Fails on any
+      # addition or stale entry; regenerate with --write only for reviewed changes.
+      - name: Check CSP inline-script inventory (dist)
+        working-directory: marketplace
+        run: |
+          node --test scripts/csp-inline-inventory.test.mjs
+          node scripts/csp-inline-inventory.mjs --check
+
       - name: Check retired-path redirect map is current
         run: node marketplace/scripts/build-retired-path-redirects.mjs --check
 

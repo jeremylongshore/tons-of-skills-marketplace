@@ -445,8 +445,13 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
     </div>
   </div>
 
-  <script is:inline define:vars={{ itemsData: JSON.stringify(Object.fromEntries(searchIndex.items.map(item => [item.id || item.name, item]))) }}>
-    const itemsMap = JSON.parse(itemsData);
+  {/* Catalog data travels as a non-executable JSON block so the executable inline
+      script below has stable bytes for the CSP inline inventory (bead claude-i076).
+      `<` is escaped so data can never terminate the <script> element. */}
+  <script type="application/json" id="compare-items-data" set:html={JSON.stringify(Object.fromEntries(searchIndex.items.map(item => [item.id || item.name, item]))).replace(/</g, '\\u003c')} />
+  <script is:inline>
+  (function () {
+    const itemsMap = JSON.parse(document.getElementById('compare-items-data').textContent);
 
     function getItemsFromURL() {
       const params = new URLSearchParams(window.location.search);
@@ -661,6 +666,7 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
 
     // Initialize
     renderComparison();
+  })();
   </script>
 
   <style is:global>
