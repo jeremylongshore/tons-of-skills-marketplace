@@ -67,7 +67,9 @@ export default defineConfig({
       cssCodeSplit: true,
       // Never inline processed scripts into the HTML: an inline <script> needs
       // script-src 'unsafe-inline' (bead claude-i076). Returning undefined
-      // keeps Vite's default 4 KB limit for every other asset type.
+      // keeps the default 4 KB rule for every other asset type: that is
+      // Vite's documented callback contract, and Astro's shouldInlineAsset
+      // (core/build/plugins/util.js) falls back to 4096 the same way.
       assetsInlineLimit: (filePath) => (filePath.endsWith('.js') ? false : undefined),
       rollupOptions: {
         output: {

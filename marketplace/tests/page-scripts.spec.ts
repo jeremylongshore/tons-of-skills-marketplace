@@ -88,6 +88,20 @@ test.describe('page scripts', () => {
     }
   });
 
+  test('explore: Favorites shows the bookmarks BookmarkManager loaded', async ({ page }) => {
+    await page.goto('/explore/');
+    const first = page.locator('[data-item-id]').first();
+    await expect(first).toBeVisible();
+    const id = await first.getAttribute('data-item-id');
+    await page.evaluate((fav) => localStorage.setItem('plugin-favorites', JSON.stringify([fav])), id);
+    await page.reload();
+    await expect(page.locator('[data-item-id]').first()).toBeVisible();
+    expect(await page.evaluate(() => (window as unknown as { BookmarkManager: { getAll(): string[] } }).BookmarkManager.getAll())).toEqual([id]);
+    await page.locator('#favorites-btn').click();
+    await expect(page.locator('[data-item-id]')).toHaveCount(1);
+    await expect(page.locator('[data-item-id]').first()).toHaveAttribute('data-item-id', id!);
+  });
+
   test('legal pages: GetTerms embed loader is present', async ({ page }) => {
     await page.route('**/gettermscdn.com/**', (route) => route.abort());
     for (const path of ['/privacy/', '/terms/', '/acceptable-use/']) {
