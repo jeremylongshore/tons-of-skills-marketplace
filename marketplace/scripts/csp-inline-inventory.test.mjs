@@ -30,6 +30,13 @@ test('handler-like text inside a script body is not double-counted as an attribu
   assert.deepEqual(found.map((f) => f.kind), ['inline-script']);
 });
 
+test('end tags with whitespace or junk before > still close the script', () => {
+  const found = scanHtml('<script>first()</script\t\n bar><button onclick="after()">x</button>');
+  assert.deepEqual(found.map((f) => f.kind), ['inline-script', 'event-handler']);
+  assert.match(found[0].sample, /^first\(\)$/);
+  assert.match(found[1].sample, /after/);
+});
+
 test('a planted addition and a removed script are both reported', () => {
   const dir = mkdtempSync(join(tmpdir(), 'csp-inv-'));
   try {

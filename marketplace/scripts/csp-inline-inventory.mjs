@@ -36,7 +36,8 @@ const EXECUTABLE_TYPES = new Set([
   'application/ecmascript',
 ]);
 
-const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+// Browsers close a script on `</script` followed by anything up to `>` (e.g. `</script\t\n bar>`).
+const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
 const HANDLER_RE = /\s(on[a-z]+)\s*=\s*("([^"]*)"|'([^']*)')/gi;
 
 function attr(attrs, name) {
@@ -51,7 +52,9 @@ const sample = (text) => text.trim().replace(/\s+/g, ' ').slice(0, 80);
 /** Collect executable inline script bodies and inline handlers from one HTML document. */
 export function scanHtml(html) {
   const found = [];
+  const scriptSpans = [];
   for (const m of html.matchAll(SCRIPT_RE)) {
+    scriptSpans.push([m.index, m.index + m[0].length]);
     const [, attrs, body] = m;
     if (attr(attrs, 'src') !== null) continue;
     const type = (attr(attrs, 'type') ?? '').trim().toLowerCase();
@@ -59,9 +62,11 @@ export function scanHtml(html) {
     if (body.trim() === '') continue;
     found.push({ kind: 'inline-script', sha256: sha256(body), sample: sample(body) });
   }
-  // Handler attributes only count inside tags, so strip script bodies first.
-  const tags = html.replace(SCRIPT_RE, '');
-  for (const m of tags.matchAll(HANDLER_RE)) {
+  // Handler attributes only count in markup, not inside script bodies, so skip
+  // matches that fall within a script element's span (no rewriting of the HTML).
+  const insideScript = (index) => scriptSpans.some(([start, end]) => index >= start && index < end);
+  for (const m of html.matchAll(HANDLER_RE)) {
+    if (insideScript(m.index)) continue;
     const name = m[1].toLowerCase();
     const value = m[3] ?? m[4] ?? '';
     found.push({ kind: 'event-handler', sha256: sha256(`${name}=${value}`), sample: sample(`${name}="${value}"`) });
