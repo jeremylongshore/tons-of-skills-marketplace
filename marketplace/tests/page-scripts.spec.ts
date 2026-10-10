@@ -74,7 +74,10 @@ test.describe('page scripts', () => {
     const card = page.locator('.killer-card');
     const href = await card.getAttribute('data-href');
     const external = (await card.getAttribute('data-external')) === 'true';
-    await context.route(/github\.com/, (route) => route.fulfill({ status: 200, body: 'ok' }));
+    await context.route(
+      (url) => url.hostname === 'github.com',
+      (route) => route.fulfill({ status: 200, body: 'ok' }),
+    );
     if (external) {
       const popup = context.waitForEvent('page');
       await card.locator('.killer-headline').click();
