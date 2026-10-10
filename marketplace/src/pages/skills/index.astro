@@ -255,7 +255,7 @@ const allTools = _rawCatalog.allowedToolsUsed;
         <p id="results-count" class="results-count">
           Showing {_rawCatalog.count} of {_rawCatalog.count} marketplace-visible skills
         </p>
-        <button onclick="clearFilters()" class="clear-filters-btn">
+        <button type="button" data-action="clear-filters" class="clear-filters-btn">
           Clear Filters
         </button>
       </div>
@@ -385,7 +385,7 @@ const allTools = _rawCatalog.allowedToolsUsed;
         grid.innerHTML = `
           <div class="no-results" style="grid-column: 1 / -1;">
             <p>No skills found matching your filters.</p>
-            <button onclick="clearFilters()">Clear Filters</button>
+            <button type="button" data-action="clear-filters">Clear Filters</button>
           </div>
         `;
         return;
@@ -425,6 +425,12 @@ const allTools = _rawCatalog.allowedToolsUsed;
         document.getElementById('tool-filter').value = '';
         filterSkills();
       };
+
+      // Both "Clear Filters" buttons (one static, one rendered into the grid
+      // at runtime) bind by delegation instead of an inline onclick.
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('[data-action="clear-filters"]')) window.clearFilters();
+      });
     });
   </script>
 

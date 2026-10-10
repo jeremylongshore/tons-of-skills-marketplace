@@ -129,7 +129,6 @@ if (limit) {
         <button
           class="install-btn"
           data-plugins={collection.plugins.join(',')}
-          onclick={`copyInstallCommand('${collection.plugins.join(',')}')`}
         >
           Copy Install
         </button>
@@ -165,6 +164,16 @@ if (limit) {
       `;
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 2500);
+    });
+  }
+
+  // A page can render this grid more than once (collections renders a
+  // featured grid and a full one), so bind the delegated listener only once.
+  if (!window.__collectionsCopyBound) {
+    window.__collectionsCopyBound = true;
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.collection-card .install-btn[data-plugins]');
+      if (btn) copyInstallCommand(btn.dataset.plugins);
     });
   }
 </script>

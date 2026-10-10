@@ -453,6 +453,9 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
   (function () {
     const itemsMap = JSON.parse(document.getElementById('compare-items-data').textContent);
 
+    // Catalog fields include third-party plugin text; escape before innerHTML.
+    const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
     function getItemsFromURL() {
       const params = new URLSearchParams(window.location.search);
       const itemsParam = params.get('items');
@@ -541,26 +544,26 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
       // Header
       headerEl.innerHTML = `
         <div class="plugin-header">
-          <a href="${detailUrl}" class="plugin-name">${displayName}</a>
-          <button class="remove-btn" onclick="removeItem('${id}')">Remove</button>
+          <a href="${esc(detailUrl)}" class="plugin-name">${esc(displayName)}</a>
+          <button type="button" class="remove-btn" data-remove-id="${esc(id)}">Remove</button>
         </div>
       `;
 
       // Type
-      typeEl.innerHTML = `<span class="plugin-type-badge ${item.type}">${item.type}</span>`;
+      typeEl.innerHTML = `<span class="plugin-type-badge ${esc(item.type)}">${esc(item.type)}</span>`;
 
       // Category
       const categoryName = item.category.replace(/-/g, ' ');
-      categoryEl.innerHTML = `<span class="cell-category">${categoryName}</span>`;
+      categoryEl.innerHTML = `<span class="cell-category">${esc(categoryName)}</span>`;
 
       // Description
-      descriptionEl.innerHTML = `<div class="cell-description">${item.description || 'No description'}</div>`;
+      descriptionEl.innerHTML = `<div class="cell-description">${esc(item.description || 'No description')}</div>`;
 
       // Tools (skills only)
       if (item.type === 'skill' && item.allowedTools && item.allowedTools.length > 0) {
         toolsEl.innerHTML = `
           <div class="cell-tools">
-            ${item.allowedTools.map(t => `<span class="tool-tag">${t}</span>`).join('')}
+            ${item.allowedTools.map(t => `<span class="tool-tag">${esc(t)}</span>`).join('')}
           </div>
         `;
       } else if (item.type === 'plugin') {
@@ -571,7 +574,7 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
 
       // Parent plugin (skills only)
       if (item.type === 'skill' && item.parentPlugin) {
-        parentEl.innerHTML = `<a href="/plugins/${item.parentPlugin.name}/" class="cell-link">${item.parentPlugin.name}</a>`;
+        parentEl.innerHTML = `<a href="/plugins/${esc(item.parentPlugin.name)}/" class="cell-link">${esc(item.parentPlugin.name)}</a>`;
       } else if (item.type === 'plugin') {
         parentEl.innerHTML = '<span class="cell-na">N/A (is a plugin)</span>';
       } else {
@@ -582,15 +585,15 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
       const installCmd = `/plugin install ${item.name}@claude-code-plugins-plus`;
       installEl.innerHTML = `
         <div class="cell-install">
-          <code class="install-code">${installCmd}</code>
-          <button class="copy-btn" onclick="copyToClipboard('${installCmd}')">
+          <code class="install-code">${esc(installCmd)}</code>
+          <button type="button" class="copy-btn" data-copy-cmd="${esc(installCmd)}">
             Copy
           </button>
         </div>
       `;
 
       // Link
-      linkEl.innerHTML = `<a href="${detailUrl}" class="cell-link">View Details →</a>`;
+      linkEl.innerHTML = `<a href="${esc(detailUrl)}" class="cell-link">View Details →</a>`;
     }
 
     function removeItem(id) {
@@ -651,6 +654,15 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
     }
 
     // Event listeners
+    // Remove and Copy buttons are rendered at runtime inside this IIFE, so an
+    // inline onclick could not reach removeItem/copyToClipboard; delegate.
+    document.getElementById('compare-content')?.addEventListener('click', (e) => {
+      const remove = e.target.closest('[data-remove-id]');
+      if (remove) return removeItem(remove.dataset.removeId);
+      const copy = e.target.closest('[data-copy-cmd]');
+      if (copy) copyToClipboard(copy.dataset.copyCmd);
+    });
+
     document.getElementById('share-comparison')?.addEventListener('click', () => {
       const url = window.location.href;
       navigator.clipboard.writeText(url).then(() => {

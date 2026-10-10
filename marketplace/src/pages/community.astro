@@ -367,6 +367,10 @@ function getContributionSummary(plugins: any[]): string {
       transform: translateY(-2px);
     }
 
+    .hof-card:focus-within {
+      border-color: var(--primary);
+    }
+
     .hof-top {
       display: flex;
       align-items: center;
@@ -449,7 +453,23 @@ function getContributionSummary(plugins: any[]): string {
       border: 1.5px solid var(--border);
     }
 
+    /* The headline link stretches over the whole card, so the card stays one
+       click target without nesting the author link inside another <a>
+       (nested anchors are invalid HTML; the parser splits the card). */
+    .hof-card-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .hof-card-link::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
+
     .hof-author-link {
+      position: relative;
+      z-index: 1;
       color: var(--text-2);
       text-decoration: none;
       transition: color 0.15s ease;
@@ -518,22 +538,24 @@ function getContributionSummary(plugins: any[]): string {
           const itemSkillCount = item.skillCount;
           const hasItemSkillCount = typeof itemSkillCount === 'number' && itemSkillCount > 0;
           return (
-            <a href={item.link} class="hof-card" target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined}>
+            <article class="hof-card">
               {hasItemSkillCount && <span class="hof-skills" data-count-provenance="entity-local">{itemSkillCount.toLocaleString()} entity-local skills</span>}
               <div class="hof-top">
                 <span class="hof-grade">{item.grade}</span>
                 <span class="hof-week">{item.week}</span>
                 <span class="hof-category">{item.category}</span>
               </div>
-              <h3 class="hof-headline">{item.headline}</h3>
+              <h3 class="hof-headline">
+                <a href={item.link} class="hof-card-link" target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined}>{item.headline}</a>
+              </h3>
               {item.whyKiller && <p class="hof-description">{item.whyKiller}</p>}
               {item.quote && <blockquote class="hof-quote">{item.quote}</blockquote>}
               <div class="hof-author">
                 <img src={`https://github.com/${item.authorGithub}.png?size=64`} alt={item.author} class="hof-avatar" width="32" height="32" loading="lazy" />
-                <a href={`https://github.com/${item.authorGithub}`} class="hof-author-link" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();">{item.author}</a>
+                <a href={`https://github.com/${item.authorGithub}`} class="hof-author-link" target="_blank" rel="noopener noreferrer">{item.author}</a>
               </div>
-              <span class="hof-link">{isExternal ? 'View on GitHub →' : 'View plugin →'}</span>
-            </a>
+              <span class="hof-link" aria-hidden="true">{isExternal ? 'View on GitHub →' : 'View plugin →'}</span>
+            </article>
           );
         })}
       </div>

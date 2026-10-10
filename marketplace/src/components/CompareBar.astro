@@ -223,6 +223,12 @@
         this.clearAll();
       });
 
+      // Remove buttons are rendered at runtime; bind by delegation.
+      document.getElementById('compare-items')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-remove-id]');
+        if (btn) this.remove(btn.dataset.removeId);
+      });
+
       // Update compare link on changes
       this.updateCompareLink();
     },
@@ -291,11 +297,13 @@
       }
 
       // Render items
+      // Items come from localStorage, so escape them before they reach HTML.
+      const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
       itemsContainer.innerHTML = this.items.map(item => `
-        <div class="compare-item" data-id="${item.id}">
-          <span class="compare-item-type">${item.type}</span>
-          <span class="compare-item-name">${item.name}</span>
-          <button class="compare-item-remove" onclick="CompareManager.remove('${item.id}')" title="Remove">×</button>
+        <div class="compare-item" data-id="${esc(item.id)}">
+          <span class="compare-item-type">${esc(item.type)}</span>
+          <span class="compare-item-name">${esc(item.name)}</span>
+          <button type="button" class="compare-item-remove" data-remove-id="${esc(item.id)}" title="Remove">×</button>
         </div>
       `).join('');
 
