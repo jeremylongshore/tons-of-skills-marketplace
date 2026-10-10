@@ -23,7 +23,7 @@ const { totalPlugins, totalCategories } = Astro.props;
         <div class="install-label">install</div>
         <div class="install-code-wrapper">
           <pre class="install-code"><code>/plugin marketplace add jeremylongshore/claude-code-plugins</code></pre>
-          <button class="copy-btn" onclick="navigator.clipboard.writeText('/plugin marketplace add jeremylongshore/claude-code-plugins').then(() => { const btn = this; btn.textContent = 'copied'; setTimeout(() => btn.textContent = 'copy', 2000); })">
+          <button type="button" class="copy-btn" data-copy-text="/plugin marketplace add jeremylongshore/claude-code-plugins">
             copy
           </button>
         </div>
@@ -37,6 +37,8 @@ const { totalPlugins, totalCategories } = Astro.props;
     </div>
   </div>
 </section>
+
+<script is:inline src="/scripts/copy-text.js" defer></script>
 
 <style>
   .hero {

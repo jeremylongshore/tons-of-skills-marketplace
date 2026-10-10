@@ -635,7 +635,7 @@ const pageDescription = `Search all ${_rawStats.totalPlugins} catalog plugins an
           <div class="no-results">
             <h3>No results found</h3>
             <p>Try adjusting your search or filters</p>
-            <button onclick="window.clearAllFilters()">Clear All Filters</button>
+            <button type="button" data-action="clear-all-filters">Clear All Filters</button>
           </div>
         `;
         return;
@@ -837,7 +837,8 @@ const pageDescription = `Search all ${_rawStats.totalPlugins} catalog plugins an
 
       // Clear all filters function
       window.clearAllFilters = () => {
-        activeFilters = { type: 'all', category: null, keyword: null, tool: null, search: '', sort: 'relevance' };
+        // authorType must be reset too: leaving it undefined filtered out every item.
+        activeFilters = { type: 'all', authorType: 'all', category: null, keyword: null, tool: null, search: '', sort: 'relevance' };
         document.getElementById('main-search').value = '';
         document.getElementById('category-filter').value = '';
         document.getElementById('keyword-filter').value = '';
@@ -845,8 +846,15 @@ const pageDescription = `Search all ${_rawStats.totalPlugins} catalog plugins an
         document.getElementById('sort-filter').value = 'relevance';
         document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
         document.querySelector('.type-btn[data-type="all"]').classList.add('active');
+        document.querySelector('.author-toggle .type-btn[data-author="all"]')?.classList.add('active');
         applyFilters();
       };
+
+      // The no-results "Clear All Filters" button is rendered into the grid
+      // at runtime, so bind by delegation instead of an inline onclick.
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('[data-action="clear-all-filters"]')) window.clearAllFilters();
+      });
 
       // Listen for reapply-filters event (from BookmarkManager)
       window.addEventListener('reapply-filters', () => {
