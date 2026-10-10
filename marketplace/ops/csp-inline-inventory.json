@@ -88,21 +88,6 @@
     },
     {
       "kind": "inline-script",
-      "sha256": "4d73effd3699306b9d6a7ab33a36530e5c22d814c8acdc239a0e836f80a8f145",
-      "sample": "window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(argume"
-    },
-    {
-      "kind": "inline-script",
-      "sha256": "4ee7e30786e04b06bf273f3eb5566d7ebb5386d5e9868804280123e3902ec3ee",
-      "sample": "(() => { const flash = (btn, msg, ok = true, restoreMs = 3000) => { const orig ="
-    },
-    {
-      "kind": "inline-script",
-      "sha256": "4fd484abfe6b9724e2f26400a00e2e3b5af4de3de68cd1981323e178882616dd",
-      "sample": "document.addEventListener('DOMContentLoaded', function() { var menuToggle = docu"
-    },
-    {
-      "kind": "inline-script",
       "sha256": "532495c758412ec4b5f0dafb3d7ff5df29165481295fbb2203079ed927f9995f",
       "sample": "document.addEventListener(`DOMContentLoaded`,()=>{let e=document.querySelectorAl"
     },
@@ -138,11 +123,6 @@
     },
     {
       "kind": "inline-script",
-      "sha256": "71bbacbd453b0472933e7f67107c44ef374614d87cb01b9dd82f7b8b3d8afe09",
-      "sample": "document.addEventListener('DOMContentLoaded', function() { var themeToggle = doc"
-    },
-    {
-      "kind": "inline-script",
       "sha256": "8148cf5c908c23257008ed0a16efd1170a3881d21572fc0f4b4b5261e405e5ef",
       "sample": "document.querySelectorAll('.install-command').forEach(el => { el.addEventListene"
     },
@@ -150,16 +130,6 @@
       "kind": "inline-script",
       "sha256": "b31e8dc22365bfee685a1f3d473c0050ece79f37af91689481221504ec1c169f",
       "sample": "function copyInstallCommand(plugins) { const pluginList = plugins.split(','); co"
-    },
-    {
-      "kind": "inline-script",
-      "sha256": "b4968c111435eab906c18e730764c5c42e9c6dbf4f27839f7ac8192b03d47f52",
-      "sample": "(function(){var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(pre"
-    },
-    {
-      "kind": "inline-script",
-      "sha256": "c4ffa625b00e93fdf1b9dedd74b609f0992a49bc23d52d7149fcb8a410fd4803",
-      "sample": "(function() { var nav = document.querySelector('nav'); if (!nav) return; functio"
     },
     {
       "kind": "inline-script",

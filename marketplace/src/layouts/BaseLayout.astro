@@ -53,9 +53,7 @@ const isHome = currentPath === '/';
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
     <!-- Theme: prevent FOUC by setting data-theme before first paint -->
-    <script is:inline>
-      (function(){var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)})();
-    </script>
+    <script is:inline src="/scripts/theme-init.js"></script>
 
     <!-- Referrer policy — the ONE of the three former "security headers" here
          that a <meta> tag can actually set. `name="referrer"` is the spec form
@@ -103,12 +101,7 @@ const isHome = currentPath === '/';
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9Z1DTMTT44"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-9Z1DTMTT44');
-    </script>
+    <script is:inline src="/scripts/gtag-init.js"></script>
 
     <!-- Unified Analytics Helper -->
     <script is:inline src="/scripts/analytics.js"></script>
@@ -857,238 +850,15 @@ const isHome = currentPath === '/';
          Anti-spam: honeypot field `website`, email/URL regex, 8 KiB body cap,
          per-IP rate limit on the server. See
          intent-os/ops/host/services/forms-api. -->
-    <script type="module" is:inline>
-      (() => {
-        const flash = (btn, msg, ok = true, restoreMs = 3000) => {
-          const orig = btn.dataset.origText ?? btn.textContent;
-          if (!btn.dataset.origText) btn.dataset.origText = orig;
-          btn.textContent = msg;
-          btn.style.opacity = ok ? '0.85' : '1';
-          btn.disabled = ok;
-          if (!ok) setTimeout(() => {
-            btn.textContent = orig;
-            btn.style.opacity = '';
-            btn.disabled = false;
-          }, restoreMs);
-        };
-
-        const wireSignup = (form) => form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const btn = form.querySelector('button[type="submit"]');
-          const emailInput = form.querySelector('input[type="email"]');
-          const honey = form.querySelector('input[name="website"]');
-          const email = (emailInput?.value || '').trim();
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            flash(btn, 'Invalid email', false);
-            return;
-          }
-          flash(btn, 'Subscribing…', true, 0);
-          try {
-            const r = await fetch('/api/forms/signup', {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({
-                email,
-                source: form.dataset.signupForm || 'unknown',
-                website: honey?.value || ''
-              })
-            });
-            if (r.ok) {
-              flash(btn, "You're in!", true, 0);
-              if (emailInput) emailInput.value = '';
-            } else if (r.status === 429) {
-              flash(btn, 'Slow down', false);
-            } else {
-              const j = await r.json().catch(() => ({}));
-              flash(btn, j.error || 'Something went wrong', false);
-            }
-          } catch {
-            flash(btn, 'Network error', false);
-          }
-        });
-
-        const wireNomination = (form) => form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const btn = form.querySelector('button[type="submit"]');
-          const repoInput = form.querySelector('input[name="repo"]');
-          const honey = form.querySelector('input[name="website"]');
-          const repoUrl = (repoInput?.value || '').trim();
-          if (!/^https:\/\/github\.com\/[^/\s]+\/[^/\s]+/.test(repoUrl)) {
-            flash(btn, 'GitHub URL only', false);
-            return;
-          }
-          flash(btn, 'Submitting…', true, 0);
-          try {
-            const r = await fetch('/api/forms/nominate', {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({
-                repoUrl,
-                source: form.dataset.nominationForm || 'unknown',
-                website: honey?.value || ''
-              })
-            });
-            if (r.ok) {
-              flash(btn, 'Submitted!', true, 0);
-              if (repoInput) repoInput.value = '';
-            } else if (r.status === 429) {
-              flash(btn, 'Slow down', false);
-            } else {
-              const j = await r.json().catch(() => ({}));
-              flash(btn, j.error || 'Something went wrong', false);
-            }
-          } catch {
-            flash(btn, 'Network error', false);
-          }
-        });
-
-        const wireContact = (form) => form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const btn = form.querySelector('button[type="submit"]');
-          const nameInput = form.querySelector('input[name="name"]');
-          const emailInput = form.querySelector('input[type="email"]');
-          const messageInput = form.querySelector('textarea[name="message"]');
-          const honey = form.querySelector('input[name="website"]');
-          const name = (nameInput?.value || '').trim();
-          const email = (emailInput?.value || '').trim();
-          const message = (messageInput?.value || '').trim();
-          if (name.length < 2) { flash(btn, 'Name required', false); return; }
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { flash(btn, 'Invalid email', false); return; }
-          if (message.length < 10) { flash(btn, 'Tell me more', false); return; }
-          flash(btn, 'Sending…', true, 0);
-          try {
-            const r = await fetch('/api/forms/contact', {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({
-                name,
-                email,
-                message,
-                source: form.dataset.contactForm || 'unknown',
-                website: honey?.value || ''
-              })
-            });
-            if (r.ok) {
-              flash(btn, "Got it — back within 24h!", true, 0);
-              if (nameInput) nameInput.value = '';
-              if (emailInput) emailInput.value = '';
-              if (messageInput) messageInput.value = '';
-            } else if (r.status === 429) {
-              flash(btn, 'Slow down', false);
-            } else {
-              const j = await r.json().catch(() => ({}));
-              flash(btn, j.error || 'Something went wrong', false);
-            }
-          } catch {
-            flash(btn, 'Network error', false);
-          }
-        });
-
-        const init = () => {
-          document.querySelectorAll('[data-signup-form]').forEach(wireSignup);
-          document.querySelectorAll('[data-nomination-form]').forEach(wireNomination);
-          document.querySelectorAll('[data-contact-form]').forEach(wireContact);
-        };
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', init);
-        } else { init(); }
-      })();
-    </script>
+    <script type="module" is:inline src="/scripts/site-forms.js"></script>
 
     <!-- Theme Toggle Script -->
-    <script is:inline>
-        document.addEventListener('DOMContentLoaded', function() {
-            var themeToggle = document.querySelector('.theme-toggle');
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
-                    var current = document.documentElement.getAttribute('data-theme') || 'dark';
-                    var next = current === 'dark' ? 'light' : 'dark';
-                    document.documentElement.setAttribute('data-theme', next);
-                    localStorage.setItem('theme', next);
-                    var meta = document.querySelector('meta[name="theme-color"]');
-                    if (meta) meta.setAttribute('content', next === 'dark' ? '#0a0a0c' : '#fafaf9');
-                });
-            }
-            window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function(e) {
-                if (!localStorage.getItem('theme')) {
-                    document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark');
-                }
-            });
-        });
-    </script>
+    <script is:inline src="/scripts/theme-toggle.js"></script>
 
     <!-- Nav Scroll State -->
-    <script is:inline>
-        (function() {
-            var nav = document.querySelector('nav');
-            if (!nav) return;
-            function onScroll() {
-                if (window.scrollY > 20) {
-                    nav.classList.add('scrolled');
-                } else {
-                    nav.classList.remove('scrolled');
-                }
-            }
-            window.addEventListener('scroll', onScroll, { passive: true });
-            onScroll();
-        })();
-    </script>
+    <script is:inline src="/scripts/nav-scroll.js"></script>
 
     <!-- Mobile Menu Script -->
-    <script is:inline>
-        document.addEventListener('DOMContentLoaded', function() {
-            var menuToggle = document.querySelector('.mobile-menu-toggle');
-            var navLinks = document.querySelector('.nav-links');
-            var menuIcon = document.querySelector('.menu-icon');
-            var closeIcon = document.querySelector('.close-icon');
-
-            if (menuToggle && navLinks) {
-                menuToggle.addEventListener('click', function() {
-                    navLinks.classList.toggle('active');
-                    document.body.classList.toggle('menu-open');
-
-                    if (navLinks.classList.contains('active')) {
-                        menuIcon.style.display = 'none';
-                        closeIcon.style.display = 'block';
-                    } else {
-                        menuIcon.style.display = 'block';
-                        closeIcon.style.display = 'none';
-                    }
-                });
-
-                navLinks.querySelectorAll('a').forEach(function(link) {
-                    link.addEventListener('click', function() {
-                        navLinks.classList.remove('active');
-                        document.body.classList.remove('menu-open');
-                        menuIcon.style.display = 'block';
-                        closeIcon.style.display = 'none';
-                    });
-                });
-
-                document.addEventListener('click', function(e) {
-                    if (navLinks.classList.contains('active') &&
-                        !navLinks.contains(e.target) &&
-                        !menuToggle.contains(e.target)) {
-                        navLinks.classList.remove('active');
-                        document.body.classList.remove('menu-open');
-                        menuIcon.style.display = 'block';
-                        closeIcon.style.display = 'none';
-                    }
-                });
-            }
-
-            // Track outbound link clicks (nav + footer)
-            document.querySelectorAll('nav a[target="_blank"], footer a[target="_blank"]').forEach(function(link) {
-                link.addEventListener('click', function() {
-                    if (window.trackEvent) {
-                        window.trackEvent('outbound_click', {
-                            url: link.href,
-                            link_text: link.textContent.trim()
-                        });
-                    }
-                });
-            });
-        });
-    </script>
+    <script is:inline src="/scripts/mobile-menu.js"></script>
 </body>
 </html>
