@@ -8,9 +8,11 @@
 
 import { posix } from 'node:path';
 
+// script-src has no inline exception: the built site ships no executable
+// inline script or event handler (bead claude-i076; enforced by the empty
+// marketplace/ops/csp-inline-inventory.json gate), and validateSecurityPolicy
+// rejects 'unsafe-inline' in script-src outright.
 export const CSP_INLINE_JUSTIFICATIONS = Object.freeze({
-  'script-src':
-    'Astro emits page-scoped inline modules and JSON-LD, and legacy event attributes remain; removal is tracked by Bead claude-i076 with an exact-inventory gate.',
   'style-src':
     'Astro component styles and a small number of generated style attributes are inline in the static output.',
 });
@@ -23,7 +25,6 @@ export const CSP_DIRECTIVES = Object.freeze({
   'form-action': ["'self'"],
   'script-src': [
     "'self'",
-    "'unsafe-inline'",
     'https://analytics.intentsolutions.io',
     'https://www.googletagmanager.com',
     'https://cdn.jsdelivr.net',
@@ -104,6 +105,9 @@ export function validateSecurityPolicy(
   for (const [name, values] of Object.entries(directives)) {
     if (values.includes('*')) throw new Error(`${name} may not contain a wildcard source`);
     if (values.includes("'unsafe-eval'")) throw new Error(`${name} may not allow unsafe-eval`);
+    if (['script-src', 'default-src'].includes(name) && values.includes("'unsafe-inline'")) {
+      throw new Error(`${name} may not allow unsafe-inline; the site ships no inline script`);
+    }
     for (const value of values) {
       if (/^https?:$/u.test(value)) {
         throw new Error(`${name} may not contain the broad scheme-only source ${value}`);
