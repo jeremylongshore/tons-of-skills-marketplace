@@ -449,7 +449,7 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
       script below has stable bytes for the CSP inline inventory (bead claude-i076).
       `<` is escaped so data can never terminate the <script> element. */}
   <script type="application/json" id="compare-items-data" set:html={JSON.stringify(Object.fromEntries(searchIndex.items.map(item => [item.id || item.name, item]))).replace(/</g, '\\u003c')} />
-  <script is:inline>
+  <script>
   (function () {
     const itemsMap = JSON.parse(document.getElementById('compare-items-data').textContent);
 
