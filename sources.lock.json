@@ -613,6 +613,18 @@
         "skills/setup/SKILL.md": "sha256:454375710727d477f16c60a647e3e7a1145b170f30da8ea42ec52233bc227c80"
       }
     },
+    "maqami-travel": {
+      "repo": "negm17111995/mcp-server",
+      "resolved_ref": "6478de2d093fcf9bdd3c5dbff6d6ef267dcb56ae",
+      "locked_at": "2026-10-06T21:30:45.000Z",
+      "files": {
+        ".claude-plugin/plugin.json": "sha256:f5de3700229902ecfed1632ad78c9f4038b0131acf1cb7f2a45e27adb2711c57",
+        ".mcp.json": "sha256:7f03aa6f267975f92f58184cf906bf6079da774f5cc2b56fec3606a579bd4def",
+        "LICENSE": "sha256:36c1e1296c382a7934e66f1c7fd24bf27382bc918983bda4f1dc8e16aadd209d",
+        "README.md": "sha256:60aaffb667feaedaac7b5181e782d51011bb42ba91eff7a289ddce217c898aae",
+        "skills/maqami-travel-booking/SKILL.md": "sha256:2b3c6f0233f45b05c5e6e91810a282480ceec0948eeca466cbac86cbd4b94a3d"
+      }
+    },
     "mnemos": {
       "repo": "polyxmedia/mnemos",
       "resolved_ref": "6830703e3268df0e118b554b9c4ce7275b63a5b8",
