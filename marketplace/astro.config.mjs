@@ -65,6 +65,10 @@ export default defineConfig({
     plugins: [tailwindcss(), marketplaceSecurityHeaders()],
     build: {
       cssCodeSplit: true,
+      // Never inline processed scripts into the HTML: an inline <script> needs
+      // script-src 'unsafe-inline' (bead claude-i076). Returning undefined
+      // keeps Vite's default 4 KB limit for every other asset type.
+      assetsInlineLimit: (filePath) => (filePath.endsWith('.js') ? false : undefined),
       rollupOptions: {
         output: {
           assetFileNames: '_astro/[name].[hash][extname]',

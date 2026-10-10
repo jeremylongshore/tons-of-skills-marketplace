@@ -592,7 +592,7 @@ const cleanTools = (tools: string[]) =>
   </div>
 
   <!-- Copy functionality -->
-  <script is:inline>
+  <script>
     document.querySelectorAll('.install-command').forEach(el => {
       el.addEventListener('click', function() {
         const text = this.dataset.copy || this.textContent;

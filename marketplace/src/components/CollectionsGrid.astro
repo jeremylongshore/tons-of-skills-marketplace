@@ -137,7 +137,7 @@ if (limit) {
   ))}
 </div>
 
-<script is:inline>
+<script>
   function copyInstallCommand(plugins) {
     const pluginList = plugins.split(',');
     const command = pluginList.map(p =>
@@ -167,15 +167,12 @@ if (limit) {
     });
   }
 
-  // A page can render this grid more than once (collections renders a
-  // featured grid and a full one), so bind the delegated listener only once.
-  if (!window.__collectionsCopyBound) {
-    window.__collectionsCopyBound = true;
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('.collection-card .install-btn[data-plugins]');
-      if (btn) copyInstallCommand(btn.dataset.plugins);
-    });
-  }
+  // Astro bundles this script once per page even though collections renders
+  // the grid twice, so the delegated listener binds exactly once.
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.collection-card .install-btn[data-plugins]');
+    if (btn) copyInstallCommand(btn.dataset.plugins);
+  });
 </script>
 
 <style is:global>
