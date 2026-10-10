@@ -116,5 +116,20 @@ test.describe('delegated click handlers', () => {
     const author = card.locator('a.hof-author-link');
     await expect(author).toHaveAttribute('href', /^https:\/\/github\.com\//);
     expect(await author.evaluate((a) => a.parentElement!.closest('a'))).toBeNull();
+
+    // The headline link stretches over the card: a point on the card body
+    // hit-tests to that link, while the author link stays clickable above it.
+    await card.scrollIntoViewIfNeeded();
+    const hit = await card.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const top = document.elementFromPoint(r.left + r.width / 2, r.bottom - 8);
+      return top?.closest('a')?.className;
+    });
+    expect(hit).toBe('hof-card-link');
+    const authorHit = await author.evaluate((a) => {
+      const r = a.getBoundingClientRect();
+      return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)?.closest('a') === a;
+    });
+    expect(authorHit).toBe(true);
   });
 });
