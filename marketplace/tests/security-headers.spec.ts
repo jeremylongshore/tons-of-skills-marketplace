@@ -14,6 +14,12 @@ const pages = [
   '/terms/',
   '/privacy/',
   '/acceptable-use/',
+  // Pages whose scripts moved out of inline <script> and onclick (bead claude-i076).
+  '/compare/',
+  '/collections/',
+  '/cowork/',
+  '/community/',
+  '/skills/abridge-ci-integration/',
 ];
 
 // Third-party requests (analytics, Google Tag Manager, Google Fonts) are answered

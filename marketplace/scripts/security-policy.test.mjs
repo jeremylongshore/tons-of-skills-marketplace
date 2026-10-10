@@ -21,7 +21,7 @@ const marketplacePackagePath = new URL('../package.json', import.meta.url);
 const policyModulePath = new URL('./security-policy.mjs', import.meta.url);
 
 const REVIEWED_BASE_CSP =
-  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https://analytics.intentsolutions.io https://www.googletagmanager.com https://cdn.jsdelivr.net https://gettermscdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://github.com https://avatars.githubusercontent.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://analytics.intentsolutions.io https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://stats.g.doubleclick.net https://gettermscdn.com; frame-src 'self' https://gettermscdn.com; media-src 'self'; manifest-src 'self'; worker-src 'self' blob:";
+  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' https://analytics.intentsolutions.io https://www.googletagmanager.com https://cdn.jsdelivr.net https://gettermscdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://github.com https://avatars.githubusercontent.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://analytics.intentsolutions.io https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://stats.g.doubleclick.net https://gettermscdn.com; frame-src 'self' https://gettermscdn.com; media-src 'self'; manifest-src 'self'; worker-src 'self' blob:";
 const REVIEWED_CHAT_CSP = `${REVIEWED_BASE_CSP.replace(
   "; frame-src 'self'",
   " wss: ws:; frame-src 'self'",
@@ -58,6 +58,7 @@ test('policy fails closed on the high-value XSS boundaries', () => {
   assert.match(policy, /frame-ancestors 'self'/);
   assert.match(policy, /form-action 'self'/);
   assert.doesNotMatch(policy, /unsafe-eval/);
+  assert.doesNotMatch(policy, /script-src[^;]*'unsafe-inline'/);
   assert.doesNotMatch(policy, /(?:^|\s)\*(?:\s|;|$)/);
   assert.doesNotMatch(policy, /(?:^|\s)wss?:/);
   assert.equal(MARKETPLACE_SECURITY_HEADERS['X-Content-Type-Options'], 'nosniff');
@@ -85,7 +86,7 @@ test('every inline exception is explicit and justified', () => {
     if (!values.includes("'unsafe-inline'")) continue;
     assert.ok(CSP_INLINE_JUSTIFICATIONS[directive], `${directive} needs a justification`);
   }
-  assert.deepEqual(Object.keys(CSP_INLINE_JUSTIFICATIONS).sort(), ['script-src', 'style-src']);
+  assert.deepEqual(Object.keys(CSP_INLINE_JUSTIFICATIONS).sort(), ['style-src']);
 });
 
 test('tracked Caddy fragment is an exact projection of the preview policy', () => {
@@ -119,8 +120,20 @@ test('planted weakening is rejected by the policy assertions', () => {
   }
 
   assert.throws(
-    () => validateSecurityPolicy(CSP_DIRECTIVES, { 'style-src': 'only one exception' }),
-    /script-src unsafe-inline requires/,
+    () => validateSecurityPolicy(CSP_DIRECTIVES, {}),
+    /style-src unsafe-inline requires/,
+  );
+
+  // A justification does not reopen script-src: inline script is refused outright.
+  const inlineScript = structuredClone(CSP_DIRECTIVES);
+  inlineScript['script-src'] = [...inlineScript['script-src'], "'unsafe-inline'"];
+  assert.throws(
+    () =>
+      validateSecurityPolicy(inlineScript, {
+        ...CSP_INLINE_JUSTIFICATIONS,
+        'script-src': 'planted justification',
+      }),
+    /script-src may not allow unsafe-inline/,
   );
 });
 
@@ -128,13 +141,23 @@ test('source-level CSP weakenings fail during module initialization', async () =
   const source = readFileSync(policyModulePath, 'utf8');
 
   const broadScheme = source.replace(
-    `    "'unsafe-inline'",`,
-    `    "'unsafe-inline'",\n    'https:',`,
+    `  'script-src': [\n    "'self'",`,
+    `  'script-src': [\n    "'self'",\n    'https:',`,
   );
   assert.notEqual(broadScheme, source, 'broad-scheme mutation must alter the module source');
   await assert.rejects(
     import(`data:text/javascript;base64,${Buffer.from(broadScheme).toString('base64')}`),
     /script-src may not contain the broad scheme-only source https:/,
+  );
+
+  const inlineScript = source.replace(
+    `  'script-src': [\n    "'self'",`,
+    `  'script-src': [\n    "'self'",\n    "'unsafe-inline'",`,
+  );
+  assert.notEqual(inlineScript, source, 'inline-script mutation must alter the module source');
+  await assert.rejects(
+    import(`data:text/javascript;base64,${Buffer.from(inlineScript).toString('base64')}`),
+    /script-src may not allow unsafe-inline/,
   );
 
   const insecureUpgrade = source.replace(
