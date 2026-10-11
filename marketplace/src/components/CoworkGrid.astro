@@ -224,9 +224,6 @@ if (manifest?.plugins) {
     document.body.appendChild(toast);
     setTimeout(function() { toast.remove(); }, 2500);
 
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'download', { event_category: 'cowork', event_label: category });
-    }
     if (window.trackEvent) {
       window.trackEvent('download_click', { category: category, source: 'cowork_grid' });
     }

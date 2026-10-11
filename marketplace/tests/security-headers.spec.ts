@@ -22,7 +22,7 @@ const pages = [
   '/skills/abridge-ci-integration/',
 ];
 
-// Third-party requests (analytics, Google Tag Manager, Google Fonts) are answered
+// Third-party requests (Umami analytics, GetTerms, Google Fonts) are answered
 // locally so the test never waits on hosts outside our control. This does not weaken
 // the CSP check: the browser evaluates the policy before a request is issued, so a
 // blocked resource never reaches the route handler and still fires a

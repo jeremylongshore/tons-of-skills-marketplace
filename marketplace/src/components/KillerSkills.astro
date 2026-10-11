@@ -254,9 +254,6 @@ const hasSkillCount = typeof skillCount === 'number' && skillCount > 0;
       if (window.trackEvent) {
         window.trackEvent('killer_skill_click', { slug: slug, week: week });
       }
-      if (window.logFirebaseEvent) {
-        window.logFirebaseEvent('killer_skill_click', { slug: slug, week: week });
-      }
       var href = card.dataset.href;
       if (href) {
         if (card.dataset.external === 'true') {

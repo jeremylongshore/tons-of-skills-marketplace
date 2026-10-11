@@ -21,7 +21,7 @@ const marketplacePackagePath = new URL('../package.json', import.meta.url);
 const policyModulePath = new URL('./security-policy.mjs', import.meta.url);
 
 const REVIEWED_BASE_CSP =
-  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' https://analytics.intentsolutions.io https://www.googletagmanager.com https://cdn.jsdelivr.net https://gettermscdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://github.com https://avatars.githubusercontent.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://analytics.intentsolutions.io https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://stats.g.doubleclick.net https://gettermscdn.com; frame-src 'self' https://gettermscdn.com; media-src 'self'; manifest-src 'self'; worker-src 'self' blob:";
+  "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' https://analytics.intentsolutions.io https://cdn.jsdelivr.net https://gettermscdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://github.com https://avatars.githubusercontent.com; connect-src 'self' https://analytics.intentsolutions.io https://gettermscdn.com; frame-src 'self' https://gettermscdn.com; media-src 'self'; manifest-src 'self'; worker-src 'self' blob:";
 const REVIEWED_CHAT_CSP = `${REVIEWED_BASE_CSP.replace(
   "; frame-src 'self'",
   " wss: ws:; frame-src 'self'",

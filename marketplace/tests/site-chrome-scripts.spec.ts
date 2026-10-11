@@ -40,6 +40,25 @@ test.describe('site-wide scripts', () => {
     await expect(links).not.toHaveClass(/active/);
   });
 
+  test('analytics sends events to Umami only, and Google Analytics never loads', async ({ page }) => {
+    const google: string[] = [];
+    page.on('request', (r) => {
+      if (/google-analytics\.com|googletagmanager\.com|doubleclick\.net/.test(new URL(r.url()).hostname)) google.push(r.url());
+    });
+    // Keep the real Umami script from replacing the recorder below.
+    await page.route('https://analytics.intentsolutions.io/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      const w = window as unknown as { umami: { track: (n: string, p: unknown) => void }; __tracked: unknown[] };
+      w.__tracked = [];
+      w.umami = { track: (name, params) => w.__tracked.push([name, params]) };
+    });
+    await page.goto('/');
+    await page.evaluate(() => (window as unknown as { trackEvent: (n: string, p: unknown) => void }).trackEvent('probe', { a: 1 }));
+    expect(await page.evaluate(() => (window as unknown as { __tracked: unknown[] }).__tracked)).toEqual([['probe', { a: 1 }]]);
+    expect(await page.evaluate(() => typeof (window as unknown as { gtag?: unknown }).gtag)).toBe('undefined');
+    expect(google).toEqual([]);
+  });
+
   test('site-forms validates the footer signup without a network call', async ({ page }) => {
     let posted = false;
     await page.route('**/api/forms/**', (route) => {
