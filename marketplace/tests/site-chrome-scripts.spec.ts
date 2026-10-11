@@ -41,9 +41,16 @@ test.describe('site-wide scripts', () => {
   });
 
   test('analytics sends events to Umami only, and Google Analytics never loads', async ({ page }) => {
+    const googleHosts = new Set([
+      'www.googletagmanager.com',
+      'www.google-analytics.com',
+      'analytics.google.com',
+      'region1.google-analytics.com',
+      'stats.g.doubleclick.net',
+    ]);
     const google: string[] = [];
     page.on('request', (r) => {
-      if (/google-analytics\.com|googletagmanager\.com|doubleclick\.net/.test(new URL(r.url()).hostname)) google.push(r.url());
+      if (googleHosts.has(new URL(r.url()).hostname)) google.push(r.url());
     });
     // Keep the real Umami script from replacing the recorder below.
     await page.route('https://analytics.intentsolutions.io/**', (route) => route.abort());
