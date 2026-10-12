@@ -32681,7 +32681,7 @@
     {
       "slug": "validate-skillmd",
       "name": "validate-skillmd",
-      "description": "Validate a SKILL.md file against the four-tier validation system: Tier 0 (locate), Tier 1 (standard or marketplace grading per the IS 100-point rubric), Tier 2 (static production gate — allowed-tools accuracy, auth protocol, dead code, tool safety, orchestration bounds), and Tier 3 (JRig 7-layer behavioral eval, opt-in via --thorough). Use when creating a new skill, checking skill quality, preparing for marketplace submission, running deep quality analysis, or gating a skill for production. Trigger with \"validate this skill\", \"grade my skill\", \"deep eval\", \"check SKILL.md\", \"validate thorough\", \"/validate-skillmd\".",
+      "description": "Validate and grade SKILL.md files with the marketplace rubric, static production checks, and optional J-Rig behavioral evidence. Use when creating a skill, checking quality, preparing a marketplace submission, or reviewing evaluation results. Trigger with \"validate this skill\", \"grade my skill\", \"deep eval\", \"check SKILL.md\", or \"/validate-skillmd\".",
       "version": "7.2.0",
       "category": "productivity",
       "parentPlugin": "intent-labs-pack",

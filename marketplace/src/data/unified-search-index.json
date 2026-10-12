@@ -14834,7 +14834,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 2,
-      "verificationScore": 92,
+      "verificationScore": 93,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "intent labs pack labs skills for intent eval platform dogfood: audit-tests (7-layer test auditor) and validate-skillmd (four-tier skill.md grader). public checkout path for the nightly signed roster. productivity audit-tests validate-skillmd testing skill-validation intent-eval dogfood"
@@ -75994,15 +75994,14 @@
       "id": "validate-skillmd",
       "slug": "validate-skillmd",
       "name": "validate-skillmd",
-      "description": "Validate a SKILL.md file against the four-tier validation system: Tier 0 (locate), Tier 1 (standard or marketplace grading per the IS 100-point rubric), Tier 2 (static production gate — allowed-tools accuracy, auth protocol, dead code, tool safety, orchestration bounds), and Tier 3 (JRig 7-layer behavioral eval, opt-in via --thorough). Use when creating a new skill, checking skill quality, preparing for marketplace submission, running deep quality analysis, or gating a skill for production. Trigger with \"validate this skill\", \"grade my skill\", \"deep eval\", \"check SKILL.md\", \"validate thorough\", \"/validate-skillmd\".",
+      "description": "Validate and grade SKILL.md files with the marketplace rubric, static production checks, and optional J-Rig behavioral evidence. Use when creating a skill, checking quality, preparing a marketplace submission, or reviewing evaluation results. Trigger with \"validate this skill\", \"grade my skill\", \"deep eval\", \"check SKILL.md\", or \"/validate-skillmd\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
         "Edit",
         "Write",
         "Bash(python3:*)",
-        "Bash(j-rig:*)",
-        "Bash(node:*)",
+        "Bash(pnpm:*)",
         "Bash(scripts/run-jrig-eval.sh:*)",
         "Glob",
         "Grep",
@@ -76014,7 +76013,7 @@
         "name": "intent-labs-pack",
         "category": "productivity"
       },
-      "searchText": "validate-skillmd validate a skill.md file against the four-tier validation system: tier 0 (locate), tier 1 (standard or marketplace grading per the is 100-point rubric), tier 2 (static production gate — allowed-tools accuracy, auth protocol, dead code, tool safety, orchestration bounds), and tier 3 (jrig 7-layer behavioral eval, opt-in via --thorough). use when creating a new skill, checking skill quality, preparing for marketplace submission, running deep quality analysis, or gating a skill for production. trigger with \"validate this skill\", \"grade my skill\", \"deep eval\", \"check skill.md\", \"validate thorough\", \"/validate-skillmd\". productivity read edit write bash(python3:*) bash(j-rig:*) bash(node:*) bash(scripts/run-jrig-eval.sh:*) glob grep askuserquestion "
+      "searchText": "validate-skillmd validate and grade skill.md files with the marketplace rubric, static production checks, and optional j-rig behavioral evidence. use when creating a skill, checking quality, preparing a marketplace submission, or reviewing evaluation results. trigger with \"validate this skill\", \"grade my skill\", \"deep eval\", \"check skill.md\", or \"/validate-skillmd\". productivity read edit write bash(python3:*) bash(pnpm:*) bash(scripts/run-jrig-eval.sh:*) glob grep askuserquestion "
     },
     {
       "type": "skill",

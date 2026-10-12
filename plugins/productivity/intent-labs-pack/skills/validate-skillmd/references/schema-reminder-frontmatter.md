@@ -1,6 +1,6 @@
 # Schema Reminder — Frontmatter Fields
 
-Every SKILL.md must have:
+The standard tier requires these fields:
 
 ```yaml
 name: my-skill                  # Required (Anthropic)
@@ -8,13 +8,23 @@ description: |                  # Required (Anthropic)
   What it does. Use when ...
 ```
 
-Optional fields the validator accepts (validates only when present):
+Marketplace submissions require **all eight** of `name`, `description`,
+`allowed-tools`, `version`, `author`, `license`, `compatibility`, and `tags`.
+The following six fields are optional in standard mode but required with
+`--marketplace`:
 
 ```yaml
-# Per Anthropic + AgentSkills.io spec
 allowed-tools: "Read,Write,Bash(git:*)"
 license: MIT
 compatibility: "Designed for Claude Code"   # Free-text, max 500 chars per agentskills.io/specification
+version: 1.0.0
+author: Name <email>
+tags: [devops, ci]
+```
+
+Other accepted optional fields (validated when present):
+
+```yaml
 metadata: { category: devops }              # Arbitrary key-value mapping
 
 # Per code.claude.com/docs/en/skills
@@ -26,11 +36,6 @@ agent: Explore
 user-invocable: true
 disable-model-invocation: false
 hooks: { ... }
-
-# Marketplace polish (Intent Solutions extension — recommended for submission)
-version: 1.0.0
-author: Name <email>
-tags: [devops, ci]
 ```
 
 ## `compatibility` Field Examples (per `agentskills.io/specification`)
@@ -56,8 +61,13 @@ compatibility: "Designed for Claude Code; requires Bash 5+ and rg (ripgrep)"
 compatibility: "Requires network access to api.example.com (port 443)"
 ```
 
-**Migration**: The deprecated `compatible-with` CSV-platform-list field (`compatible-with: claude-code, codex, openclaw`) was an Intent Solutions invention not in any published spec. Replaced by free-text `compatibility`. Run:
+**Migration**: Replace the deprecated `compatible-with` CSV-platform-list field
+with free-text `compatibility`. From the marketplace root, preview the migration
+within the target skill's directory (`skill_file` is the absolute SKILL.md path):
 
 ```bash
-python3 claude-code-plugins-plus-skills/scripts/batch-remediate.py --migrate-compatible-with --root <path>
+python3 scripts/batch-remediate.py --migrate-compatible-with \
+  --root "$(dirname "$skill_file")" --dry-run
 ```
+
+Remove `--dry-run` only when the repair is authorized. The directory scan is recursive.

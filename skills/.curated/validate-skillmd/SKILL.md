@@ -1,468 +1,277 @@
 ---
 name: validate-skillmd
 description: |
-  Validate a SKILL.md file against the four-tier validation system: Tier 0 (locate),
-  Tier 1 (standard or marketplace grading per the IS 100-point rubric), Tier 2
-  (static production gate — allowed-tools accuracy, auth protocol, dead code, tool
-  safety, orchestration bounds), and Tier 3 (JRig 7-layer behavioral eval, opt-in
-  via --thorough). Use when creating a new skill, checking skill quality, preparing
-  for marketplace submission, running deep quality analysis, or gating a skill for
-  production. Trigger with "validate this skill", "grade my skill", "deep eval",
-  "check SKILL.md", "validate thorough", "/validate-skillmd".
-allowed-tools: "Read,Edit,Write,Bash(python3:*),Bash(j-rig:*),Bash(node:*),Bash(scripts/run-jrig-eval.sh:*),Glob,Grep,AskUserQuestion"
+  Validate and grade SKILL.md files with the marketplace rubric, static production
+  checks, and optional J-Rig behavioral evidence. Use when creating a skill,
+  checking quality, preparing a marketplace submission, or reviewing evaluation
+  results. Trigger with "validate this skill", "grade my skill", "deep eval",
+  "check SKILL.md", or "/validate-skillmd".
+allowed-tools: "Read,Edit,Write,Bash(python3:*),Bash(pnpm:*),Bash(scripts/run-jrig-eval.sh:*),Glob,Grep,AskUserQuestion"
 version: 7.2.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
-compatibility: Designed for Claude Code; requires Python 3, optionally JRig CLI for Tier 3
+compatibility: Designed for Claude Code; requires Python 3, optionally the repository-pinned J-Rig CLI
 tags: [validation, skill-quality, marketplace, grading, deep-eval, jrig, behavioral-eval]
 user-invocable: true
-argument-hint: "[path-to-SKILL.md] [--marketplace|--deep|--thorough]"
+argument-hint: "[path-to-SKILL.md] [--marketplace|--deep]"
 ---
 
 # Validate SKILL.md
 
-Grade any SKILL.md file against the Intent Solutions rubric (validator v7.0 / schema 3.3.1). Four-tier validation: **Tier 0** (locate), **Tier 1** (standard or marketplace grading), **Tier 2** (static production gate), **Tier 3** (JRig behavioral eval — opt-in).
-
-Source of truth: `/skill-creator` validation workflow + `claude-code-plugins-plus-skills/000-docs/SCHEMA_CHANGELOG.md` + `j-rig-skill-binary-eval/` (Tier 3).
+Read a skill, run the supported validator, and report what its evidence establishes.
+The workflow has four tiers: locate the target, grade its content, inspect static
+production checks, and optionally assess J-Rig behavioral results.
 
 ## Overview
 
-Schema 3.3.1 enforces the 8-field IS enterprise required-field set at marketplace tier (`name`, `description`, `allowed-tools`, `version`, `author`, `license`, `compatibility`, `tags`). Anthropic's spec floor (`name` + `description` only) sits underneath; the IS rubric sits on top. **Modes**:
+- **Standard**: the validator's default structural checks.
+- **Marketplace** (`--marketplace`): the eight required fields (`name`,
+  `description`, `allowed-tools`, `version`, `author`, `license`, `compatibility`,
+  `tags`) and the 100-point rubric. Missing required fields are errors.
+- **Deep** (`--deep`): ten deterministic quality dimensions, badges and ranking.
+  The validator invokes this engine with `use_llm=False`; it does not execute
+  the skill or run J-Rig.
+- **Behavioral evaluation**: a separate J-Rig workflow, only when the user
+  explicitly requests it. Provider execution may incur API charges. Confirm the
+  requested scope, approved provider/model set and available credentials before
+  running it; an existing authorization is sufficient.
 
-- **Standard** (default): Mirrors `platform.claude.com/docs/en/agents-and-tools/agent-skills/overview` exactly. Required: `name`, `description`. Everything else is silent unless invalid type/value. Fast (~10 sec).
-- **Marketplace** (`--marketplace`): 8-field enterprise required set + 100-point IS rubric. **Missing required fields = ERROR, not warning.** The `--enterprise` flag is a deprecated alias. Fast (~10 sec).
-- **Deep** (`--deep`): Intent Solutions Deep Evaluation Engine — 10 weighted dimensions, trust badges, Elo competitive ranking, optional LLM quality assessment via Groq. Fast (~30 sec).
-- **Thorough** (`--thorough`): Adds **Tier 3 JRig behavioral eval** on top of Tier 1+2. Runs 7-layer eval across Haiku/Sonnet/Opus. **Slow** (~10–30 min) and **costs ~$2–5 per skill in API spend** — opt-in only. Right for production-gating, not iterative authoring.
-
-> **Performance + cost note**: Tiers 0–2 run in seconds and are free. Tier 3 (JRig) is opt-in because behavioral eval across the model matrix is genuinely expensive. Default invocations stay fast; `--thorough` is for the moment a skill is being promoted to production or marketplace-verified.
+`--thorough` is not an implemented option in either command documented here.
+Do not pass it to the Python validator: that parser currently ignores unknown
+arguments, so a successful exit does not prove behavioral evaluation happened.
 
 ## Prerequisites
 
-- Python 3 with `pyyaml` installed
-- Validator script: `claude-code-plugins-plus-skills/scripts/validate-skills-schema.py` (v7.0+)
-- For `--thorough` (Tier 3): JRig CLI on PATH (`jrig --version` returns ≥ v0.14.0). Install: `cd ~/000-projects/j-rig-binary-eval && pnpm install && pnpm build && pnpm link --global`. Tier 3 is opt-in; the rest of the skill works without JRig installed.
+- Locate the marketplace checkout containing `scripts/validate-skills-schema.py`.
+  Run the examples below from that repository root; resolve the target skill to
+  an absolute path before changing directories.
+- Python 3 with the repository's validator dependencies, including `pyyaml`.
+- For J-Rig, install the checkout's dependencies with its supported pnpm version
+  and use `pnpm exec j-rig`. The binary is `j-rig`, not `jrig`; do not create a
+  global symlink or assume a globally installed version matches the checkout.
+- Behavioral execution needs a reviewed `eval-spec.yaml` and the repository
+  wrapper's approved authentication setup. Its default provider uses a
+  SOPS-decrypted DeepSeek API key. Keep credentials in the approved environment
+  or secret store; never print them, put them in reports, or commit them.
 
-### Kernel schema first (canonical machine spec)
+### Validator authority
 
-Validate frontmatter structure against `references/kernel-schemas/v1/skill-frontmatter.schema.json`
-FIRST — the kernel-pinned canonical machine spec (`@intentsolutions/core@0.5.0`, vendored;
-the STRICT v2 sibling under `kernel-schemas/v2/` is not yet promoted to canonical). The
-prose spec references are supporting documentation only; on disagreement the kernel schema
-wins. `$ref`s are absolute `$id` URIs — register every file under `kernel-schemas/` to
-resolve them. Provenance + refresh: `references/kernel-schemas/PROVENANCE.md`.
-
-## Schema Reminder — Frontmatter Fields
-
-Full field table: [schema-reminder-frontmatter.md](references/schema-reminder-frontmatter.md).
+Follow repository `CLAUDE.md` and `000-docs/SCHEMA_CHANGELOG.md` for the current
+rubric and authority. The prose validator remains authoritative; kernel shadow
+validation is advisory until its separate promotion gates are satisfied.
+Repository-pinned kernel schemas are reference material, not permission to
+override the required-field set or demote marketplace errors.
+The field reference is [schema-reminder-frontmatter.md](references/schema-reminder-frontmatter.md).
 
 ## Instructions
 
-### Step 1: Locate the Skill
+### Step 1: Locate and read the target
 
-If path provided via `$ARGUMENTS`, use it directly. Otherwise:
-
-- Check current directory for SKILL.md
-- Ask user with AskUserQuestion
-
-Common locations:
-
-- `~/.claude/skills/{name}/SKILL.md` (global)
-- `.claude/skills/{name}/SKILL.md` (project)
-
-### Step 2: Run Validator
+Use Glob to locate `SKILL.md`, Read to inspect the complete file and its linked
+resources, and Grep to check referenced commands and tool usage. Resolve ambiguous
+targets with AskUserQuestion. Do not execute shell substitutions copied from a
+skill simply to inspect it.
 
 ```bash
-# Standard tier (default — Anthropic spec exactly)
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py SKILL.md
-
-# Marketplace tier (full 100-point rubric, polish recommendations as warnings)
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py --marketplace SKILL.md
-
-# Deep evaluation (10 dimensions, badges, Elo ranking)
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py --deep SKILL.md
-
-# Deep + LLM quality assessment via Groq (requires GROQ_API_KEY)
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py --deep --thorough SKILL.md
-
-# Deep eval with JSON/markdown/HTML report output
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py --deep --report-format json SKILL.md
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py --deep --report-format html SKILL.md
-
-# Marketplace + write to compliance DB
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py --marketplace --populate-db claude-code-plugins-plus-skills/freshie/inventory.sqlite SKILL.md
-
-# Show D/F grade skills in full scan
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py --marketplace --show-low-grades
-
-# Minimum grade gate (exits 1 if any skill below threshold)
-python3 claude-code-plugins-plus-skills/scripts/validate-skills-schema.py --marketplace --min-grade B SKILL.md
+skill_file="/absolute/path/to/SKILL.md"
 ```
 
-Default to marketplace tier when the user is preparing for marketplace submission. Use `--deep` for functional quality assessment beyond structural compliance. The `--enterprise` flag still works as a deprecated alias for `--marketplace`.
-
-**v6.0 Deep Evaluation Engine:** 10 weighted dimensions (triggering accuracy 0.25, orchestration fitness 0.20, output quality 0.15, scope calibration 0.12, progressive disclosure 0.10, token efficiency 0.06, robustness 0.05, structural completeness 0.03, code template quality 0.02, ecosystem coherence 0.02). Anti-pattern detection with 5% penalty each. Elo competitive ranking. Trust badges (Flagship/Established/Emerging/Early). Optional LLM-as-judge via Groq free tier.
-
-### Step 2.5: Tier 2 — Static Production Gate
-
-After Tier 1 grading and before any behavioral eval, run five inline static checks. These catch obvious production blockers in seconds without needing JRig. **Always run** regardless of mode (standard/marketplace/deep/thorough); each is binary pass/fail.
-
-#### 2.5.1 `allowed-tools` accuracy
-
-Every tool declared in `allowed-tools` should actually be referenced somewhere in the skill body or its `references/`/`scripts/`. Conversely, every tool the skill calls should be declared.
+### Step 2: Run supported static validation
 
 ```bash
-# Extract declared tools (handles CSV string, space-separated, and YAML list forms — schema 3.3.1)
-declared=$(python3 -c "import yaml,sys; fm=yaml.safe_load(open('SKILL.md').read().split('---')[1]); t=fm.get('allowed-tools',''); print(t if isinstance(t,str) else ' '.join(t))")
+# Standard structural validation
+python3 scripts/validate-skills-schema.py "$skill_file"
 
-# Each declared base tool (Read, Write, Bash, etc.) must appear in the body
-for tool in $(echo "$declared" | grep -oE '[A-Z][a-zA-Z]+' | sort -u); do
-  if ! grep -q "$tool" "SKILL.md"; then
-    echo "FAIL: tool '$tool' declared but not referenced in body"
-  fi
-done
+# Marketplace rubric and machine-readable findings
+python3 scripts/validate-skills-schema.py --marketplace --json "$skill_file"
+
+# Deterministic deep assessment of one skill
+python3 scripts/validate-skills-schema.py --deep "$skill_file"
 ```
 
-**Fail when**: tool declared but never used (over-permissive — attack surface) OR tool used but never declared (will prompt user every invocation, defeating allowed-tools).
+Use marketplace mode for marketplace submissions. `--enterprise` remains a
+legacy alias. Inspect the single-file score and grade explicitly: `--min-grade`
+enforcement belongs to the batch path. For structured results, use the
+marketplace `--json` command above. Deep reporting adds diagnostics;
+`--deep --report-format json` mixes JSON sections with terminal output.
+Markdown/HTML rendering also belongs to the repository batch path.
 
-#### 2.5.2 Auth protocol documented (when applicable)
+### Step 2.5: Review the static production checks
 
-If the skill mentions an external API (any URL, `curl`, `fetch`, MCP server, OAuth flow, API key reference), an authentication method must be documented in the body or in `references/auth.md` / `references/api-surface.md`.
+The validator already runs five Tier 2 checks. Report their actual error/warning
+severity and inspect suspicious findings against the skill body:
+
+1. **Allowed-tools accuracy**: declarations versus tool references; unused tools
+   are warnings, not proof of unsafe execution. Inspect substantive usage rather
+   than counting the declaration itself as a reference.
+2. **Authentication documentation**: warns when configured API indicators appear
+   without a recognized authentication-documentation marker.
+3. **Dead code**: warns on selected literal-false shell branches.
+4. **Tool safety**: errors on unscoped Bash combined with Write/WebFetch without
+   a recognized justification marker.
+5. **Orchestration bounds**: errors on selected affirmative cross-skill
+   orchestration phrases.
+
+Manually review authentication adequacy, contradictory instructions, permission
+scope and delegation beyond these heuristics. Static findings do not establish
+runtime correctness or production readiness. Surface errors before warnings; fix blocking static
+errors before proceeding to behavioral evaluation. Do not weaken the validator
+or a repository gate to obtain a passing grade.
+
+### Step 2.7: Optional J-Rig behavioral evidence
+
+Skip this tier unless requested. If prerequisites are missing, report
+**INCOMPLETE** with the missing prerequisite; never substitute a verified verdict.
+The following commands can inspect tooling without provider calls:
 
 ```bash
-# Heuristic: look for API indicators
-if grep -qE "(curl |fetch\(|mcp__|API_KEY|TOKEN|OAuth|Bearer )" "SKILL.md"; then
-  if ! grep -qiE "(authentication|auth method|api key|bearer token|oauth flow|credentials)" "SKILL.md"; then
-    echo "FAIL: external API referenced but no auth protocol documented"
-  fi
-fi
+pnpm exec j-rig --version
+pnpm exec j-rig eval --help
+pnpm exec j-rig check "$(dirname "$skill_file")" --json
+pnpm exec j-rig scaffold-spec "$(dirname "$skill_file")" --stdout
 ```
 
-**Fail when**: API surface is referenced but a future engineer reading the skill couldn't tell how authentication happens.
+`check` reports package integrity, not marketplace rubric compliance. Review a
+scaffold before using it: generated cases are a starting point, not evidence of
+adequate coverage. The optional `scaffold-spec --draft` path uses a provider and
+is outside the deterministic inspection above.
 
-#### 2.5.3 Dead-code / unreachable-branch sanity
+#### Seven quality layers
 
-Conditional structures that can never fire (e.g., `if false`, mutually exclusive guards, sections that contradict an earlier hard-fail).
+Use the quality taxonomy in the J-Rig repository README, distinct from its
+architectural implementation stages:
+
+| Layer | Quality concern | Evidence to inspect |
+|---|---|---|
+| 1 | Package integrity | Package check results and errors |
+| 2 | Trigger quality | Trigger measurements and their acceptance thresholds |
+| 3 | Functional quality | Reviewed criteria and observed criterion verdicts |
+| 4 | Regression protection | Prior judgments and the regression comparison |
+| 5 | Baseline value | Enabled with-skill versus without-skill comparison |
+| 6 | Model variance | Results from distinct actual backend models |
+| 7 | Rollout safety | Safety criteria, blockers and promotion reasons |
+
+Cost and latency are additional telemetry, not an eighth layer or a replacement
+for package integrity. Ordinary `eval` skips regression and baseline. Supplying
+three model names does not enable those comparisons or establish all-layer
+coverage.
+
+#### Evaluation through the repository wrapper
+
+Always route authorized behavioral execution through the repository wrapper,
+which retains evidence and records a `forge_proofs` row. Set `catalog_plugin` to
+the target's catalog name and `behavioral_run_id` to its allocated behavioral
+evaluation ID, never a discovery-run ID:
 
 ```bash
-# Conservative checks — flag for human review, don't auto-fail
-grep -nE "^(if false|if \[ false \]|elif false)" "SKILL.md" && echo "WARN: literal-false branch found"
-grep -cE "^### " "SKILL.md" # If section count grossly exceeds the table-of-contents count → drift
+scripts/run-jrig-eval.sh \
+  --skill-dir "$(dirname "$skill_file")" \
+  --plugin "$catalog_plugin" \
+  --jrig-run-id "$behavioral_run_id" \
+  --inventory-db freshie/inventory.sqlite
 ```
 
-**Warn when**: a literal-false branch is found OR the body contains sections not present in the table of contents (silent drift).
+This example uses the wrapper's approved DeepSeek provider/model defaults and
+its SOPS authentication path. Inspect `scripts/run-jrig-eval.sh` before changing
+providers. It gives J-Rig a scratch DB and retains the primary JSON separately;
+only `scripts/record-jrig-proofs.mjs` writes the governed proof row. Never pass
+`freshie/inventory.sqlite` to `j-rig eval --db`.
 
-#### 2.5.4 Tool-safety combo flagging
+The CLI exposes `--regression-baseline`, `--baseline-check` and `--emit-bundle`,
+but this wrapper does not forward them. The workflow above therefore leaves
+regression and baseline comparisons incomplete and does not emit a bundle; do
+not bypass the wrapper to claim coverage. For existing results, treat
+`--no-trigger` or `--no-functional` as skipped evidence. Legacy proof fields
+`layers_passed`/`total_layers` count criteria, and `baseline_delta` is not a
+measured comparison. Stub results are synthetic; they cannot establish
+behavioral success or production readiness.
 
-Dangerous combinations require explicit justification:
+### Step 3: Report observed coverage and outcomes
 
-| Combo | Why dangerous |
+For each actual model, report package counts, criterion pass/fail/unsure counts,
+rollout decision, promotion decision/reasons, regression/baseline enabled status
+and results, and available usage/cost telemetry. Preserve errors and missing
+fields instead of coercing them into passes.
+
+The primary JSON is keyed by requested model. Inspect `pkgReport`, `scoreCard`,
+`decision`, `report`, `promotion` and `cost`; special failure or skipped-functional
+results can omit those fields. Criterion counts are not seven-layer pass counts.
+A `ship` decision alone is insufficient when promotion remains advisory.
+
+When reviewing a separately retained bundle, it is an array of statements. Coverage lives at
+`[].predicate.coverage.dimensions_evaluated` and `dimensions_skipped`, separately
+from primary JSON. These fields describe execution coverage, not layer verdicts.
+The pinned CLI does not serialize trigger precision/recall in its primary JSON
+or bundle; mark that evidence unavailable unless separately retained. Requested
+model labels also need not identify distinct backend models: inspect provider,
+judge and actual usage metadata before claiming model-variance coverage.
+
+Do not automatically label a skill **JRig-Verified**, publish a badge, or infer
+production readiness from a zero exit code, a model matrix, static grade, or
+criterion counter. Apply the repository's promotion policy to retained evidence.
+
+| Assessment | Report |
 |---|---|
-| `Bash` (unscoped) + `WebFetch` | Can fetch arbitrary content + execute it |
-| `Bash` (unscoped) + `Write` | Can write executable scripts to arbitrary locations |
-| `Bash(curl:*)` + `Bash(sh:*)` | Curl-pipe-shell pattern |
-| `Bash(rm:*)` not paired with explicit safe-paths | Unbounded delete authority |
+| Static errors or behavioral blockers | FAIL; list the blocking findings first |
+| Requested evidence unavailable, skipped or synthetic | INCOMPLETE; name the gap |
+| Static checks pass; behavioral evaluation not requested | Static PASS; behavioral SKIPPED |
+| Requested checks have reviewed real evidence | Report observed outcomes and promotion status |
 
-```bash
-# Check for unscoped Bash + dangerous companion
-if grep -qE "^allowed-tools:.*\bBash\b" "SKILL.md" && \
-   ! grep -qE "^allowed-tools:.*Bash\(" "SKILL.md" && \
-   grep -qE "^allowed-tools:.*\b(Write|WebFetch)\b" "SKILL.md"; then
-  if ! grep -qiE "(safety justification|why unscoped Bash|why Bash + )" "SKILL.md"; then
-    echo "FAIL: unscoped Bash + Write/WebFetch without safety justification"
-  fi
-fi
-```
+### Step 4: Apply authorized fixes and recheck
 
-**Fail when**: a dangerous combo is declared and the body has no `## Safety Justification` section explaining why the wide scope is necessary.
-
-#### 2.5.5 Orchestration bounds
-
-Skills are NOT plugins. A skill should not spawn other skills, delegate to other agents as a primary control flow, or self-coordinate across sessions. That's `/skill-creator --forge` territory and plugin-level orchestration. Skills do one job.
-
-```bash
-# Look for orchestration smells in skills
-if grep -qE "(spawn another skill|delegate to /|invoke .* skill|orchestrate across|self-coordinate)" "SKILL.md"; then
-  echo "FAIL: skill appears to orchestrate other skills/agents — that belongs at the plugin layer"
-fi
-```
-
-**Fail when**: the skill body claims it spawns/orchestrates other skills or agents as the primary control flow. Multi-agent synthesis WITHIN one skill invocation (calling subagents to specialize) is fine and expected; cross-skill orchestration is not.
-
-#### Tier 2 verdict
-
-- **All 5 checks pass** → Tier 2 GREEN; proceed.
-- **Any FAIL** → Tier 2 RED; the skill is blocked from production promotion until resolved. Tier 3 (JRig) does not run if Tier 2 is RED — fail fast.
-- **Only WARN** → Tier 2 YELLOW; log warnings to the unified report; Tier 3 still runs.
-
-### Step 2.7: Tier 3 — JRig 7-Layer Behavioral Eval (opt-in via `--thorough`)
-
-> **Default skipped.** Tier 3 runs only when the user passes `--thorough`. Behavioral eval across the model matrix (Haiku / Sonnet / Opus) takes 10–30 minutes per skill and costs ~$2–$5 in API spend. Right for production-gate moments, not iterative authoring.
-
-#### Prerequisites
-
-- JRig CLI on PATH: `j-rig --version` (note: bin name is `j-rig` with hyphen, not `jrig`)
-- Install: `cd j-rig-skill-binary-eval/packages/cli && pnpm build && ln -sf $PWD/dist/index.js ~/.local/bin/j-rig`
-- For Tier 3B (7-layer eval): API keys for Haiku, Sonnet, Opus configured per JRig docs
-
-If JRig isn't on PATH, the skill emits a placeholder verdict and a one-line install hint, then continues to Step 3 (grade report) without blocking. **Tier 3 absence does not mean a skill fails** — only Tier 1+2 are mandatory.
-
-#### Tier 3A: JRig package-integrity check (deterministic, fast, free)
-
-Run JRig's `check` command on the **skill directory** (not the SKILL.md path). Returns deterministic pass/warn/error verdicts on package structure: SKILL.md exists + parses, name present, description length, deprecated patterns, time-sensitive content, etc.
-
-```bash
-# JSON output for parsing into the unified report
-j-rig check "$(dirname "SKILL.md")" --json
-```
-
-This is a separate concern from the IS spec-compliance check (Tier 1) — JRig's `check` is structural, not rubric-based. The Anthropic + AgentSkills.io spec snapshots in `000-docs/` are read by the IS validator (`scripts/validate-skills-schema.py`), not by JRig directly. The two are complementary: IS validator scores against the spec rubric; JRig verifies the package shape and surfaces structural anti-patterns.
-
-**Verdict mapping**:
-
-- All `severity: "pass"` → Tier 3A GREEN
-- Any `severity: "warning"` → Tier 3A YELLOW (non-blocking; surfaced in unified report)
-- Any `severity: "error"` → Tier 3A RED (blocks production promotion)
-
-#### Tier 3B: 7-Layer Behavioral Eval (execution-based, slow, $)
-
-```bash
-# Ad hoc invocation — Sonnet only, with no write to the Freshie inventory
-j-rig eval "$(dirname "SKILL.md")" --json
-
-# Full model matrix with a durable Freshie evidence row. Run from the repository root.
-# j-rig receives only a scratch DB; the local recorder owns the Freshie write.
-scripts/run-jrig-eval.sh \
-  --skill-dir "$(dirname "SKILL.md")" \
-  --plugin "<catalog-plugin-name>" \
-  --models haiku,sonnet,opus \
-  --inventory-db freshie/inventory.sqlite
-
-# Skip specific layers (when iterating)
-j-rig eval "$(dirname "SKILL.md")" --no-trigger --no-functional --json
-```
-
-Eval spec source: JRig reads `<skill-dir>/eval-spec.yaml` if present, or use `--spec <path>` to point at one elsewhere. A spec is currently **required** — `j-rig eval` errors if neither is found. (Auto-generating a baseline spec from the SKILL.md frontmatter — `should_trigger`/`should_not_trigger` cases derived from the `description` trigger phrases — is the planned `j-rig scaffold-spec <skill-dir>` command; until it ships, author the spec by hand or copy `skill/eval.yaml` as a template.)
-
-Layers:
-
-1. **Trigger quality**: precision/recall on user prompts that should and should not activate the skill
-2. **Functional quality**: task completion + output format match against gold cases
-3. **Regression protection**: sacred-case suite cannot break (skill is locked-down on these)
-4. **Baseline value**: skill output beats naked Claude on the same prompt; if not, flag for obsolescence
-5. **Model variance**: independent pass/fail per Haiku / Sonnet / Opus; flags any model where the skill collapses
-6. **Rollout safety**: prompt-leakage detection, unsafe-pattern surfacing, jailbreak resistance
-7. **Cost / latency**: per-invocation token + wall-clock — must beat declared budget
-
-#### Tier 3 verdict
-
-- **All 7 layers pass on all 3 models** → Tier 3 GREEN; skill is JRig-Verified.
-- **Any layer fails on any model** → Tier 3 RED; report which layer + which model + recommended remediation. Block production promotion.
-- **JRig unavailable** → Tier 3 SKIPPED; emit a one-line note in the unified report; do not block.
-
-#### Persist results to Freshie
-
-JRig writes runtime tables into whatever `--db` it receives, so it must never receive
-`freshie/inventory.sqlite`. The supported wrapper gives JRig a temporary database under `/dev/shm`,
-captures its JSON, then invokes the repository-owned recorder to upsert only the governed
-`forge_proofs` row:
-
-```bash
-scripts/run-jrig-eval.sh \
-  --skill-dir "$(dirname "SKILL.md")" \
-  --plugin "<catalog-plugin-name>" \
-  --models haiku,sonnet,opus \
-  --inventory-db freshie/inventory.sqlite
-```
-
-JRig's runtime tables remain in the temporary database and never enter the Freshie/Dolt export.
-The durable integration surface is `forge_proofs`, written by `scripts/record-jrig-proofs.mjs`:
-
-```sql
-SELECT plugin_name, passed, layers_passed, baseline_delta, verified_at
-FROM forge_proofs
-WHERE verification_type = 'tier3-jrig';
-```
-
-Freshie remains the sole local writer of inventory and grade history. A future schema change may
-project selected JRig evidence into `skill_compliance`, but JRig itself still must not write that
-database directly:
-
-- `jrig_passed` (boolean)
-- `jrig_tier_blocked` (1–7 if any)
-- `jrig_baseline_delta` (numeric — skill output vs. naked Claude on same prompt)
-
-Until then, the join above is the integration surface.
-
-#### Snapshot refresh workflow (quarterly)
-
-Tier 3A reads versioned snapshots, NOT live Anthropic / AgentSkills.io docs. Live-fetching from CI is a rate-limit + flakiness risk. The snapshot refresh is a separate PR cadence:
-
-1. Quarterly cron (or manual trigger) fetches latest specs from `code.claude.com/docs/en/skills` and `agentskills.io/specification`.
-2. Writes to `000-docs/anthropic-skills-spec-snapshot.md` + `000-docs/agentskills-spec-snapshot.md`.
-3. Opens a PR with the diff.
-4. PR review = the human gate that catches breaking spec changes before they reach validation.
-
-This isolates "the spec changed" events from per-skill validation runs.
-
-### Step 3: Present Unified Report (all tiers)
-
-Parse the combined output of Tiers 1–3 (or 1+2 when Tier 3 is skipped) and present:
-
-**Production verdict**: PASS / FAIL / VERIFIED (when Tier 3 ran and all 7 layers green)
-
-```
-┌─ TIER 1: Marketplace grade ─────────────────────────────┐
-│ Grade: [LETTER] ([SCORE]/100)                           │
-│                                                          │
-│ Pillar              | Score | Notes                      │
-│ Progressive Disc.   | X/30  | Token economy, structure   │
-│ Ease of Use         | X/25  | Metadata, discoverability  │
-│ Utility             | X/20  | Problem solving, examples  │
-│ Spec Compliance     | X/15  | Frontmatter, naming        │
-│ Writing Style       | X/10  | Voice, objectivity         │
-│ Modifiers           | +/-X  | Bonuses/penalties          │
-└──────────────────────────────────────────────────────────┘
-
-┌─ TIER 2: Static production gate ────────────────────────┐
-│ allowed-tools accuracy:    PASS / FAIL                   │
-│ Auth protocol documented:  PASS / FAIL / N/A             │
-│ Dead code / drift:         PASS / WARN                   │
-│ Tool-safety combo:         PASS / FAIL                   │
-│ Orchestration bounds:      PASS / FAIL                   │
-│ Verdict:                   GREEN / YELLOW / RED          │
-└──────────────────────────────────────────────────────────┘
-
-┌─ TIER 3: JRig behavioral eval (only if --thorough) ─────┐
-│ 3A spec compliance:        PASS / FAIL                   │
-│ 3B Layer 1 trigger:        Haiku|Sonnet|Opus → P/F      │
-│    Layer 2 functional:     Haiku|Sonnet|Opus → P/F      │
-│    Layer 3 regression:     Haiku|Sonnet|Opus → P/F      │
-│    Layer 4 baseline:       Haiku|Sonnet|Opus → P/F      │
-│    Layer 5 model variance: Haiku|Sonnet|Opus → P/F      │
-│    Layer 6 rollout safety: Haiku|Sonnet|Opus → P/F      │
-│    Layer 7 cost/latency:   Haiku|Sonnet|Opus → P/F      │
-│ Baseline delta:            +N% vs. naked Claude          │
-│ Verdict:                   VERIFIED / BLOCKED / SKIPPED  │
-└──────────────────────────────────────────────────────────┘
-```
-
-**Final verdict logic**:
-
-| Tier 1 | Tier 2 | Tier 3 | Final |
-|---|---|---|---|
-| ≥B | GREEN | VERIFIED | **PRODUCTION READY (JRig-Verified)** |
-| ≥B | GREEN | SKIPPED | **PRODUCTION READY (unverified)** |
-| ≥B | YELLOW | * | **PRODUCTION READY with warnings** |
-| any | RED | * | **BLOCKED** — fix Tier 2 fails before promoting |
-| <B | * | * | **BLOCKED** — bring grade to B+ before promoting |
-| ≥B | GREEN | BLOCKED | **BLOCKED** — JRig found behavioral regression; fix before promoting |
-
-Grade scale: A (90+), B (80-89), C (70-79), D (60-69), F (<60)
-
-### Step 4: Prioritized Fix Recommendations
-
-List fixes sorted by point value (highest first):
-
-**Top improvements:**
-
-1. {fix description} (+N pts)
-2. {fix description} (+N pts)
-3. {fix description} (+N pts)
-
-Common high-value fixes:
-
-- Add "Use when" to description (+3 pts marketplace tier)
-- Add "Trigger with" to description (+3 pts marketplace tier)
-- Extract long content to references/ (up to +10 pts on token_economy)
-- Add missing sections: Overview (+4), Prerequisites (+2), Output (+2), Error Handling (+2)
-- Migrate `compatible-with` → `compatibility` (deprecation warning fix; run `batch-remediate.py --migrate-compatible-with`)
-- Add `compatibility:` field with one of the AgentSkills.io examples (+1 pt on metadata quality)
-- Add external resource links (+1 pt modifier)
-- Add DCI directives for discovery (file existence, git status, tool versions) (+1 pt modifier)
-- Add TOC to reference files >100 lines (+1 pt modifier)
-- Add feedback loops for quality-critical workflows (+2 pts utility)
-- Remove time-sensitive information (+1 pt modifier)
-- Ensure consistent terminology throughout (+1 pt writing style)
-
-### Step 5: Review Structural Advisors
-
-The validator emits INFO-level structural suggestions (marketplace tier):
-
-- **Split to commands**: 3+ kebab-case `## operation-name` sections detected without `commands/` directory → suggest splitting into individual `commands/*.md` files
-- **Offload to references**: Body sections >20 lines (Output, Error Handling, Examples, etc.) without `references/` directory → suggest moving to `references/` with relative markdown links
-- **DCI opportunities**: Skill performs file existence checks, git operations, or tool version detection without DCI → suggest `!`command`` directives
-
-### Step 6: Auto-Fix (if requested or grade below B)
-
-If grade < B (80), ask user: "Fix issues automatically?"
-
-If approved, apply in order:
-
-1. Add missing sections (Overview, Prerequisites, Output, Error Handling, Examples)
-2. Add "Use when" / "Trigger with" to description if missing
-3. Move `author`/`version`/`license` from nested `metadata` to top-level (or vice versa per AgentSkills.io spec — both valid)
-4. Migrate `compatible-with` → `compatibility` via `batch-remediate.py --migrate-compatible-with`
-5. Fix text references to use relative markdown links: `[file](references/file.md)`; keep `${CLAUDE_SKILL_DIR}/` for DCI/bash only
-6. Split long SKILL.md (>500 lines) into references/ with relative links
-7. Scope unscoped Bash tools: `Bash` → `Bash(command:*)`
-8. Add DCI directives for common discovery patterns (file checks, git status)
-9. If 3+ operation sections found, offer to split into commands/*.md files
-10. Add TOC to reference files >100 lines
-11. Flag time-sensitive content for review (dates, version numbers, URLs that may go stale)
-
-After fixes, re-run validator and show before/after comparison.
+Prioritize errors, then substantive quality gaps, then presentation warnings.
+Use Edit or Write for requested repairs, preserving the skill's purpose and
+platform-specific metadata. Re-run the same validator command and compare its
+actual before/after scores and findings; do not invent point gains. Keep large
+reference tables in linked files and leave required sections readable.
 
 ## Output
 
-Final report includes:
-
-- Production verdict (PASS / FAIL / VERIFIED)
-- Tier 1 letter grade with numeric score + pillar breakdown table
-- Tier 2 static-gate pass/fail per check (5 checks)
-- Tier 3 JRig results per layer × per model (when `--thorough`); SKIPPED otherwise
-- Warning/error list from validator
-- Prioritized fix recommendations with point values
-- Before/after comparison if auto-fix was applied
-- Source citation for each spec-grounded claim
-- One-line install hint for JRig if Tier 3 was requested but JRig is missing
+- Target path, tool versions and exact commands run.
+- Marketplace grade and reported rubric breakdown, when requested.
+- Static errors and warnings, including the five Tier 2 checks.
+- Behavioral scope, actual providers/models, retained artifact paths, observed
+  outcomes, skipped dimensions and missing evidence, when requested.
+- Prioritized repairs and before/after validation for changes made.
+- A separate statement of promotion status; no automatic certification claim.
 
 ## Error Handling
 
 | Error | Recovery |
-|-------|----------|
-| File not found | Suggest `Glob` to find SKILL.md files nearby |
-| Python not available | Read SKILL.md manually, check frontmatter by hand |
-| Validator script missing | Fall back to manual checks against rubric pillars |
-| YAML parse error | Report the parse error line, suggest fix |
-| `compatible-with` deprecation warning | Run `batch-remediate.py --migrate-compatible-with` |
+|---|---|
+| Target missing | Locate it with Glob; resolve ambiguity before grading |
+| Python or validator unavailable | Report automated validation unavailable; label any manual review separately |
+| YAML parse error | Report the parser location and repair the syntax |
+| User requests `--thorough` | Explain the unsupported flag and use the separate authorized J-Rig workflow |
+| J-Rig, eval spec or provider credentials unavailable | Mark requested behavioral evaluation INCOMPLETE |
+| Provider or evaluator fails | Preserve the infrastructure error; do not count it as a skill pass |
+| Required layer lacks evidence | Report the gap; do not claim all-layer verification |
 
 ## Examples
 
-**Validate a specific skill:**
+**Marketplace submission:**
 
-```
-/validate-skillmd ~/.claude/skills/repo-sweep/SKILL.md
-```
-
-**Marketplace grading (recommended for marketplace submissions):**
-
-```
+```text
 /validate-skillmd --marketplace path/to/SKILL.md
 ```
 
-**Natural language:**
+**Deterministic deep assessment:**
 
+```text
+/validate-skillmd --deep path/to/SKILL.md
 ```
-grade my skill
-check skill quality
+
+**Explicit behavioral request:**
+
+```text
+Evaluate this skill with the approved provider and model set, retain the evidence,
+and report skipped comparisons separately. Do not infer a verified badge.
 ```
 
 ## Resources
 
-- [Anthropic Agent Skills Overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
-- [Anthropic Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
-- [Claude Code Skills](https://code.claude.com/docs/en/skills)
-- [AgentSkills.io Specification](https://agentskills.io/specification)
-- Schema log: `claude-code-plugins-plus-skills/000-docs/SCHEMA_CHANGELOG.md`
-- Master spec: `claude-code-plugins-plus-skills/000-docs/6767-b-SPEC-DR-STND-claude-skills-standard.md`
-- Source of truth: `/skill-creator` (Steps V1-V5 in validation workflow)
+- [Frontmatter reference](references/schema-reminder-frontmatter.md)
+- Marketplace checkout: `scripts/validate-skills-schema.py`, `scripts/deep_eval/`,
+  `000-docs/SCHEMA_CHANGELOG.md` and `CLAUDE.md`.
+- Repository-pinned J-Rig: `pnpm exec j-rig eval --help`; J-Rig README quality layers.
+- Proof retention: `scripts/run-jrig-eval.sh` and `scripts/record-jrig-proofs.mjs`.
