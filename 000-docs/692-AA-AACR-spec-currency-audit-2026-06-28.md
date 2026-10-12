@@ -317,9 +317,17 @@ The authority/cutover rules remain owned by [CLAUDE.md](../CLAUDE.md#validation-
 and [SCHEMA_CHANGELOG.md](SCHEMA_CHANGELOG.md). This documentation change neither
 changes validator authority nor completes the five follow-ups. Keep `n2k2` open.
 
+For follow-up a, compare the pinned [lab release workflow][currency-lab-release],
+[core release workflow][currency-core-release], and
+[consumer coupling workflow][currency-coupling]; they establish different parts
+of the delivery path.
+
 [currency-validator]: https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/0ae01c7779c2837361584f300ee04c6b9f35d1df/scripts/validate-skills-schema.py#L895-L993
 [currency-adapter]: https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/0ae01c7779c2837361584f300ee04c6b9f35d1df/scripts/kernel-shadow-validation.mjs#L205-L242
 [currency-state]: https://github.com/jeremylongshore/intent-eval-lab/blob/2dc8eef06d9ed0074bc7befdae71fb116d782a43/specs/snapshots/.state.json
 [currency-run]: https://github.com/jeremylongshore/intent-eval-lab/actions/runs/38231081454
 [currency-vendor]: https://github.com/jeremylongshore/intent-eval-lab/blob/ba25e998de26a6d14be3041d2d836976c48c85a0/specs/_vendor/upstream/plugin-manifest/vendor-meta.json
 [currency-overlay]: https://github.com/jeremylongshore/intent-eval-core/blob/dcd5f0064e9964b1b9b13d5fca7dcf8dd5ceb3fa/schemas/authoring/v2/is-overlay/plugin-manifest.v2.json#L50-L54
+[currency-lab-release]: https://github.com/jeremylongshore/intent-eval-lab/blob/ba25e998de26a6d14be3041d2d836976c48c85a0/.github/workflows/release.yml
+[currency-core-release]: https://github.com/jeremylongshore/intent-eval-core/blob/dcd5f0064e9964b1b9b13d5fca7dcf8dd5ceb3fa/.github/workflows/release.yml
+[currency-coupling]: https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/0ae01c7779c2837361584f300ee04c6b9f35d1df/.github/workflows/kernel-vendor-hash.yml
