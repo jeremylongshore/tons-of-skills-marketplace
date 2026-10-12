@@ -249,8 +249,10 @@ export function buildEvidenceBundle(
 /** Build all rows from outcomes. */
 export function buildRows(outcomes: readonly GateOutcome[], ctx: EmitContext): EmitRow[] {
   return outcomes.map((o) => {
-    const gateResult = buildGateResult(o, ctx);
-    const evidencePayload = buildEvidencePayload(gateResult);
+    const evidencePayload = buildEvidencePayload(buildGateResult(o, ctx));
+    // The redundant projection comes from the validated statement itself,
+    // so future kernel normalization cannot make the two fields disagree.
+    const gateResult = evidencePayload[0]!.predicate;
     const bundle = buildEvidenceBundle(evidencePayload, ctx);
     return {
       bundle,

@@ -74,6 +74,12 @@ for (const variant of ['payload', 'body', 'missing-payload', 'statement-invarian
     if (variant === 'missing-payload') delete row.evidencePayload;
     if (variant === 'statement-invariant') row.evidencePayload[0].subject[0].name = 'wrong';
     writeFileSync(join(dir, 'manifest-skeleton.json'), JSON.stringify(skeleton));
-    assert.throws(() => assemble(dir));
+    const expected = {
+      payload: /signed bundle storage_key/,
+      body: /gateResults do not match evidencePayload predicates/,
+      'missing-payload': /expected array, received undefined/,
+      'statement-invariant': /subject\[0\]\.name must equal predicate\.gate_id/,
+    }[variant];
+    assert.throws(() => assemble(dir), expected);
   });
 }
