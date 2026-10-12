@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 import { GENERATORS, CHECKS, runPipeline } from './regenerate-after-bump.mjs';
 
@@ -83,6 +86,7 @@ test('workflow regenerates and validates before pushing, retaining fork and even
   assert.doesNotMatch(workflow, /^ {2}pull_request_target:/m);
   assert.match(workflow, /pnpm install --frozen-lockfile.*--ignore-scripts/);
   assert.match(workflow, /git add -A\n.*node scripts\/regenerate-after-bump.mjs --check/);
+  assert.doesNotMatch(workflow, /pnpm run measure:e1|node scripts\/measure-epic-1\.mjs/);
 });
 
 test('CI staging refreshes index before every downstream consumer, including membership changes', () => {
@@ -123,4 +127,73 @@ test('staging failure prevents generation, and check mode cannot stage', () => {
   );
   assert.equal(calls, 1);
   assert.throws(() => runPipeline({ stage: true, check: true }), /non-mutating/);
+});
+
+test('CI regeneration stages the scorecard measured from the final upstream outputs', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'release-scorecard-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const artifact = '000-docs/742-RA-DATA-epic-1-scorecard.json';
+  mkdirSync(join(root, '000-docs'));
+  writeFileSync(join(root, 'README.md'), 'old');
+  writeFileSync(join(root, artifact), 'stale');
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['add', '-A'], { cwd: root });
+
+  runPipeline({
+    root,
+    stage: true,
+    run(command, args, options) {
+      if (command === 'git') return spawnSync(command, args, options);
+      if (args[0] === 'scripts/generate-readme-toc.mjs') {
+        writeFileSync(join(root, 'README.md'), 'generated');
+      }
+      if (args[1] === 'normalize:dead-domain-projections') {
+        writeFileSync(join(root, 'README.md'), 'normalized');
+      }
+      if (args[0] === 'scripts/measure-epic-1.mjs') {
+        // Model the measurement command's index-input / worktree-output contract.
+        const indexedInput = execFileSync('git', ['show', ':README.md'], { cwd: root });
+        writeFileSync(join(root, artifact), indexedInput);
+      }
+      return { status: 0 };
+    },
+  });
+
+  assert.equal(
+    execFileSync('git', ['show', `:${artifact}`], { cwd: root, encoding: 'utf8' }),
+    'normalized',
+  );
+  assert.equal(readFileSync(join(root, artifact), 'utf8'), 'normalized');
+  assert.equal(execFileSync('git', ['diff', '--name-only'], { cwd: root, encoding: 'utf8' }), '');
+});
+
+test('scorecard-only drift fails the shared check without staging or running writers', () => {
+  assert.throws(
+    () =>
+      runPipeline({
+        check: true,
+        run(command, args) {
+          assert.notEqual(command, 'git');
+          assert.ok(args.includes('--check'));
+          return { status: args[0] === 'scripts/measure-epic-1.mjs' ? 1 : 0 };
+        },
+      }),
+    /Projection checks failed:\nnode scripts\/measure-epic-1\.mjs --check/,
+  );
+});
+
+test('measurement failure cannot be reported as successful regeneration or staged', () => {
+  const calls = [];
+  assert.throws(
+    () =>
+      runPipeline({
+        stage: true,
+        run(command, args) {
+          calls.push([command, args]);
+          return { status: args[0] === 'scripts/measure-epic-1.mjs' ? 1 : 0 };
+        },
+      }),
+    /Projection regeneration failed:\nnode scripts\/measure-epic-1\.mjs/,
+  );
+  assert.deepEqual(calls.at(-1), ['node', ['scripts/measure-epic-1.mjs']]);
 });

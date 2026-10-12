@@ -136,9 +136,6 @@ jobs:
         run: |
           git add -A
           node scripts/regenerate-after-bump.mjs --check
-          pnpm run measure:e1
-          git add 000-docs/742-RA-DATA-epic-1-scorecard.json
-          node scripts/measure-epic-1.mjs --check
 
       - name: Commit + push to PR branch
         id: push

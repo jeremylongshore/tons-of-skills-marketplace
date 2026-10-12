@@ -1,5 +1,5 @@
 181ad71536c6b751af173e89a4335812442b01c3c6b54c48b4b9303bab2c49cf  .github/workflows/actionlint.yml
-12606cb4af8fd7992fe65e95345abefe12a5e198dd05c437d4197de464b6e60d  .github/workflows/auto-bump-on-pr.yml
+9d1f357bc96ef19cc89912b60abedcc8e0975d9c770695036e97e05be59cb2e7  .github/workflows/auto-bump-on-pr.yml
 f96a2f1699adfdfc38cd15852d717c6fc262da90dbb85142f46e6ce68e916f6a  .github/workflows/auto-bump-test.yml
 c4650d44f0941289f7e470469dd4a2ee4dd0c4770414a86bed25ac456f588a80  .github/workflows/capture-marketplace-compliance-baseline.yml
 ea15a17c3286d8d06923aa4b7c8e2696320c2399d9a3d2cfc89bde20a7c17bbd  .github/workflows/certification-expiry.yml

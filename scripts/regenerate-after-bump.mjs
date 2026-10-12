@@ -19,6 +19,8 @@ export const GENERATORS = [
   ['node', ['scripts/generate-saas-tutorial-lattice.mjs']],
   ['node', ['scripts/generate-readme-toc.mjs']],
   ['pnpm', ['run', 'normalize:dead-domain-projections']],
+  // Last: measure the final indexed inputs, including normalized projections.
+  ['node', ['scripts/measure-epic-1.mjs']],
 ];
 export const CHECKS = [
   ['node', ['scripts/run-verification-pipeline.mjs', '--check']],
@@ -27,6 +29,7 @@ export const CHECKS = [
   ['node', ['marketplace/scripts/generate-unified-search.mjs', '--check']],
   ['python3', ['freshie/scripts/promote-to-curated.py', '--check']],
   ['node', ['scripts/generate-saas-tutorial-lattice.mjs', '--check']],
+  ['node', ['scripts/measure-epic-1.mjs', '--check']],
 ];
 
 export function runPipeline({ check = false, stage = false, run = spawnSync, root = ROOT } = {}) {
