@@ -1,0 +1,92 @@
+{
+  "context": {
+    "nowIso": "2026-10-12T00:00:00.000Z",
+    "nowMs": 1791763200000,
+    "commitSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policyHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "runnerVersion": "0.1.0"
+  },
+  "outcomes": [
+    {
+      "gateName": "catalog-invariants",
+      "gateVersion": "1.0.0",
+      "decision": "pass",
+      "reasons": ["synthetic interoperability vector"],
+      "dimensionsEvaluated": ["catalog-path-category-parity"],
+      "dimensionsSkipped": []
+    }
+  ],
+  "row": {
+    "bundle": {
+      "id": "01a12d68-b800-7000-8000-000000000000",
+      "eval_run_id": "01a12d68-b800-7000-8000-000000000000",
+      "created_at": "2026-10-12T00:00:00.000Z",
+      "predicate_uri_set": ["https://evals.intentsolutions.io/gate-result/v1"],
+      "row_count": 1,
+      "subject_set": [
+        {
+          "name": "ccp:ci:catalog-invariants",
+          "digest": {
+            "sha256": "fa5864f7e88ad3b2f92be2dcc4a2ed3213a5ab5354a50d7680578b31b9bf615b"
+          }
+        }
+      ],
+      "storage_key": "sha256:3ae75f3fce6cd217adb7b5d8a1b312531f8e18745160481e882fe793d4fa2a76",
+      "signing_mode": "rekor_production",
+      "rekor_log_indices": [],
+      "verification_status": "unverified",
+      "verification_last_checked_at": "2026-10-12T00:00:00.000Z"
+    },
+    "canonicalBundle": "{\"created_at\":\"2026-10-12T00:00:00.000Z\",\"eval_run_id\":\"01a12d68-b800-7000-8000-000000000000\",\"id\":\"01a12d68-b800-7000-8000-000000000000\",\"predicate_uri_set\":[\"https://evals.intentsolutions.io/gate-result/v1\"],\"rekor_log_indices\":[],\"row_count\":1,\"signing_mode\":\"rekor_production\",\"storage_key\":\"sha256:3ae75f3fce6cd217adb7b5d8a1b312531f8e18745160481e882fe793d4fa2a76\",\"subject_set\":[{\"digest\":{\"sha256\":\"fa5864f7e88ad3b2f92be2dcc4a2ed3213a5ab5354a50d7680578b31b9bf615b\"},\"name\":\"ccp:ci:catalog-invariants\"}],\"verification_last_checked_at\":\"2026-10-12T00:00:00.000Z\",\"verification_status\":\"unverified\"}",
+    "gateResult": {
+      "gate_id": "ccp:ci:catalog-invariants",
+      "gate_name": "catalog-invariants",
+      "gate_version": "1.0.0",
+      "gate_decision": "pass",
+      "gate_reasons": ["synthetic interoperability vector"],
+      "coverage": {
+        "dimensions_evaluated": ["catalog-path-category-parity"],
+        "dimensions_skipped": []
+      },
+      "policy_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:scripts/validate-catalog-invariants.py+scripts/validate-unicode-hygiene.py+scripts/evaluate-certification.mjs+.github/workflows/validate-plugins.yml+.github/workflows/secret-scan.yml+.github/workflows/skill-conform.yml",
+      "policy_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "input_hash": "sha256:fa5864f7e88ad3b2f92be2dcc4a2ed3213a5ab5354a50d7680578b31b9bf615b",
+      "evaluated_at": "2026-10-12T00:00:00.000Z",
+      "runner": "ccpi-emit@0.1.0",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "evidencePayload": [
+      {
+        "_type": "https://in-toto.io/Statement/v1",
+        "subject": [
+          {
+            "name": "ccp:ci:catalog-invariants",
+            "digest": {
+              "sha256": "fa5864f7e88ad3b2f92be2dcc4a2ed3213a5ab5354a50d7680578b31b9bf615b"
+            }
+          }
+        ],
+        "predicateType": "https://evals.intentsolutions.io/gate-result/v1",
+        "predicate": {
+          "gate_id": "ccp:ci:catalog-invariants",
+          "gate_name": "catalog-invariants",
+          "gate_version": "1.0.0",
+          "gate_decision": "pass",
+          "gate_reasons": ["synthetic interoperability vector"],
+          "coverage": {
+            "dimensions_evaluated": ["catalog-path-category-parity"],
+            "dimensions_skipped": []
+          },
+          "policy_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:scripts/validate-catalog-invariants.py+scripts/validate-unicode-hygiene.py+scripts/evaluate-certification.mjs+.github/workflows/validate-plugins.yml+.github/workflows/secret-scan.yml+.github/workflows/skill-conform.yml",
+          "policy_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "input_hash": "sha256:fa5864f7e88ad3b2f92be2dcc4a2ed3213a5ab5354a50d7680578b31b9bf615b",
+          "evaluated_at": "2026-10-12T00:00:00.000Z",
+          "runner": "ccpi-emit@0.1.0",
+          "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    ],
+    "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

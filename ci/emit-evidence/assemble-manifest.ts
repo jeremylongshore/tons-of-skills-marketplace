@@ -10,12 +10,14 @@
  * it reads back the canonical bundle object + its sigstore bundle and
  * assembles:
  *
- *   { repo, signing, rows: [ { bundle, sigstoreBundle, sourceSha, gateResults } ] }
+ *   { repo, signing, rows: [ { bundle, sigstoreBundle, sourceSha,
+ *                             evidencePayload, gateResults } ] }
  *
  * This is EXACTLY the shape the dashboard's `isReportManifestShape` accepts:
  * each row carries `bundle` + `sigstoreBundle` + a string `sourceSha`. The
- * extra `gateResults` field is additive — the current ingest ignores it; the
- * gate-row resolver consumes it.
+ * dashboard binds evidencePayload to the signed storage_key and derives its
+ * rendered predicates from the statements. gateResults is a redundant
+ * compatibility projection that must agree with those predicates.
  *
  * Fail-closed: a missing bundle file, a missing sigstore bundle, or a
  * structural mismatch aborts (exit 1) rather than publishing a half-built
@@ -28,10 +30,14 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { basename, join } from 'node:path';
+import { EvidenceBundleSchema } from '@intentsolutions/core/validators/v1/evidence-bundle';
+import { EvidenceBundlePayloadSchema } from '@intentsolutions/core/validators/v1/evidence-statement';
+import { evidencePayloadMetadata, stableStringify } from './emit-evidence.ts';
 
 interface SkeletonRow {
   readonly bundleFile: string;
   readonly gateResults: readonly unknown[];
+  readonly evidencePayload: unknown;
   readonly sourceSha: string;
 }
 interface Skeleton {
@@ -49,6 +55,7 @@ interface ManifestRow {
   readonly sigstoreBundle: unknown;
   readonly sourceSha: string;
   readonly gateResults: readonly unknown[];
+  readonly evidencePayload: unknown;
 }
 interface ReportManifest {
   readonly repo: string;
@@ -95,11 +102,29 @@ export function assemble(dir: string): ReportManifest {
         `missing sigstore bundle ${sigPath} — was cosign sign-blob run for ${row.bundleFile}?`,
       );
     }
+    const bundle = readJson(bundlePath);
+    const parsedBundle = EvidenceBundleSchema.parse(bundle);
+    const payload = EvidenceBundlePayloadSchema.parse(row.evidencePayload);
+    for (const [key, expected] of Object.entries(evidencePayloadMetadata(row.evidencePayload))) {
+      if (
+        stableStringify(parsedBundle[key as keyof typeof parsedBundle]) !==
+        stableStringify(expected)
+      ) {
+        throw new Error(`evidencePayload does not match signed bundle ${key}`);
+      }
+    }
+    if (
+      stableStringify(row.gateResults) !==
+      stableStringify(payload.map((statement) => statement.predicate))
+    ) {
+      throw new Error('gateResults do not match evidencePayload predicates');
+    }
     return {
-      bundle: readJson(bundlePath),
+      bundle,
       sigstoreBundle: readJson(sigPath),
       sourceSha: row.sourceSha,
       gateResults: row.gateResults,
+      evidencePayload: row.evidencePayload,
     };
   });
 

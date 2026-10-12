@@ -23,6 +23,7 @@
  *
  *   build/evidence/bundle-<i>.json          — CANONICAL EvidenceBundle bytes
  *   build/evidence/gate-result-<i>.json     — the gate-result/v1 predicate body
+ *   build/evidence/evidence-payload-<i>.json — canonical statement-array bytes
  *   build/evidence/manifest-skeleton.json   — for ci/emit-evidence/assemble-manifest.ts
  *
  * Signing + Rekor + final report-manifest.json assembly happen in CI
@@ -74,6 +75,11 @@ import {
   GATE_RESULT_V1_URI,
 } from '@intentsolutions/core/validators/v1/gate-result-v1';
 import { EvidenceBundleSchema } from '@intentsolutions/core/validators/v1/evidence-bundle';
+import {
+  EvidenceBundlePayloadSchema,
+  IN_TOTO_STATEMENT_V1_TYPE,
+  type EvidenceBundlePayload,
+} from '@intentsolutions/core/validators/v1/evidence-statement';
 
 const GITHUB_REPO = 'jeremylongshore/tons-of-skills-marketplace';
 const REPO_KEY = 'ccp';
@@ -154,6 +160,7 @@ export interface EmitRow {
   readonly bundle: unknown;
   readonly canonicalBundle: string;
   readonly gateResult: unknown;
+  readonly evidencePayload: EvidenceBundlePayload;
   readonly sourceSha: string;
 }
 
@@ -190,26 +197,46 @@ export function buildGateResult(o: GateOutcome, ctx: EmitContext): Record<string
 }
 
 /**
- * Wrap a gate-result body in a kernel EvidenceBundle. Throws if the bundle is
- * not kernel-schema-valid.
+ * Wrap a predicate in the kernel's invariant-checked in-toto statement array.
  */
+export function buildEvidencePayload(gateResult: Record<string, unknown>): EvidenceBundlePayload {
+  const body = GateResultV1Schema.parse(gateResult);
+  return EvidenceBundlePayloadSchema.parse([
+    {
+      _type: IN_TOTO_STATEMENT_V1_TYPE,
+      subject: [{ name: body.gate_id, digest: { sha256: body.input_hash.slice(7) } }],
+      predicateType: GATE_RESULT_V1_URI,
+      predicate: body,
+    },
+  ]);
+}
+
+/** Signed metadata is derived from the complete ordered statement payload. */
+export function evidencePayloadMetadata(payloadRaw: unknown) {
+  const payload = EvidenceBundlePayloadSchema.parse(payloadRaw);
+  const subjects = new Map(
+    payload.flatMap((statement) =>
+      statement.subject.map((subject) => [stableStringify(subject), subject] as const),
+    ),
+  );
+  return {
+    predicate_uri_set: [...new Set(payload.map((statement) => statement.predicateType))],
+    row_count: payload.length,
+    subject_set: [...subjects.values()],
+    storage_key: `sha256:${sha256Hex(stableStringify(payloadRaw))}`,
+  };
+}
+
+/** Build kernel-valid signed metadata for a canonical evidence payload. */
 export function buildEvidenceBundle(
-  gateResult: Record<string, unknown>,
+  evidencePayload: EvidenceBundlePayload,
   ctx: EmitContext,
 ): Record<string, unknown> {
-  const grHashHex = sha256Hex(stableStringify(gateResult));
-  const inputHash = String(gateResult['input_hash']);
-  const subjectDigest = inputHash.startsWith('sha256:')
-    ? inputHash.slice('sha256:'.length)
-    : inputHash;
   const bundle: Record<string, unknown> = {
     id: uuidv7(ctx.nowMs, ctx.rand16()),
     eval_run_id: uuidv7(ctx.nowMs, ctx.rand16()),
     created_at: ctx.nowIso,
-    predicate_uri_set: [GATE_RESULT_V1_URI],
-    row_count: 1,
-    subject_set: [{ name: String(gateResult['gate_id']), digest: { sha256: subjectDigest } }],
-    storage_key: `sha256:${grHashHex}`,
+    ...evidencePayloadMetadata(evidencePayload),
     signing_mode: 'rekor_production',
     rekor_log_indices: [], // real index lives in the sigstore Bundle (see header)
     verification_status: 'unverified', // the dashboard re-verifies; we don't self-attest
@@ -223,11 +250,13 @@ export function buildEvidenceBundle(
 export function buildRows(outcomes: readonly GateOutcome[], ctx: EmitContext): EmitRow[] {
   return outcomes.map((o) => {
     const gateResult = buildGateResult(o, ctx);
-    const bundle = buildEvidenceBundle(gateResult, ctx);
+    const evidencePayload = buildEvidencePayload(gateResult);
+    const bundle = buildEvidenceBundle(evidencePayload, ctx);
     return {
       bundle,
       canonicalBundle: stableStringify(bundle),
       gateResult,
+      evidencePayload,
       sourceSha: ctx.sourceSha,
     };
   });
@@ -244,6 +273,7 @@ export interface ManifestSkeleton {
   readonly rows: readonly {
     readonly bundleFile: string;
     readonly gateResults: readonly unknown[];
+    readonly evidencePayload: EvidenceBundlePayload;
     readonly sourceSha: string;
   }[];
 }
@@ -280,7 +310,17 @@ export function writeEmit(
     const bundleFile = `bundle-${i}.json`;
     writeFileSync(join(outDir, bundleFile), row.canonicalBundle, 'utf8');
     writeFileSync(join(outDir, `gate-result-${i}.json`), stableStringify(row.gateResult), 'utf8');
-    return { bundleFile, gateResults: [row.gateResult], sourceSha: row.sourceSha };
+    writeFileSync(
+      join(outDir, `evidence-payload-${i}.json`),
+      stableStringify(row.evidencePayload),
+      'utf8',
+    );
+    return {
+      bundleFile,
+      gateResults: [row.gateResult],
+      evidencePayload: row.evidencePayload,
+      sourceSha: row.sourceSha,
+    };
   });
   const skeleton: ManifestSkeleton = {
     repo: REPO_KEY,

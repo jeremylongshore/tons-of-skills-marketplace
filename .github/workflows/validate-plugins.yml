@@ -800,6 +800,15 @@ jobs:
           pnpm build
           echo "✅ Build complete"
 
+      - name: Install evidence emitter dependencies
+        if: matrix.test-type == 'mcp-plugins'
+        working-directory: ci/emit-evidence
+        run: pnpm install --ignore-workspace --frozen-lockfile
+
+      - name: Test signed evidence payload binding
+        if: matrix.test-type == 'mcp-plugins'
+        run: node --experimental-strip-types --test ci/emit-evidence/*.test.mjs
+
       # BLOCKING — codebase passed baseline at PR #770 (2026-05-23).
       # All 10 candidate plugins pass `pnpm test`. The original 9 failures
       # in web-to-github-issue were a mix of:

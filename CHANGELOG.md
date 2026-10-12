@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-12
+
+- **fix(evidence):** emit kernel-validated in-toto statement arrays and bind the
+  complete payload digest in signed bundle metadata. Preserve the payload in
+  assembled manifests, reject inconsistent metadata or predicate projections,
+  and test the same interoperability vector consumed by the dashboard.
+  Refs bead `bd_000-projects-hqkq`.
+
 ## 2026-10-05
 
 - **docs(docs-governance):** remove Discord community links from first-party
