@@ -2,6 +2,12 @@
 
 ## 2026-10-12
 
+- **fix(currency):** retain the Python validator's advisory registry comparisons
+  in the kernel-shadow JSON report and job summary. Report missing, invalid,
+  unavailable, matching, and mismatching evidence separately from skill-corpus
+  verdicts; preserve validator authority and the advisory workflow.
+  Refs bead `bd_000-projects-n2k2.1`.
+
 - **fix(evidence):** emit kernel-validated in-toto statement arrays and bind the
   complete payload digest in signed bundle metadata. Preserve the payload in
   assembled manifests, reject inconsistent metadata or predicate projections,

@@ -15,8 +15,9 @@ name: Kernel Shadow Validation (advisory)
 #   * The validation step uses `continue-on-error: true`, so even a harness crash
 #     surfaces as a neutral/annotation, never a red required check.
 #   * It does NOT modify, call, or gate on the existing validator's verdict — it
-#     only READS that verdict (via --json) and compares. The existing required
-#     gate (validate-plugins.yml) and validate-skills-schema.py are untouched.
+#     only READS that verdict (via --json) and compares. The existing validator's
+#     verdict and authority remain unchanged; the required lane tests report
+#     transport only.
 #   * The deviation rate is REPORTED (job summary + artifact), never enforced.
 #
 # Promotion to a blocking gate is a SEPARATE, later cutover step that requires
@@ -27,6 +28,8 @@ on:
   pull_request:
     paths:
       - 'scripts/kernel-shadow-validation.mjs'
+      - 'scripts/kernel-shadow-registry.mjs'
+      - 'scripts/kernel-shadow-validation.test.mjs'
       - 'scripts/validate-mcp-config.mjs'
       - 'scripts/validate-skills-schema.py'
       - 'package.json'
@@ -73,6 +76,10 @@ jobs:
       - name: Install root dev dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo"
 
+      - name: Exercise advisory registry report transport with synthetic fixtures
+        continue-on-error: true
+        run: node --test scripts/kernel-shadow-validation.test.mjs
+
       # The single advisory step. continue-on-error guarantees a harness failure
       # can never turn this check red in a blocking way.
       - name: Run kernel shadow validation (report-only)
@@ -95,5 +102,8 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: kernel-shadow-deviation-report
-          path: scripts/.kernel-shadow/report.json
+          path: |
+            scripts/.kernel-shadow/report.json
+            scripts/.kernel-shadow/registry-fixture-proof/
+          include-hidden-files: true
           if-no-files-found: warn

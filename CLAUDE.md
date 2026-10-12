@@ -248,6 +248,13 @@ Both are `continue-on-error: true`, neither is in the required-status set, and n
 
 The validator itself does a kernel-loaded **shadow read** of `ALWAYS_REQUIRED` (`load_kernel_required()` / `--kernel-shadow`) — it compares the kernel's effective required set against the hand-authored one and reports drift. The hand-authored `ALWAYS_REQUIRED` stays authoritative; the shadow read is observational only.
 
+The kernel-shadow report retains that Python `kernel_shadow` block as
+`registryShadow.raw`, with separate summary rows for required skill fields,
+`disallowed-tools`, and plugin-manifest field names. Missing, malformed, or unavailable
+evidence is explicit. These advisory comparisons concern the installed kernel;
+they do not establish upstream currency or full skill/agent registry coverage.
+Synthetic transport-test receipts are labeled separately in the CI artifact.
+
 ### Do-not-flip soak discipline (do not lose this)
 
 **The kernel pin and the authority flip are two SEPARATE axes — do not conflate them.** The pin is _intended_ to track the latest published kernel; bumping it keeps the shadow lane reading a current, byte-frozen `authoring/v1` contract and is a routine governance/coupling update, not an authority change.

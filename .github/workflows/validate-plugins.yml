@@ -154,6 +154,11 @@ jobs:
       - name: Verify scheduled-workflow alert delivery contract
         run: node --test scripts/scheduled-workflow-alerts.test.mjs
 
+      # Tests transport behavior with synthetic data; real registry findings
+      # remain advisory in kernel-shadow-validation.yml.
+      - name: Verify advisory registry evidence reaches reports and summaries
+        run: node --test scripts/kernel-shadow-validation.test.mjs
+
       - name: Keep quarantined external mirrors off publishable grade surfaces
         run: pnpm run validate:mirror-quarantine
 

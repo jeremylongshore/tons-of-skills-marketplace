@@ -99,6 +99,7 @@ import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import yaml from 'js-yaml';
+import { collectRegistryShadow, registrySummaryLines } from './kernel-shadow-registry.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -203,8 +204,7 @@ function resolvePythonContext() {
 /**
  * Drive the existing prose-spec validator (batch mode) to get its per-file MARKETPLACE
  * verdict and batch error strings.
- * Returns Map<absPath, { pass: boolean, errors: number, errorStrings: string[] | null,
- * fatal: boolean }>.
+ * Returns per-file verdicts and the separate advisory field-registry evidence.
  */
 function loadExistingVerdicts(py, script) {
   const res = spawnSync(py, [script, '--marketplace', '--json'], {
@@ -225,10 +225,12 @@ function loadExistingVerdicts(py, script) {
         `stderr head: ${(res.stderr || '').slice(0, 400)}`,
     );
   }
+  if (!Array.isArray(parsed)) die('existing validator --json output is not an array');
+  const registryShadow = collectRegistryShadow(parsed);
   const map = new Map();
   for (const entry of parsed) {
-    // Skip the trailing kernel_shadow advisory element (DR-049 shadow block).
-    if (entry.kernel_shadow || typeof entry.path !== 'string') continue;
+    // Registry evidence is retained separately; it is never a corpus file.
+    if (!entry || Object.hasOwn(entry, 'kernel_shadow') || typeof entry.path !== 'string') continue;
     const abs = resolve(REPO_ROOT, entry.path);
     if ('fatal' in entry) {
       map.set(abs, { pass: false, errors: 0, errorStrings: null, fatal: true });
@@ -240,7 +242,7 @@ function loadExistingVerdicts(py, script) {
       map.set(abs, { pass: errors === 0, errors, errorStrings, fatal: false });
     }
   }
-  return map;
+  return { verdicts: map, registryShadow };
 }
 
 const BODY_PREFIX = '[body]';
@@ -327,7 +329,7 @@ function main() {
   const validateKernel = buildKernelValidator(LANES[0]);
   const validateStrictKernel = buildKernelValidator(LANES[1]);
   const { py, script } = resolvePythonContext();
-  const existing = loadExistingVerdicts(py, script);
+  const { verdicts: existing, registryShadow } = loadExistingVerdicts(py, script);
 
   let total = 0;
   let agree = 0;
@@ -504,6 +506,7 @@ function main() {
     kernelPackage: '@intentsolutions/core',
     kernelVersion,
     kernelPin: KERNEL_PIN,
+    registryShadow,
     comparedAgainst: 'scripts/validate-skills-schema.py --marketplace --json',
     composedSchema: LANES[0].schemaId,
     lanes: {
@@ -632,6 +635,7 @@ function main() {
   }
   console.log('═══════════════════════════════════════════════════════════════');
   console.log(`  Full machine report: ${relTo(outPath)}`);
+  console.log(registrySummaryLines(registryShadow).join('\n'));
   console.log('  ADVISORY ONLY — this run never fails CI or blocks a PR.');
   console.log('');
 
@@ -673,6 +677,7 @@ function main() {
     lines.push(`| existing-PASS / kernel-FAIL | ${existingPassKernelFail} |`);
     lines.push(`| existing-FAIL / kernel-PASS | ${existingFailKernelPass} |`);
     lines.push('');
+    lines.push(...registrySummaryLines(registryShadow));
     if (frontmatterDisagree > 0) {
       lines.push(
         '<details><summary>REAL frontmatter deviations — kernel gaps (first 40)</summary>',

@@ -41,6 +41,8 @@
 /scripts/run-verification-pipeline.mjs  @jeremylongshore @blueandyellow44 @rfisch
 /scripts/check-package-manager.mjs  @jeremylongshore @blueandyellow44 @rfisch
 /scripts/kernel-shadow-validation.mjs  @jeremylongshore @blueandyellow44 @rfisch
+/scripts/kernel-shadow-registry.mjs  @jeremylongshore @blueandyellow44 @rfisch
+/scripts/kernel-shadow-validation.test.mjs  @jeremylongshore @blueandyellow44 @rfisch
 /scripts/kernel-vendor-hash.mjs     @jeremylongshore @blueandyellow44 @rfisch
 /000-docs/SCHEMA_CHANGELOG.md       @jeremylongshore @blueandyellow44 @rfisch
 
