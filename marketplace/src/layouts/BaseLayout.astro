@@ -377,9 +377,12 @@ const isHome = currentPath === '/';
             height: 24px;
         }
 
+        /* The fixed navigation gets its space before the public partner band. */
+        .intent-partner { margin-top: 72px; }
+
         /* Main Content */
         main {
-            padding-top: 72px;
+            padding-top: 0;
             min-height: calc(100vh - 72px);
         }
 
@@ -700,6 +703,7 @@ const isHome = currentPath === '/';
             overflow: hidden;
         }
     </style>
+    <link rel="stylesheet" href="/assets/intent-partner.css" />
 </head>
 <body>
     <!-- Navigation -->
@@ -732,6 +736,17 @@ const isHome = currentPath === '/';
         </ul>
         </div>
     </nav>
+
+<!-- intent-partner:start -->
+<aside class="intent-partner" aria-label="Intent Solutions partner status" data-intent-partner>
+  <div class="intent-partner__inner">
+    <p class="intent-partner__owner">Built by <strong>Intent Solutions</strong></p>
+    <a class="intent-partner__link" href="https://intentsolutions.io/" aria-label="About Intent Solutions, a Claude Partner Network Select Services Partner">
+      <img class="intent-partner__image" src="/assets/claude-select-partner.svg" alt="Claude Partner Network: Select Services Partner" width="600" height="190" decoding="async" />
+    </a>
+  </div>
+</aside>
+<!-- intent-partner:end -->
 
     <!-- Main Content -->
     <main>

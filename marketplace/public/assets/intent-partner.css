@@ -1,0 +1,19 @@
+/* Official partner artwork retains its original colors and proportions. */
+.intent-partner { color: inherit; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
+.intent-partner__inner { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px; width: min(100%, 1200px); min-height: 88px; margin: 0 auto; padding: 8px 20px; }
+.intent-partner__owner { margin: 0; font: inherit; font-size: 13px; line-height: 1.4; }
+.intent-partner__owner strong { display: block; font-size: 15px; font-weight: 600; }
+.intent-partner__link { display: block; flex: 0 0 auto; line-height: 0; min-height: 44px; }
+.intent-partner__link:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.intent-partner__image { display: block; width: 240px; height: auto; max-width: 100%; margin: 0; }
+@media (max-width: 600px) {
+  .intent-partner__inner { gap: 12px; padding: 8px 16px; }
+  .intent-partner__image { width: 220px; }
+  .intent-partner__owner { font-size: 12px; }
+  .intent-partner__owner strong { font-size: 14px; }
+}
+@media (max-width: 359px) {
+  .intent-partner__inner { flex-direction: column; gap: 6px; padding-block: 10px; }
+  .intent-partner__owner { text-align: center; }
+  .intent-partner__owner strong { display: inline; }
+}
