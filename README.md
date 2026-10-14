@@ -1,11 +1,12 @@
 # Tons of Skills
 
 <!-- intent-select-partner:start -->
-<p><a href="https://intentsolutions.io/"><img src="assets/brand/claude-select-partner.svg" alt="Intent Solutions: Claude Partner Network Select Services Partner" width="300" height="95" /></a></p>
+
+[![Intent Solutions: Claude Partner Network Select Services Partner](assets/brand/claude-select-partner.svg)](https://intentsolutions.io/)
 
 Intent Solutions is a Claude Partner Network Select Services Partner.
-<!-- intent-select-partner:end -->
 
+<!-- intent-select-partner:end -->
 
 **A model-agnostic agent-skills platform.** The canonical layer is harness-free by construction; [Claude Code](https://code.claude.com/docs/en/) is currently the verified-native harness. Other harnesses remain engineering candidates until their native-path integration is verified; source research alone is never presented as public support.
 
