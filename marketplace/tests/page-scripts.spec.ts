@@ -102,6 +102,25 @@ test.describe('page scripts', () => {
     await expect(page.locator('[data-item-id]').first()).toHaveAttribute('data-item-id', id!);
   });
 
+  for (const path of ['/explore/', '/skills/']) {
+    test(`${path} search runs on bundled Fuse.js with no CDN request`, async ({ page }) => {
+      const cdn: string[] = [];
+      page.on('request', (r) => {
+        if (new URL(r.url()).hostname === 'cdn.jsdelivr.net') cdn.push(r.url());
+      });
+      await page.goto(path);
+      await page.waitForLoadState('networkidle');
+      const search = page.locator(path === '/explore/' ? '#main-search' : '#search-input');
+      const cards = page.locator(path === '/explore/' ? '.pcard' : '.skills-grid a[href^="/skills/"]');
+      await expect(cards.first()).toBeVisible();
+      const before = await cards.count();
+      await search.fill('kubernetes');
+      await expect.poll(async () => cards.count()).toBeLessThan(before);
+      expect(await cards.count()).toBeGreaterThan(0);
+      expect(cdn).toEqual([]);
+    });
+  }
+
   test('legal pages: GetTerms embed loader is present', async ({ page }) => {
     await page.route('**/gettermscdn.com/**', (route) => route.abort());
     for (const path of ['/privacy/', '/terms/', '/acceptable-use/']) {

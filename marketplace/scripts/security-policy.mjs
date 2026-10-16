@@ -26,7 +26,6 @@ export const CSP_DIRECTIVES = Object.freeze({
   'script-src': [
     "'self'",
     'https://analytics.intentsolutions.io',
-    'https://cdn.jsdelivr.net',
     'https://gettermscdn.com',
   ],
   'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
