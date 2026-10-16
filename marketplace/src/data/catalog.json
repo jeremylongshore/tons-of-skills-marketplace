@@ -5,7 +5,7 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 434,
+    "totalPlugins": 435,
     "totalSkills": 2900,
     "totalCommands": 82,
     "pluginsWithSkills": 401,
@@ -15,7 +15,7 @@
       "testing": 28,
       "ai-agency": 9,
       "ai-ml": 36,
-      "mcp": 17,
+      "mcp": 18,
       "packages": 5,
       "performance": 25,
       "devops": 36,
@@ -11772,6 +11772,35 @@
       "author": {
         "name": "Jeremy Longshore",
         "email": "jeremy@intentsolutions.io"
+      },
+      "type": "instruction-plugin"
+    },
+    {
+      "slug": "intent-skills-diagnostic",
+      "name": "intent-skills-diagnostic",
+      "displayName": "intent skills diagnostic",
+      "description": "Intent Solutions skills diagnostic: a hosted MCP app that asks how you use Claude or Codex and recommends at most two reviewed Tons of Skills plugins or Intent offerings, each with the install route for your tool",
+      "version": "0.1.0",
+      "category": "mcp",
+      "keywords": [
+        "mcp",
+        "mcp-app",
+        "diagnostic",
+        "recommendations",
+        "skills",
+        "plugins",
+        "onboarding",
+        "intent-solutions"
+      ],
+      "hasSkills": false,
+      "skillCount": 0,
+      "commandCount": 0,
+      "installCommand": "/plugin install intent-skills-diagnostic",
+      "sourcePath": "./plugins/mcp/intent-skills-diagnostic",
+      "isFeatured": false,
+      "author": {
+        "name": "Max Sheahan",
+        "url": "https://intentsolutions.io"
       },
       "type": "instruction-plugin"
     }

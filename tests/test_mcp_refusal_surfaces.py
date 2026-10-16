@@ -47,6 +47,11 @@ SURFACES = {
         ["brain_search", "brain_capture", "brain_govern", "brain_transition"],
         ["brain_delete", "brain_purge", "brain_wipe"],
     ),
+    "intent-skills-diagnostic": (
+        "plugins/mcp/intent-skills-diagnostic/server-surface.json",
+        ["start_here", "scan_setup", "ask_questions", "recommend_skills", "talk_to_intent"],
+        ['"readOnlyHint": false', '"destructiveHint": true', '"openWorldHint": true'],
+    ),
     "lumera-agent-memory": (
         "plugins/mcp/lumera-agent-memory/src/mcp_server.py",
         ["store_session_to_cascade", "query_memories", "estimate_storage_cost"],

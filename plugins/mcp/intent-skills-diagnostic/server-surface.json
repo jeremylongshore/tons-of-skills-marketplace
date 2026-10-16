@@ -1,0 +1,48 @@
+{
+  "server": "https://intent-skills-diagnostic.max-sheahan.workers.dev/mcp",
+  "captured_utc": "2026-10-16",
+  "version": "1f652887-934f-4d1d-9a95-a20b53fd55c1",
+  "source": "blueandyellow44/intent-youtube mcp-app-series/intent-skills-diagnostic/src/server.ts",
+  "tools": [
+    {
+      "name": "start_here",
+      "title": "Start here",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "scan_setup",
+      "title": "Scan setup",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "ask_questions",
+      "title": "Ask questions",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "recommend_skills",
+      "title": "Recommend skills",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "talk_to_intent",
+      "title": "Talk to Intent",
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

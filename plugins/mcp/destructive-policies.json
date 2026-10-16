@@ -46,6 +46,12 @@
       "refusal_test": "tests/test_mcp_refusal_surfaces.py",
       "rationale": "No delete/purge tool exists; writes are append-only and audited; the only lifecycle mutation is a validated, reason-required, hash-chain-anchored state transition. Mirror content \u2014 declaration lives here, not in the mirror."
     },
+    "intent-skills-diagnostic": {
+      "policy": "refuse",
+      "enforcing_artifact": "plugins/mcp/intent-skills-diagnostic/server-surface.json",
+      "refusal_test": "tests/test_mcp_refusal_surfaces.py",
+      "rationale": "Remote HTTP server; no server code lives in this repo. The artifact is a tools/list snapshot of the deployed Worker (version e5a9bae7): five tools, every one readOnlyHint true and openWorldHint false. Nothing is stored, sent or installed. The refusal test pins those five names and fails if any annotation turns writable or destructive. Residual: the snapshot can drift from the live server; re-capture it on every redeploy. Server source: blueandyellow44/intent-youtube."
+    },
     "lumera-agent-memory": {
       "policy": "refuse",
       "enforcing_artifact": "plugins/mcp/lumera-agent-memory/src/mcp_server.py",
