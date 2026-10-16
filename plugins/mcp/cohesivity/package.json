@@ -1,0 +1,44 @@
+{
+  "name": "@intentsolutionsio/cohesivity",
+  "version": "1.0.0",
+  "description": "cohesivity.ai offers free agent-native backend services. Anonymous account (no-signup) to get started through MCP or API. Hosting, Postgres, email, storage, containers, LLMs, voice and third-party API",
+  "keywords": [
+    "cohesivity",
+    "backend",
+    "postgres",
+    "redis",
+    "hosting",
+    "object-storage",
+    "mcp",
+    "provisioning",
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/mcp/cohesivity"
+  },
+  "homepage": "https://tonsofskills.com/plugins/cohesivity",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Cohesivity",
+    "email": "smj@cohesivity.ai",
+    "url": "https://cohesivity.ai"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin",
+    "skills",
+    "hooks",
+    "scripts"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install cohesivity\\\\n  or /plugin install cohesivity@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+  }
+}

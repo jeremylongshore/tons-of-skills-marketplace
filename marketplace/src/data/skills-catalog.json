@@ -20333,6 +20333,35 @@
       "filePath": "plugins/saas-packs/cohere-pack/skills/cohere-webhooks-events/SKILL.md"
     },
     {
+      "slug": "cohesivity",
+      "name": "cohesivity",
+      "description": "Provision a backend for the app being built (Postgres, Redis, object storage, hosting, auth, email) through the Cohesivity MCP tools, with no account or API key needed to start. Use when the app needs a database, a deploy, file storage, login or email and the project has not picked a provider. Trigger with \"add a database to this app\", \"deploy this\", or \"I need user sign-in\". Skip when the project already uses Supabase, Firebase or its own cloud account.",
+      "allowedTools": [
+        "Read",
+        "mcp__cohesivity__tenant_status",
+        "mcp__cohesivity__get_cohesivity_documentation"
+      ],
+      "compatibleWith": [],
+      "visibility": {
+        "requires_env": [],
+        "requires_tools": [],
+        "fallback_for_env": [],
+        "fallback_for_tools": []
+      },
+      "version": "1.0.0",
+      "author": "Cohesivity <smj@cohesivity.ai>",
+      "license": "MIT",
+      "content": "<h1>Cohesivity</h1>\n<h2>Overview</h2>\n<p>Cohesivity sets up backend services such as Postgres, Redis, storage, hosting, login and email for the app you are building. This plugin connects Claude Code to its hosted MCP server, so nothing runs locally and no account or API key is needed to start.</p>\n<p>A tenant is one Cohesivity project. A new tenant is temporary: it expires after 72 hours unless the user claims it. Service names and their pages are listed in <a href=\"https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/main/plugins/mcp/cohesivity/skills/cohesivity/references/services.md\">references/services.md</a>.</p>\n<h2>Prerequisites</h2>\n<ul>\n<li>Network access to <code>https://cohesivity.ai</code>.</li>\n<li>The <code>cohesivity</code> MCP server from this plugin enabled in the session.</li>\n<li>The project does not already use another backend provider.</li>\n</ul>\n<h2>Instructions</h2>\n<ol>\n<li><strong>Reuse an existing tenant.</strong> If <code>.cohesivity</code> exists at the project root, read <code>tenant_id</code> and <code>coh_management_key</code> from it and pass them to the tools below. Do not create a second tenant.</li>\n<li><strong>Create a tenant only when the user wants a backend.</strong> Call <code>create_tenant</code> with <code>{&quot;confirmed&quot;: true, &quot;attribution&quot;: &quot;gh-tons-of-skills&quot;}</code>. The plugin&#39;s hook asks the user to confirm before the call is sent. Write <code>credentials_file.content</code> from the result to <code>.cohesivity</code> at the project root exactly as returned, run <code>chmod 600 .cohesivity</code>, and add <code>.cohesivity</code> to <code>.gitignore</code>. Each call creates a new tenant, so check for <code>.cohesivity</code> before retrying an unclear result.</li>\n<li><strong>Read the service&#39;s page before provisioning.</strong> Call <code>get_cohesivity_documentation</code> with <code>{&quot;document&quot;: &quot;offering&quot;, &quot;offering&quot;: &quot;&lt;name&gt;&quot;}</code>, for example <code>postgres</code>, <code>redis</code>, <code>object-storage</code>, <code>railway-hosting</code>, <code>social-login</code> or <code>inbox</code>. It returns the page&#39;s Markdown URL; read the whole page with <code>curl -s -A claude-code &lt;url&gt;</code>, since a summarizing fetch drops the exact API, limits and quirks it lists.</li>\n<li><strong>Provision only what the user asked for.</strong> Call <code>provision_resource</code> with <code>tenant_id</code>, <code>coh_management_key</code>, <code>resource</code> and <code>confirmed: true</code>. The hook asks the user first. The result reports <code>&quot;status&quot;: &quot;active&quot;</code> when the service is ready.</li>\n<li><strong>Wire the app.</strong> The app calls <code>https://cohesivity.ai/edge/&lt;service&gt;</code> from server-side code with <code>coh_application_key</code>, passed in through an environment variable. For a static site, provision <code>cloudflare-workers</code> as the server tier.</li>\n<li><strong>Offer to keep the project.</strong> When the user wants the backend past 72 hours, call <code>claim_tenant</code> with <code>tenant_id</code>, <code>coh_management_key</code> and <code>confirmed: true</code>, and give them the <code>approval_url</code>.</li>\n</ol>\n<h2>Output</h2>\n<ul>\n<li>A <code>.cohesivity</code> file at the project root holding <code>tenant_id</code>, <code>coh_management_key</code> and <code>coh_application_key</code>, mode 600 and gitignored.</li>\n<li>The services the user asked for, each reported <code>&quot;status&quot;: &quot;active&quot;</code>.</li>\n<li>App code that reaches those services through <code>https://cohesivity.ai/edge/&lt;service&gt;</code> from the server side.</li>\n</ul>\n<h2>Error Handling</h2>\n<ul>\n<li><strong><code>arguments.confirmed is required</code> or <code>must be one of: true</code></strong>: the server refuses a mutation without <code>confirmed: true</code>. Ask the user, then retry with it.</li>\n<li><strong>HTTP 403 with <code>error code: 1010</code></strong>: a request you sent by hand used a default library User-Agent. Set an explicit <code>User-Agent</code>.</li>\n<li><strong>A tenant past 72 hours or paused</strong>: check <code>tenant_status</code>; if the user wants to keep it, offer <code>claim_tenant</code>.</li>\n<li><strong>Paid actions and plan upgrades</strong>: always ask the user first and show the cost from https://cohesivity.ai/pricing.</li>\n<li><strong>Anything else wrong with Cohesivity</strong>: report it with <code>give_feedback</code>.</li>\n</ul>\n<h2>Examples</h2>\n<p><strong>&quot;Add a Postgres database to this notes app.&quot;</strong> No <code>.cohesivity</code> exists, so call <code>create_tenant</code> (the user confirms), save <code>.cohesivity</code>, read the <code>postgres</code> page, call <code>provision_resource</code> for <code>postgres</code> (the user confirms), then add a server route that queries <code>https://cohesivity.ai/edge/postgres</code> with the application key from the environment.</p>\n<p><strong>&quot;Deploy this.&quot;</strong> Reuse the tenant in <code>.cohesivity</code>, read the <code>railway-hosting</code> page, provision it, and deploy through the endpoint that page documents.</p>\n<h2>Resources</h2>\n<ul>\n<li>Index of every service: https://cohesivity.ai/llms.txt</li>\n<li>Service pages: https://cohesivity.ai/offerings</li>\n<li>Pricing: https://cohesivity.ai/pricing</li>\n<li>MCP server source and docs: https://github.com/cohesivity-org/cohesivity-mcp</li>\n</ul>",
+      "parentPlugin": {
+        "name": "cohesivity",
+        "category": "mcp",
+        "path": "plugins/mcp/cohesivity",
+        "version": "1.0.0",
+        "description": "cohesivity.ai offers free agent-native backend services. Anonymous account (no-signup) to get started through MCP or API. Hosting, Postgres, email, storage, containers, LLMs, voice and third-party APIs. Includes free tiers and 5 USD/mo in AI and Search credits. Top-ups through x402."
+      },
+      "filePath": "plugins/mcp/cohesivity/skills/cohesivity/SKILL.md"
+    },
+    {
       "slug": "collecting-infrastructure-metrics",
       "name": "collecting-infrastructure-metrics",
       "description": "Collect comprehensive infrastructure performance metrics across compute, storage, network, containers, load balancers, and databases. Use when monitoring system performance or troubleshooting infrastructure issues. Trigger with phrases like \"collect infrastructure metrics\", \"monitor server performance\", or \"track system resources\".",
@@ -90946,7 +90975,7 @@
       "filePath": "plugins/skill-enhancers/zero-tech-debt/skills/zero-tech-debt/SKILL.md"
     }
   ],
-  "count": 2900,
+  "count": 2901,
   "categories": [
     "ai-agency",
     "ai-ml",
@@ -91270,6 +91299,8 @@
     "WebFetch",
     "WebSearch",
     "Write",
+    "mcp__cohesivity__get_cohesivity_documentation",
+    "mcp__cohesivity__tenant_status",
     "mcp__databricks-workspace-mcp__clusters_events",
     "mcp__databricks-workspace-mcp__clusters_get",
     "mcp__databricks-workspace-mcp__clusters_list",

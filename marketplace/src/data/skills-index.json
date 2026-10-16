@@ -7839,6 +7839,18 @@
       "fallback_for_tools": []
     },
     {
+      "slug": "cohesivity",
+      "name": "cohesivity",
+      "description": "Provision a backend for the app being built (Postgres, Redis, object storage, hosting, auth, email) through the Cohesivity MCP tools, with no account or API key needed to start. Use when the app needs a database, a deploy, file storage, login or email and the project has not picked a provider. Trigger with \"add a database to this app\", \"deploy this\", or \"I need user sign-in\". Skip when the project already uses Supabase, Firebase or its own cloud account.",
+      "version": "1.0.0",
+      "category": "mcp",
+      "parentPlugin": "cohesivity",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
       "slug": "collecting-infrastructure-metrics",
       "name": "collecting-infrastructure-metrics",
       "description": "Collect comprehensive infrastructure performance metrics across compute, storage, network, containers, load balancers, and databases. Use when monitoring system performance or troubleshooting infrastructure issues. Trigger with phrases like \"collect infrastructure metrics\", \"monitor server performance\", or \"track system resources\".",
@@ -34803,7 +34815,7 @@
       "fallback_for_tools": []
     }
   ],
-  "count": 2900,
+  "count": 2901,
   "categories": [
     "ai-agency",
     "ai-ml",
