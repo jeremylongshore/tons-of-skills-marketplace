@@ -940,3 +940,7 @@ plugins/mcp/project-health-auditor/dist/servers/code-metrics.js:secret-exfil-coo
 # support line in each file. Neither flagged line changed in that PR.
 plugins/crypto/defi-yield-optimizer/README.md:secret-exfil-cooccur  README config sample: ALCHEMY_RPC is read as the user's own RPC endpoint value; the two URLs beside it (api.llama.fi, api.coingecko.com) are public keyless data APIs and receive no credential
 plugins/packages/ai-ml-engineering-pack/docs/TROUBLESHOOTING.md:secret-exfil-cooccur  documentation snippets pass each provider key (COHERE_API_KEY and the other provider keys in this guide) only to that provider's own API host or SDK client; no arbitrary network sink
+
+# ── pricewin source registration (PR #1609). ──
+sources.yaml:sources-change-unscanned  pricewin registration-only review: six include-anchored files at PriceDotWin/pricewin-agent-plugin@3993eb7870f5ed31f72b4af621cba134aee4c9da reverified against sources.lock.json SHA256; remote HTTP MCP only, no local executable code; verified:false
+sources.lock.json:sources-change-unscanned  pricewin registration-only review: lock entry pins the six reviewed files at 3993eb7870f5ed31f72b4af621cba134aee4c9da; mirrored content is scanned again at sync time

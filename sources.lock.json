@@ -724,6 +724,19 @@
         "src/servers/pr-spec-analyzer.ts": "sha256:bc2b65b02914d292f358f28dcaa4431b7e48527e0e510d724a1b3d2e5f1ef239"
       }
     },
+    "pricewin": {
+      "repo": "PriceDotWin/pricewin-agent-plugin",
+      "resolved_ref": "3993eb7870f5ed31f72b4af621cba134aee4c9da",
+      "locked_at": "2026-10-04T09:21:32.002Z",
+      "files": {
+        ".claude-plugin/icon.png": "sha256:6434f5c68977c28e6985601722bb00045796da6a0b877c965c51b8e5c0a75586",
+        ".claude-plugin/plugin.json": "sha256:486933caa14ffd0bac43ee3ea8d2b58ff5f85463fd052d8e2fa647b125c52670",
+        ".mcp.json": "sha256:43c3145ea12608a0bb0871cc064f52ece4b90de3eb90d6277577edfb4cf1db67",
+        "LICENSE": "sha256:c9fb987f54e17c264e008d4ef1ba01c17c36e7e334604ae16f199c411014cafc",
+        "README.md": "sha256:105fdf7744fc1b1c590c14f9286b7e071be9f67bf846e992739f4dc951ea1bbf",
+        "skills/pricewin-travel-search/SKILL.md": "sha256:40f55198a68362c630fc3e78c3b69dd1cb5bf0b155588af8c21ed191c0f8aae6"
+      }
+    },
     "publishing-skills": {
       "repo": "AutomateLab-tech/publishing-skills",
       "resolved_ref": "43fbe3d700d0c658ed71acf51b8a26188b719e11",
