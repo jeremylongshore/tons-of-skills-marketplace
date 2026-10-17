@@ -5,17 +5,17 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 434,
-    "totalSkills": 2900,
+    "totalPlugins": 435,
+    "totalSkills": 2901,
     "totalCommands": 82,
-    "pluginsWithSkills": 401,
+    "pluginsWithSkills": 402,
     "byCategory": {
       "productivity": 28,
       "security": 27,
       "testing": 28,
       "ai-agency": 9,
       "ai-ml": 36,
-      "mcp": 17,
+      "mcp": 18,
       "packages": 5,
       "performance": 25,
       "devops": 36,
@@ -11772,6 +11772,36 @@
       "author": {
         "name": "Jeremy Longshore",
         "email": "jeremy@intentsolutions.io"
+      },
+      "type": "instruction-plugin"
+    },
+    {
+      "slug": "cohesivity",
+      "name": "cohesivity",
+      "displayName": "cohesivity",
+      "description": "cohesivity.ai offers free agent-native backend services. Anonymous account (no-signup) to get started through MCP or API. Hosting, Postgres, email, storage, containers, LLMs, voice and third-party APIs. Includes free tiers and 5 USD/mo in AI and Search credits. Top-ups through x402.",
+      "version": "1.0.0",
+      "category": "mcp",
+      "keywords": [
+        "cohesivity",
+        "backend",
+        "postgres",
+        "redis",
+        "hosting",
+        "object-storage",
+        "mcp",
+        "provisioning"
+      ],
+      "hasSkills": true,
+      "skillCount": 1,
+      "commandCount": 0,
+      "installCommand": "/plugin install cohesivity",
+      "sourcePath": "./plugins/mcp/cohesivity",
+      "isFeatured": false,
+      "author": {
+        "name": "Cohesivity",
+        "email": "smj@cohesivity.ai",
+        "url": "https://cohesivity.ai"
       },
       "type": "instruction-plugin"
     }

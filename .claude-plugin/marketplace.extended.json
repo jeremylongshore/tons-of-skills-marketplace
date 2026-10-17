@@ -11620,6 +11620,42 @@
         "badge": "gold",
         "lastValidated": "2026-09-11T00:00:00.000Z"
       }
+    },
+    {
+      "name": "cohesivity",
+      "source": "./plugins/mcp/cohesivity",
+      "description": "cohesivity.ai offers free agent-native backend services. Anonymous account (no-signup) to get started through MCP or API. Hosting, Postgres, email, storage, containers, LLMs, voice and third-party APIs. Includes free tiers and 5 USD/mo in AI and Search credits. Top-ups through x402.",
+      "version": "1.0.0",
+      "category": "mcp",
+      "keywords": [
+        "cohesivity",
+        "backend",
+        "postgres",
+        "redis",
+        "hosting",
+        "object-storage",
+        "mcp",
+        "provisioning"
+      ],
+      "author": {
+        "name": "Cohesivity",
+        "email": "smj@cohesivity.ai",
+        "url": "https://cohesivity.ai"
+      },
+      "homepage": "https://cohesivity.ai",
+      "repository": "https://github.com/cohesivity-org/cohesivity-mcp",
+      "license": "MIT",
+      "mcpTools": 6,
+      "components": {
+        "skills": 1,
+        "hooks": 1
+      },
+      "verification": {
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-16T00:00:00.000Z"
+      }
     }
   ]
 }
