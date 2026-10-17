@@ -16,7 +16,7 @@ const faq = [
   { question: 'Who is Tons of Skills for?', answer: 'It is for engineers and teams that want inspectable agent capabilities they can evaluate before installation. It is a poor fit for buyers who need a managed, closed-box automation service with no interest in source or operating details.' },
   { question: 'How is this different from a prompt library?', answer: 'A prompt library usually stops at reusable text. Tons of Skills catalogs structured SKILL.md instructions plus plugins, agents, hooks, and MCP integrations, then exposes source, metadata, installation paths, and validation evidence.' },
   { question: 'How do I start?', answer: 'Browse the catalog, inspect the source and metadata, and install the marketplace from inside Claude Code. Claude Code is the current verified-native harness; portability to other agent systems depends on the integration evidence available for that harness.' },
-  { question: 'What does it cost and are there contracts?', answer: 'The marketplace and its public source are free to browse and use. Each plugin carries its own license, so review that license before modifying or redistributing it; commercial support terms are [[CONTRACT_TERMS]].' },
+  { question: 'What does it cost and are there contracts?', answer: 'The marketplace and its public source are free to browse and use, with no contract required; the repository is MIT licensed. Each plugin carries its own license, so review that license before modifying or redistributing it.' },
   { question: 'How does Tons of Skills relate to Intent Solutions?', answer: 'Tons of Skills is built and operated by Intent Solutions, an applied AI engineering company. The marketplace connects reusable software to engineering, evaluations, demos, teaching, and products, helping teams understand and adapt tools for their own work.' },
   { question: 'Where can I inspect the evidence?', answer: 'Start with the public GitHub repository, the marketplace documentation, and the source page for any listed artifact. The catalog counts on this page are regenerated from the same build-time index used by the marketplace rather than typed into the copy.' },
 ];
@@ -81,8 +81,8 @@ const faq = [
       <h2 id="how-it-works">How Tons of Skills works</h2>
       <div class="steps">
         <div><span>01</span><h3>Browse by the job</h3><p>Search the public catalog by capability, category, artifact type, or keyword. The listing exposes the source and install path before asking you to act.</p></div>
-        <div><span>02</span><h3>Inspect the artifact</h3><p>Read the SKILL.md, manifest, agent definition, hook, or MCP configuration and check the repository history. GitHub issues and discussions are the public communication channels; the response target is [[RESPONSE_TIME]].</p></div>
-        <div><span>03</span><h3>Install in the verified harness</h3><p>Add the marketplace in Claude Code and install the selected plugin, or follow the documented route for an artifact. Onboarding is self-serve for the public catalog; assisted onboarding and turnaround are [[ASSISTED_ONBOARDING_TERMS]].</p></div>
+        <div><span>02</span><h3>Inspect the artifact</h3><p>Read the SKILL.md, manifest, agent definition, hook, or MCP configuration and check the repository history. GitHub issues and discussions are the public communication channels; the repository's <a href="https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/main/.github/SUPPORT.md" target="_blank" rel="noopener noreferrer">support policy</a> sets a first triage response within 72 hours on new issues and discussions.</p></div>
+        <div><span>03</span><h3>Install in the verified harness</h3><p>Add the marketplace in Claude Code and install the selected plugin, or follow the documented route for an artifact. Onboarding is self-serve for the public catalog.</p></div>
         <div><span>04</span><h3>Test in your environment</h3><p>Run the workflow against a bounded task, review its tool access, and keep the source revision you evaluated. Teams work with the repository maintainers through public issues or with Intent Solutions through the company contact path.</p></div>
       </div>
     </section>
@@ -92,19 +92,15 @@ const faq = [
       <div class="table-wrap"><table><tbody>
         <tr><th scope="row">Company Name</th><td>Tons of Skills</td></tr>
         <tr><th scope="row">Type</th><td>Open-source marketplace for AI coding-agent extensions</td></tr>
-        <tr><th scope="row">Founded</th><td>[[FOUNDING_YEAR]]</td></tr>
+        <tr><th scope="row">Founded</th><td>2025</td></tr>
         <tr><th scope="row">Founder</th><td>Jeremy Longshore</td></tr>
         <tr><th scope="row">Headquarters</th><td>Gulf Shores, Alabama, United States</td></tr>
         <tr><th scope="row">Website</th><td><a href="https://tonsofskills.com">tonsofskills.com</a></td></tr>
         <tr><th scope="row">Core Offering</th><td>{fmt(totalSkills)} marketplace-visible skills, {fmt(totalPlugins)} catalog plugins, and {fmt(totalAgents)} catalog agents in the current build</td></tr>
         <tr><th scope="row">Pricing</th><td>Free and open source; individual artifact licenses apply</td></tr>
-        <tr><th scope="row">Contract Terms</th><td>[[CONTRACT_TERMS]]</td></tr>
+        <tr><th scope="row">Contract Terms</th><td>No contract required; the repository is MIT licensed</td></tr>
         <tr><th scope="row">Services</th><td>Discovery, installation paths, documentation, validation, and public contribution workflows</td></tr>
         <tr><th scope="row">Communication</th><td>GitHub issues and discussions; Intent Solutions contact channels</td></tr>
-        <tr><th scope="row">Notable Clients</th><td>[[PUBLICLY_NAMED_CLIENTS]]</td></tr>
-        <tr><th scope="row">Customers Served</th><td>[[VERIFIED_CUSTOMERS_SERVED]]</td></tr>
-        <tr><th scope="row">Projects Delivered</th><td>[[VERIFIED_PROJECTS_DELIVERED]]</td></tr>
-        <tr><th scope="row">Competitors</th><td>[[NAMED_ALTERNATIVES]]</td></tr>
         <tr><th scope="row">Social</th><td><a href="https://github.com/jeremylongshore/tons-of-skills-marketplace" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://github.com/sponsors/jeremylongshore" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a></td></tr>
         <tr><th scope="row">Part of</th><td><a href="https://intentsolutions.io/about/">Intent Solutions</a>, <a href="https://learn.intentsolutions.io/page/about-us">Learn</a>, <a href="https://demos.intentsolutions.io/about/">Demos</a>, <a href="https://oma.intentsolutions.io/about/">Omarchy</a>, <a href="https://tonsofskills.com/about/">Tons of Skills</a>, <a href="https://startaitools.com/about/">Start AI Tools</a>, <a href="https://diagnosticpro.io/about/">DiagnosticPro</a>, and <a href="https://hustlestats.io/about">HustleStats</a></td></tr>
       </tbody></table></div>
