@@ -41,6 +41,23 @@
         "skills/agent-memory-discipline/references/entry-format.md": "sha256:097dd075d4288e97c7a4e9cba49273e0f770ec91d3e8896dbc95bec79122f363"
       }
     },
+    "ai-model-watch": {
+      "repo": "markksantos/ai-model-watch",
+      "resolved_ref": "1632793b17691347282819af80c33d69bf97325f",
+      "locked_at": "2026-10-18T14:08:34.234Z",
+      "files": {
+        ".claude-plugin/plugin.json": "sha256:92393b47a3c3ac59901c70edc2adae5db6efc21eae2b091324257b1c54d31a19",
+        "LICENSE": "sha256:a93155020f9f4be5bacd7291f13aa5c07b7dc784423ab52d509a819b36ab5fca",
+        "README.md": "sha256:c2ac93cc80cb762e4caf71452b0883726501a082e5efd094eccb3610452ff265",
+        "bin/ai-model-watch.js": "sha256:f933a9cdb57b5c23c7debcde3a95cbadb03e598bb5c89a63fe4d9d1264e20d7c",
+        "docs/ADR.md": "sha256:fab6e5881f975754f66d897d5710126f7e6db5b2a5e6a8f904acd23a6443dca2",
+        "docs/PRD.md": "sha256:0a6d6a95712ff012aebb316bd3c35ab1911e9b8e3d81714defcea48441d573df",
+        "index.js": "sha256:3831e4e0de87bc1894abb319c6a77b6ce496f2fbb280480cb1bf5c0c3b52d2d0",
+        "mcp.js": "sha256:a1d6f1f479c8009be5c32a48ab618edaeaaa2d83a41bd62079d37bef45d2ca52",
+        "package.json": "sha256:4d7f1ef467c30c1e3026b9c0670e499b12a0e99f1a569e95262279d8751f99de",
+        "skills/ai-model-watch/SKILL.md": "sha256:daf458c791b0ebbb4d5516052dc15d0c3604107e94d83d217b23c7ac74a7e053"
+      }
+    },
     "aomi": {
       "repo": "aomi-labs/skills",
       "resolved_ref": "783b6debae3182aa4906fbbc301cb2a27510d0c9",
