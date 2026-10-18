@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "intent-skills-diagnostic": {
+      "type": "http",
+      "url": "https://intent-skills-diagnostic.max-sheahan.workers.dev/mcp"
+    }
+  }
+}

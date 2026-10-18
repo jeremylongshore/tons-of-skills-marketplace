@@ -37,6 +37,7 @@ plugins/saas-packs/**/skills/**/SKILL.md:pipe-to-shell  documented vendor-CLI in
 # ── Remote MCP servers that ARE the plugin's engine (reviewed, no credentials embedded). ──
 plugins/mcp/servicegraph/.mcp.json:mcp-remote  the plugin IS an agent-skills front-end to the remote ServiceGraph MCP server (https://mcp.servicegraph.co, plain HTTP transport, no embedded credentials) — reviewed 2026-07-07, curated mirror pinned at fork SHA df4648a4
 plugins/mcp/servicegraph/README.md:mcp-remote  same remote MCP endpoint documented as the setup step in the upstream README — reviewed 2026-07-07 with the .mcp.json above
+plugins/mcp/intent-skills-diagnostic/.mcp.json:mcp-remote  the plugin IS a connector to the Intent Solutions diagnostic MCP app (https://intent-skills-diagnostic.max-sheahan.workers.dev/mcp, plain HTTP transport, no credentials, five read-only tools pinned in server-surface.json); submitted 2026-10-15, pending maintainer review
 
 # ── skills-janitor (khendzel) — vetted 2026-07-13 @ upstream c63c3478e (PR #1020). ──
 # The three GitHub-discovery scripts call out ONLY to api.github.com /

@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/generate-unified-search.mjs"
   },
   "stats": {
-    "totalPlugins": 434,
+    "totalPlugins": 435,
     "totalSkills": 2900,
     "totalDocs": 24,
-    "totalItems": 3358,
+    "totalItems": 3359,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -742,6 +742,7 @@
       "devops",
       "devsecops",
       "dex",
+      "diagnostic",
       "diagram",
       "diff",
       "diff-analysis",
@@ -991,6 +992,7 @@
       "intelligent-automation",
       "intent-drift",
       "intent-eval",
+      "intent-solutions",
       "interactive-learning",
       "intercom",
       "internationalization",
@@ -1094,6 +1096,7 @@
       "marketing",
       "marketplace",
       "mcp",
+      "mcp-app",
       "mcp-directories",
       "media",
       "media-governance",
@@ -1723,8 +1726,8 @@
     "pluginsWithAgents": 91,
     "pluginsWithHooks": 18,
     "officialPlugins": 389,
-    "communityPlugins": 45,
-    "communityContributors": 35
+    "communityPlugins": 46,
+    "communityContributors": 36
   },
   "items": [
     {
@@ -15114,6 +15117,36 @@
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "claude pack claude code skill pack for building with the claude api and anthropic sdk. saas-packs claude anthropic ai sdk messages-api"
+    },
+    {
+      "type": "plugin",
+      "id": "intent-skills-diagnostic",
+      "slug": "intent-skills-diagnostic",
+      "name": "intent-skills-diagnostic",
+      "displayName": "intent skills diagnostic",
+      "description": "Intent Solutions skills diagnostic: a hosted MCP app that asks how you use Claude or Codex and recommends at most two reviewed Tons of Skills plugins or Intent offerings, each with the install route for your tool",
+      "category": "mcp",
+      "keywords": [
+        "mcp",
+        "mcp-app",
+        "diagnostic",
+        "recommendations",
+        "skills",
+        "plugins",
+        "onboarding",
+        "intent-solutions"
+      ],
+      "author": {
+        "name": "Max Sheahan",
+        "url": "https://intentsolutions.io"
+      },
+      "authorType": "community",
+      "version": "0.1.0",
+      "isFeatured": false,
+      "isNew": false,
+      "badges": [],
+      "skillCount": 0,
+      "searchText": "intent skills diagnostic intent solutions skills diagnostic: a hosted mcp app that asks how you use claude or codex and recommends at most two reviewed tons of skills plugins or intent offerings, each with the install route for your tool mcp mcp mcp-app diagnostic recommendations skills plugins onboarding intent-solutions"
     },
     {
       "type": "skill",

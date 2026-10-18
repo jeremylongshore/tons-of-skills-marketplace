@@ -8407,6 +8407,30 @@
         "email": "jeremy@intentsolutions.io"
       },
       "license": "MIT"
+    },
+    {
+      "name": "intent-skills-diagnostic",
+      "source": "./plugins/mcp/intent-skills-diagnostic",
+      "description": "Intent Solutions skills diagnostic: a hosted MCP app that asks how you use Claude or Codex and recommends at most two reviewed Tons of Skills plugins or Intent offerings, each with the install route for your tool",
+      "version": "0.1.0",
+      "category": "mcp",
+      "keywords": [
+        "mcp",
+        "mcp-app",
+        "diagnostic",
+        "recommendations",
+        "skills",
+        "plugins",
+        "onboarding",
+        "intent-solutions"
+      ],
+      "author": {
+        "name": "Max Sheahan",
+        "url": "https://intentsolutions.io"
+      },
+      "homepage": "https://tonsofskills.com",
+      "repository": "https://github.com/jeremylongshore/tons-of-skills-marketplace",
+      "license": "MIT"
     }
   ]
 }

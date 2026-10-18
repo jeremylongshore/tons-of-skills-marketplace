@@ -1,0 +1,40 @@
+{
+  "name": "@intentsolutionsio/intent-skills-diagnostic",
+  "version": "0.1.0",
+  "description": "Intent Solutions skills diagnostic, as a hosted MCP app with interactive cards: a few questions about how you use Claude or Codex, then at most two reviewed Tons of Skills plugins or Intent Solutions ",
+  "keywords": [
+    "mcp",
+    "mcp-app",
+    "diagnostic",
+    "recommendations",
+    "skills",
+    "plugins",
+    "onboarding",
+    "intent-solutions",
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/mcp/intent-skills-diagnostic"
+  },
+  "homepage": "https://tonsofskills.com/plugins/intent-skills-diagnostic",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Max Sheahan",
+    "url": "https://intentsolutions.io"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install intent-skills-diagnostic\\\\n  or /plugin install intent-skills-diagnostic@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+  }
+}
