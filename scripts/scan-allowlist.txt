@@ -940,3 +940,7 @@ plugins/mcp/project-health-auditor/dist/servers/code-metrics.js:secret-exfil-coo
 # support line in each file. Neither flagged line changed in that PR.
 plugins/crypto/defi-yield-optimizer/README.md:secret-exfil-cooccur  README config sample: ALCHEMY_RPC is read as the user's own RPC endpoint value; the two URLs beside it (api.llama.fi, api.coingecko.com) are public keyless data APIs and receive no credential
 plugins/packages/ai-ml-engineering-pack/docs/TROUBLESHOOTING.md:secret-exfil-cooccur  documentation snippets pass each provider key (COHERE_API_KEY and the other provider keys in this guide) only to that provider's own API host or SDK client; no arbitrary network sink
+
+# cohesivity: connector to the vendor's own hosted MCP server, gated by a host-side confirmation hook.
+plugins/mcp/cohesivity/.mcp.json:mcp-remote  https://cohesivity.ai/mcp is the vendor's own remote MCP endpoint (HTTPS, no embedded credentials, no local command) and the plugin's entire purpose; submitted 2026-10-16 for maintainer review
+plugins/mcp/cohesivity/hooks/hooks.json:hook-definition  one PreToolUse gate matching only create_tenant, provision_resource and claim_tenant (direct and plugin-namespaced names) that runs the plugin's own confirm-mutation.sh to emit permissionDecision "ask"; it adds a confirmation and executes nothing else. Enforcing artifact for the destructive-policy declaration; submitted 2026-10-16 for maintainer review

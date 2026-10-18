@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/generate-unified-search.mjs"
   },
   "stats": {
-    "totalPlugins": 434,
-    "totalSkills": 2900,
+    "totalPlugins": 435,
+    "totalSkills": 2901,
     "totalDocs": 24,
-    "totalItems": 3358,
+    "totalItems": 3360,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -332,6 +332,8 @@
       "WebFetch",
       "WebSearch",
       "Write",
+      "mcp__cohesivity__get_cohesivity_documentation",
+      "mcp__cohesivity__tenant_status",
       "mcp__databricks-workspace-mcp__clusters_events",
       "mcp__databricks-workspace-mcp__clusters_get",
       "mcp__databricks-workspace-mcp__clusters_list",
@@ -619,6 +621,7 @@
       "coderabbit",
       "coding",
       "cohere",
+      "cohesivity",
       "cohort-retention",
       "collaboration",
       "collaborative",
@@ -1174,6 +1177,7 @@
       "nutrition",
       "oauth",
       "oauth2",
+      "object-storage",
       "observability",
       "observations",
       "obsidian",
@@ -1316,6 +1320,7 @@
       "prospecting",
       "protobuf",
       "provenance",
+      "provisioning",
       "proxy",
       "proxy-network",
       "pub-sub",
@@ -1719,12 +1724,12 @@
       "zod"
     ],
     "totalAgents": 352,
-    "totalHooks": 26,
+    "totalHooks": 27,
     "pluginsWithAgents": 91,
-    "pluginsWithHooks": 18,
+    "pluginsWithHooks": 19,
     "officialPlugins": 389,
-    "communityPlugins": 45,
-    "communityContributors": 35
+    "communityPlugins": 46,
+    "communityContributors": 36
   },
   "items": [
     {
@@ -15114,6 +15119,40 @@
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "claude pack claude code skill pack for building with the claude api and anthropic sdk. saas-packs claude anthropic ai sdk messages-api"
+    },
+    {
+      "type": "plugin",
+      "id": "cohesivity",
+      "slug": "cohesivity",
+      "name": "cohesivity",
+      "displayName": "cohesivity",
+      "description": "cohesivity.ai offers free agent-native backend services. Anonymous account (no-signup) to get started through MCP or API. Hosting, Postgres, email, storage, containers, LLMs, voice and third-party APIs. Includes free tiers and 5 USD/mo in AI and Search credits. Top-ups through x402.",
+      "category": "mcp",
+      "keywords": [
+        "cohesivity",
+        "backend",
+        "postgres",
+        "redis",
+        "hosting",
+        "object-storage",
+        "mcp",
+        "provisioning"
+      ],
+      "author": {
+        "name": "Cohesivity",
+        "email": "smj@cohesivity.ai",
+        "url": "https://cohesivity.ai"
+      },
+      "authorType": "community",
+      "version": "1.0.0",
+      "isFeatured": false,
+      "isNew": false,
+      "badges": [],
+      "skillCount": 1,
+      "verificationScore": 94,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "cohesivity cohesivity.ai offers free agent-native backend services. anonymous account (no-signup) to get started through mcp or api. hosting, postgres, email, storage, containers, llms, voice and third-party apis. includes free tiers and 5 usd/mo in ai and search credits. top-ups through x402. mcp cohesivity backend postgres redis hosting object-storage mcp provisioning"
     },
     {
       "type": "skill",
@@ -29567,6 +29606,26 @@
         "category": "saas-packs"
       },
       "searchText": "cohere-webhooks-events handle cohere v2 streaming events and convert application-owned asynchronous work into idempotent internal events without inventing provider webhooks. use when building streaming uis or event workflows. trigger with \"cohere streaming\", \"cohere sse\", or \"cohere events\". saas-packs read glob grep webfetch write edit "
+    },
+    {
+      "type": "skill",
+      "id": "cohesivity",
+      "slug": "cohesivity",
+      "name": "cohesivity",
+      "description": "Provision a backend for the app being built (Postgres, Redis, object storage, hosting, auth, email) through the Cohesivity MCP tools, with no account or API key needed to start. Use when the app needs a database, a deploy, file storage, login or email and the project has not picked a provider. Trigger with \"add a database to this app\", \"deploy this\", or \"I need user sign-in\". Skip when the project already uses Supabase, Firebase or its own cloud account.",
+      "category": "mcp",
+      "allowedTools": [
+        "Read",
+        "mcp__cohesivity__tenant_status",
+        "mcp__cohesivity__get_cohesivity_documentation"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "cohesivity",
+        "category": "mcp"
+      },
+      "searchText": "cohesivity provision a backend for the app being built (postgres, redis, object storage, hosting, auth, email) through the cohesivity mcp tools, with no account or api key needed to start. use when the app needs a database, a deploy, file storage, login or email and the project has not picked a provider. trigger with \"add a database to this app\", \"deploy this\", or \"i need user sign-in\". skip when the project already uses supabase, firebase or its own cloud account. mcp read mcp__cohesivity__tenant_status mcp__cohesivity__get_cohesivity_documentation "
     },
     {
       "type": "skill",

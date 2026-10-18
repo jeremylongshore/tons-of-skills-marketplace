@@ -11,6 +11,11 @@
       "enforcing_artifact": "plugins/mcp/ai-experiment-logger/src/index.ts",
       "rationale": "delete_experiment and update_experiment run immediately on call with no confirmation. Blast radius: the plugin's own ~/.ai-experiment-logger/experiments.json store."
     },
+    "cohesivity": {
+      "policy": "permit-with-confirmation",
+      "enforcing_artifact": "plugins/mcp/cohesivity/hooks/hooks.json",
+      "rationale": "create_tenant creates a temporary project, provision_resource adds a service to it and claim_tenant starts the claim that keeps it; all three run on the remote HTTP server (cohesivity.ai/mcp), so enforcement is a host-side PreToolUse hook: hooks/hooks.json returns permissionDecision 'ask' for each of them under the direct and plugin-namespaced tool names, and the server separately rejects them unless confirmed: true is passed. No delete or billing tool is exposed. Blast radius: the caller's own project, which expires after 72 hours unless claimed. Read-only tools are unmatched. Residual: a host that ignores hook decisions gets the raw remote surface."
+    },
     "conversational-api-debugger": {
       "policy": "refuse",
       "enforcing_artifact": "plugins/mcp/conversational-api-debugger/servers/api-debugger.ts",

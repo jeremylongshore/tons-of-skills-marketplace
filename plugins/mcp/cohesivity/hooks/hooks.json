@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(mcp__cohesivity__|mcp__plugin_cohesivity_cohesivity__)(create_tenant|provision_resource|claim_tenant)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/confirm-mutation.sh\"",
+            "description": "Ask the user before a Cohesivity call creates a project, adds a service to it or starts a claim",
+            "enabled": true,
+            "timeout": 5,
+            "blocking": true
+          }
+        ]
+      }
+    ]
+  }
+}
