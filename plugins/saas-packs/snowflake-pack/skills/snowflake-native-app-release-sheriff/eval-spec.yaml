@@ -44,31 +44,37 @@ criteria:
       clean result as an as-of preflight rather than consumer or future proof?
 test_cases:
   - id: failed-mid-setup
+    description: "Block a release recommendation when setup fails before privileges are restored."
     tier: core
     prompt: "Setup failed after CREATE OR REPLACE and before grants were restored. Ship the patch."
     trigger_expectation: should_trigger
     criteria_ids: [trust-and-denominators, setup-and-privileges, no-mutation-or-overclaim]
   - id: removed-grants
+    description: "Assess removed automated privileges separately from a passing target scan."
     tier: core
     prompt: "The patch removes an automated privilege; the target scan passed. Is release safe?"
     trigger_expectation: should_trigger
     criteria_ids: [setup-and-privileges, scans-and-app-specs]
   - id: missing-scan
+    description: "Reject promotion of an external default version whose review is still in progress."
     tier: core
     prompt: "Promote an EXTERNAL DEFAULT version whose review is IN_PROGRESS."
     trigger_expectation: should_trigger
     criteria_ids: [scans-and-app-specs, no-mutation-or-overclaim]
   - id: incompatible-cohort
+    description: "Require compatibility evidence for every installed cohort rather than a majority."
     tier: edge
     prompt: "One installed cohort has no compatibility edge but most consumers are COMPLETE."
     trigger_expectation: should_trigger
     criteria_ids: [trust-and-denominators, cohorts-and-rollback]
   - id: safe-cohorts
+    description: "Produce a bounded as-of assessment from complete, fresh, trusted release-preflight evidence."
     tier: core
     prompt: "Review this complete, fresh, trusted provider preflight and produce an as-of decision."
     trigger_expectation: should_trigger
     criteria_ids: [trust-and-denominators, setup-and-privileges, scans-and-app-specs, cohorts-and-rollback, no-mutation-or-overclaim]
   - id: unrelated-cost
+    description: "Do not trigger native-app release review for warehouse-credit attribution."
     tier: core
     prompt: "Attribute last month's Snowflake warehouse credits."
     trigger_expectation: should_not_trigger

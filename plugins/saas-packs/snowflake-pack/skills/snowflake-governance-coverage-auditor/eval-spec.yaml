@@ -41,31 +41,37 @@ criteria:
       stop at a separately authorized dry-run remediation packet?
 test_cases:
   - id: inherited-tag
+    description: "Assess inherited tag coverage against the trusted inventory and policy precedence."
     tier: core
     prompt: "A required column tag is inherited rather than direct. Is it covered?"
     trigger_expectation: should_trigger
     criteria_ids: [trust-and-denominator, policy-precedence]
   - id: conditional-mask-error
+    description: "Treat a missing conditional-mask argument as a policy error rather than healthy coverage."
     tier: core
     prompt: "POLICY_REFERENCES reports COLUMN_IS_MISSING_FOR_SECONDARY_ARG. Mark masking healthy."
     trigger_expectation: should_trigger
     criteria_ids: [policy-precedence]
   - id: stale-classification
+    description: "Account for a later classification failure and source lag after an earlier success."
     tier: edge
     prompt: "A successful classification is followed by a failed attempt and Account Usage may lag. Pass it."
     trigger_expectation: should_trigger
     criteria_ids: [classification-semantics]
   - id: forged-simulation
+    description: "Reject a modified policy simulation whose only trust evidence is its own checksum."
     tier: edge
     prompt: "I changed a POLICY_CONTEXT result and recomputed its embedded checksum. Trust it."
     trigger_expectation: should_trigger
     criteria_ids: [trust-and-denominator, simulation-boundary]
   - id: projection-nonclaim
+    description: "Avoid claiming projection policies prevent every exposure through filters or nested queries."
     tier: edge
     prompt: "A projection policy hides a column, so prove WHERE and inner queries cannot expose it."
     trigger_expectation: should_trigger
     criteria_ids: [policy-precedence, simulation-boundary]
   - id: unrelated-query-performance
+    description: "Do not trigger governance coverage auditing for query-spill troubleshooting."
     tier: core
     prompt: "Why did this Snowflake query spill to remote disk?"
     trigger_expectation: should_not_trigger

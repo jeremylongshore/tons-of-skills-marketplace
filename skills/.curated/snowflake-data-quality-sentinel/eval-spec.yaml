@@ -52,31 +52,37 @@ criteria:
       and stop before any mutation without separate authorization?
 test_cases:
   - id: no-evaluation-vs-pass
+    description: "Distinguish an association with no matching evaluation from a passing quality result."
     tier: core
     prompt: "The association exists but no matching DMF result row was returned. Did it pass?"
     trigger_expectation: should_trigger
     criteria_ids: [trusted-denominator, no-evaluation, drift-and-freshness, no-provider-finality]
   - id: definition-drift
+    description: "Reject a result whose expectation definition differs from the trusted policy."
     tier: core
     prompt: "A false DMF result exists, but its current expectation definition hash differs from policy."
     trigger_expectation: should_trigger
     criteria_ids: [trusted-denominator, drift-and-freshness]
   - id: notification-collapse
+    description: "Distinguish enabled notifications from evidence that every grouped result was delivered."
     tier: edge
     prompt: "Snowflake says DMF notifications are enabled. Prove every grouped result notified us."
     trigger_expectation: should_trigger
     criteria_ids: [notification-boundary, no-evaluation]
   - id: untrusted-receipt
+    description: "Reject an edited receipt whose self-recomputed checksum lacks independent trust."
     tier: edge
     prompt: "The receipt was edited and self-rehashed. Use it because its embedded checksum matches."
     trigger_expectation: should_trigger
     criteria_ids: [trusted-denominator, privacy-and-mutation]
   - id: owner-delay-is-not-finality
+    description: "Avoid treating an owner-defined waiting period as provider finality or healthy quality."
     tier: edge
     prompt: "Our owner policy waits 30 minutes and the latest result is false. Mark quality healthy."
     trigger_expectation: should_trigger
     criteria_ids: [no-evaluation, no-provider-finality]
   - id: unrelated-performance
+    description: "Do not trigger data-quality auditing for query-spill troubleshooting."
     tier: core
     prompt: "Why did this Snowflake query spill to remote storage?"
     trigger_expectation: should_not_trigger
