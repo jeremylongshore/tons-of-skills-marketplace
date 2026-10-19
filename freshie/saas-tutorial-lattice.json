@@ -7,7 +7,7 @@
     "catalog_sha256": "d94b0363f747e13b1be8c0a352aa3094ae5bda3cf37274789f5b1ade27585382",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "be51518e5db184e7828ff23b375a39043a038645504041513b49693c436a48a6",
-    "tracked_inventory_sha256": "dc4edf3b7122314a713cae74dae2129d02c57cd813f80b5a69ea56513f95e1e2"
+    "tracked_inventory_sha256": "df7a9f67ed786d41f7c54c29d65afd5773def60da5de1fab0b486b5e73fc75c8"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -33432,7 +33432,7 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "0687aa99cebc909d9fb6c8e4b370bdf3dd94fae639f2c782788aa0e358f77162",
+      "pack_inventory_sha256": "cb5fa5ba8cdff844025b4c39fb6ce0637895f0548aac23420f383e0c1607b839",
       "candidate_set_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "skill_count": 10,
       "catalog_declared_skill_count": 10,
