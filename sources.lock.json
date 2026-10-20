@@ -138,6 +138,25 @@
         "templates/brand/visual-identity.md": "sha256:9b2e76e2bbabc1d91cb08ea30b653d297291a4f91ee07f9181ea57198071f77d"
       }
     },
+    "caption-checker": {
+      "repo": "markksantos/caption-checker",
+      "resolved_ref": "9bb69a1c83d6e068404b1bd5a3cd423ed3b6f42c",
+      "locked_at": "2026-10-20T00:48:40.233Z",
+      "files": {
+        ".claude-plugin/plugin.json": "sha256:a5e070f27ff286c8e53543239df9c03fc6cd974efbdc477fa33b1437191973a7",
+        "LICENSE": "sha256:a93155020f9f4be5bacd7291f13aa5c07b7dc784423ab52d509a819b36ab5fca",
+        "README.md": "sha256:2911b59a51a9545798006c440191679b4a780e080555e590bea416151ba254a6",
+        "bin/caption-check.js": "sha256:5b882f09a780273d0442e354458298d6c86036c80c6ef86852d14f30cf599d89",
+        "docs/ADR.md": "sha256:b1733f9227e5d7ddbf1e805ecfbdc139ca634ce5ae9d412995086fd925709881",
+        "docs/PRD.md": "sha256:756582aea5045416bf6c90f940c588789d897d707fae1ee4a122a32ea890cf4d",
+        "docs/preview.png": "sha256:4bbd1ff459406b7a52be9202c62050d2ac73044ae14a2c6081164351dc152c53",
+        "examples/travel-vlog.srt": "sha256:e7b1815be7154178592c08a52890cdf3015c59c591ba9e24c00b2918a1a73511",
+        "index.js": "sha256:1a51a41076ab4c9ae4e5d456efb8344094af34cdd5f5002489803ac389aab075",
+        "mcp.js": "sha256:3f277d58ae0b4d236f6519cd3772073c0fdee0ca6f743908566e7b7cec806d16",
+        "package.json": "sha256:34c4a9455b24a93c9e3a43fc17242fdd41689e47590c3cff48ff302ce1d0849a",
+        "skills/caption-checker/SKILL.md": "sha256:fc86246f24d028155ce0ac4e67ef68eb6e2104b9b10729e55dc3776e67a47c43"
+      }
+    },
     "claude-workflow-skills": {
       "repo": "ali5ter/claude-workflow-skills",
       "resolved_ref": "70db6a5e18765d11d5e2e8a80d436c11be20157b",
