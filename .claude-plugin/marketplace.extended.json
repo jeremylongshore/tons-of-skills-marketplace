@@ -11620,6 +11620,53 @@
         "badge": "gold",
         "lastValidated": "2026-09-11T00:00:00.000Z"
       }
+    },
+    {
+      "name": "party-planning",
+      "source": "./plugins/productivity/party-planning",
+      "description": "Plan a party end-to-end: party game recommendations with rules, party food and drink quantity calculations, trivia night packs, printables, and hosting timelines.",
+      "version": "1.0.0",
+      "category": "productivity",
+      "maintainer": "@tarunbatta",
+      "keywords": [
+        "party",
+        "games",
+        "hosting",
+        "events",
+        "planning"
+      ],
+      "author": {
+        "name": "Tarun Batta"
+      },
+      "license": "MIT",
+      "components": {
+        "skills": 1,
+        "total": 1
+      }
     }
   ]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
