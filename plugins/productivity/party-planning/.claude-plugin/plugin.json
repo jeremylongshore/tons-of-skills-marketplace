@@ -1,0 +1,12 @@
+{
+  "name": "party-planning",
+  "version": "1.0.0",
+  "description": "Plan a party end-to-end: party game recommendations with rules, party food and drink quantity calculations, trivia night packs, printables, and hosting timelines.",
+  "author": {
+    "name": "Tarun Batta",
+    "url": "https://github.com/tarunbatta"
+  },
+  "repository": "https://github.com/tarunbatta/awesome-claude-skills/tree/add-hostpartyplay-skill/party-planning",
+  "license": "MIT",
+  "keywords": ["party", "games", "hosting", "events", "planning"]
+}
