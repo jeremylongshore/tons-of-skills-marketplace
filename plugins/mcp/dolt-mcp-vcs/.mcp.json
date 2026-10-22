@@ -1,6 +1,10 @@
 {
   "mcpServers": {
     "dolt-mcp-vcs": {
+      "type": "stdio",
+      "description": "Dolt version-control tools over stdio, with destructive operations refused by the mutation guard",
+      "version": "0.3.6",
+      "enabled": true,
       "command": "python3",
       "args": [
         "${CLAUDE_PLUGIN_ROOT}/scripts/dolt-mcp-guard.py",

@@ -227,12 +227,12 @@
     },
     "dolt-mcp-vcs": {
       "repo": "jeremylongshore/dolt-mcp-vcs-plugin",
-      "resolved_ref": "10b9b8e3013d2d828b89491f6bd0fce419cf15cd",
-      "locked_at": "2026-10-22T18:31:30.861Z",
+      "resolved_ref": "fe35723176f102bafdc7c5e3d4d119b1abeb68fd",
+      "locked_at": "2026-10-22T18:47:28.831Z",
       "files": {
         ".claude-plugin/marketplace.json": "sha256:84a8d99079e0815d7af67f0ebbfc0d61718521e21907165bd9ca037101d97422",
         ".claude-plugin/plugin.json": "sha256:a7fa6b88949373e817e81880df110fa135f0eaf98c9d174937b9b3f08b211ded",
-        ".mcp.json": "sha256:6047f0333e5ae5089516510dc4012b012c58c28f0d7028636d797e78f03c32b2",
+        ".mcp.json": "sha256:9471cefcd978dbc64531b374641151749f50f9411aee18d3f995d7ee05fbf8d4",
         "LICENSE": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
         "README.md": "sha256:bfaf9ff28237fe5b0a6d8bb51c993d23af3b40e6a13b1a484a8e2198f0ee07d5",
         "agents/bead-dependency-mapper.md": "sha256:56ccfd4f9b1cb072f9c72d810f3f55363836fc30f9c178a5a821f2a02418e582",
