@@ -76,8 +76,6 @@ plugins/mcp/a2a-client/dist/index.js:long-base64-blob  bundled dependency WASM p
 plugins/skill-enhancers/agent-systems-toolkit/skills/production-upgrade/scripts/audit_evidence.py:outbound-network  imports urllib.parse.urlsplit solely for offline HTTPS URL validation; contains no request client, socket use, or command execution — reviewed 2026-09-05
 
 # ── sources-change-unscanned is a ONE-SHOT waiver (enforced in code by
-sources.yaml:sources-change-unscanned  claude-2957 HOL Guard registration-only review: verified five exact upstream files at 8e8d190fdef125d7d09e7da499338cc35bdad08f against locked SHA256 values; explicit five-file includes, pinned optional CLI installs with user approval, verified:false; no mirror, package, or publication in this PR
-sources.lock.json:sources-change-unscanned  claude-2957 HOL Guard registration-only review: all five SHA256 values reverified against hashgraph-online/hol-guard-plugin at 8e8d190fdef125d7d09e7da499338cc35bdad08f; no executable implementation admitted; later upstream drift remains quarantined
 # honoredWaivers, blocker 62ye.3 / #985 defect 3): a line is honored ONLY in the
 # PR whose diff adds it, so it can never persistently waive future source-list
 # changes. Do NOT leave a standing line here — after its PR merges it is inert
@@ -86,9 +84,6 @@ sources.lock.json:sources-change-unscanned  claude-2957 HOL Guard registration-o
 # (The spent one-shot lines for skills-janitor / walkie-talkie / localplugins /
 # quit-sponsor were removed 2026-07-14 per this rule — their vet evidence lives
 # in git history and the intake PRs #1020/#1030 that added them.)
-sources.yaml:sources-change-unscanned  reviewed quarantine/delist of walkie-talkie: removes the active registry and matching lock approval without introducing any mirrored content
-sources.lock.json:sources-change-unscanned  reviewed quarantine/delist of walkie-talkie: removes the matching lock approval after the active registry was removed, without introducing any mirrored content
-sources.yaml:sources-change-unscanned  reviewed UIZZE source-selection repair: narrows source_path to upstream plugins/claude-directory and selects the complete anti-ui-slop package while preserving verified:false; no mirror or lock bytes change, and sync remains quarantined until a separate exact-SHA review and relock
 
 # ── hyperflow orchestrator skill: upstream web-research feature. ──
 plugins/ai-agency/hyperflow/skills/hyperflow/SKILL.md:allowed-tools-network  upstream v5.8.x added WebFetch/WebSearch to the orchestrator skill for its web-research feature (skills/hyperflow/web-research.md); mirror content hand-reviewed 2026-07-10 (evidence gate on #1008 + the be6ae2d3->eae6e34c5 delta review) — external mirror, upstream's design, no credential surface
@@ -376,8 +371,6 @@ plugins/productivity/intent-labs-pack/skills/audit-tests/shared-refs/security-te
 plugins/productivity/intent-labs-pack/skills/validate-skillmd/SKILL.md:hook-definition  skill body discusses hooks as a validation surface; no hooks.json shipped
 plugins/productivity/intent-labs-pack/skills/validate-skillmd/SKILL.md:allowed-tools-network  documentation of how to detect over-broad allowed-tools (mentions WebFetch as a pattern to flag), not granting network tools
 plugins/productivity/intent-labs-pack/skills/validate-skillmd/references/schema-reminder-frontmatter.md:hook-definition  extracted schema field docs mentioning hooks as a frontmatter topic — not an executable hooks.json
-sources.yaml:sources-change-unscanned  2026-08-23 census-deadline enforcement PR: removes the still-failing census clusters (numman-ali/n-skills, wondelai/skills) per the 2026-07-08 fix-or-removed policy — every notified skill re-validated at upstream default-branch HEAD by census-watch --enforce before removal; entries removed only, no source added or repointed
-sources.lock.json:sources-change-unscanned  2026-08-23 census-deadline enforcement PR: removes the stale lock entries for the same delisted census clusters after their sources were removed; no source is added or repointed
 plugins/testing/kobiton-automate/README.md:secret-exfil-cooccur  Reviewed 2026-08-19 (E3.6 relock): the co-occurrence is Kobiton's documented API-key auth alongside a curl fetch of their own repo's AGENTS.md (raw.githubusercontent.com/kobiton/automate) — verified sponsor source, product install docs, not exfil.
 plugins/testing/kobiton-automate/README.md:mcp-remote  Reviewed 2026-08-19 (E3.6 relock): https://api.kobiton.com/mcp is the product's own remote MCP endpoint on the vendor's domain — the plugin's entire purpose; verified source.
 plugins/mcp/servicegraph/hooks/hooks.json:hook-definition  E4.10 curated hardening reviewed 2026-08-19: a PreToolUse gate matching ONLY mcp__servicegraph__unlock_rows that runs the plugin's own confirm-unlock.sh to emit permissionDecision "ask" — it ADDS a confirmation before paid credit spends and executes nothing else; this is the enforcing artifact for the destructive-policy declaration (790 § 6, AAR 800).
@@ -443,7 +436,6 @@ plugins/saas-packs/anima-pack/skills/anima-debug-bundle/SKILL.md:secret-exfil-co
 plugins/saas-packs/anima-pack/skills/anima-performance-tuning/SKILL.md:secret-exfil-cooccur  scoped Figma token is sent only to fixed api.figma.com node metadata lookup; no credential is written into the source-version cache, output receipt, or third-party request
 plugins/saas-packs/anima-pack/skills/anima-prod-checklist/SKILL.md:secret-exfil-cooccur  production preflight sends the Figma token only to fixed api.figma.com identity verification and records only HTTP status; Anima credentials are presence-checked without transmission or disclosure
 plugins/saas-packs/anima-pack/skills/anima-webhooks-events/SKILL.md:secret-exfil-cooccur  Figma token and configured webhook passcode are sent only to Figma's fixed api.figma.com Webhooks v2 registration endpoint; the receiver verifies the echoed passcode locally and queues no credential
-sources.yaml:sources-change-unscanned  E8.4 changes only fail-closed publication dispositions for existing Skyvern and Hyperflow mirrors; both remain pinned by exact resolved_ref and per-file sha256 entries in sources.lock.json, with no mirrored content changed
 
 # ── Webflow operator pack remediation (2026-09-10). ──
 # Each skill grants WebFetch only to consult the current official Webflow developer
@@ -946,8 +938,6 @@ plugins/mcp/x-bug-triage/.claude-plugin/plugin.json:hook-definition  points at h
 plugins/productivity/box-cloud-filesystem/.claude-plugin/plugin.json:hook-definition  registers the queue-only hooks reviewed below
 plugins/productivity/box-cloud-filesystem/hooks/hooks.json:hook-definition  PostToolUse/Stop run box-sync-on-write.sh / box-sync-summary.sh: opt-in (queue_changes=true) local queueing only, no upload; upload needs a human --apply
 plugins/productivity/publishing-skills/skills/blog-figure-svg/SKILL.md:allowed-tools-network  WebFetch for reference research when drafting figures; no shell/network write
-sources.yaml:sources-change-unscanned  2026-10-03 maintainer integration of five contributor sources (schliff #1588, agent-memory-discipline #1552, dvera #1551, orca-replay #1540, swift-ship #1103): registration only, no mirrored content; each entry kept verbatim from the contributor PR, verified:false; swift-ship scripts reviewed at b2b0b9b5 (scoped allowed-tools, rm -rf only on script-owned temp dirs, no network)
-sources.lock.json:sources-change-unscanned  2026-10-03 same integration: all five lock entries generated by the sync's own reader/matcher/license/buildLockEntry at pinned refs (schliff 9f9d58c, agent-memory-discipline 77578ac, dvera 92e1256, orca-replay a9178ca, swift-ship b2b0b9b5); schliff and dvera match the contributor locks byte-for-byte; later upstream drift stays quarantined
 plugins/skill-enhancers/file-to-code/skills/skill-adapter/assets/templates/fastapi_api_template.py:outbound-network  "curl" appears only in the example's docstring ("access the API ... using a tool like curl or Postman"); the template makes no outbound network call - surfaced because #1603 touched the file for CodeQL log-injection fixes
 # MCP server bundles (claude-e1mk.10, 2026-10-04): first-party plugins now ship self-contained esbuild
 # bundles so the .mcp.json target exists after a marketplace copy-install. Each finding below was checked in context.
