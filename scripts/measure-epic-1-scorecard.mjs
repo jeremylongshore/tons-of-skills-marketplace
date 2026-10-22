@@ -13,6 +13,7 @@ import yaml from 'js-yaml';
 import { safeReadFile, UnsafePathError } from './safe-fs.mjs';
 
 import { canonicalDocumentLinks, inspectAuthorityMetadata } from './check-doc-authority.mjs';
+import { inspectCorrectnessSwallows, SWALLOWS_REGISTRY } from './ci-correctness-swallows.mjs';
 import { CORPUS_COHORTS, resolveCorpus } from './corpus-resolver.mjs';
 import { scanDeadDomainPolicy } from './dead-domain-policy.mjs';
 import { artifactRegistration } from './generated-artifact-registry.mjs';
@@ -2129,7 +2130,28 @@ export function buildExtendedScorecardRows({
       ],
     },
   );
-  for (const number of [49, 50, 51]) output[number] = unresolved(number);
+  for (const number of [49, 51]) output[number] = unresolved(number);
+  const correctnessSwallows = inspectCorrectnessSwallows({ reader, requiredNeeds: needs });
+  output[50] =
+    correctnessSwallows.reason === 'MISSING_CORRECTNESS_CRITICAL_COMMAND_REGISTRY'
+      ? unresolved(50)
+      : baseRow(
+          50,
+          correctnessSwallows.valid ? 'partial' : 'not_reproducible',
+          'reviewed operation sites in three required-context producer workflows and the complete ci-required graph; partial repository coverage',
+          [
+            SWALLOWS_REGISTRY,
+            '.github/workflows/validate-plugins.yml',
+            '.github/workflows/secret-scan.yml',
+            '.github/workflows/skill-conform.yml',
+            'scripts/ci/fastlane.py',
+          ],
+          correctnessSwallows.values,
+          {
+            limitations: correctnessSwallows.limitations,
+            ...(correctnessSwallows.reason ? { reason_code: correctnessSwallows.reason } : {}),
+          },
+        );
   const freshieRun = latestFreshieRunReceipt(reader);
   output[52] = freshieRun?.valid
     ? baseRow(

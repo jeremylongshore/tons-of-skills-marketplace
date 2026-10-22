@@ -1,0 +1,583 @@
+{
+  "schema_version": 1,
+  "scope": "three-required-context-producers-and-complete-ci-required-graph",
+  "repository_complete": false,
+  "workflows": [
+    {
+      "path": ".github/workflows/validate-plugins.yml",
+      "sha256": "d8360629b13054782cf76dd66772f4114ddc1eb6cd85192186c5acd5158054c7"
+    },
+    {
+      "path": ".github/workflows/secret-scan.yml",
+      "sha256": "19c708a45d92eb061bd2a108e8f39e93ec429c6bbfc2eeee31c54c0f963a2dbb"
+    },
+    {
+      "path": ".github/workflows/skill-conform.yml",
+      "sha256": "aa110d3073a8fe180776bd43d7ad5daf7013e51d535db7fb77ccf3187991ec18"
+    }
+  ],
+  "aggregate_policy": {
+    "path": "scripts/ci/fastlane.py",
+    "sha256": "f249bcb77fd2be6a344ccf83262abd140ac1fa3f5ad79a590c893f47be70511f",
+    "authority": [
+      {
+        "path": "CLAUDE.md",
+        "line": 192,
+        "text": "## CI gate architecture \u2014 three required checks (rebuilt 2026-07; skill-conform added 2026-07-23)"
+      },
+      {
+        "path": "000-docs/727-AT-ARCH-master-modernization-blueprint.md",
+        "line": 864,
+        "text": "### 10.3 Bounded-swallow rule"
+      },
+      {
+        "path": "tests/ci/test_fastlane_workflow.py",
+        "line": 20,
+        "text": "REQUIRED, SKIPPABLE = POLICY.REQUIRED, POLICY.SKIPPABLE"
+      }
+    ]
+  },
+  "expected": {
+    "sites": 24,
+    "site_containers": 17,
+    "workflows": 3,
+    "jobs": 28,
+    "containers": 236,
+    "run_containers": 163,
+    "opaque_actions": 73,
+    "conditional_envelopes": 43
+  },
+  "sites": [
+    {
+      "id": "full-lane-fallback",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "classify-changes",
+      "step": 1,
+      "step_name": "Classify changed paths with the trusted policy",
+      "job_sha256": "f38a2ee37fa7b05861077cb6949ac9a4ca7abc5609a2c992a506be190f37b4e9",
+      "step_sha256": "bae7b8adc3ee0815c4247e4f24acca21139a91013acb5ee1885731d55f415ae1",
+      "run_sha256": "1bc7b5b3fb355a95a60d0cea19f72cf013f82fa198e57096f1215b6d2aa63dbf",
+      "anchor": {
+        "line": 15,
+        "text": "    exit 0"
+      },
+      "classification": "authorized_control_flow",
+      "rationale": "Missing trusted base policy explicitly selects the full lane before returning success.",
+      "owner": null,
+      "promotion": null,
+      "authority": [
+        {
+          "path": ".github/workflows/validate-plugins.yml",
+          "line": 38,
+          "text": "      - name: Classify changed paths with the trusted policy"
+        }
+      ],
+      "deadline_marker": null
+    },
+    {
+      "id": "safety-dependency-fallback",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 13,
+      "step_name": "Enforce the safety ratchet",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "592009d8a7bc847feb3aa5b3cf192b99bd5dd9e91ac1e95296c0b444992a8cd2",
+      "run_sha256": "0502a1eb56c0748cf95dd68637452811c09c4702d343a0334371517c8ca7ebf5",
+      "anchor": {
+        "line": 1,
+        "text": "python3 -c \"import yaml\" 2>/dev/null || python3 -m pip install --quiet pyyaml"
+      },
+      "classification": "authorized_control_flow",
+      "rationale": "Failed import falls back to installation; installation failure is not suppressed.",
+      "owner": null,
+      "promotion": null,
+      "authority": [
+        {
+          "path": ".github/workflows/validate-plugins.yml",
+          "line": 177,
+          "text": "      - name: Enforce the safety ratchet"
+        }
+      ],
+      "deadline_marker": null
+    },
+    {
+      "id": "ratchet-dependency-fallback",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "marketplace-compliance-ratchet",
+      "step": 5,
+      "step_name": "Enforce R1/R2/R3/R4 marketplace compliance ratchet",
+      "job_sha256": "6a6ff604cb9b6671cbbc8fa564218b85be7b3591debfeef39ed93396e1293f4a",
+      "step_sha256": "cc0bc6126335ee8fac0bd7abf25ea9ecaf40139e11dd592b885bb5004830e8ca",
+      "run_sha256": "01808192b383f66c41251f72686fa1dbc5a46b46e60b117b4c31cfd018e44071",
+      "anchor": {
+        "line": 1,
+        "text": "python3 -c \"import yaml\" 2>/dev/null || python3 -m pip install --quiet pyyaml"
+      },
+      "classification": "authorized_control_flow",
+      "rationale": "Failed import falls back to installation; installation failure is not suppressed.",
+      "owner": null,
+      "promotion": null,
+      "authority": [
+        {
+          "path": ".github/workflows/validate-plugins.yml",
+          "line": 781,
+          "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
+        }
+      ],
+      "deadline_marker": null
+    },
+    {
+      "id": "test-status-accumulator",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "test",
+      "step": 8,
+      "step_name": "Run plugin tests (widened loop \u2014 every package.json with a test script)",
+      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "step_sha256": "7a59310b497bf2866097cc49f6bec76e9d91675b6f5cee9a45575e0477697f58",
+      "run_sha256": "45ec28a2df5f6a338c8956f29b015ce2d4cd2b42fcd278e3d06be18a5c731951",
+      "anchor": {
+        "line": 58,
+        "text": "    if \"${TEST_CMD[@]}\"; then"
+      },
+      "classification": "authorized_control_flow",
+      "rationale": "Test failure is accumulated and propagated by the final fail check in this bound run body.",
+      "owner": null,
+      "promotion": null,
+      "authority": [
+        {
+          "path": ".github/workflows/validate-plugins.yml",
+          "line": 908,
+          "text": "      - name: Run plugin tests (widened loop \u2014 every package.json with a test script)"
+        }
+      ],
+      "deadline_marker": null
+    },
+    {
+      "id": "catalog-drift-status",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 32,
+      "step_name": "Sync CLI marketplace catalog",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "f52645d81bb0c1c2056ef11c0894d8afb04102c45f02a02254de662d8522e80b",
+      "run_sha256": "232568b2bef02489e07c3a26b204604fe9cc0fee0e6f014d7352615ee45dc606",
+      "anchor": {
+        "line": 2,
+        "text": "if ! git diff --quiet .claude-plugin/marketplace.json; then"
+      },
+      "classification": "authorized_control_flow",
+      "rationale": "The inverted diff status selects an explicit exit 1 on catalog drift.",
+      "owner": null,
+      "promotion": null,
+      "authority": [
+        {
+          "path": ".github/workflows/validate-plugins.yml",
+          "line": 306,
+          "text": "      - name: Sync CLI marketplace catalog"
+        }
+      ],
+      "deadline_marker": null
+    },
+    {
+      "id": "credential-informational-sweep",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 56,
+      "step_name": "Security scan - Informational sweep (non-blocking)",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "b63dc39b057d39478a2ebfcf3a1448bc8f60f6d131dd634f9c628f258b3439c6",
+      "run_sha256": "e30d8d8a76b7b725da343354b40414b821df1a9e2602de1177a3cc2baf79f417",
+      "anchor": {
+        "line": 20,
+        "text": "  grep -E \"['\\\"][^'\\\"]{20,}\" || true)"
+      },
+      "classification": "informational",
+      "rationale": "The workflow labels this sweep informational; the separate gitleaks context owns blocking secret scanning.",
+      "owner": null,
+      "promotion": null,
+      "authority": [
+        {
+          "path": ".github/workflows/validate-plugins.yml",
+          "line": 532,
+          "text": "      - name: Security scan - Informational sweep (non-blocking)"
+        }
+      ],
+      "deadline_marker": null
+    },
+    {
+      "id": "dangerous-rm-scan",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 57,
+      "step_name": "Security scan - Dangerous patterns",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "cdaa020690396b90784cffc91f6f7a938d7e5f3de83e44aee00b2563ff1d9500",
+      "run_sha256": "06c9b7aebe8e76f241fb2cdb38ddeabb13fdfd05cc31e964cd339d664cdfe2be",
+      "anchor": {
+        "line": 6,
+        "text": "DANGEROUS_RM=$(grep -r -E \"rm\\s+-rf\\s+/(\\s|$|\\*)\" plugins/ 2>/dev/null | grep -v \"/var/\" | grep -v \"/tmp/\" | grep -v \"/prometheus/\" || true)"
+      },
+      "classification": "unbounded_correctness",
+      "rationale": "Operational scan errors can collapse into empty output and a clean result; no bound authority is established.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "python-test-discovery",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "test",
+      "step": 16,
+      "step_name": "Run Python tests",
+      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "step_sha256": "356568f3c9a69a87f17c733bf112e319b773dbbadb85e7d589424a0c0c86ab81",
+      "run_sha256": "189f5647d678210a75a741a42d0521821574c70ed9cdb42af0577c6eb257259f",
+      "anchor": {
+        "line": 4,
+        "text": "TEST_FILES=$(find . -name \"test_*.py\" -o -name \"*_test.py\" | grep -v \"__pycache__\" | grep -v \"backups/\" || true)"
+      },
+      "classification": "unbounded_correctness",
+      "rationale": "Discovery errors can collapse into an empty test list and successful no-tests result; no bound authority is established.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "agent-dependency-bootstrap",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 29,
+      "step_name": "Validate agent frontmatter (report-only)",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "66dd604a04a3c8f701f6d5c0b9bfb29e1d6962d136adfaf10c311719883dfe27",
+      "run_sha256": "057cff96aab0e8c561af1bcbf6baa77c2c6c1b617a2508b6761c66dc5d72d5da",
+      "anchor": {
+        "line": 1,
+        "text": "python3 -c \"import yaml\" 2>/dev/null || python3 -m pip install --quiet pyyaml || true"
+      },
+      "classification": "unresolved",
+      "rationale": "Dependency bootstrap is swallowed; the date alone does not establish a current owner or promotion condition.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": {
+        "line": 280,
+        "sha256": "cde6d6d854a76d02bff2c1a1b6b0b2a7c8fb54d37663c16e1b8b102af8708a53"
+      }
+    },
+    {
+      "id": "agent-advisory-validator",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 29,
+      "step_name": "Validate agent frontmatter (report-only)",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "66dd604a04a3c8f701f6d5c0b9bfb29e1d6962d136adfaf10c311719883dfe27",
+      "run_sha256": "057cff96aab0e8c561af1bcbf6baa77c2c6c1b617a2508b6761c66dc5d72d5da",
+      "anchor": {
+        "line": 2,
+        "text": "python3 scripts/validate-skills-schema.py --agents-only || true"
+      },
+      "classification": "unresolved",
+      "rationale": "Advisory correctness validation has a date but lacks established current ownership and promotion authority.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": {
+        "line": 280,
+        "sha256": "cde6d6d854a76d02bff2c1a1b6b0b2a7c8fb54d37663c16e1b8b102af8708a53"
+      }
+    },
+    {
+      "id": "mcp-advisory-validator",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 30,
+      "step_name": "Validate .mcp.json configs (advisory + unambiguous gate)",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "5114e3fe37a1e6b52d6406dbc5887faf90d27e889613c7b5ce4a8212f55d4cf4",
+      "run_sha256": "adeac5780a51f52948d5267db0492cd8800f1c8994cbaecc56295cd7d93ea55c",
+      "anchor": {
+        "line": 1,
+        "text": "node scripts/validate-mcp-config.mjs || true"
+      },
+      "classification": "unresolved",
+      "rationale": "The following unambiguous gate enforces only a subset; current advisory ownership is unresolved.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": {
+        "line": 293,
+        "sha256": "072b2800b1106b1caa54501b378fec86d109b244c71816eed02d04649bf25aa2"
+      }
+    },
+    {
+      "id": "eval-warning-scan",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 57,
+      "step_name": "Security scan - Dangerous patterns",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "cdaa020690396b90784cffc91f6f7a938d7e5f3de83e44aee00b2563ff1d9500",
+      "run_sha256": "06c9b7aebe8e76f241fb2cdb38ddeabb13fdfd05cc31e964cd339d664cdfe2be",
+      "anchor": {
+        "line": 14,
+        "text": "EVAL_USES=$(grep -r -E \"eval\\s*\\(\" plugins/ 2>/dev/null | grep -v \"README.md\" | grep -v \"this.redis.eval\" || true)"
+      },
+      "classification": "unresolved",
+      "rationale": "Warning-only scan role and bound remain unresolved.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "dependency-audit-advisory",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 59,
+      "step_name": "Security scan - MCP plugin dependencies",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "278ff7bd4b4ef8c8c9831a97f0900cfe96a3b372056bd47fe600f257d2ac7387",
+      "run_sha256": "79505db3e5579cb6ddd98ccb918942e52a9bfbc51743499d0792ae9108527b27",
+      "anchor": {
+        "line": 30,
+        "text": "      if ! npm audit --production --audit-level=high; then"
+      },
+      "classification": "unresolved",
+      "rationale": "Report-only audit has a date and historical issue reference, without an established current owner.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": {
+        "line": 638,
+        "sha256": "15f9c3dcaa247121df51133baf3f5b482a7339e966c3d79444c2919b988646ab"
+      }
+    },
+    {
+      "id": "python-dependency-install",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "test",
+      "step": 13,
+      "step_name": "Install Python test dependencies",
+      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "step_sha256": "ded0daf8608df5baa4da587506fbd3bbc22248c330f75933e3b0f246ad56ce9d",
+      "run_sha256": "73fca9f27fbe19e14fbaa144497ce6ae801181c0c1d57161b7d58314059acde8",
+      "anchor": {
+        "line": 22,
+        "text": "    pip install -r \"$req\" || true"
+      },
+      "classification": "unresolved",
+      "rationale": "Corpus provisioning intent does not establish authority for the suppressed installation failure.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "enterprise-validator-advisory",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "test",
+      "step": 22,
+      "step_name": "Run validation with universal validator",
+      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
+      "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
+      "anchor": {
+        "line": 11,
+        "text": "python3 scripts/validate-skills-schema.py --enterprise --show-low-grades || true"
+      },
+      "classification": "unresolved",
+      "rationale": "Report versus gate role and bounds are unresolved; the later CLI marker does not apply.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "cli-strict-advisory",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "test",
+      "step": 22,
+      "step_name": "Run validation with universal validator",
+      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
+      "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
+      "anchor": {
+        "line": 47,
+        "text": "node packages/cli/dist/index.js validate --strict || true"
+      },
+      "classification": "unresolved",
+      "rationale": "The CLI marker and historical issue reference do not establish a current owner.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": {
+        "line": 1183,
+        "sha256": "bc0bb0c3f03adb8e4cfe7c48574c54154d1c17f1f641b4445c6173502e78e054"
+      }
+    },
+    {
+      "id": "missing-slack-webhook",
+      "workflow": ".github/workflows/secret-scan.yml",
+      "job": "trufflehog",
+      "step": 2,
+      "step_name": "Notify Slack on failure",
+      "job_sha256": "ead00f4444cc8f1a703174203b8ef58549305e2e71935f7d393ec41da445675e",
+      "step_sha256": "a3080ae5c9e7207e1bb8344132660fc1e5bde5b64dc2252bf01d8b9a24d8920b",
+      "run_sha256": "9f2ffd27294aacf8f560f3343fad7202459d2ec81bb3645f7c0b7a4d8b40a6a8",
+      "anchor": {
+        "line": 3,
+        "text": "  exit 0"
+      },
+      "classification": "unresolved",
+      "rationale": "Missing notification configuration returns success; notification ownership and bound are unresolved.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "numeric-http-warning",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 57,
+      "step_name": "Security scan - Dangerous patterns",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "cdaa020690396b90784cffc91f6f7a938d7e5f3de83e44aee00b2563ff1d9500",
+      "run_sha256": "06c9b7aebe8e76f241fb2cdb38ddeabb13fdfd05cc31e964cd339d664cdfe2be",
+      "anchor": {
+        "line": 21,
+        "text": "if grep -r -E \"curl.*http://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\" plugins/ 2>/dev/null; then"
+      },
+      "classification": "unresolved",
+      "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "base64-warning",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 57,
+      "step_name": "Security scan - Dangerous patterns",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "cdaa020690396b90784cffc91f6f7a938d7e5f3de83e44aee00b2563ff1d9500",
+      "run_sha256": "06c9b7aebe8e76f241fb2cdb38ddeabb13fdfd05cc31e964cd339d664cdfe2be",
+      "anchor": {
+        "line": 26,
+        "text": "if grep -r -E \"base64\\s+-d\" plugins/ 2>/dev/null; then"
+      },
+      "classification": "unresolved",
+      "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "insecure-url-warning",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 58,
+      "step_name": "Security scan - Suspicious URLs",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "55cb614dbd339897baa5cb802b2bc235c1678bd836508122c7de0eee7f6784ce",
+      "run_sha256": "0abeda4a456cfe340701c770a6177be5e955b9ae646872552383c8d01e2105c1",
+      "anchor": {
+        "line": 3,
+        "text": "if grep -r -E \"http://[^l]\" plugins/ | grep -v \"localhost\" | grep -v \"127.0.0.1\" 2>/dev/null; then"
+      },
+      "classification": "unresolved",
+      "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "short-url-warning",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "validate",
+      "step": 58,
+      "step_name": "Security scan - Suspicious URLs",
+      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "step_sha256": "55cb614dbd339897baa5cb802b2bc235c1678bd836508122c7de0eee7f6784ce",
+      "run_sha256": "0abeda4a456cfe340701c770a6177be5e955b9ae646872552383c8d01e2105c1",
+      "anchor": {
+        "line": 8,
+        "text": "if grep -r -E \"(bit\\.ly|tinyurl\\.com|goo\\.gl)\" plugins/ 2>/dev/null; then"
+      },
+      "classification": "unresolved",
+      "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "package-test-script-discovery",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "test",
+      "step": 8,
+      "step_name": "Run plugin tests (widened loop \u2014 every package.json with a test script)",
+      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "step_sha256": "7a59310b497bf2866097cc49f6bec76e9d91675b6f5cee9a45575e0477697f58",
+      "run_sha256": "45ec28a2df5f6a338c8956f29b015ce2d4cd2b42fcd278e3d06be18a5c731951",
+      "anchor": {
+        "line": 15,
+        "text": "    if ! grep -q '\"test\":' \"$package\" && ! grep -q '\"test:ci\":' \"$package\"; then"
+      },
+      "classification": "unresolved",
+      "rationale": "No-test-script skip and read-error behavior are not distinguished by this review.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "push-parent-fallback",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "scan-synced-content",
+      "step": 4,
+      "step_name": "Scan pushed plugin content (push to main)",
+      "job_sha256": "c037c302714cae5c5faa8ca16c9ed317f4db2b21b7be6179850e171d5281ba38",
+      "step_sha256": "26b2d3432f39241c8205c5f06fda80d66a7665c20aed285a25d1d1fcc9749120",
+      "run_sha256": "113f14a32d2c60e2b6de9870c25da381c63bdc5944f8fa90a331cea088096b20",
+      "anchor": {
+        "line": 7,
+        "text": "  BASE=\"$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)\""
+      },
+      "classification": "unresolved",
+      "rationale": "Parent fallback can select HEAD and an empty changed scan; coverage is not proved.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    },
+    {
+      "id": "sync-branch-warn-mode",
+      "workflow": ".github/workflows/validate-plugins.yml",
+      "job": "scan-synced-content",
+      "step": 3,
+      "step_name": "Scan changed plugin content",
+      "job_sha256": "c037c302714cae5c5faa8ca16c9ed317f4db2b21b7be6179850e171d5281ba38",
+      "step_sha256": "46d31d7d5b268c0eca6ade14395c4023b78ce4b5b3c9e2347eaf914a2b02c146",
+      "run_sha256": "c03aa9da1a13a88544716aa96ad34bb46798ab28865ced93fa8ba4166511754a",
+      "anchor": {
+        "line": 8,
+        "text": "  automation/sync-external-*) WARN=\"--warn-only\" ;;"
+      },
+      "classification": "unresolved",
+      "rationale": "Branch-name selected warn-only mode lacks established current ownership, bound and actor authorization.",
+      "owner": null,
+      "promotion": null,
+      "authority": [],
+      "deadline_marker": null
+    }
+  ]
+}

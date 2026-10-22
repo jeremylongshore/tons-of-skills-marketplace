@@ -3284,16 +3284,417 @@
       "values": null
     },
     "50": {
-      "cohort": null,
+      "cohort": "reviewed operation sites in three required-context producer workflows and the complete ci-required graph; partial repository coverage",
       "dimension": "Unbounded correctness swallows",
-      "reason_code": "MISSING_CORRECTNESS_CRITICAL_COMMAND_REGISTRY",
-      "reproduce": "pnpm run measure:e1 --row=50 --stdout",
-      "required_inputs": [
-        "registry distinguishing bounded cleanup from correctness-critical failure swallowing"
+      "limitations": [
+        "Partial static review only: no shell interpretation, execution, or runtime coverage proof.",
+        "Opaque actions, invoked-script internals, unsupported shell and broad conditions remain coverage gaps.",
+        "Historical issue references do not establish current owners; observed dates are not expiry adjudications.",
+        "Coverage gaps overlap and are not additive; primary and repository totals remain unknown."
       ],
-      "source": [],
-      "status": "not_reproducible",
-      "values": null
+      "reproduce": "pnpm run measure:e1 --row=50 --stdout",
+      "source": [
+        ".github/workflows/secret-scan.yml",
+        ".github/workflows/skill-conform.yml",
+        ".github/workflows/validate-plugins.yml",
+        "scripts/ci-correctness-swallows.json",
+        "scripts/ci/fastlane.py"
+      ],
+      "status": "partial",
+      "values": {
+        "coverage": {
+          "conditional_envelopes": 43,
+          "containers": 236,
+          "containers_with_sites": 17,
+          "counts_overlap": true,
+          "jobs": 28,
+          "opaque_actions": 73,
+          "run_containers": 163,
+          "unreviewed_run_containers": 146,
+          "workflows": 3
+        },
+        "repository_unbounded_total": null,
+        "reviewed_unbounded_correctness_lower_bound": 2,
+        "site_counts": {
+          "authorized_control_flow": 5,
+          "informational": 1,
+          "unbounded_correctness": 2,
+          "unresolved": 16
+        },
+        "sites": [
+          {
+            "authority": [
+              {
+                "line": 38,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "      - name: Classify changed paths with the trusted policy"
+              }
+            ],
+            "classification": "authorized_control_flow",
+            "id": "full-lane-fallback",
+            "job": "classify-changes",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Missing trusted base policy explicitly selects the full lane before returning success.",
+            "run_line": 15,
+            "step": 1,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [
+              {
+                "line": 177,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "      - name: Enforce the safety ratchet"
+              }
+            ],
+            "classification": "authorized_control_flow",
+            "id": "safety-dependency-fallback",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Failed import falls back to installation; installation failure is not suppressed.",
+            "run_line": 1,
+            "step": 13,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [
+              {
+                "line": 781,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
+              }
+            ],
+            "classification": "authorized_control_flow",
+            "id": "ratchet-dependency-fallback",
+            "job": "marketplace-compliance-ratchet",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Failed import falls back to installation; installation failure is not suppressed.",
+            "run_line": 1,
+            "step": 5,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [
+              {
+                "line": 908,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
+              }
+            ],
+            "classification": "authorized_control_flow",
+            "id": "test-status-accumulator",
+            "job": "test",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Test failure is accumulated and propagated by the final fail check in this bound run body.",
+            "run_line": 58,
+            "step": 8,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [
+              {
+                "line": 306,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "      - name: Sync CLI marketplace catalog"
+              }
+            ],
+            "classification": "authorized_control_flow",
+            "id": "catalog-drift-status",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "The inverted diff status selects an explicit exit 1 on catalog drift.",
+            "run_line": 2,
+            "step": 32,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [
+              {
+                "line": 532,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "      - name: Security scan - Informational sweep (non-blocking)"
+              }
+            ],
+            "classification": "informational",
+            "id": "credential-informational-sweep",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "The workflow labels this sweep informational; the separate gitleaks context owns blocking secret scanning.",
+            "run_line": 20,
+            "step": 56,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unbounded_correctness",
+            "id": "dangerous-rm-scan",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Operational scan errors can collapse into empty output and a clean result; no bound authority is established.",
+            "run_line": 6,
+            "step": 57,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unbounded_correctness",
+            "id": "python-test-discovery",
+            "job": "test",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Discovery errors can collapse into an empty test list and successful no-tests result; no bound authority is established.",
+            "run_line": 4,
+            "step": 16,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "agent-dependency-bootstrap",
+            "job": "validate",
+            "observed_deadline": {
+              "date": "2026-10-31",
+              "expiry_adjudicated": false,
+              "source_line": 280
+            },
+            "owner": null,
+            "promotion": null,
+            "rationale": "Dependency bootstrap is swallowed; the date alone does not establish a current owner or promotion condition.",
+            "run_line": 1,
+            "step": 29,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "agent-advisory-validator",
+            "job": "validate",
+            "observed_deadline": {
+              "date": "2026-10-31",
+              "expiry_adjudicated": false,
+              "source_line": 280
+            },
+            "owner": null,
+            "promotion": null,
+            "rationale": "Advisory correctness validation has a date but lacks established current ownership and promotion authority.",
+            "run_line": 2,
+            "step": 29,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "mcp-advisory-validator",
+            "job": "validate",
+            "observed_deadline": {
+              "date": "2026-11-17",
+              "expiry_adjudicated": false,
+              "source_line": 293
+            },
+            "owner": null,
+            "promotion": null,
+            "rationale": "The following unambiguous gate enforces only a subset; current advisory ownership is unresolved.",
+            "run_line": 1,
+            "step": 30,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "eval-warning-scan",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Warning-only scan role and bound remain unresolved.",
+            "run_line": 14,
+            "step": 57,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "dependency-audit-advisory",
+            "job": "validate",
+            "observed_deadline": {
+              "date": "2026-10-31",
+              "expiry_adjudicated": false,
+              "source_line": 638
+            },
+            "owner": null,
+            "promotion": null,
+            "rationale": "Report-only audit has a date and historical issue reference, without an established current owner.",
+            "run_line": 30,
+            "step": 59,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "python-dependency-install",
+            "job": "test",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Corpus provisioning intent does not establish authority for the suppressed installation failure.",
+            "run_line": 22,
+            "step": 13,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "enterprise-validator-advisory",
+            "job": "test",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Report versus gate role and bounds are unresolved; the later CLI marker does not apply.",
+            "run_line": 11,
+            "step": 22,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "cli-strict-advisory",
+            "job": "test",
+            "observed_deadline": {
+              "date": "2026-10-31",
+              "expiry_adjudicated": false,
+              "source_line": 1183
+            },
+            "owner": null,
+            "promotion": null,
+            "rationale": "The CLI marker and historical issue reference do not establish a current owner.",
+            "run_line": 47,
+            "step": 22,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "missing-slack-webhook",
+            "job": "trufflehog",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Missing notification configuration returns success; notification ownership and bound are unresolved.",
+            "run_line": 3,
+            "step": 2,
+            "workflow": ".github/workflows/secret-scan.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "numeric-http-warning",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+            "run_line": 21,
+            "step": 57,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "base64-warning",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+            "run_line": 26,
+            "step": 57,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "insecure-url-warning",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+            "run_line": 3,
+            "step": 58,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "short-url-warning",
+            "job": "validate",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+            "run_line": 8,
+            "step": 58,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "package-test-script-discovery",
+            "job": "test",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "No-test-script skip and read-error behavior are not distinguished by this review.",
+            "run_line": 15,
+            "step": 8,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "push-parent-fallback",
+            "job": "scan-synced-content",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Parent fallback can select HEAD and an empty changed scan; coverage is not proved.",
+            "run_line": 7,
+            "step": 4,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          },
+          {
+            "authority": [],
+            "classification": "unresolved",
+            "id": "sync-branch-warn-mode",
+            "job": "scan-synced-content",
+            "observed_deadline": null,
+            "owner": null,
+            "promotion": null,
+            "rationale": "Branch-name selected warn-only mode lacks established current ownership, bound and actor authorization.",
+            "run_line": 8,
+            "step": 3,
+            "workflow": ".github/workflows/validate-plugins.yml"
+          }
+        ],
+        "target": 0,
+        "target_met": false,
+        "unbounded_correctness_total": null
+      }
     },
     "51": {
       "cohort": null,

@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
 
+// Run the pure-reader regressions through the existing measurement test lane.
+import './ci-correctness-swallows.test.mjs';
+
 import { DEAD_DOMAIN } from './dead-domain-policy.mjs';
 import { buildExtendedScorecardRows } from './measure-epic-1-scorecard.mjs';
 import { inspectFreshieHermeticTest } from './measure-epic-1.mjs';
@@ -1100,3 +1103,102 @@ test('row 40 reports malformed workflow syntax without fabricating a blocking ga
     ),
   );
 });
+
+function swallowFixture(t) {
+  const base = fixture(t);
+  const digest = (s) => createHash('sha256').update(s).digest('hex');
+  const workflowPaths = [
+    '.github/workflows/validate-plugins.yml',
+    '.github/workflows/secret-scan.yml',
+    '.github/workflows/skill-conform.yml',
+  ];
+  const job = { steps: [{ name: 'Unresolved scan', run: 'scan || true\n' }] };
+  const documents = [
+    {
+      jobs: {
+        validate: job,
+        'ci-required': { needs: ['validate'], steps: [{ run: 'echo aggregate\n' }] },
+      },
+    },
+    { jobs: { secrets: { steps: [{ run: 'echo opaque internals\n' }] } } },
+    { jobs: { conform: { steps: [{ run: 'echo conform\n' }] } } },
+  ];
+  const files = Object.fromEntries(
+    workflowPaths.map((path, i) => [path, JSON.stringify(documents[i])]),
+  );
+  files['scripts/ci/fastlane.py'] = '# synthetic policy\n';
+  files['scripts/ci-correctness-swallows.json'] = JSON.stringify({
+    schema_version: 1,
+    repository_complete: false,
+    workflows: workflowPaths.map((path) => ({ path, sha256: digest(files[path]) })),
+    aggregate_policy: {
+      path: 'scripts/ci/fastlane.py',
+      sha256: digest(files['scripts/ci/fastlane.py']),
+      authority: [],
+    },
+    expected: {
+      sites: 1,
+      site_containers: 1,
+      workflows: 3,
+      jobs: 4,
+      containers: 4,
+      run_containers: 4,
+      opaque_actions: 0,
+      conditional_envelopes: 0,
+    },
+    sites: [
+      {
+        id: 'unresolved-scan',
+        workflow: workflowPaths[0],
+        job: 'validate',
+        step: 0,
+        step_name: job.steps[0].name,
+        job_sha256: digest(canonicalJson(job)),
+        step_sha256: digest(canonicalJson(job.steps[0])),
+        run_sha256: digest(job.steps[0].run),
+        anchor: { line: 1, text: 'scan || true' },
+        classification: 'unresolved',
+        rationale: 'Synthetic unresolved scan has no bound authority.',
+        owner: null,
+        promotion: null,
+        authority: [],
+        deadline_marker: null,
+      },
+    ],
+  });
+  for (const [path, text] of Object.entries(files)) put(base.root, path, text);
+  base.paths = [...new Set([...base.paths, ...Object.keys(files)])].sort();
+  return base;
+}
+
+test('row 50 integrates a partial review while keeping primary totals unknown', (t) => {
+  const row = buildExtendedScorecardRows(input(swallowFixture(t)))[50];
+  assert.equal(row.status, 'partial');
+  assert.equal(row.values.unbounded_correctness_total, null);
+  assert.equal(row.values.repository_unbounded_total, null);
+  assert.equal(row.values.reviewed_unbounded_correctness_lower_bound, 0);
+  assert.equal(row.values.site_counts.unresolved, 1);
+  assert.equal(row.values.target_met, false);
+});
+
+test('row 50 invalid registry reports unknown rather than zero', (t) => {
+  const base = swallowFixture(t);
+  put(base.root, 'scripts/ci-correctness-swallows.json', '{');
+  const row = buildExtendedScorecardRows(input(base))[50];
+  assert.equal(row.status, 'not_reproducible');
+  assert.equal(row.values.site_counts, null);
+  assert.equal(row.values.target_met, false);
+});
+
+for (const path of ['scripts/ci-correctness-swallows.json', '.github/workflows/secret-scan.yml']) {
+  test(`row 50 refuses an actual symlink at ${path}`, (t) => {
+    const base = swallowFixture(t);
+    const target = join(base.root, 'outside-input');
+    writeFileSync(target, readFileSync(join(base.root, path)));
+    rmSync(join(base.root, path));
+    symlinkSync(target, join(base.root, path));
+    const row = buildExtendedScorecardRows(input(base))[50];
+    assert.equal(row.status, 'not_reproducible');
+    assert.ok(row.values === null || row.values.site_counts === null);
+  });
+}
