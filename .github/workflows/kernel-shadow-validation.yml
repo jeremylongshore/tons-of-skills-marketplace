@@ -8,16 +8,17 @@ name: Kernel Shadow Validation (advisory)
 # prose-spec validator (scripts/validate-skills-schema.py) grades. The summary
 # leads with strict-v2 existing-PASS / kernel-FAIL — the only decision-relevant
 # number for a future authority flip — while retaining the v1 scope comparison.
+# The agent step separately observes composed v1/v2 agent-definition contracts
+# over canonical Python discovery, retaining raw comparisons and scope limits.
 #
 # GUARDRAILS — this workflow is INTENTIONALLY non-authoritative:
 #   * It is NOT in the branch-protection required-status set. It can never make a
 #     PR un-mergeable.
 #   * The validation step uses `continue-on-error: true`, so even a harness crash
 #     surfaces as a neutral/annotation, never a red required check.
-#   * It does NOT modify, call, or gate on the existing validator's verdict — it
-#     only READS that verdict (via --json) and compares. The existing validator's
-#     verdict and authority remain unchanged; the required lane tests report
-#     transport only.
+#   * It reads existing verdicts via skill JSON or canonical agent functions;
+#     it never changes those verdicts or their authority. Python/R1 remain
+#     blocking; kernel disagreements are evidence only.
 #   * The deviation rate is REPORTED (job summary + artifact), never enforced.
 #
 # Promotion to a blocking gate is a SEPARATE, later cutover step that requires
@@ -30,12 +31,18 @@ on:
       - 'scripts/kernel-shadow-validation.mjs'
       - 'scripts/kernel-shadow-registry.mjs'
       - 'scripts/kernel-shadow-validation.test.mjs'
+      - 'scripts/kernel-shadow-agents.mjs'
+      - 'scripts/kernel-shadow-agents.py'
+      - 'scripts/kernel-shadow-agents.test.mjs'
       - 'scripts/validate-mcp-config.mjs'
       - 'scripts/validate-skills-schema.py'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'plugins/**/SKILL.md'
       - 'skills/**/SKILL.md'
+      - 'plugins/**/agents/**/*.md'
+      - '.claude/agents/**/*.md'
+      - 'workspace/**/agents/**/*.md'
       - 'plugins/**/.mcp.json'
       - 'plugins/**/.claude-plugin/plugin.json'
       - '.github/workflows/kernel-shadow-validation.yml'
@@ -87,6 +94,17 @@ jobs:
         continue-on-error: true
         run: node scripts/kernel-shadow-validation.mjs
 
+      - name: Exercise agent shadow with synthetic failure fixtures
+        continue-on-error: true
+        run: node --test scripts/kernel-shadow-agents.test.mjs
+
+      # Raw agent comparisons do not replace the authoritative Python/R1 gates.
+      # A failed observation must remain visible without making this blocking.
+      - name: Compare agent corpus against composed v1/v2 schemas (advisory)
+        id: agent-shadow
+        continue-on-error: true
+        run: node scripts/kernel-shadow-agents.mjs
+
       # ADVISORY MCP config validation against the kernel's authoring/v1
       # mcp-config composition. Same guardrails as the shadow step above:
       # continue-on-error, default-advisory exit 0, findings reported in the
@@ -104,6 +122,7 @@ jobs:
           name: kernel-shadow-deviation-report
           path: |
             scripts/.kernel-shadow/report.json
+            scripts/.kernel-shadow/agents-report.json
             scripts/.kernel-shadow/registry-fixture-proof/
           include-hidden-files: true
           if-no-files-found: warn

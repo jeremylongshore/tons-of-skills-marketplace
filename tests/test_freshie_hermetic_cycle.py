@@ -247,7 +247,7 @@ class HermeticFreshieCycleTests(unittest.TestCase):
             self.assertEqual(conn.execute("SELECT COUNT(*) FROM skill_compliance WHERE run_id=1").fetchone()[0], 1)
             grade = conn.execute("SELECT grade FROM skill_compliance WHERE run_id=1").fetchone()[0]
             self.assertIn(grade, {"A", "B"})
-        self._run(
+        first_sync = self._run(
             [
                 sys.executable,
                 str(SYNC),
@@ -266,6 +266,11 @@ class HermeticFreshieCycleTests(unittest.TestCase):
                 "--no-push",
             ]
         )
+        first_histogram = json.loads((self.out / "grade-histogram.json").read_text())
+        retry = self._run(first_sync.args)
+        self.assertIn("commit created: False; tag: run-1", retry.stdout)
+        self.assertEqual(json.loads((self.out / "grade-histogram.json").read_text())["dolt_commit"],
+                         first_histogram["dolt_commit"])
 
         command_export = self._run(
             [
