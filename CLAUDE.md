@@ -257,6 +257,21 @@ evidence is explicit. These advisory comparisons concern the installed kernel;
 they do not establish upstream currency or full skill/agent registry coverage.
 Synthetic transport-test receipts are labeled separately in the CI artifact.
 
+The same advisory job also runs `scripts/kernel-shadow-agents.mjs` against the
+pinned composed v1/v2 `agent-definition` schemas. Its read-only Python adapter
+calls canonical `find_agent_files()` and `validate_agent()` because batch
+`--agents-only --json` returns before the agent loop. The separate
+`scripts/.kernel-shadow/agents-report.json` retains every discovered agent,
+content/schema hashes, Python findings, and kernel findings. These are **raw**
+verdict comparisons: Python includes enterprise and body/tool checks, so
+Python-FAIL/kernel-PASS may reflect different scopes, and both failing does not
+prove equivalent rules. The summary leads with v2 Python-PASS/kernel-FAIL.
+Missing or partial evidence is explicit and exits nonzero in a
+`continue-on-error: true` step; disagreements alone never fail the observation.
+There is no new debt baseline or threshold. Python and the marketplace R1
+ratchet retain blocking authority; the DR-049 promotion conditions below and
+the existing skill-shadow report are unchanged.
+
 ### Do-not-flip soak discipline (do not lose this)
 
 **The kernel pin and the authority flip are two SEPARATE axes — do not conflate them.** The pin is _intended_ to track the latest published kernel; bumping it keeps the shadow lane reading a current, byte-frozen `authoring/v1` contract and is a routine governance/coupling update, not an authority change.
