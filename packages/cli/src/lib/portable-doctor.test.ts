@@ -43,10 +43,17 @@ async function snapshot(directory: string): Promise<Record<string, string>> {
       const file = path.join(directory, child);
       const info = await fs.lstat(file);
       if (info.isDirectory()) await walk(child);
-      else
-        result[child] = `${info.mode}:${info.mtimeMs}:${createHash('sha256')
-          .update(await fs.readFile(file))
-          .digest('hex')}`;
+      else {
+        const handle = await fs.open(file, 'r');
+        try {
+          const opened = await handle.stat();
+          result[child] = `${opened.mode}:${opened.mtimeMs}:${createHash('sha256')
+            .update(await handle.readFile())
+            .digest('hex')}`;
+        } finally {
+          await handle.close();
+        }
+      }
     }
   }
   await walk('');
