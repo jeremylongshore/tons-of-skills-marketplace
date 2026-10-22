@@ -1423,6 +1423,40 @@ sources:
       - 'node_modules/**'
       - '.git/**'
 
+  # ============================================================
+  # Caption Checker (Mark Studios)
+  # https://github.com/markksantos/caption-checker
+  # ============================================================
+
+  - name: caption-checker
+    description: Check SRT and WebVTT captions against Netflix English, the BBC subtitle guidelines or the DCMP Captioning Key - reading speed, characters a line, lines, time on screen, gaps and overlaps - with a zero-dependency MCP server plus a skill that picks the standard and suggests fixes that keep the words. Runs offline, no key.
+    repo: markksantos/caption-checker
+    source_path: .
+    target_path: plugins/testing/caption-checker
+    author:
+      name: Mark Santos
+      github: markksantos
+      email: hello@markksantos.com
+    license: MIT
+    category: testing
+    verified: false
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/README.md'
+      - '/LICENSE'
+      - '/skills/**'
+      - '/bin/**'
+      - '/index.js'
+      - '/mcp.js'
+      - '/package.json'
+      - '/examples/**'
+      - '/docs/PRD.md'
+      - '/docs/ADR.md'
+      - '/docs/preview.png'
+    exclude:
+      - '/.git/**'
+      - '**/node_modules/**'
+
   - name: swift-ship
     description: Five Agent Skills for shipping Swift/macOS apps — .icns icons, .app/DMG packaging, CI portability traps, OSS readiness audit, release flow
     repo: chsistrying/swift-ship-skills
