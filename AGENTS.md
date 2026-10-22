@@ -32,7 +32,7 @@ Add or update focused tests beside the affected package or in `tests/`; Python t
 
 ## Commits and Pull Requests
 
-Use Conventional Commit-style subjects visible in history, such as `fix(ci): harden validation` or `docs(contributing): clarify workflow`. Keep each commit scoped. PRs should explain the user-facing change, link the beads issue, include screenshots for visual site changes, and include regenerated derived files when applicable. Use `bd` for task tracking: run `bd ready`, claim the issue, and close it when complete. Before finishing, commit, pull/rebase, run `bd dolt push`, push, and confirm `git status` is up to date.
+Use Conventional Commit-style subjects visible in history, such as `fix(ci): harden validation` or `docs(contributing): clarify workflow`. Keep each commit scoped. PRs should explain the user-facing change, link the beads issue, include screenshots for visual site changes, and include regenerated derived files when applicable. Use `bd` for task tracking: run `bd ready`, claim the issue, and close it when complete. Before finishing, commit, pull/rebase, run `bd dolt push` and `git push`, and confirm `git status` is up to date. Read back the affected bead and verify the remote PR state before reporting completion.
 
 ## Merge gates (do not weaken)
 
