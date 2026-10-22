@@ -16958,44 +16958,41 @@ describe('ccsc-3w0 — dispatchAdminCommand !restart (redemption phase)', () => 
     ['replay' as const, 'replay'],
     ['wrong-channel' as const, 'wrong-channel'],
     ['wrong-user' as const, 'wrong-user'],
-  ])(
-    'invalid nonce (reason=%s) → denied with admin.restart.denied, no execution',
-    async (reason) => {
-      const { dispatchAdminCommand, createRecordingSendKeys } = await import('./admin.ts')
-      const journal: Array<Record<string, unknown>> = []
-      const tmuxCalls: Array<readonly string[]> = []
+  ])('invalid nonce (reason=%s) → denied with admin.restart.denied, no execution', async (reason) => {
+    const { dispatchAdminCommand, createRecordingSendKeys } = await import('./admin.ts')
+    const journal: Array<Record<string, unknown>> = []
+    const tmuxCalls: Array<readonly string[]> = []
 
-      const result = await dispatchAdminCommand(
-        {
-          kind: 'restart',
-          nonce: 'bogus_nonce',
-          channelId: 'C_OPS',
-          requestedBy: 'U_ALICE',
-          threadTs: '1700000000.000100',
-          messageTs: '1700000000.000100',
+    const result = await dispatchAdminCommand(
+      {
+        kind: 'restart',
+        nonce: 'bogus_nonce',
+        channelId: 'C_OPS',
+        requestedBy: 'U_ALICE',
+        threadTs: '1700000000.000100',
+        messageTs: '1700000000.000100',
+      },
+      {
+        isAllowed: () => true,
+        journalWrite: async (input) => {
+          journal.push(input)
+          return undefined
         },
-        {
-          isAllowed: () => true,
-          journalWrite: async (input) => {
-            journal.push(input)
-            return undefined
-          },
-          quiesceAndDeactivate: async () => {},
-          sendTmuxKeys: createRecordingSendKeys(tmuxCalls),
-          issueChallenge: async () => ({ nonce: 'unused', expiresAt: 0 }),
-          verifyChallenge: () => ({ ok: false, reason }),
-          postReaction: async () => {},
-        },
-      )
+        quiesceAndDeactivate: async () => {},
+        sendTmuxKeys: createRecordingSendKeys(tmuxCalls),
+        issueChallenge: async () => ({ nonce: 'unused', expiresAt: 0 }),
+        verifyChallenge: () => ({ ok: false, reason }),
+        postReaction: async () => {},
+      },
+    )
 
-      expect(result.kind).toBe('denied')
-      if (result.kind === 'denied') {
-        expect(result.reason).toContain(reason)
-      }
-      expect(journal[0]!.kind).toBe('admin.restart.denied')
-      expect(tmuxCalls).toEqual([])
-    },
-  )
+    expect(result.kind).toBe('denied')
+    if (result.kind === 'denied') {
+      expect(result.reason).toContain(reason)
+    }
+    expect(journal[0]!.kind).toBe('admin.restart.denied')
+    expect(tmuxCalls).toEqual([])
+  })
 
   test('!restart with nonce but non-allowlisted user → denied at allowlist gate (nonce not even verified)', async () => {
     const { dispatchAdminCommand, createRecordingSendKeys } = await import('./admin.ts')
