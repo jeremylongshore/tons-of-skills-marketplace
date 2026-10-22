@@ -1445,6 +1445,34 @@ sources:
       - '.git/**'
       - '*.log'
 
+  - name: overboard
+    description: Dashboard and scheduler for every Claude Code session across your repos - what shipped, live needs-review flags, no API key
+    repo: mrieck/overboard-plugin
+    source_path: .
+    target_path: plugins/productivity/overboard
+    author:
+      name: Mark Rieck
+      github: mrieck
+    license: MIT
+    category: productivity
+    verified: false
+    include:
+      - '/.claude-plugin/**'
+      - '/.mcp.json'
+      - '/skills/**'
+      - '/commands/**'
+      - '/agents/**'
+      - '/hooks/**'
+      - '/overboard/**'
+      - '/prompts/**'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '**/__pycache__/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
