@@ -7,7 +7,7 @@
     "catalog_sha256": "e83ad8d8be086f33d589c5b59e555fbf87f605e9d4359b4b39f7d51c65f4b491",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "882b3c3a584acaf38c88a972d9dd6b769eb8d6a4c7bd3fd122c12b6dc51b3675",
-    "tracked_inventory_sha256": "0f060756229b2d77c4f7571ec92e97dbc7581d10e3ced651f658edb1cac3b618"
+    "tracked_inventory_sha256": "93ff16409b03eedfa596a7d59203d7119d2ec581b1499a2b70a601d26aed7a12"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -1218,7 +1218,7 @@
       "candidate_basis_points": 8696,
       "verification_grade": "A",
       "verification_score": 91,
-      "pack_inventory_sha256": "4dfa631679daa4f1377cb65c9d5af74b572767cefb110c6cc61416e82ad6a33a",
+      "pack_inventory_sha256": "51f328a258f4b8718a44794392a363d374b794b8722e8d2173c9ecdf1df7e5cf",
       "candidate_set_sha256": "35a3728153557b35670c94daeeb2d715b1e9158f841d34b0b8636b13a65b87e3",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
@@ -10378,7 +10378,7 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "4dfa631679daa4f1377cb65c9d5af74b572767cefb110c6cc61416e82ad6a33a",
+      "pack_inventory_sha256": "51f328a258f4b8718a44794392a363d374b794b8722e8d2173c9ecdf1df7e5cf",
       "candidate_set_sha256": "35a3728153557b35670c94daeeb2d715b1e9158f841d34b0b8636b13a65b87e3",
       "skill_count": 23,
       "catalog_declared_skill_count": 23,
