@@ -18,6 +18,9 @@ on:
     paths:
       - 'scripts/auto-bump-changed-plugins.mjs'
       - 'scripts/auto-bump-changed-plugins.test.mjs'
+      - 'scripts/auto-bump-directive.mjs'
+      - 'scripts/auto-bump-directive.test.mjs'
+      - '.github/workflows/auto-bump-on-pr.yml'
       - 'scripts/reconstruct-versions.mjs'
       - '.github/workflows/auto-bump-test.yml'
 
@@ -44,4 +47,4 @@ jobs:
       # Zero-install: the module and its tests use only node built-ins
       # (node:test, node:assert) by design.
       - name: Auto-bump decision unit corpus
-        run: node --test scripts/auto-bump-changed-plugins.test.mjs
+        run: node --test scripts/auto-bump-changed-plugins.test.mjs scripts/auto-bump-directive.test.mjs

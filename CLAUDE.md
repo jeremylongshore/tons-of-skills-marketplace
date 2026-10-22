@@ -282,7 +282,7 @@ A recent cleanup removed 74 dead duplicate `validation.sh` stubs, collapsed prev
 
 ### auto-bump posture for contributors
 
-`.github/workflows/auto-bump-on-pr.yml` auto-bumps changed plugins' patch versions on PRs (only on `plugins/**` / `packages/**` changes). For a docs-only or otherwise non-release PR, put **`[skip auto-bump]`** in the PR title or body so the auto-bumper steps aside. Minor/major bumps stay a deliberate human choice — hand-edit the version in the same PR. It stays on `pull_request` (not `pull_request_target`) by design — the bump needs a write token, which must never be handed to fork code; fork PRs are skipped cleanly, and a first-time fork contributor's queued "Approve and run" entry just no-ops when approved.
+`.github/workflows/auto-bump-on-pr.yml` auto-bumps changed plugins' patch versions on PRs (only on `plugins/**` / `packages/**` changes). For a docs-only or otherwise non-release PR, put **`[skip auto-bump]`** in the PR title, or on its own line in the body outside prose, quotes, comments, and code examples, so the auto-bumper steps aside. Minor/major bumps stay a deliberate human choice — hand-edit the version in the same PR. It stays on `pull_request` (not `pull_request_target`) by design — the bump needs a write token, which must never be handed to fork code; fork PRs are skipped cleanly, and a first-time fork contributor's queued "Approve and run" entry just no-ops when approved.
 
 ## Adding a New Plugin
 

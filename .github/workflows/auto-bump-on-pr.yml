@@ -27,7 +27,8 @@ name: Auto-bump changed plugin patch versions
 #     good external contribution. Skip cleanly instead (maintainer bumps at merge).
 #   - PR head branch starts with `automation/` (avoids self-bumping the
 #     automation/npm-stats and similar generated PRs).
-#   - PR title or body contains `[skip auto-bump]`.
+#   - PR title contains `[skip auto-bump]`, or the body has that directive on
+#     its own line outside quoted/commented/code examples.
 #
 # Runs on `pull_request` (NOT pull_request_target) BY DESIGN: the bump needs a
 # write token to commit back to the PR branch, and pull_request_target would hand
@@ -60,8 +61,7 @@ jobs:
     if: |
       github.event.pull_request.head.repo.full_name == github.repository &&
       !startsWith(github.head_ref, 'automation/') &&
-      !contains(github.event.pull_request.title, '[skip auto-bump]') &&
-      !contains(github.event.pull_request.body, '[skip auto-bump]')
+      !contains(github.event.pull_request.title, '[skip auto-bump]')
     steps:
       - name: Checkout PR head with full history
         uses: actions/checkout@v7
@@ -86,8 +86,13 @@ jobs:
         with:
           node-version: 22
 
+      - name: Read standalone body skip directive
+        id: directive
+        run: node scripts/auto-bump-directive.mjs
+
       - name: Compute and apply patch bumps
         id: bump
+        if: steps.directive.outputs.skip == 'false'
         env:
           GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
@@ -171,6 +176,8 @@ jobs:
             echo "✅ Bumped ${{ steps.bump.outputs.count }} plugin(s); commit pushed to \`$HEAD_REF\`." >> "$GITHUB_STEP_SUMMARY"
           elif [ "${{ steps.bump.outputs.changed }}" = "true" ]; then
             echo "❌ Bump prepared but regeneration, validation, or push failed; no successful publication claimed." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ steps.directive.outputs.skip }}" = "true" ]; then
+            echo "✓ Skipped by the standalone PR body directive." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "✓ No plugin source changes that warrant a patch bump." >> "$GITHUB_STEP_SUMMARY"
           fi
