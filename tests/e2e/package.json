@@ -22,9 +22,10 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.19.27",
-    "@vitest/ui": "^4.1.11",
+    "@vitest/ui": "4.1.12",
     "typescript": "^5.5.0",
-    "vitest": "^4.1.11"
+    "vitest": "4.1.12",
+    "vite": "8.2.4"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

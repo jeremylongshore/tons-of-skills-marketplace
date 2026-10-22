@@ -26,9 +26,9 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "4.1.11",
-    "@vitest/ui": "4.1.11",
-    "vite": "6.4.3",
-    "vitest": "4.1.11"
+    "@vitest/coverage-v8": "4.1.12",
+    "@vitest/ui": "4.1.12",
+    "vite": "6.4.4",
+    "vitest": "4.1.12"
   }
 }
