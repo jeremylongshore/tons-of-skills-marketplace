@@ -199,7 +199,6 @@ The socket mode is 0777 minus whatever umask gunicorn is given, so the flag is w
 
 A unit test exercises the function, not the deployment. The properties that matter live in a layer the code does not own, and that layer holds a hostname arriving off the network, a kernel umask applied to a socket inode, the container runtime's environment, and a second process sharing the container. The suites were not wrong. Each one stopped a layer short of the process, so these get caught by a deployment check and a review question rather than by a unit test.
 
-
 ## Use this
 
 - **Ask what the guard does with the input nobody thought of.** If the answer is a list of known bad names, the failure direction is open and the tests cannot see it, because they share the list. Name the allowed hosts instead, and refuse the wildcard.
@@ -211,6 +210,7 @@ A unit test exercises the function, not the deployment. The properties that matt
 - [Wrong-Mode Green Is Not a Gate](https://startaitools.com/posts/wrong-mode-green-is-not-a-gate/): a checker that ran in the wrong mode and still printed all-green, the same shape as a guard that lists the wrong hosts.
 - [Every Verdict Carries the Scope It Actually Ran](https://startaitools.com/posts/a-green-result-only-covers-what-it-ran/): what a green result proves, which is the scope it ran and nothing past it.
 - [A bash redirect that hides stderr but not the exit code](https://startaitools.com/posts/bash-2-devnull-pipefail-first-deploy/): a deploy killed by an exit code nobody was reading, the plumbing cousin of the health command's exit codes.
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
