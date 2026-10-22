@@ -228,7 +228,15 @@ function stripLineComment(line, cls) {
  *  `c'u'rl` → `curl`. The whitespace AROUND a `+` is part of the concatenation
  *  and is dropped; other spaces are preserved. */
 export function concatCollapse(line) {
-  return line.replace(/\s*\+\s*/g, '').replace(/["'`\\]/g, '');
+  // Consume each whitespace run once. A leading \s* followed by a missing +
+  // retries at every character of masked comments/strings (quadratic time).
+  // Preserve whitespace unless it touched + in the original input, before
+  // quotes and backslashes are removed, matching the normalization contract.
+  return line.replace(/\s+|[+"'`\\]/g, (token, offset) =>
+    /^\s/.test(token) && line[offset - 1] !== '+' && line[offset + token.length] !== '+'
+      ? token
+      : '',
+  );
 }
 
 /**
@@ -473,7 +481,10 @@ function jsRegexCanStart(chars, offset) {
       if (/^(?:if|while|for|with)$/.test(header)) return true;
     }
   }
-  const prefix = chars.slice(0, previous + 1).join('');
+  // The longest keyword below is "instanceof" (10 characters). Keep its
+  // preceding boundary character too; copying the entire file prefix for
+  // every division slash makes minified bundles quadratic to scan.
+  const prefix = chars.slice(Math.max(0, previous - 10), previous + 1).join('');
   // Every JavaScript keyword that can immediately precede an expression. Keep
   // this list centralized so regex literals cannot poison later authority
   // discovery merely by appearing in an uncommon expression context.

@@ -15,6 +15,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { win32 } from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 import {
   scanContent,
@@ -36,6 +37,41 @@ const grades = (findings) => findings.map((f) => f.grade);
 const ids = (findings) => findings.map((f) => f.id);
 const hasRefuse = (f) => f.some((x) => x.grade === GRADE.REFUSE);
 const hasChallenge = (f) => f.some((x) => x.grade === GRADE.CHALLENGE);
+
+test('concat normalization preserves the prior whitespace and token semantics', () => {
+  // Differential oracle: the former two-pass expression defines the behavior
+  // being preserved, while bounded inputs keep this comparison inexpensive.
+  const alphabet = ['a', '+', '"', "'", '`', '\\', ' ', '\t', '\n', '\r', '\u00a0', '$'];
+  let seed = 20261022;
+  for (let sample = 0; sample < 10000; sample++) {
+    let input = '';
+    for (let i = 0; i < 80; i++) {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      input += alphabet[(seed >>> 16) % alphabet.length];
+    }
+    const prior = input.replace(/\s*\+\s*/g, '').replace(/["'`\\]/g, '');
+    assert.equal(concatCollapse(input), prior, JSON.stringify(input));
+  }
+});
+
+test('masked whitespace completes within a bounded scanner process', () => {
+  const input = `before${' '.repeat(100000)}after`;
+  const moduleUrl = new URL('./scan-synced-content.mjs', import.meta.url).href;
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      `import { concatCollapse } from ${JSON.stringify(moduleUrl)};
+       import { readFileSync } from 'node:fs';
+       process.stdout.write(concatCollapse(readFileSync(0, 'utf8')));`,
+    ],
+    { input, encoding: 'utf8', timeout: 10000 },
+  );
+  assert.equal(result.error, undefined, result.error?.message);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout, input);
+});
 
 test('normalizes Windows paths before extensionless hook classification', () => {
   const hook = String.raw`plugins\community\evil\hooks\pre-tool-use`;
