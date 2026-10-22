@@ -29,7 +29,8 @@ if git diff --cached --name-only | grep -qx '.claude-plugin/marketplace.extended
 fi
 
 # Step 2: Standard gates
-pnpm exec lint-staged && pnpm exec audit-harness verify
+pnpm exec lint-staged || exit $?
+pnpm exec audit-harness verify || exit $?
 
 # E4.14 refuse-to-start pre-flight (blueprint 727 § 18.7): refuse to proceed
 # while a live-shaped plaintext credential sits in this box's MCP configs
