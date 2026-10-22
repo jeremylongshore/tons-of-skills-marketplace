@@ -101,7 +101,8 @@ test('CI uses a complete manual-run range and disables standalone lifecycle scri
     new URL('../.github/workflows/validate-plugins.yml', import.meta.url),
     'utf8',
   );
-  assert.match(workflow, /git fetch --no-tags --unshallow origin "\$AUDIT_DEFAULT_BRANCH"/);
+  assert.match(workflow, /git fetch --no-tags origin "\$AUDIT_DEFAULT_BRANCH"/);
+  assert.doesNotMatch(workflow, /git fetch[^\n]*--unshallow/);
   // A depth-limited fetch re-shallows the full clone and breaks the three-dot
   // range with "no merge base" whenever the base branch moved after the event.
   assert.match(workflow, /git fetch --no-tags origin "\$AUDIT_BASE_REF"/);

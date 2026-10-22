@@ -3022,6 +3022,7 @@
       "status": "partial",
       "values": {
         "actual_needs": [
+          "classify-changes",
           "validate",
           "marketplace-compliance-ratchet",
           "verify",
@@ -3046,7 +3047,7 @@
           "doc-governance",
           "secret-diff-scan"
         ],
-        "actual_needs_count": 23,
+        "actual_needs_count": 24,
         "documented_needs": null
       }
     },

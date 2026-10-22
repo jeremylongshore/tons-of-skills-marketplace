@@ -78,6 +78,12 @@ audits should not re-raise these as P1 unless a re-trigger condition fires.
 
 ## Installed gates (observational)
 
+CI routing uses the immutable PR-base policy and an exact-result aggregate.
+`tests/ci/test_fastlane*.py` exercises real Git diffs, hostile result maps,
+and workflow wiring; `tests/ci/test_funding.py` exercises the funding schema.
+The retained gates and explicit path classes are in
+[CI routing](../.github/CI_ROUTING.md).
+
 | Layer                       | Gate                                                                | Trigger             |
 |-----------------------------|---------------------------------------------------------------------|---------------------|
 | L1-hooks                    | `husky` declared (`package.json` `devDependencies`)                 | local pre-commit    |
