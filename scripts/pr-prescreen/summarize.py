@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -108,8 +109,32 @@ def call_llm(classifier_output: dict, *, api_key: str, api_url: str, model: str,
     return content
 
 
+def strip_reasoning(text: str) -> str:
+    """Keep public text outside provider think blocks, including truncated ones."""
+    visible: list[str] = []
+    depth = 0
+    cursor = 0
+    for tag in re.finditer(r"</?think\b[^>]*(?:>|$)", text, re.IGNORECASE):
+        if depth == 0:
+            visible.append(text[cursor : tag.start()])
+        if tag.group().startswith("</"):
+            if depth:
+                depth -= 1
+            else:
+                # An unmatched closer may follow a provider's untagged
+                # reasoning prefix. Only text after that boundary is public.
+                visible.clear()
+        else:
+            depth += 1
+        cursor = tag.end()
+    if depth == 0:
+        visible.append(text[cursor:])
+    return "".join(visible)
+
+
 def normalise_summary_lines(text: str) -> str:
-    """Trim to 5 lines, strip stray markdown fences, no trailing whitespace."""
+    """Remove reasoning before taking 5 public lines and stripping fences."""
+    text = strip_reasoning(text)
     lines = [l.rstrip() for l in text.splitlines() if l.strip()]
     cleaned: list[str] = []
     for line in lines:
@@ -155,7 +180,11 @@ def summarize(classifier_output: dict) -> dict:
         out["llm_status"] = f"failed: {exc.__class__.__name__}"
         return out
 
-    out["summary_lines"] = normalise_summary_lines(raw)
+    summary = normalise_summary_lines(raw)
+    if not summary:
+        out["llm_status"] = "skipped: no public summary"
+        return out
+    out["summary_lines"] = summary
     out["llm_status"] = "ok"
     out["llm_model"] = model
     return out

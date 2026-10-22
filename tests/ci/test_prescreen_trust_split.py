@@ -66,6 +66,11 @@ class RespondNeverTouchesPrBytes(unittest.TestCase):
     def test_runs_on_workflow_run_of_the_prescreen(self):
         self.assertEqual(self.wf[True], {"workflow_run": {"workflows": ["PR Pre-screen"], "types": ["completed"]}})
 
+    def test_comment_footer_names_the_three_required_contexts(self):
+        body = step(self.wf, "respond", "Build PR comment body")["run"]
+        footer = body[body.index("This is an **advisory** pre-screen") : body.index('body = "\\n".join(lines)')]
+        self.assertEqual(re.findall(r"`([^`]+)`", footer), ["ci-required", "gitleaks", "skill-conform"])
+
     def test_kill_switch_and_success_gate(self):
         condition = self.wf["jobs"]["respond"]["if"]
         self.assertIn("vars.ENABLE_PR_PRESCREEN == 'true'", condition)
