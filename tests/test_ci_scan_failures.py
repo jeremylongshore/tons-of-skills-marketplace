@@ -1,8 +1,10 @@
 """Execute the real CI scan steps with isolated input trees and offline tools."""
 
+import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -145,6 +147,149 @@ class ScanFailureTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIsNotNone(args)
         self.assertNotIn("Python tests passed", result.stdout)
+
+
+class PackageDiscoveryTests(unittest.TestCase):
+    """Real workflow loop with actual grep errors and inert package-manager peers."""
+
+    def run_packages(self, files, *, failed_pattern="", failed_plugin=""):
+        with tempfile.TemporaryDirectory(prefix="package-discovery-") as temporary:
+            root = Path(temporary)
+            for filename, content in files.items():
+                target = root / filename
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content)
+            tools = root / "offline-tools"
+            tools.mkdir()
+            home = root / "home"
+            home.mkdir()
+            trace = root / "calls.jsonl"
+            grep = tools / "grep"
+            grep.write_text(
+                "#!" + sys.executable + "\n"
+                "import json, os, subprocess, sys\n"
+                "args = sys.argv[1:]\n"
+                "if args[1] == os.environ['FAILED_PATTERN']:\n"
+                "    args[-1] = os.environ['MISSING_FIXTURE']\n"
+                "result = subprocess.run([os.environ['REAL_GREP'], *args])\n"
+                "with open(os.environ['CALL_TRACE'], 'a') as out:\n"
+                "    out.write(json.dumps({'grep': sys.argv[1:], 'status': result.returncode}) + '\\n')\n"
+                "sys.exit(result.returncode)\n"
+            )
+            grep.chmod(0o755)
+            for command in ("pnpm", "npm"):
+                stub = tools / command
+                stub.write_text(
+                    "#!" + sys.executable + "\n"
+                    "import json, os, sys\nfrom pathlib import Path\n"
+                    f"command = {command!r}\n"
+                    "with open(os.environ['CALL_TRACE'], 'a') as out:\n"
+                    "    out.write(json.dumps({'command': command, 'args': sys.argv[1:], "
+                    "'plugin': Path.cwd().name}) + '\\n')\n"
+                    "if command != 'pnpm' or sys.argv[1:] not in "
+                    "[['test:ci'], ['test', '--', '--run']]:\n    sys.exit(88)\n"
+                    "sys.exit(7 if Path.cwd().name == os.environ['FAILED_PLUGIN'] else 0)\n"
+                )
+                stub.chmod(0o755)
+            env = {
+                "PATH": f"{tools}{os.pathsep}{os.defpath}",
+                "HOME": str(home),
+                "REAL_GREP": shutil.which("grep"),
+                "FAILED_PATTERN": failed_pattern,
+                "FAILED_PLUGIN": failed_plugin,
+                "MISSING_FIXTURE": str(root / "missing-package-fixture"),
+                "CALL_TRACE": str(trace),
+            }
+            result = subprocess.run(
+                [
+                    "/bin/bash",
+                    "-e",
+                    "-c",
+                    workflow_step("test", "Run plugin tests (widened loop — every package.json with a test script)"),
+                ],
+                cwd=root,
+                env=env,
+                text=True,
+                capture_output=True,
+                timeout=15,
+            )
+            events = [json.loads(line) for line in trace.read_text().splitlines()] if trace.exists() else []
+            return result, events
+
+    @staticmethod
+    def package(scripts):
+        return json.dumps({"scripts": scripts})
+
+    def test_all_four_grep_read_errors_fail_before_package_commands(self):
+        cases = [
+            ({"test": "inert"}, '"test":'),
+            ({"other": "inert"}, '"test:ci":'),
+            ({"test": "inert"}, "pytest"),
+            ({"test": "inert", "test:ci": "inert"}, '"test:ci":'),
+        ]
+        for scripts, pattern in cases:
+            with self.subTest(scripts=scripts, pattern=pattern):
+                result, events = self.run_packages(
+                    {"plugins/mcp/fixture/package.json": self.package(scripts)}, failed_pattern=pattern
+                )
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("grep status 2", result.stderr)
+                self.assertTrue(any(event.get("status") == 2 for event in events))
+                self.assertFalse(any("command" in event for event in events))
+                self.assertNotIn("All passing.", result.stdout)
+
+    def test_no_test_script_skips(self):
+        result, events = self.run_packages({"plugins/mcp/fixture/package.json": self.package({"other": "inert"})})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Tested: 0 plugins", result.stdout)
+        self.assertFalse(any("command" in event for event in events))
+
+    def test_python_plugin_skips(self):
+        result, events = self.run_packages({"plugins/mcp/fixture/package.json": self.package({"test": "pytest"})})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Python plugin, tested separately", result.stdout)
+        self.assertFalse(any("command" in event for event in events))
+
+    def test_saas_pack_skips_before_grep_or_package_commands(self):
+        result, events = self.run_packages(
+            {"plugins/saas-packs/fixture-pack/package.json": self.package({"test": "inert"})},
+            failed_pattern='"test":',
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(events, [])
+
+    def test_exact_script_token_recognition_is_preserved(self):
+        result, events = self.run_packages({"plugins/mcp/fixture/package.json": '{"scripts": {"test" : "inert"}}'})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(any("command" in event for event in events))
+
+    def test_test_ci_preference_and_exact_arguments(self):
+        for scripts, expected in [
+            ({"test": "inert"}, ["test", "--", "--run"]),
+            ({"test:ci": "inert"}, ["test:ci"]),
+            ({"test": "inert", "test:ci": "inert"}, ["test:ci"]),
+        ]:
+            with self.subTest(scripts=scripts):
+                result, events = self.run_packages({"plugins/mcp/fixture/package.json": self.package(scripts)})
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(
+                    [e for e in events if "command" in e], [{"command": "pnpm", "args": expected, "plugin": "fixture"}]
+                )
+
+    def test_failure_accumulates_and_later_plugins_still_run(self):
+        result, events = self.run_packages(
+            {
+                "plugins/mcp/a-fail/package.json": self.package({"test": "inert"}),
+                "plugins/mcp/b-pass/package.json": self.package({"test:ci": "inert"}),
+            },
+            failed_plugin="a-fail",
+        )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual([e["plugin"] for e in events if "command" in e], ["a-fail", "b-pass"])
+        self.assertIn("Tested: 2 plugins", result.stdout)
+        self.assertIn("Failed: 1", result.stdout)
+        self.assertIn("mcp/a-fail", result.stdout)
+        self.assertNotIn("All passing.", result.stdout)
 
 
 if __name__ == "__main__":

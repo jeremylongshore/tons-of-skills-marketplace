@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "d8a89161a4ff56ebdd312e8940a5305e68cbce7c227031bfd74d877586f0e587"
+      "sha256": "d60d0fd8336a3f17c22db5d6e6525f5a6646799c701e798ed59f3a66709ed713"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -132,11 +132,11 @@
       "job": "test",
       "step": 8,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "d278ade242510c72f03d8b56055aac4d8f2ccc3142d7a1fb7a1a6f4d9f27148d",
-      "step_sha256": "7a59310b497bf2866097cc49f6bec76e9d91675b6f5cee9a45575e0477697f58",
-      "run_sha256": "45ec28a2df5f6a338c8956f29b015ce2d4cd2b42fcd278e3d06be18a5c731951",
+      "job_sha256": "709bc0b0dae6745b11ed8eebb808ec9017c95d089c22be75d0f38199e58741df",
+      "step_sha256": "e9f706b04649c111cefb3b9db02e0d5e46a570d7a691be6390c6ae9143e7c116",
+      "run_sha256": "0dcfbc304f8ac40a710d9f608d0aace39c58181aa769349bff1dbd3977817052",
       "anchor": {
-        "line": 58,
+        "line": 70,
         "text": "    if \"${TEST_CMD[@]}\"; then"
       },
       "classification": "authorized_control_flow",
@@ -229,7 +229,7 @@
         },
         {
           "path": "tests/test_ci_scan_failures.py",
-          "line": 91,
+          "line": 93,
           "text": "    def test_dangerous_scan_io_error_does_not_report_clean(self):"
         }
       ],
@@ -241,7 +241,7 @@
       "job": "test",
       "step": 16,
       "step_name": "Run Python tests",
-      "job_sha256": "d278ade242510c72f03d8b56055aac4d8f2ccc3142d7a1fb7a1a6f4d9f27148d",
+      "job_sha256": "709bc0b0dae6745b11ed8eebb808ec9017c95d089c22be75d0f38199e58741df",
       "step_sha256": "84d634f64c05089931a10f8d658c32adc00033838d084019727135c2f0b4b639",
       "run_sha256": "1f3d09305dde4e29d0ab05ef255ed72204d231ad36a6c7a61d4118c03ca656c5",
       "anchor": {
@@ -255,12 +255,12 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 1116,
+          "line": 1128,
           "text": "          # Normalize only grep's no-match status, never a find traversal error."
         },
         {
           "path": "tests/test_ci_scan_failures.py",
-          "line": 129,
+          "line": 131,
           "text": "    def test_discovery_find_error_with_partial_matches_fails_before_pytest(self):"
         }
       ],
@@ -395,7 +395,7 @@
       "job": "test",
       "step": 13,
       "step_name": "Install Python test dependencies",
-      "job_sha256": "d278ade242510c72f03d8b56055aac4d8f2ccc3142d7a1fb7a1a6f4d9f27148d",
+      "job_sha256": "709bc0b0dae6745b11ed8eebb808ec9017c95d089c22be75d0f38199e58741df",
       "step_sha256": "1158989e337910dcf438616a652722f706073ac0771510fec9a40ed1b0556554",
       "run_sha256": "6f80678450cc05e426439057fe99ec7ebabfafb58864f117442ee85044ef7906",
       "anchor": {
@@ -415,7 +415,7 @@
       "job": "test",
       "step": 22,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "d278ade242510c72f03d8b56055aac4d8f2ccc3142d7a1fb7a1a6f4d9f27148d",
+      "job_sha256": "709bc0b0dae6745b11ed8eebb808ec9017c95d089c22be75d0f38199e58741df",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -435,7 +435,7 @@
       "job": "test",
       "step": 22,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "d278ade242510c72f03d8b56055aac4d8f2ccc3142d7a1fb7a1a6f4d9f27148d",
+      "job_sha256": "709bc0b0dae6745b11ed8eebb808ec9017c95d089c22be75d0f38199e58741df",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -448,7 +448,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 1214,
+        "line": 1226,
         "sha256": "bc0bb0c3f03adb8e4cfe7c48574c54154d1c17f1f641b4445c6173502e78e054"
       }
     },
@@ -558,15 +558,15 @@
       "job": "test",
       "step": 8,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "d278ade242510c72f03d8b56055aac4d8f2ccc3142d7a1fb7a1a6f4d9f27148d",
-      "step_sha256": "7a59310b497bf2866097cc49f6bec76e9d91675b6f5cee9a45575e0477697f58",
-      "run_sha256": "45ec28a2df5f6a338c8956f29b015ce2d4cd2b42fcd278e3d06be18a5c731951",
+      "job_sha256": "709bc0b0dae6745b11ed8eebb808ec9017c95d089c22be75d0f38199e58741df",
+      "step_sha256": "e9f706b04649c111cefb3b9db02e0d5e46a570d7a691be6390c6ae9143e7c116",
+      "run_sha256": "0dcfbc304f8ac40a710d9f608d0aace39c58181aa769349bff1dbd3977817052",
       "anchor": {
-        "line": 15,
-        "text": "    if ! grep -q '\"test\":' \"$package\" && ! grep -q '\"test:ci\":' \"$package\"; then"
+        "line": 27,
+        "text": "    if ! package_matches '\"test\":' \"$package\" && ! package_matches '\"test:ci\":' \"$package\"; then"
       },
       "classification": "unresolved",
-      "rationale": "No-test-script skip and read-error behavior are not distinguished by this review.",
+      "rationale": "Only grep's no-match status 1 selects no-test/Python/test:ci branches; operational errors in all four queries terminate before package commands. Remaining discovery-policy disposition is unresolved.",
       "owner": null,
       "promotion": null,
       "authority": [],

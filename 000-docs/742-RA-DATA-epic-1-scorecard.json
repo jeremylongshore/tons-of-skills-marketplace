@@ -3420,7 +3420,7 @@
             "owner": null,
             "promotion": null,
             "rationale": "Test failure is accumulated and propagated by the final fail check in this bound run body.",
-            "run_line": 58,
+            "run_line": 70,
             "step": 8,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3470,7 +3470,7 @@
                 "text": "          # grep status 1 means no matches; operational errors must still fail."
               },
               {
-                "line": 91,
+                "line": 93,
                 "path": "tests/test_ci_scan_failures.py",
                 "text": "    def test_dangerous_scan_io_error_does_not_report_clean(self):"
               }
@@ -3489,12 +3489,12 @@
           {
             "authority": [
               {
-                "line": 1116,
+                "line": 1128,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
               {
-                "line": 129,
+                "line": 131,
                 "path": "tests/test_ci_scan_failures.py",
                 "text": "    def test_discovery_find_error_with_partial_matches_fails_before_pytest(self):"
               }
@@ -3636,7 +3636,7 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 1214
+              "source_line": 1226
             },
             "owner": null,
             "promotion": null,
@@ -3718,8 +3718,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "No-test-script skip and read-error behavior are not distinguished by this review.",
-            "run_line": 15,
+            "rationale": "Only grep's no-match status 1 selects no-test/Python/test:ci branches; operational errors in all four queries terminate before package commands. Remaining discovery-policy disposition is unresolved.",
+            "run_line": 27,
             "step": 8,
             "workflow": ".github/workflows/validate-plugins.yml"
           },

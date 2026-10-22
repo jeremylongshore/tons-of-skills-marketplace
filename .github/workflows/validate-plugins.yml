@@ -925,6 +925,18 @@ jobs:
         if: matrix.test-type == 'mcp-plugins'
         run: |
           set -e
+          # grep 1 is an expected no-match; read/regex/tool failures must block.
+          package_matches() {
+            local status
+            if grep -q "$1" "$2"; then
+              return 0
+            else
+              status=$?
+              if [ "$status" -eq 1 ]; then return 1; fi
+              echo "::error::Unable to inspect package test metadata (grep status $status)" >&2
+              exit "$status"
+            fi
+          }
           fail=0
           tested=0
           failed_plugins=()
@@ -938,12 +950,12 @@ jobs:
               if [ "$category" = "saas-packs" ]; then continue; fi
 
               # Check if a test script exists in package.json
-              if ! grep -q '"test":' "$package" && ! grep -q '"test:ci":' "$package"; then
+              if ! package_matches '"test":' "$package" && ! package_matches '"test:ci":' "$package"; then
                 continue
               fi
 
               # Skip Python-based plugins (tested in python-tests job)
-              if grep -q 'pytest' "$package"; then
+              if package_matches 'pytest' "$package"; then
                 echo "⏭️  Skipping $category/$plugin_name (Python plugin, tested separately)"
                 continue
               fi
@@ -976,7 +988,7 @@ jobs:
                 fi
               fi
 
-              if grep -q '"test:ci":' package.json; then
+              if package_matches '"test:ci":' package.json; then
                 TEST_CMD=(pnpm test:ci)
               else
                 TEST_CMD=(pnpm test -- --run)
