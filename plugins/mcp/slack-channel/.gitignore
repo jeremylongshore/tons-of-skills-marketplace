@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.env
+*.tmp
+bun.lockb
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/export-state.json
+
+# Claude Code local settings (per-machine / per-user)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Stryker mutation-testing output (manual-run baseline, ccsc-ao9)
+.stryker-tmp/
+reports/mutation/
+stryker.log
