@@ -11,7 +11,7 @@ allowed-tools:
   - Read
   - Bash(gh:*)
   - Bash(git:*)
-version: "0.9.0"
+version: "0.10.0"
 author: "Jeremy Longshore <jeremy@intentsolutions.io>"
 license: "MIT"
 compatibility: "Model-agnostic; requires git and an authenticated GitHub CLI with permission for the approved action"

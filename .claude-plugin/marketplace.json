@@ -6075,7 +6075,7 @@
       "name": "contributing-clanker",
       "source": "./plugins/community/contributing-clanker",
       "description": "Portable OSS contribution workflow with separate read-only audit, explicitly scoped local preparation, and human-approved publishing skills.",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "category": "community",
       "keywords": [
         "oss",

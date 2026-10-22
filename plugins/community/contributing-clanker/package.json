@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/contributing-clanker",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Portable OSS contribution workflow with separated audit, preparation, and human-approved publishing authority",
   "keywords": [
     "oss",
