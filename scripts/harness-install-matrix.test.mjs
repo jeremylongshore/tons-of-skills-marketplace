@@ -15,15 +15,23 @@ function projectDestination(root, harness) {
 
 test('every harness has an installation or refusal-path receipt', () => {
   const root = mkdtempSync(join(tmpdir(), 'tons-harness-matrix-'));
-  const source = join(root, 'portable-fixture');
+  const source = join(root, 'plugins/testing/fixture/skills/portable-fixture');
   try {
     writeFileSync(join(root, '.gitkeep'), 'fixture\n');
     writeFileSync(join(root, 'placeholder'), 'fixture\n');
     mkdirSync(source, { recursive: true });
     writeFileSync(
       join(source, 'SKILL.md'),
-      '---\nname: portable-fixture\ndescription: fixture\n---\n# Fixture\n',
+      '---\nname: portable-fixture\ndescription: Validate portable installation fixture behavior.\n---\n# Fixture\n',
     );
+
+    const git = (...args) => execFileSync('git', args, { cwd: root, stdio: 'pipe' });
+    git('init', '--quiet');
+    git('config', 'user.name', 'Harness Matrix');
+    git('config', 'user.email', 'harness@example.invalid');
+    git('remote', 'add', 'origin', 'https://github.com/example/portable-fixture');
+    git('add', '.');
+    git('commit', '--quiet', '-m', 'test: canonical skill fixture');
 
     for (const harness of registry.harnesses) {
       let failure = null;
@@ -42,6 +50,14 @@ test('every harness has an installation or refusal-path receipt', () => {
           readFileSync(projectDestination(root, harness), 'utf8').includes('# Fixture'),
           true,
         );
+        const receipt = JSON.parse(
+          readFileSync(
+            join(root, harness.projectPath, 'portable-fixture', '.ccpi-portable-install.json'),
+            'utf8',
+          ),
+        );
+        assert.equal(receipt.source.commit.digest, git('rev-parse', 'HEAD').toString().trim());
+        assert.equal(receipt.installation.harness, harness.id);
       } else {
         assert.notEqual(
           failure,

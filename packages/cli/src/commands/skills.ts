@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { installPortableTree } from '../lib/portable-install.js';
 
 type Scope = 'project' | 'user';
 type Support =
@@ -25,11 +25,15 @@ export type PortableInstallResult = {
   source: string;
   destination: string;
   dryRun: boolean;
+  receipt: string;
 };
 
-async function registry(): Promise<Harness[]> {
+async function registry(): Promise<{ schemaVersion: number; harnesses: Harness[] }> {
   const file = new URL('../../registry/harness-registry.json', import.meta.url);
-  return (JSON.parse(await fs.readFile(file, 'utf8')) as { harnesses: Harness[] }).harnesses;
+  return JSON.parse(await fs.readFile(file, 'utf8')) as {
+    schemaVersion: number;
+    harnesses: Harness[];
+  };
 }
 
 function asScope(scope: string): Scope {
@@ -58,13 +62,13 @@ async function portableSource(source: string): Promise<{ directory: string; name
 }
 
 async function selectedHarness(id: string): Promise<Harness> {
-  const harness = (await registry()).find((item) => item.id === id);
+  const harness = (await registry()).harnesses.find((item) => item.id === id);
   if (!harness) throw new Error(`Unknown harness: ${id}`);
   return harness;
 }
 
 export async function listHarnesses(json: boolean): Promise<void> {
-  const harnesses = await registry();
+  const { harnesses } = await registry();
   console.log(
     json
       ? JSON.stringify(harnesses, null, 2)
@@ -117,24 +121,20 @@ export async function installPortableSkill(
     source: portable.directory,
     destination,
     dryRun,
+    receipt: path.join(destination, '.ccpi-portable-install.json'),
   };
-  if (!dryRun) {
-    await fs.mkdir(root, { recursive: true });
-    try {
-      await fs.lstat(destination);
-      throw new Error(`Refusing to overwrite existing portable skill: ${destination}`);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-    }
-    const staging = path.join(root, `.${portable.name}.${randomUUID()}`);
-    try {
-      await fs.cp(portable.directory, staging, { recursive: true, errorOnExist: true });
-      await fs.rename(staging, destination);
-    } catch (error) {
-      await fs.rm(staging, { recursive: true, force: true });
-      throw error;
-    }
-  }
+  const packageMetadata = JSON.parse(
+    await fs.readFile(new URL('../../package.json', import.meta.url), 'utf8'),
+  ) as { version: string };
+  await installPortableTree({
+    sourceDirectory: portable.directory,
+    destinationRoot: root,
+    harness: harness.id,
+    scope: resolvedScope,
+    registryVersion: (await registry()).schemaVersion,
+    cliVersion: packageMetadata.version,
+    dryRun,
+  });
   console.log(
     json
       ? JSON.stringify(result, null, 2)

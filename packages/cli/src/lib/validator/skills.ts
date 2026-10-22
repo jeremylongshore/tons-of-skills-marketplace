@@ -223,9 +223,12 @@ function estimateWordCount(content: string): number {
 /**
  * Validate a single SKILL.md file against Claude Code spec
  */
-export async function validateSkillFile(filePath: string): Promise<SkillValidationResult> {
+export async function validateSkillFile(
+  filePath: string,
+  displayPath = filePath,
+): Promise<SkillValidationResult> {
   const result: SkillValidationResult = {
-    file: filePath,
+    file: displayPath,
     errors: [],
     warnings: [],
     info: [],
@@ -258,7 +261,7 @@ export async function validateSkillFile(filePath: string): Promise<SkillValidati
     result.errors.push('Missing required field: name');
   } else {
     const name = String(frontmatter.name);
-    const folderName = path.basename(path.dirname(filePath));
+    const folderName = path.basename(path.dirname(displayPath));
 
     if (name !== folderName) {
       result.info.push(

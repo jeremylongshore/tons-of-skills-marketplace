@@ -69,6 +69,35 @@ npx @intentsolutionsio/ccpi search terraform
 
 ## Commands
 
+### `tons skills install <skill-directory>`
+
+Install a first-party skill from a clean Git checkout into a verified harness path:
+
+```bash
+tons skills install ./plugins/testing/example/skills/example-skill --harness claude-code --scope project
+```
+
+The source must be a committed `plugins/<category>/<plugin>/skills/<skill>` directory
+with an HTTPS or SSH `origin`. Uncommitted, untracked, ignored, symlinked, and mirrored
+sources are refused. Installation uses committed Git bytes and preserves executable
+modes; it never copies the checkout recursively or overwrites an existing skill.
+
+Allowed content is `SKILL.md`, `README.md`, `LICENSE`, `LICENSE.md`, `eval-spec.yaml`,
+and files under `assets/`, `examples/`, `references/`, `scripts/`, or `templates/`.
+Hidden files, credential/key files, caches, build output, and local databases are
+refused even when tracked. Review committed skill content before installing it.
+
+Each installation includes `.ccpi-portable-install.json`, binding its file hashes to
+the source repository, commit, tree, harness, and CLI compatibility validation.
+The associated validation report is retained without automatic expiry in the harness
+skill root's `.ccpi-evidence/` directory. This local receipt records provenance and
+compatibility; it does not certify marketplace quality or skill behavior. Installers
+use an exclusive per-skill lock and publish the verified directory by atomic rename.
+
+`--dry-run` performs the same source and validation checks without creating harness
+paths. `--scope user` selects the harness's user directory. `--json` includes the
+destination and receipt path. Unknown and unverified harnesses are refused.
+
 ### `ccpi install <plugin>`
 
 Install a plugin from the marketplace.

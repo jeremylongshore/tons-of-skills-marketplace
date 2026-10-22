@@ -88,6 +88,7 @@ export type ImmutablePortableTree = {
   sourcePath: string;
   sourceTree: GitObjectId;
   manifest: PortableTreeManifest;
+  files: PortableTreeInput[];
 };
 
 type HashLike = ReturnType<typeof createHash>;
@@ -550,12 +551,19 @@ async function git(repoRoot: string, args: string[]): Promise<Buffer> {
 }
 
 async function gitObjectExists(repoRoot: string, spec: string): Promise<boolean> {
-  try {
-    await execFile('git', ['cat-file', '-e', spec], { cwd: repoRoot, windowsHide: true });
-    return true;
-  } catch {
-    return false;
-  }
+  const separator = spec.indexOf(':');
+  // Empty ls-tree output proves absence. A Git failure must never masquerade as absence.
+  return (
+    (
+      await git(repoRoot, [
+        'ls-tree',
+        '-z',
+        spec.slice(0, separator),
+        '--',
+        spec.slice(separator + 1),
+      ])
+    ).length > 0
+  );
 }
 
 function decodeGitText(bytes: Uint8Array, label: string): string {
@@ -592,6 +600,28 @@ function canonicalizeGitRemote(value: string): string {
   return canonicalRepository(`https://${parsed.hostname}/${repositoryPath}`);
 }
 
+/** Resolve coordinates only; acquisition below still verifies every trust boundary. */
+export async function portableSourceCoordinates(directory: string): Promise<{
+  repoRoot: string;
+  repository: string;
+  commit: string;
+  sourcePath: string;
+}> {
+  const requested = path.resolve(directory);
+  const info = await lstat(requested);
+  if (!info.isDirectory() || info.isSymbolicLink()) fail('source must be a real directory');
+  const absolute = await realpath(requested);
+  const repoRoot = (await git(absolute, ['rev-parse', '--show-toplevel'])).toString('utf8').trim();
+  const commit = (await git(repoRoot, ['rev-parse', '--verify', 'HEAD'])).toString('ascii').trim();
+  const origin = (await git(repoRoot, ['remote', 'get-url', 'origin'])).toString('utf8').trim();
+  return {
+    repoRoot,
+    repository: canonicalizeGitRemote(origin),
+    commit,
+    sourcePath: path.relative(repoRoot, absolute).split(path.sep).join('/'),
+  };
+}
+
 async function assertCleanCheckout(
   repoRoot: string,
   sourcePath: string,
@@ -612,12 +642,23 @@ async function assertCleanCheckout(
     fail('source tree contains staged, modified, deleted, untracked, or ignored state');
   }
   let current = repoRoot;
+  async function refuseMirror(directory: string): Promise<void> {
+    try {
+      await lstat(path.join(directory, '.source.json'));
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+      throw error;
+    }
+    fail('source is beneath a working-tree upstream/generated mirror marker');
+  }
+  await refuseMirror(current);
   for (const segment of sourcePath.split('/')) {
     current = path.join(current, segment);
     const details = await lstat(current).catch(() => null);
     if (!details?.isDirectory() || details.isSymbolicLink()) {
       fail(`source path ancestor is missing, not a directory, or a symlink: ${segment}`);
     }
+    await refuseMirror(current);
   }
 }
 
@@ -716,6 +757,15 @@ export async function readPortableTreeFromCleanCommit(input: {
     if (!repositoryPath.startsWith(prefix))
       fail('git ls-tree emitted a path outside the source tree');
     const relativePath = normalizePortablePath(repositoryPath.slice(prefix.length));
+    try {
+      await execFile('git', ['check-ignore', '--no-index', '--quiet', '--', repositoryPath], {
+        cwd: resolvedRoot,
+      });
+      fail(`tracked source file is excluded by ignore rules: ${relativePath}`);
+    } catch (error) {
+      // check-ignore returns exactly 1 for a non-ignored path; every other failure refuses.
+      if ((error as { code?: number }).code !== 1) throw error;
+    }
     const bytes = await git(resolvedRoot, ['cat-file', 'blob', oid]);
     totalBytes += bytes.byteLength;
     if (!Number.isSafeInteger(totalBytes) || totalBytes > MAX_TREE_BYTES) {
@@ -723,5 +773,12 @@ export async function readPortableTreeFromCleanCommit(input: {
     }
     inputs.push({ path: relativePath, mode, bytes });
   }
-  return { repository, commit, sourcePath, sourceTree, manifest: hashPortableTree(inputs) };
+  return {
+    repository,
+    commit,
+    sourcePath,
+    sourceTree,
+    manifest: hashPortableTree(inputs),
+    files: inputs,
+  };
 }
