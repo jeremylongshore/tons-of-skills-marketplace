@@ -41,7 +41,23 @@ const hasChallenge = (f) => f.some((x) => x.grade === GRADE.CHALLENGE);
 test('concat normalization preserves the prior whitespace and token semantics', () => {
   // Differential oracle: the former two-pass expression defines the behavior
   // being preserved, while bounded inputs keep this comparison inexpensive.
-  const alphabet = ['a', '+', '"', "'", '`', '\\', ' ', '\t', '\n', '\r', '\u00a0', '$'];
+  const alphabet = [
+    'a',
+    '+',
+    '"',
+    "'",
+    '`',
+    '\\',
+    ' ',
+    '\t',
+    '\n',
+    '\r',
+    '\u00a0',
+    '\ufeff',
+    '\u2028',
+    '\u2029',
+    '$',
+  ];
   let seed = 20261022;
   for (let sample = 0; sample < 10000; sample++) {
     let input = '';
