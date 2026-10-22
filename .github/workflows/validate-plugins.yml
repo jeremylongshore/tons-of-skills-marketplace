@@ -264,10 +264,12 @@ jobs:
       - name: Verify audit-harness integrity
         run: pnpm exec audit-harness verify
 
-      # CI deadline enforcement — fails the build if any
-      # `# REPORT-ONLY-UNTIL: YYYY-MM-DD` marker in any workflow file is
-      # past its date. Forcing function: report-only gates can't rot
-      # silently into permanent test bypasses.
+      # CI deadline enforcement covers workflows, scripts, policy baselines,
+      # and dated scan-allowlist waivers. Expired deadlines fail the build;
+      # report-only gates cannot silently become permanent test bypasses.
+      - name: Test CI deadline policy
+        run: python3 -m unittest tests.test_ci_deadlines -v
+
       - name: Enforce CI deadlines (no report-only rot)
         run: python3 scripts/check-ci-deadlines.py
 
