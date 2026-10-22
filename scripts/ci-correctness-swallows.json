@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "e3947da7e3f434f555eef41c36e7d2f6d40ce2031e26338136addb677f96954a"
+      "sha256": "d8a89161a4ff56ebdd312e8940a5305e68cbce7c227031bfd74d877586f0e587"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -578,15 +578,15 @@
       "job": "scan-synced-content",
       "step": 4,
       "step_name": "Scan pushed plugin content (push to main)",
-      "job_sha256": "c037c302714cae5c5faa8ca16c9ed317f4db2b21b7be6179850e171d5281ba38",
-      "step_sha256": "26b2d3432f39241c8205c5f06fda80d66a7665c20aed285a25d1d1fcc9749120",
-      "run_sha256": "113f14a32d2c60e2b6de9870c25da381c63bdc5944f8fa90a331cea088096b20",
+      "job_sha256": "c160b48037fd066244badd704722120314e93ee91661a734160d2cc6085cdf37",
+      "step_sha256": "86d3fbe988376afb44bbd4448d9ab4316f31e324847dbcd862c2593e077c605e",
+      "run_sha256": "cfdfb284ae8da9b8db8f6be85160732ce98262798930828c8215efe46f241662",
       "anchor": {
         "line": 7,
-        "text": "  BASE=\"$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)\""
+        "text": "  BASE=\"$(git rev-parse --verify 'HEAD~1^{commit}' 2>/dev/null)\""
       },
       "classification": "unresolved",
-      "rationale": "Parent fallback can select HEAD and an empty changed scan; coverage is not proved.",
+      "rationale": "Unknown or zero push bases fall back only to a verified parent commit; unavailable parents fail before scanning. Broader Git diff error handling remains unresolved in claude-xicy.",
       "owner": null,
       "promotion": null,
       "authority": [],
@@ -598,7 +598,7 @@
       "job": "scan-synced-content",
       "step": 3,
       "step_name": "Scan changed plugin content",
-      "job_sha256": "c037c302714cae5c5faa8ca16c9ed317f4db2b21b7be6179850e171d5281ba38",
+      "job_sha256": "c160b48037fd066244badd704722120314e93ee91661a734160d2cc6085cdf37",
       "step_sha256": "46d31d7d5b268c0eca6ade14395c4023b78ce4b5b3c9e2347eaf914a2b02c146",
       "run_sha256": "c03aa9da1a13a88544716aa96ad34bb46798ab28865ced93fa8ba4166511754a",
       "anchor": {

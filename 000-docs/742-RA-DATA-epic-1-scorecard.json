@@ -3731,7 +3731,7 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Parent fallback can select HEAD and an empty changed scan; coverage is not proved.",
+            "rationale": "Unknown or zero push bases fall back only to a verified parent commit; unavailable parents fail before scanning. Broader Git diff error handling remains unresolved in claude-xicy.",
             "run_line": 7,
             "step": 4,
             "workflow": ".github/workflows/validate-plugins.yml"

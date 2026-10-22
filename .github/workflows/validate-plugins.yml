@@ -1826,7 +1826,7 @@ jobs:
           # `before`; fall back to the parent commit so the scan still judges
           # the newest change rather than silently passing.
           if [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            BASE="$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)"
+            BASE="$(git rev-parse --verify 'HEAD~1^{commit}' 2>/dev/null)"
           fi
           node scripts/scan-synced-content.mjs --changed-only --base "$BASE"
 
