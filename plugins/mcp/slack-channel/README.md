@@ -84,8 +84,6 @@ Pick your runtime:
 bun install
 # Current (claude-code-plugins marketplace):
 claude --channels plugin:slack-channel@claude-code-plugins
-# Future (after upstream approval):
-# claude --channels plugin:slack-channel@claude-plugins-official
 ```
 
 <a id="option-b-nodejs--npx"></a>
