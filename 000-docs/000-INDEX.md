@@ -5,7 +5,7 @@
 > **Generated — do not edit.** Stage newly filed documents, then run
 > `node scripts/generate-docs-index.mjs`.
 
-Covers the **tracked** documentation estate (259 files). Local-only working
+Covers the **tracked** documentation estate (261 files). Local-only working
 documents are counted in doc 720 but deliberately not listed here. The inventory excludes only this
 index and `000-docs/.gitignore`.
 
@@ -241,6 +241,8 @@ index and `000-docs/.gitignore`.
 - [816-MS-OLDV-jeremy-plugin-summary.md](816-MS-OLDV-jeremy-plugin-summary.md)
 - [817-MS-OLDV-jeremy-plugin-readme.md](817-MS-OLDV-jeremy-plugin-readme.md)
 - [818-MS-OLDV-jeremy-plugin-installer.sh](818-MS-OLDV-jeremy-plugin-installer.sh)
+- [819-RA-DATA-ci-run-volume.json](819-RA-DATA-ci-run-volume.json)
+- [820-RA-REPT-ci-run-volume.md](820-RA-REPT-ci-run-volume.md)
 - [20260131-RL-REPT-claude-code-plugins-v4.14.0.md](20260131-RL-REPT-claude-code-plugins-v4.14.0.md)
 - [6767-a-SPEC-DR-STND-claude-code-plugins-standard.md](6767-a-SPEC-DR-STND-claude-code-plugins-standard.md)
 - [6767-b-SPEC-DR-STND-claude-skills-standard.md](6767-b-SPEC-DR-STND-claude-skills-standard.md)
