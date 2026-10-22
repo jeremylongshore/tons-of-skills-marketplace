@@ -1,0 +1,6 @@
+// Preserve bd setup codex output byte-for-byte so its freshness check remains useful.
+// MD013 matches the root prose convention; MD029 permits the generated step labels.
+{
+  "MD013": false,
+  "MD029": false
+}

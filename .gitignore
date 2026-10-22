@@ -260,3 +260,10 @@ freshie/hf-dataset/skills.jsonl
 # .env.sops spelling stays ignored for compatibility.
 .sops.env
 .env.sops
+
+# Track the CLI-generated project Beads skill even when a global beads/ ignore exists.
+!/.agents/skills/beads/
+!/.agents/skills/beads/SKILL.md
+!/.agents/skills/beads/agents/
+!/.agents/skills/beads/agents/openai.yaml
+!/.agents/skills/beads/.markdownlint.jsonc
