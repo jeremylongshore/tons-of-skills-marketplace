@@ -839,6 +839,18 @@ Every count is **re-derived at execution time from the joined ledger, never carr
 | **R3**    | `corpus.skill_files` may not fall >2% without a matching catalog diff | deleting the corpus as "compliance"         |
 | **R4**    | `grade_A_plus_B_pct` may not fall                                     | dilution by adding barely-passing artifacts |
 
+**R3 matching-catalog semantics.** Compare the canonical graded census at the
+baseline's captured commit with the committed current tree. Credit each genuinely
+deleted baseline skill at most once, and only when its catalog source root is
+fully withdrawn or quarantined. A retained published alias, a repointed plugin
+identity, or an overlapping published source root does not qualify. Neither
+curriculum nor uncatalogued removals receive catalog credit; they consume the
+same existing 2% tolerance. Enforce the integer comparison
+`(current_count + matching_withdrawals) * 100 >= baseline_count * 98`.
+Counts must agree with the Git censuses; unavailable history, malformed catalogs,
+or a mismatched/dirty checkout fail closed. This reconciles real retirements
+without editing the pinned denominator or creating a retirement allowlist.
+
 **Six anti-gaming vectors, each with its defeat:** reproduce a baselined error at a new path → triple-keying · rename or split a rule id → `rule_inventory` · re-emit the baseline inside the offending PR → **every permissive policy-envelope mutation requires a one-file PR whose bytes match an immutable artifact from an owner-dispatched capture on the protected default branch, and a capture branch is single-use** · weaken a rule and re-baseline → `schema_version` pin · mass-delete plugins → R3 · ratchet the number down as aspiration → **the baseline is written by a bot on merge, after the gate passed; humans never hand-lower it.**
 
 **E6.6 governance amendment (2026-09-02).** The repository intentionally does not require human review for ordinary changes. CODEOWNERS remains an ownership-routing aid, not the E6.6 enforcement boundary. Every permissive baseline policy-envelope mutation requires the existing `ci-required` ratchet job to verify an exact one-file PR against a byte-identical Actions artifact from a first-attempt repository-owner dispatch on the protected default branch. This includes adding accepted entries, increasing `totals.errors`, decreasing `grade_A_plus_B_pct`, or changing schema, rule inventory, corpus contract/denominators, provenance, comments, or unknown envelope fields. Strict entry removal and monotone metric improvement do not broaden the envelope. The run id, workflow path, owner actor and triggering actor, successful capture job, source SHA, single capture commit, same-repository PR, and single-use branch are all fail-closed inputs. The initial E6.2 CODEOWNERS-reviewed capture remains valid historical evidence; this amendment governs later envelope exceptions. The pinned artifact's legacy `$comment` is replaced only by the next authorized capture, never by a hand edit.

@@ -29,6 +29,37 @@ function write(root, relativePath, value = '# skill\n') {
   fs.writeFileSync(target, value);
 }
 
+test('exact graded refs resolve deleted historical files without the worktree', (t) => {
+  const root = fixture();
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const run = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+  run('init', '-q');
+  run('config', 'user.email', 'test@example.com');
+  run('config', 'user.name', 'Test');
+  const skill = 'plugins/core/owned/skills/historical/SKILL.md';
+  write(root, skill);
+  run('add', '.');
+  run('-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'baseline');
+  const ref = run('rev-parse', 'HEAD');
+  fs.rmSync(path.join(root, skill));
+  assert.deepEqual(resolveCorpus('graded', { root, ref }), [skill]);
+  assert.throws(() => resolveCorpus('graded', { root, ref: 'HEAD' }), /exact.*SHA/);
+  assert.throws(() => resolveCorpus('graded', { root, ref: ref.slice(0, 8) }), /exact.*SHA/);
+  assert.throws(() => resolveCorpus('graded', { root, ref: 'a'.repeat(40) }), /historical tree/);
+  const blob = run('rev-parse', `${ref}:${skill}`);
+  assert.throws(() => resolveCorpus('graded', { root, ref: blob }), /commit object/);
+  assert.throws(() => resolveCorpus('curriculum', { root, ref }), /only the graded cohort/);
+  assert.throws(() => resolveCorpus('graded', { root, ref, paths: [] }), /cannot be combined/);
+
+  fs.symlinkSync('/outside/SKILL.md', path.join(root, skill));
+  run('add', '.');
+  run('-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'symlink');
+  assert.throws(
+    () => resolveCorpus('graded', { root, ref: run('rev-parse', 'HEAD') }),
+    /not a regular file/,
+  );
+});
+
 function source(
   root,
   relativeDirectory,

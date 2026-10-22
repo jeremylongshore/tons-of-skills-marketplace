@@ -87,6 +87,13 @@ unchanged runtime matrices and coverage remain required alongside validation.
 The retained gates and explicit path classes are in
 [CI routing](../.github/CI_ROUTING.md).
 
+The required marketplace ratchet also binds R3 corpus counts to committed Git
+trees and reconciles actual deletions with catalog withdrawals. Real Git fixtures
+exercise the 2% boundary, retained aliases, forged counts, and checkout identity;
+`node --test scripts/check-corpus-shrink.test.mjs` covers the catalog edge cases.
+Run the full local gate from a clean tracked checkout with
+`python3 scripts/check-marketplace-compliance-baseline.py`.
+
 | Layer          | Gate                                                               | Trigger          |
 | -------------- | ------------------------------------------------------------------ | ---------------- |
 | L1-hooks       | `husky` declared (`package.json` `devDependencies`)                | local pre-commit |

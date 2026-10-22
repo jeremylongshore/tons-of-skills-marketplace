@@ -95,6 +95,42 @@ function trackedPaths(root) {
   }
 }
 
+function trackedPathsAtRef(root, ref) {
+  if (typeof ref !== 'string' || !/^[0-9a-f]{40}$/.test(ref)) {
+    fail('ref must be an exact 40-character commit SHA');
+  }
+  try {
+    const options = {
+      cwd: root,
+      encoding: 'utf8',
+      maxBuffer: 128 * 1024 * 1024,
+      env: { ...process.env, GIT_NO_REPLACE_OBJECTS: '1' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    };
+    if (execFileSync('git', ['cat-file', '-t', ref], options).trim() !== 'commit') {
+      fail('ref must identify a commit object');
+    }
+    return execFileSync('git', ['ls-tree', '-r', '-z', '--full-tree', ref], options)
+      .split('\0')
+      .filter(Boolean)
+      .map((record) => {
+        const separator = record.indexOf('\t');
+        if (separator < 0) fail('cannot parse historical tree entry');
+        const [mode, type] = record.slice(0, separator).split(' ');
+        const entry = record.slice(separator + 1);
+        if (entry.endsWith('/SKILL.md') && (type !== 'blob' || !/^100(644|755)$/.test(mode))) {
+          fail(`historical skill is not a regular file: ${entry}`);
+        }
+        // Recursive ls-tree never descends through a symlink or gitlink. Thus
+        // every returned skill's ancestors are real trees in this exact commit.
+        return entry;
+      });
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('corpus-resolver:')) throw error;
+    fail(`cannot read historical tree: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
 function filesystemPaths(root) {
   const output = [];
   const walk = (directory) => {
@@ -332,9 +368,12 @@ export function listTrackedPaths(root = process.cwd()) {
   return trackedPaths(rootPath).map(normalizePath);
 }
 
-export function resolveCorpus(cohort, { root = process.cwd(), paths } = {}) {
+export function resolveCorpus(cohort, { root = process.cwd(), paths, ref } = {}) {
   if (!CORPUS_COHORTS.includes(cohort)) {
     fail(`unknown cohort ${JSON.stringify(cohort)}; expected ${CORPUS_COHORTS.join(', ')}`);
+  }
+  if (ref !== undefined && (cohort !== 'graded' || paths !== undefined)) {
+    fail('exact refs support only the graded cohort and cannot be combined with paths');
   }
   let rootPath;
   try {
@@ -344,7 +383,9 @@ export function resolveCorpus(cohort, { root = process.cwd(), paths } = {}) {
       `cannot resolve repository root: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
-  const inventory = (paths ?? trackedPaths(rootPath)).map(normalizePath);
+  const inventory = (
+    ref !== undefined ? trackedPathsAtRef(rootPath, ref) : (paths ?? trackedPaths(rootPath))
+  ).map(normalizePath);
   const entries = skillPaths(inventory);
   if (paths !== undefined) assertSuppliedSkillPaths(rootPath, entries);
 

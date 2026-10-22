@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Fail closed when marketplace compliance debt exceeds the pinned policy envelope.
 
-Blueprint 727 E6.3, phase R1: compare the validator's triple-keyed marketplace
-findings with ``scripts/.marketplace-compliance-baseline.json``. Existing
-baseline debt is tolerated; a new (path, rule, field) triple fails the gate.
+Blueprint 727 E6: compare the validator's triple-keyed marketplace findings,
+monotone metrics and catalog-reconciled corpus with the pinned baseline.
+Existing debt is tolerated; new debt and unexplained corpus shrink fail.
 """
 
 from __future__ import annotations
@@ -329,11 +329,43 @@ def emit_current(repo_root: Path) -> dict[str, Any]:
     return json.loads(result.stdout)
 
 
+def corpus_shrink_evidence(
+    baseline: dict[str, Any], current: dict[str, Any], repo_root: Path, checkout_sha: str = ""
+) -> dict[str, Any]:
+    """Bind R3 counts and catalog withdrawals to the canonical Git-tree census."""
+    baseline_corpus = baseline.get("corpus")
+    current_corpus = current.get("corpus")
+    provenance = baseline.get("generated_from")
+    if not all(isinstance(value, dict) for value in (baseline_corpus, current_corpus, provenance)):
+        raise ValueError("R3 requires baseline/live corpus objects and baseline generated_from provenance")
+    payload = {
+        "baseline_count": baseline_corpus.get("skill_files"),
+        "current_count": current_corpus.get("skill_files"),
+        "baseline_sha": provenance.get("sha"),
+    }
+    if checkout_sha:
+        payload["checkout_sha"] = checkout_sha
+    result = subprocess.run(
+        ["node", str(ROOT / "scripts" / "check-corpus-shrink.mjs"), "--repo-root", str(repo_root)],
+        input=json.dumps(payload),
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if result.returncode:
+        raise RuntimeError(result.stderr.strip() or "R3 Git-tree census failed")
+    evidence = json.loads(result.stdout)
+    if not isinstance(evidence, dict) or not isinstance(evidence.get("allowed"), bool):
+        raise ValueError("R3 checker returned malformed evidence")
+    return evidence
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--current", type=Path, help="test-only emitted baseline JSON")
+    parser.add_argument("--checkout-sha", default="", help="expected immutable checkout commit for the R3 census")
     parser.add_argument("--base", help="git base ref for the E6.6 PR policy-envelope check")
     parser.add_argument("--head-ref", default="", help="PR head branch for the E6.6 growth check")
     parser.add_argument("--head-sha", default="", help="exact PR head commit for capture provenance")
@@ -446,6 +478,20 @@ def main() -> int:
             print(f"  {entry}", file=sys.stderr)
         return 1
 
+    try:
+        corpus = corpus_shrink_evidence(baseline, current, repo_root, args.checkout_sha)
+    except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
+        print(f"marketplace-compliance-ratchet: ERROR: {error}", file=sys.stderr)
+        return 2
+    detail = (
+        f"baseline={corpus['baseline_count']}, live={corpus['current_count']}, "
+        f"matching withdrawals={corpus['withdrawn_count']}, "
+        f"unmatched net loss={corpus['unmatched_net_loss']}"
+    )
+    if not corpus["allowed"]:
+        print(f"marketplace-compliance-ratchet: FAIL — R3 corpus shrink exceeds 2% ({detail})", file=sys.stderr)
+        return 1
+    print(f"marketplace-compliance-ratchet: R3 OK ({detail})")
     print(f"marketplace-compliance-ratchet: OK ({len(entries(current))} live triples; no entries outside baseline)")
     return 0
 

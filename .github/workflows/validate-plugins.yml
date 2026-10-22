@@ -721,6 +721,12 @@ jobs:
         uses: actions/setup-python@v7
         with:
           python-version: '3.12'
+      - name: Setup Node for the canonical corpus census
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Exercise corpus withdrawal invariants
+        run: node --test scripts/check-corpus-shrink.test.mjs
       - name: Refuse unauthorized marketplace baseline policy-envelope changes
         if: github.event_name == 'pull_request'
         env:
@@ -769,10 +775,12 @@ jobs:
             )
           fi
           python3 scripts/check-marketplace-compliance-baseline.py "${args[@]}"
-      - name: Enforce R1/R2/R4 marketplace compliance ratchet
+      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet
+        env:
+          CHECKOUT_SHA: ${{ github.sha }}
         run: |
           python3 -c "import yaml" 2>/dev/null || python3 -m pip install --quiet pyyaml
-          python3 scripts/check-marketplace-compliance-baseline.py
+          python3 scripts/check-marketplace-compliance-baseline.py --checkout-sha "$CHECKOUT_SHA"
 
   # Verification Pipeline (scoring + badge generation)
   verify:
