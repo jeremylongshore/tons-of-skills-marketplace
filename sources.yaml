@@ -183,6 +183,10 @@ sources:
       # The runtime manifest is at the root. Nested package.json files are
       # upstream development tools, not part of the channel distribution.
       - '/package.json'
+      # The package's lint-staged hook runs Biome; keep its canonical config
+      # and required ignore file so normal commits preserve upstream checks.
+      - '/biome.json'
+      - '/.gitignore'
       # tsconfig.json drives `tsc --noEmit` (the typecheck script in upstream
       # package.json). Without it, tsc dumps help text and exits 1 — making
       # CI's Type checking step fail. Synced together with the source files

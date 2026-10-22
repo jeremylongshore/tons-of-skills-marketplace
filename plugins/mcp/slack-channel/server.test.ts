@@ -2008,8 +2008,21 @@ describe('sanitizeFilename', () => {
 // ---------------------------------------------------------------------------
 
 describe('sanitizeDisplayName', () => {
-  test('strips control characters', () => {
-    expect(sanitizeDisplayName('alice\u0000\u001fbob')).toBe('alicebob')
+  const controlCodePoints = [
+    ...Array.from({ length: 32 }, (_, index) => index),
+    ...Array.from({ length: 33 }, (_, index) => 0x7f + index),
+  ]
+
+  test.each(controlCodePoints)('strips control code point %i from names', (codePoint) => {
+    expect(sanitizeDisplayName(`alice${String.fromCodePoint(codePoint)}bob`)).toBe('alicebob')
+  })
+
+  test('returns "unknown" for a name containing only C0, DEL, and C1 controls', () => {
+    expect(sanitizeDisplayName(String.fromCodePoint(...controlCodePoints))).toBe('unknown')
+  })
+
+  test('preserves ordinary Unicode names and the printable character after C1', () => {
+    expect(sanitizeDisplayName('¡Zoë 李明 👩🏽‍💻')).toBe('¡Zoë 李明 👩🏽‍💻')
   })
 
   test('strips newlines and tabs', () => {
@@ -16945,41 +16958,44 @@ describe('ccsc-3w0 — dispatchAdminCommand !restart (redemption phase)', () => 
     ['replay' as const, 'replay'],
     ['wrong-channel' as const, 'wrong-channel'],
     ['wrong-user' as const, 'wrong-user'],
-  ])('invalid nonce (reason=%s) → denied with admin.restart.denied, no execution', async (reason) => {
-    const { dispatchAdminCommand, createRecordingSendKeys } = await import('./admin.ts')
-    const journal: Array<Record<string, unknown>> = []
-    const tmuxCalls: Array<readonly string[]> = []
+  ])(
+    'invalid nonce (reason=%s) → denied with admin.restart.denied, no execution',
+    async (reason) => {
+      const { dispatchAdminCommand, createRecordingSendKeys } = await import('./admin.ts')
+      const journal: Array<Record<string, unknown>> = []
+      const tmuxCalls: Array<readonly string[]> = []
 
-    const result = await dispatchAdminCommand(
-      {
-        kind: 'restart',
-        nonce: 'bogus_nonce',
-        channelId: 'C_OPS',
-        requestedBy: 'U_ALICE',
-        threadTs: '1700000000.000100',
-        messageTs: '1700000000.000100',
-      },
-      {
-        isAllowed: () => true,
-        journalWrite: async (input) => {
-          journal.push(input)
-          return undefined
+      const result = await dispatchAdminCommand(
+        {
+          kind: 'restart',
+          nonce: 'bogus_nonce',
+          channelId: 'C_OPS',
+          requestedBy: 'U_ALICE',
+          threadTs: '1700000000.000100',
+          messageTs: '1700000000.000100',
         },
-        quiesceAndDeactivate: async () => {},
-        sendTmuxKeys: createRecordingSendKeys(tmuxCalls),
-        issueChallenge: async () => ({ nonce: 'unused', expiresAt: 0 }),
-        verifyChallenge: () => ({ ok: false, reason }),
-        postReaction: async () => {},
-      },
-    )
+        {
+          isAllowed: () => true,
+          journalWrite: async (input) => {
+            journal.push(input)
+            return undefined
+          },
+          quiesceAndDeactivate: async () => {},
+          sendTmuxKeys: createRecordingSendKeys(tmuxCalls),
+          issueChallenge: async () => ({ nonce: 'unused', expiresAt: 0 }),
+          verifyChallenge: () => ({ ok: false, reason }),
+          postReaction: async () => {},
+        },
+      )
 
-    expect(result.kind).toBe('denied')
-    if (result.kind === 'denied') {
-      expect(result.reason).toContain(reason)
-    }
-    expect(journal[0]!.kind).toBe('admin.restart.denied')
-    expect(tmuxCalls).toEqual([])
-  })
+      expect(result.kind).toBe('denied')
+      if (result.kind === 'denied') {
+        expect(result.reason).toContain(reason)
+      }
+      expect(journal[0]!.kind).toBe('admin.restart.denied')
+      expect(tmuxCalls).toEqual([])
+    },
+  )
 
   test('!restart with nonce but non-allowlisted user → denied at allowlist gate (nonce not even verified)', async () => {
     const { dispatchAdminCommand, createRecordingSendKeys } = await import('./admin.ts')
