@@ -3765,8 +3765,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Branch-name selected warn-only mode lacks established current ownership, bound and actor authorization.",
-            "run_line": 8,
+            "rationale": "Trusted producer provenance limits the existing sync advisory scanner mode to its actual same-repository PR and exact head; missing proof retains full grading. Authentication does not settle the remaining advisory ownership/bound or human CHALLENGE approval policy, so this site remains unresolved.",
+            "run_line": 14,
             "step": 3,
             "workflow": ".github/workflows/validate-plugins.yml"
           }

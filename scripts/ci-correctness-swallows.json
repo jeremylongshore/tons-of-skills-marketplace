@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "8fc2cd4d045d4a4ede03ffc267936f29ed4cc4f57c5c9ba2b86f63d03f4118d5"
+      "sha256": "6b9ad2a5f616a44f73bc2b11821b12de3f8e7253d5c232ae055f9439503149d4"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -578,7 +578,7 @@
       "job": "scan-synced-content",
       "step": 4,
       "step_name": "Scan pushed plugin content (push to main)",
-      "job_sha256": "c160b48037fd066244badd704722120314e93ee91661a734160d2cc6085cdf37",
+      "job_sha256": "235a080748b5e77d832a227234263990e5607eabf1a3275e0dda57f79449f6d0",
       "step_sha256": "86d3fbe988376afb44bbd4448d9ab4316f31e324847dbcd862c2593e077c605e",
       "run_sha256": "cfdfb284ae8da9b8db8f6be85160732ce98262798930828c8215efe46f241662",
       "anchor": {
@@ -619,15 +619,15 @@
       "job": "scan-synced-content",
       "step": 3,
       "step_name": "Scan changed plugin content",
-      "job_sha256": "c160b48037fd066244badd704722120314e93ee91661a734160d2cc6085cdf37",
-      "step_sha256": "46d31d7d5b268c0eca6ade14395c4023b78ce4b5b3c9e2347eaf914a2b02c146",
-      "run_sha256": "c03aa9da1a13a88544716aa96ad34bb46798ab28865ced93fa8ba4166511754a",
+      "job_sha256": "235a080748b5e77d832a227234263990e5607eabf1a3275e0dda57f79449f6d0",
+      "step_sha256": "593ba6126912a738c7d4cbed5548701da3362146d4db470ca8af5413d645d544",
+      "run_sha256": "647136af7a9864fcad2e0eab25bbd5f589b17d2fbe7c3cd968665a5f11ffa82f",
       "anchor": {
-        "line": 8,
-        "text": "  automation/sync-external-*) WARN=\"--warn-only\" ;;"
+        "line": 14,
+        "text": "          advisory) MODE=\"advisory\" ;;"
       },
       "classification": "unresolved",
-      "rationale": "Branch-name selected warn-only mode lacks established current ownership, bound and actor authorization.",
+      "rationale": "Trusted producer provenance limits the existing sync advisory scanner mode to its actual same-repository PR and exact head; missing proof retains full grading. Authentication does not settle the remaining advisory ownership/bound or human CHALLENGE approval policy, so this site remains unresolved.",
       "owner": null,
       "promotion": null,
       "authority": [],
