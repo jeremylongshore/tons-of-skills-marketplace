@@ -19,8 +19,13 @@ ERRORS at marketplace tier).
 from __future__ import annotations
 
 import importlib.util
+import json
+import os
 import subprocess
+import sys
 from pathlib import Path
+
+import pytest
 
 VALIDATOR_PATH = Path(__file__).resolve().parents[1] / "scripts" / "validate-skills-schema.py"
 _spec = importlib.util.spec_from_file_location("validate_skills_schema", VALIDATOR_PATH)
@@ -271,31 +276,19 @@ def test_tracked_corpus_has_zero_malformed_allowed_tools_by_provenance():
         declarations[cohort] += 1
         raw_tools = frontmatter["allowed-tools"]
         if not isinstance(raw_tools, (str, list)):
-            malformed[cohort].append(
-                f"{path.relative_to(repo_root)}: wrong type {type(raw_tools).__name__}"
-            )
+            malformed[cohort].append(f"{path.relative_to(repo_root)}: wrong type {type(raw_tools).__name__}")
             continue
         if isinstance(raw_tools, list):
             invalid_items = [
-                index
-                for index, item in enumerate(raw_tools, start=1)
-                if not isinstance(item, str) or not item.strip()
+                index for index, item in enumerate(raw_tools, start=1) if not isinstance(item, str) or not item.strip()
             ]
             if invalid_items:
-                malformed[cohort].append(
-                    f"{path.relative_to(repo_root)}: invalid YAML-list item(s) {invalid_items}"
-                )
+                malformed[cohort].append(f"{path.relative_to(repo_root)}: invalid YAML-list item(s) {invalid_items}")
                 continue
         if isinstance(raw_tools, str) and "," in raw_tools:
-            empty_items = [
-                index
-                for index, item in enumerate(raw_tools.split(","), start=1)
-                if not item.strip()
-            ]
+            empty_items = [index for index, item in enumerate(raw_tools.split(","), start=1) if not item.strip()]
             if empty_items:
-                malformed[cohort].append(
-                    f"{path.relative_to(repo_root)}: empty CSV item(s) {empty_items}"
-                )
+                malformed[cohort].append(f"{path.relative_to(repo_root)}: empty CSV item(s) {empty_items}")
                 continue
         tools = validator.parse_allowed_tools(raw_tools)
         if not tools:
@@ -391,6 +384,66 @@ def test_always_required_is_the_is_enterprise_8_field_set():
         "compatibility",
         "tags",
     }
+
+
+@pytest.mark.parametrize("tier_flag", ["--standard", "--marketplace", "--enterprise"])
+@pytest.mark.parametrize("fixture", ["missing-sections", "complete", "external-minimal", "equivalent-headings"])
+def test_skill_cli_preserves_enterprise_sections_and_permissive_standard(tmp_path, tier_flag, fixture):
+    """Pin the external-submission contract through the actual CLI, including CI precedence."""
+    skill = tmp_path / "tier-fixture" / "SKILL.md"
+    skill.parent.mkdir()
+    frontmatter = "name: tier-fixture\ndescription: Validate the supplied input and report concrete findings.\n"
+    if fixture != "external-minimal":
+        frontmatter += (
+            "allowed-tools: Read\nversion: 1.0.0\nauthor: Test Maintainer\n"
+            "license: MIT\ncompatibility: Designed for Claude Code\ntags: [testing]\n"
+        )
+    sections = ["Overview", "Prerequisites", "Instructions", "Output", "Error Handling", "Examples", "Resources"]
+    body = "# Tier Fixture\n\nRead the supplied input and report concrete findings.\n"
+    if fixture in {"complete", "equivalent-headings"}:
+        headings = [
+            {"Instructions": "Usage", "Error Handling": "Troubleshooting"}.get(section, section)
+            if fixture == "equivalent-headings"
+            else section
+            for section in sections
+        ]
+        body += "".join(
+            f"\n## {heading}\n\n1. Read the supplied input and report the concrete validation findings.\n"
+            for heading in headings
+        )
+    skill.write_text(f"---\n{frontmatter}---\n\n{body}", encoding="utf-8")
+
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR_PATH), tier_flag, "--json", str(skill)],
+        capture_output=True,
+        text=True,
+        env={**os.environ, "CI": "true", "GITHUB_ACTIONS": "true"},
+        timeout=30,
+    )
+    report = json.loads(result.stdout)[0]
+    errors = report["errors"]
+    expected_tier = "standard" if tier_flag == "--standard" else "marketplace"
+    assert report["tier"] == expected_tier
+    if tier_flag == "--enterprise":
+        assert "--enterprise is deprecated" in result.stderr
+
+    if tier_flag == "--standard" or fixture in {"complete", "equivalent-headings"}:
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        assert errors == []
+        return
+
+    assert result.returncode == 1, (result.stdout, result.stderr)
+    section_errors = [error for error in errors if error.startswith("[body] Required section missing:")]
+    assert len(section_errors) == 7, errors
+    for section in sections:
+        assert any(f"'## {section}'" in error for error in section_errors), errors
+    field_errors = [error for error in errors if error.startswith("[frontmatter] Missing required field:")]
+    if fixture == "external-minimal":
+        assert len(field_errors) == 6, errors
+        for field in ("allowed-tools", "version", "author", "license", "compatibility", "tags"):
+            assert any(f"'{field}'" in error for error in field_errors), errors
+    else:
+        assert field_errors == [], errors
 
 
 # =========================================================================
