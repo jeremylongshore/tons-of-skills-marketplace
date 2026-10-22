@@ -79,19 +79,19 @@
       "target_status": "informational",
       "values": {
         "agent_lane": {
-          "error_total_all_validated_surfaces": 232,
-          "fully_compliant_surfaces": 774,
+          "error_total_all_validated_surfaces": 230,
+          "fully_compliant_surfaces": 776,
           "terminal_denominator": {
             "agents": 363,
             "files": 952,
             "label": "agents_plus_plugin_manifests",
             "plugin_manifests": 589
           },
-          "validator_reported_mixed_denominator_percent": 81.3
+          "validator_reported_mixed_denominator_percent": 81.5
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3031,
-          "fully_compliant_surfaces": 2086,
+          "error_total_all_validated_surfaces": 3029,
+          "fully_compliant_surfaces": 2088,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
@@ -101,7 +101,7 @@
             "skills": 3493
           },
           "validated_plugin_manifests": 596,
-          "validator_reported_mixed_denominator_percent": 43.3
+          "validator_reported_mixed_denominator_percent": 43.4
         },
         "skill_rows": {
           "a_error_total": 23,
@@ -210,9 +210,9 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "partial",
       "values": {
-        "agent_errors": 232,
+        "agent_errors": 230,
         "agent_files": 363,
-        "reported_compliance_percent": 81.3,
+        "reported_compliance_percent": 81.5,
         "target_errors": 0,
         "target_percent_max": 100
       }
@@ -2980,35 +2980,95 @@
       }
     },
     "40": {
-      "cohort": "tracked workflow command lines invoking the canonical validator with --marketplace",
+      "cohort": "static required-job wiring for full-corpus marketplace validation",
       "dimension": "Marketplace-tier validator runs that block a merge",
-      "limitations": ["static workflow analysis does not execute GitHub expression control flow"],
+      "limitations": [
+        "static wiring proof only; this measurement does not execute the gate or establish hosted red-run evidence",
+        "only explicit supported commands count; unknown shell or workflow control flow remains unproven"
+      ],
       "reproduce": "pnpm run measure:e1 --row=40 --stdout",
       "source": [
         ".github/workflows/minimax-review.yml",
         ".github/workflows/pr-prescreen.yml",
-        ".github/workflows/promote-curated.yml"
+        ".github/workflows/promote-curated.yml",
+        ".github/workflows/validate-plugins.yml",
+        "scripts/check-marketplace-compliance-baseline.py",
+        "scripts/ci/fastlane.py",
+        "scripts/validate-skills-schema.py"
       ],
-      "status": "partial",
+      "status": "target_met",
       "values": {
-        "blocking_candidates": 0,
+        "blocking_candidates": 1,
         "invocations": [
           {
             "blocking_candidate": false,
-            "line": 247,
-            "path": ".github/workflows/minimax-review.yml"
+            "job": "grade",
+            "kind": "unproven-reference",
+            "path": ".github/workflows/minimax-review.yml",
+            "reason_codes": [
+              "OUTSIDE_REQUIRED_WORKFLOW",
+              "UNPROVEN_UNFILTERED_PR_ADMISSION",
+              "NOT_REQUIRED_DEPENDENCY",
+              "UNPROVEN_CANONICAL_AGGREGATE",
+              "CONDITIONAL_OR_SUPPRESSED_JOB",
+              "UNPROVEN_ENFORCEMENT_CHECKOUT",
+              "UNPROVEN_FULL_CORPUS_COMMAND"
+            ],
+            "step": "Run the validator on changed skills",
+            "step_index": 2
           },
           {
             "blocking_candidate": false,
-            "line": 174,
-            "path": ".github/workflows/pr-prescreen.yml"
+            "job": "validate",
+            "kind": "unproven-reference",
+            "path": ".github/workflows/pr-prescreen.yml",
+            "reason_codes": [
+              "OUTSIDE_REQUIRED_WORKFLOW",
+              "UNPROVEN_UNFILTERED_PR_ADMISSION",
+              "UNPROVEN_CANONICAL_AGGREGATE",
+              "UNPROVEN_ENFORCEMENT_CHECKOUT",
+              "UNPROVEN_FULL_CORPUS_COMMAND"
+            ],
+            "step": "Run validator against PR tree (full --json sweep)",
+            "step_index": 7
           },
           {
             "blocking_candidate": false,
-            "line": 90,
-            "path": ".github/workflows/promote-curated.yml"
+            "job": "promote",
+            "kind": "unproven-reference",
+            "path": ".github/workflows/promote-curated.yml",
+            "reason_codes": [
+              "OUTSIDE_REQUIRED_WORKFLOW",
+              "UNPROVEN_UNFILTERED_PR_ADMISSION",
+              "NOT_REQUIRED_DEPENDENCY",
+              "UNPROVEN_CANONICAL_AGGREGATE",
+              "CONDITIONAL_OR_SUPPRESSED_STEP",
+              "UNPROVEN_FULL_CORPUS_COMMAND"
+            ],
+            "step": "Rebuild inventory + grades (optional)",
+            "step_index": 6
+          },
+          {
+            "blocking_candidate": false,
+            "job": "marketplace-compliance-ratchet",
+            "kind": "unproven-reference",
+            "path": ".github/workflows/validate-plugins.yml",
+            "reason_codes": ["CONDITIONAL_OR_SUPPRESSED_STEP", "UNPROVEN_FULL_CORPUS_COMMAND"],
+            "step": "Refuse unauthorized marketplace baseline policy-envelope changes",
+            "step_index": 4
+          },
+          {
+            "blocking_candidate": true,
+            "job": "marketplace-compliance-ratchet",
+            "kind": "full-ratchet-wrapper",
+            "path": ".github/workflows/validate-plugins.yml",
+            "reason_codes": [],
+            "step": "Enforce R1/R2/R3/R4 marketplace compliance ratchet",
+            "step_index": 5
           }
         ],
+        "parse_errors": [],
+        "proof_kind": "static_required_job_wiring",
         "target_blocking": 1
       }
     },
