@@ -5,9 +5,8 @@ import { test, expect, type Page } from '@playwright/test';
  */
 
 /**
- * The explore page loads fuse.js from jsdelivr (top-level ESM import) and
- * fetches the ~2.9MB /data/unified-search-index.json before any result can
- * render (measured 1.4–3.5s against production). When the index is ready the
+ * The explore page bundles Fuse.js locally and fetches the same-origin
+ * /data/unified-search-index.json before any result can render. When the index is ready the
  * page sets #results-grid aria-busy="false" and removes #explore-loading —
  * wait on that deterministic signal instead of sleeping.
  */

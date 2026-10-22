@@ -103,7 +103,10 @@ test.describe('page scripts', () => {
   });
 
   for (const path of ['/explore/', '/skills/']) {
-    test(`${path} search runs on bundled Fuse.js with no CDN request`, async ({ page }) => {
+    test(`${path} search works when the Fuse.js CDN is unavailable`, async ({ page }) => {
+      // Refuse the former runtime dependency before navigation: a CDN outage
+      // must not prevent the page module from loading its same-origin index.
+      await page.route('https://cdn.jsdelivr.net/**', (route) => route.abort('failed'));
       const cdn: string[] = [];
       page.on('request', (r) => {
         if (new URL(r.url()).hostname === 'cdn.jsdelivr.net') cdn.push(r.url());
