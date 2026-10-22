@@ -1,6 +1,11 @@
 {
   "mcpServers": {
     "slack": {
+      "type": "stdio",
+      "env": {},
+      "description": "Two-way Slack channel for Claude Code via Socket Mode and MCP stdio",
+      "version": "0.1.0",
+      "enabled": true,
       "command": "${CLAUDE_PLUGIN_ROOT}/node_modules/.bin/tsx",
       "args": ["${CLAUDE_PLUGIN_ROOT}/server.ts"]
     }

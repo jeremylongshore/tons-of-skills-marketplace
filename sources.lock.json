@@ -889,15 +889,15 @@
     },
     "slack-channel": {
       "repo": "jeremylongshore/claude-code-slack-channel",
-      "resolved_ref": "b313d118f81609c185c9d03f93007fdf8aba9432",
-      "locked_at": "2026-10-22T16:01:53.600Z",
+      "resolved_ref": "89e93c97da24d8d0814b3619eacec2c6694168e6",
+      "locked_at": "2026-10-22T16:23:56.315Z",
       "files": {
         ".audit-harness/LICENSE": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
         ".audit-harness/README.md": "sha256:8d373b106bfa58c0387abc89018a820f21a2b1c5db4752e552ddadd69f802e0b",
         ".audit-harness/configs/README.md": "sha256:d1840632e1378aeac26168d58428ebb31f90cacecc33f12cd2ca48d8ee24bf5d",
         ".claude-plugin/plugin.json": "sha256:99662f7babfd4b9ceace67deb8fe23f3794a238e32d58d6c2cf182afe9c2ebb2",
         ".gitignore": "sha256:f754a9fdfcfdab174629873153e028785ada3792cb5c55db827ace42ba7a9277",
-        ".mcp.json": "sha256:6682a14fbbe8b792c085006034edb2e072d970da2d12d4e656b4f7302f2defeb",
+        ".mcp.json": "sha256:052226562133591f65900877fd3b1710b96a0b0775115241a1c8ee289e0629e3",
         ".npmrc": "sha256:3a951f66e7e0f3e2dd1832473a871357c4a507b51100636b73bcf6ff0dd78b6c",
         "ACCESS.md": "sha256:7c9450a924f2455fd4cef9a936d0ca86784b3b7c442a5127978ea59876b4668d",
         "LICENSE": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
