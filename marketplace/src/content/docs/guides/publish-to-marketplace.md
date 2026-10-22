@@ -178,6 +178,12 @@ description: |
 
 Optionally, write your validation results to the ecosystem inventory database for tracking:
 
+Freshie's local runtime is stock SQLite. Its authoritative version history uses
+full Dolt and is published to the [production DoltHub database](https://www.dolthub.com/repositories/jeremylongshore/freshie-inventory).
+DoltLite is a separate, optional non-production shadow experiment. See the
+[storage model and reproducible evidence](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/main/freshie/README.md)
+before restoring or publishing inventory history.
+
 ```bash
 python3 scripts/validate-skills-schema.py --enterprise \
   --populate-db freshie/inventory.sqlite \

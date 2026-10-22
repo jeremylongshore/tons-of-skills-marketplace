@@ -1,0 +1,221 @@
+{
+  "schema_version": "freshie-production-proof/v1",
+  "production": {
+    "runtime": "stock SQLite",
+    "history_engine": "full Dolt",
+    "public_repository": "jeremylongshore/freshie-inventory",
+    "shadow": "DoltLite is optional non-production experimentation"
+  },
+  "revision": {
+    "run_id": 134,
+    "tag": "run-134",
+    "commit": "4t297tsals7ijsph4msv9h1ddfk0u41e",
+    "database_hash": "n2b7c06cs8c2va70hnk72dhpsd42i2vl",
+    "direct_parent": "bov00qvmn4v08t28navdolq4sshrekhi"
+  },
+  "tools": {
+    "dolt": "2.1.10",
+    "python": "3.12.3",
+    "sqlite": "3.45.1"
+  },
+  "restore": {
+    "governed_tables": 51,
+    "discovery_rows": 112,
+    "latest_run": 134,
+    "table_rows": {
+      "agent_compliance": 39843,
+      "agent_files": 39339,
+      "anomalies": 17920,
+      "ci_workflows": 4014,
+      "command_files": 41528,
+      "content_signals": 336553,
+      "cross_references": 339079,
+      "discovery_runs": 112,
+      "docs": 2103312,
+      "duplicate_files": 1456,
+      "field_registry": 2482,
+      "forge_proofs": 0,
+      "frontmatter_fields": 2482,
+      "frontmatter_shapes": 3426,
+      "frontmatter_values": 2767777,
+      "marketplace_catalog": 49117,
+      "npm_discovery_runs": 1,
+      "npm_dist_tags": 694,
+      "npm_download_stats": 51,
+      "npm_fetch_log": 62,
+      "npm_package_dependencies": 1433,
+      "npm_packages": 62,
+      "npm_publish_history_summary": 62,
+      "npm_version_comparisons": 128,
+      "npm_versions": 30964,
+      "pack_aggregates": 13701,
+      "pack_metadata": 2128,
+      "packs": 2128,
+      "planned_skills": 0,
+      "plugin_companions": 48221,
+      "plugin_compliance": 44257,
+      "plugin_fields": 2129,
+      "plugin_shapes": 2111,
+      "plugin_templates": 3024,
+      "plugin_values": 472010,
+      "plugins": 48221,
+      "repo_package_sources": 128,
+      "restructure_observations": 0,
+      "root_files": 4911,
+      "root_skills_files": 877081,
+      "scripts": 26363,
+      "skill_compliance": 385591,
+      "skill_database_vendors": 1120,
+      "skill_files": 1011948,
+      "skill_structure_shapes": 3352,
+      "skills": 327900,
+      "unique_extensions": 3149,
+      "unique_filenames": 251253,
+      "unique_subdirs": 2129,
+      "validator_checks": 38105,
+      "validators": 18867
+    },
+    "sqlite_integrity_check": "ok",
+    "retained_backup_sha256": "975a0ef51bf42a083fb43b0d51307ba27651114452bb8092cd0b036d12555796",
+    "schema_path": "freshie/reports/production-run-134-schema.sql",
+    "schema_sha256": "0783c2d73cbd4cd3cd8e382dacd4ccf2828d9e66b475997f60517a38ef5082bc"
+  },
+  "export_round_trip": {
+    "exporter_path": "freshie/scripts/dolt-sync.py",
+    "exporter_sha256": "1335928d553651ec66da4e3198d2bad5309a0d132475f188c472066f0cc8ccf2",
+    "no_push": true,
+    "commit_created": false,
+    "row_count_parity_tables": 51,
+    "real_checksum_columns": 6,
+    "json_byte_checksum_columns": 3,
+    "grade_rows": 3491,
+    "null_empty_datetime_canary": "passed",
+    "grade_exports_current": true,
+    "immutable_head_unchanged": true
+  },
+  "public_queries": {
+    "tags": {
+      "query_execution_status": "Success",
+      "query_execution_message": "",
+      "repository_owner": "jeremylongshore",
+      "repository_name": "freshie-inventory",
+      "commit_ref": "main",
+      "sql_query": "SELECT tag_name,tag_hash FROM dolt_tags WHERE tag_name IN ('run-133','run-134')",
+      "schema": [
+        {
+          "columnName": "tag_name",
+          "columnType": "text"
+        },
+        {
+          "columnName": "tag_hash",
+          "columnType": "text"
+        }
+      ],
+      "rows": [
+        {
+          "tag_name": "run-133",
+          "tag_hash": "bov00qvmn4v08t28navdolq4sshrekhi"
+        },
+        {
+          "tag_name": "run-134",
+          "tag_hash": "4t297tsals7ijsph4msv9h1ddfk0u41e"
+        }
+      ]
+    },
+    "identity": {
+      "query_execution_status": "Success",
+      "query_execution_message": "",
+      "repository_owner": "jeremylongshore",
+      "repository_name": "freshie-inventory",
+      "commit_ref": "main",
+      "sql_query": "SELECT DOLT_HASHOF_DB('run-134') AS database_hash",
+      "schema": [
+        {
+          "columnName": "database_hash",
+          "columnType": "text"
+        }
+      ],
+      "rows": [
+        {
+          "database_hash": "n2b7c06cs8c2va70hnk72dhpsd42i2vl"
+        }
+      ]
+    },
+    "parent": {
+      "query_execution_status": "Success",
+      "query_execution_message": "",
+      "repository_owner": "jeremylongshore",
+      "repository_name": "freshie-inventory",
+      "commit_ref": "main",
+      "sql_query": "SELECT * FROM dolt_commit_ancestors WHERE commit_hash='4t297tsals7ijsph4msv9h1ddfk0u41e'",
+      "schema": [
+        {
+          "columnName": "commit_hash",
+          "columnType": "text"
+        },
+        {
+          "columnName": "parent_hash",
+          "columnType": "text"
+        },
+        {
+          "columnName": "parent_index",
+          "columnType": "int"
+        }
+      ],
+      "rows": [
+        {
+          "commit_hash": "4t297tsals7ijsph4msv9h1ddfk0u41e",
+          "parent_hash": "bov00qvmn4v08t28navdolq4sshrekhi",
+          "parent_index": "0"
+        }
+      ]
+    },
+    "grades": {
+      "query_execution_status": "Success",
+      "query_execution_message": "",
+      "repository_owner": "jeremylongshore",
+      "repository_name": "freshie-inventory",
+      "commit_ref": "main",
+      "sql_query": "SELECT grade,COUNT(*) AS skill_count FROM skill_compliance AS OF '4t297tsals7ijsph4msv9h1ddfk0u41e' WHERE run_id=134 GROUP BY grade ORDER BY grade",
+      "schema": [
+        {
+          "columnName": "grade",
+          "columnType": "longtext"
+        },
+        {
+          "columnName": "skill_count",
+          "columnType": "bigint"
+        }
+      ],
+      "rows": [
+        {
+          "grade": "A",
+          "skill_count": "2875"
+        },
+        {
+          "grade": "B",
+          "skill_count": "326"
+        },
+        {
+          "grade": "C",
+          "skill_count": "132"
+        },
+        {
+          "grade": "D",
+          "skill_count": "154"
+        },
+        {
+          "grade": "F",
+          "skill_count": "4"
+        }
+      ]
+    }
+  },
+  "limits": [
+    "This receipt proves the immutable run-134 production history, not the mutable latest main revision.",
+    "The physical SQLite backup hash records this recovery artifact; a separate logically identical reconstruction can have a different SQLite file hash.",
+    "Historical Dolt tables outside the 51-table canonical export allowlist remain in public history and are not imported into the runtime.",
+    "No DoltLite sidecar or public DoltLite repository was created or used."
+  ],
+  "generated_at_utc": "2026-10-22T05:36:39.859101+00:00"
+}
