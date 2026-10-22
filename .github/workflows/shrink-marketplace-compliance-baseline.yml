@@ -1,0 +1,177 @@
+name: Shrink Marketplace Compliance Baseline
+
+on:
+  workflow_dispatch:
+    inputs:
+      rule_id:
+        description: Exact rule ID whose findings were fixed completely
+        required: true
+        type: string
+      expected_count:
+        description: Exact number of pinned triples to remove
+        required: true
+        type: string
+      validation_run_id:
+        description: Successful first-attempt Validate Plugins push run for current main
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: selective-marketplace-baseline-shrink
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      candidate_sha256: ${{ steps.evidence.outputs.candidate_sha256 }}
+      baseline_sha256: ${{ steps.evidence.outputs.baseline_sha256 }}
+    steps:
+      - name: Authorize a first-attempt owner dispatch on main
+        env:
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          OWNER: ${{ github.repository_owner }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          test "$ACTOR" = "$OWNER"
+          test "$TRIGGERING_ACTOR" = "$OWNER"
+          test "$DEFAULT_BRANCH" = main
+          test "$GITHUB_REF" = refs/heads/main
+          test "$GITHUB_RUN_ATTEMPT" = 1
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - run: python3 -m pip install --quiet pyyaml==6.0.1
+
+      - name: Fetch exact validation evidence and current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATION_RUN_ID: ${{ inputs.validation_run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$VALIDATION_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          git fetch --no-tags origin main
+          test "$(git rev-parse refs/remotes/origin/main)" = "$GITHUB_SHA"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VALIDATION_RUN_ID" > "$RUNNER_TEMP/validation-run.json"
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs/$VALIDATION_RUN_ID/jobs?filter=all&per_page=100" > "$RUNNER_TEMP/validation-jobs.json"
+
+      - name: Validate the full corpus and prepare the exact subset
+        env:
+          RULE_ID: ${{ inputs.rule_id }}
+          EXPECTED_COUNT: ${{ inputs.expected_count }}
+          VALIDATION_RUN_ID: ${{ inputs.validation_run_id }}
+        run: |
+          set -euo pipefail
+          python3 scripts/shrink-marketplace-compliance-baseline.py \
+            --source-sha "$GITHUB_SHA" --repository "$GITHUB_REPOSITORY" \
+            --validation-run-id "$VALIDATION_RUN_ID" \
+            --run "$RUNNER_TEMP/validation-run.json" --jobs "$RUNNER_TEMP/validation-jobs.json" \
+            --rule-id "$RULE_ID" --expected-count "$EXPECTED_COUNT" \
+            --output-dir "$RUNNER_TEMP/selective-shrink"
+
+      - name: Expose candidate digests
+        id: evidence
+        run: |
+          set -euo pipefail
+          jq -r '"candidate_sha256=\(.candidate_sha256)", "baseline_sha256=\(.baseline_sha256)"' \
+            "$RUNNER_TEMP/selective-shrink/receipt.json" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: selective-shrink-${{ github.run_id }}
+          path: ${{ runner.temp }}/selective-shrink/
+          if-no-files-found: error
+          retention-days: 90
+
+  publish-branch:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      branch: ${{ steps.commit.outputs.branch }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/download-artifact@v8
+        with:
+          name: selective-shrink-${{ github.run_id }}
+          path: ${{ runner.temp }}/selective-shrink
+      # No repository scripts execute in this write-capable job.
+      - name: Publish exactly one bot-authored baseline change
+        id: commit
+        env:
+          CANDIDATE_SHA256: ${{ needs.prepare.outputs.candidate_sha256 }}
+          BASELINE_SHA256: ${{ needs.prepare.outputs.baseline_sha256 }}
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$BASELINE_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          baseline=scripts/.marketplace-compliance-baseline.json
+          candidate="$RUNNER_TEMP/selective-shrink/baseline.json"
+          test -f "$candidate" && test ! -L "$candidate"
+          test -f "$baseline" && test ! -L "$baseline"
+          printf '%s  %s\n' "$CANDIDATE_SHA256" "$candidate" | sha256sum --check
+          printf '%s  %s\n' "$BASELINE_SHA256" "$baseline" | sha256sum --check
+          branch="automation/compliance-shrink-${GITHUB_RUN_ID}"
+          # An existing branch is a replay/conflict, never something to overwrite.
+          remote=$(git ls-remote --heads origin "refs/heads/$branch")
+          test -z "$remote"
+          git switch -c "$branch"
+          cp "$candidate" "$baseline"
+          mapfile -t changed < <(git diff --name-only)
+          test "${#changed[@]}" = 1 && test "${changed[0]}" = "$baseline"
+          git add -- "$baseline"
+          git -c core.hooksPath=/dev/null \
+            -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m 'chore(ci): shrink one cleared marketplace rule'
+          git fetch --no-tags origin main
+          test "$(git rev-parse refs/remotes/origin/main)" = "$GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$branch"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+  open-pr:
+    needs: publish-branch
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      # BOT_PR_TOKEN creates the PR event so normal protected checks run.
+      # There is no checkout or candidate-code execution in this job.
+      - name: Open the baseline-only pull request
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PR_TOKEN }}
+          BRANCH: ${{ needs.publish-branch.outputs.branch }}
+          SOURCE_SHA: ${{ github.sha }}
+          RULE_ID: ${{ inputs.rule_id }}
+          EXPECTED_COUNT: ${{ inputs.expected_count }}
+          VALIDATION_RUN_ID: ${{ inputs.validation_run_id }}
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN"
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          printf 'Removes exactly %s pinned triples for %s, now absent corpus-wide at %s. Only entries and totals.errors change; the original corpus, provenance, inventory and other policy fields remain pinned.\n\nValidation: https://github.com/%s/actions/runs/%s\nShrink receipt: https://github.com/%s/actions/runs/%s\n\nBlueprint E6.14 / claude-nfzl.14. This PR requires the normal protected checks and merge process.\n' \
+            "$EXPECTED_COUNT" "$RULE_ID" "$SOURCE_SHA" "$GITHUB_REPOSITORY" "$VALIDATION_RUN_ID" \
+            "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > "$RUNNER_TEMP/pr-body.md"
+          gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BRANCH" \
+            --title 'chore(ci): shrink one cleared marketplace rule' --body-file "$RUNNER_TEMP/pr-body.md"
