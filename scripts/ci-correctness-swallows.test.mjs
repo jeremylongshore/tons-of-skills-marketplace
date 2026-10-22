@@ -22,7 +22,7 @@ const typed = (value) =>
 // Synthetic containers: the real registry supplies reviewed labels/anchors, never mutable workflow bodies.
 // Workflow changes must make the real metric unknown, not introduce a new test gate.
 function fixture() {
-  const review = structuredClone(registry);
+  const review = globalThis.structuredClone(registry);
   const data = Object.fromEntries(review.workflows.map((w) => [w.path, { jobs: {} }]));
   for (const site of review.sites) {
     const jobs = data[site.workflow].jobs;
