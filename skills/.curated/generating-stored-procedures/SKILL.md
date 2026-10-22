@@ -270,11 +270,11 @@ Claude: I'll create an audit trigger that:
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/postgresql_stored_procedure_best_practices.md`
-- `${CLAUDE_SKILL_DIR}/references/mysql_stored_procedure_best_practices.md`
-- `${CLAUDE_SKILL_DIR}/references/sqlserver_stored_procedure_best_practices.md`
-- `${CLAUDE_SKILL_DIR}/references/database_security_guidelines.md`
-- `${CLAUDE_SKILL_DIR}/references/stored_procedure_optimization_techniques.md`
+- [`references/postgresql_stored_procedure_best_practices.md`](references/postgresql_stored_procedure_best_practices.md)
+- [`references/mysql_stored_procedure_best_practices.md`](references/mysql_stored_procedure_best_practices.md)
+- [`references/sqlserver_stored_procedure_best_practices.md`](references/sqlserver_stored_procedure_best_practices.md)
+- [`references/database_security_guidelines.md`](references/database_security_guidelines.md)
+- [`references/stored_procedure_optimization_techniques.md`](references/stored_procedure_optimization_techniques.md)
 
 ## Overview
 

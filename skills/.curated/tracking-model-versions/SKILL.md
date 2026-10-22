@@ -38,10 +38,10 @@ Track and manage AI/ML model versions using MLflow, DVC, or Weights & Biases. Lo
 4. Register the model in the MLflow Model Registry using `mlflow.register_model()` with the run URI and a descriptive model name.
 5. Transition the model version through stages: `None` -> `Staging` -> `Production` using `client.transition_model_version_stage()`. Archive previous production versions.
 6. Compare model versions by querying metrics across runs with `mlflow.search_runs()` and generating comparison tables showing metric improvements between versions.
-7. Generate a model card from the registered model metadata, including training data description, evaluation metrics, intended use, limitations, and ethical considerations. See `${CLAUDE_SKILL_DIR}/assets/model_card_template.md`.
+7. Generate a model card from the registered model metadata, including training data description, evaluation metrics, intended use, limitations, and ethical considerations. See [`assets/model_card_template.md`](assets/model_card_template.md).
 8. Set up automated alerts for model performance degradation by comparing production metrics against baseline thresholds stored in the model registry.
 
-See `${CLAUDE_SKILL_DIR}/assets/example_mlflow_workflow.yaml` for a complete workflow configuration.
+See [`assets/example_mlflow_workflow.yaml`](assets/example_mlflow_workflow.yaml) for a complete workflow configuration.
 
 ## Examples
 

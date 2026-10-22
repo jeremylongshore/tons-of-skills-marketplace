@@ -67,4 +67,4 @@ Result: Model with synergy adjustments, scenario analysis, and per-share valuati
 
 - [Damodaran Online DCF Resources](https://pages.stern.nyu.edu/~adamodar/)
 - [WSO DCF Modeling Guide](https://www.wallstreetoasis.com/)
-- `${CLAUDE_SKILL_DIR}/references/dcf-formulas.md` for Excel formula templates
+- [`references/dcf-formulas.md`](references/dcf-formulas.md) for Excel formula templates

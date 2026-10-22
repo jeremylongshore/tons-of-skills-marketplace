@@ -44,7 +44,7 @@ Validate API responses against OpenAPI schemas, JSON Schema definitions, and con
 7. Implement schema drift detection that compares the current response shape against the documented schema after each deployment, alerting when undocumented fields appear or documented fields disappear.
 8. Generate a validation coverage report showing which endpoints and response codes have schema validation, identifying gaps in the specification.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -65,7 +65,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Null value on non-nullable | Field returns null but schema does not include `nullable: true` | Update schema to allow null, or fix data source to guarantee non-null values |
 | Format validation failure | Date field does not match RFC 3339 format or email field format invalid | Apply format serialization at the ORM/model level before response construction |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -75,7 +75,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Backward compatibility check**: Compare v1 and v2 response schemas to verify that v2 is a superset of v1 (no removed fields, no type changes), ensuring existing consumers are not broken.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

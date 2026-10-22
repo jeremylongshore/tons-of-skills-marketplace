@@ -52,7 +52,7 @@ Identify anomalies and outliers in datasets using statistical and machine learni
 9. Analyze flagged anomalies for common characteristics, temporal clusters, or feature correlations
 10. Generate a summary report with detection counts, score distributions, and visualization plots
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the detailed implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the detailed implementation guide.
 
 ## Output
 
@@ -73,7 +73,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the detailed implemen
 | Feature scaling mismatch | Mixed numeric and categorical features without proper encoding | One-hot encode categoricals separately; scale numeric features independently |
 | No ground truth for validation | Unlabeled dataset prevents accuracy measurement | Use domain expert review on top-N anomalies; implement feedback loop to refine threshold |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for the full error reference.
+See [`references/errors.md`](references/errors.md) for the full error reference.
 
 ## Examples
 

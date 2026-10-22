@@ -103,7 +103,7 @@ Summary showing total value, 24h/7d changes, per-asset allocation, and concentra
 | Coin not found | Unknown symbol | Check symbol spelling, use standard symbols |
 | API rate limited | Too many requests | Wait and retry, use caching |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
@@ -125,8 +125,8 @@ python ${CLAUDE_SKILL_DIR}/scripts/portfolio_tracker.py --portfolio holdings.jso
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Portfolio file format, CLI options, allocation thresholds, JSON format
-- `${CLAUDE_SKILL_DIR}/references/errors.md` - Comprehensive error handling
-- `${CLAUDE_SKILL_DIR}/references/examples.md` - Detailed usage examples
+- [`references/implementation.md`](references/implementation.md) - Portfolio file format, CLI options, allocation thresholds, JSON format
+- [`references/errors.md`](references/errors.md) - Comprehensive error handling
+- [`references/examples.md`](references/examples.md) - Detailed usage examples
 - CoinGecko API: https://www.coingecko.com/en/api
 - `${CLAUDE_SKILL_DIR}/config/settings.yaml` - Configuration options

@@ -45,7 +45,7 @@ Build production-ready GraphQL servers with SDL-first or code-first schema desig
 8. Generate TypeScript types from the schema using `graphql-codegen` to ensure type safety between schema definitions and resolver implementations.
 9. Write integration tests using `executeOperation` for query/mutation testing and WebSocket client tests for subscription verification.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -67,7 +67,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Partial resolver failure | One field resolver throws while others succeed | Return partial data with `errors` array per GraphQL spec; log failed resolver with context |
 | Schema stitching conflict | Duplicate type names when merging multiple schema modules | Use schema namespacing or federation with `@key` directives to resolve type ownership |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -77,7 +77,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Federated microservice graph**: Apollo Federation with `@key` and `@external` directives across User, Order, and Product subgraphs, composed into a unified supergraph with a gateway router.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

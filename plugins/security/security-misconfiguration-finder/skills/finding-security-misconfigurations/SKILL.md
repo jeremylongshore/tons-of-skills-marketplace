@@ -50,7 +50,7 @@ Scan infrastructure-as-code templates, application configuration files, and syst
 9. Classify each finding: **Critical** (immediate exploitation risk), **High** (significant security impact), **Medium** (configuration weakness), **Low** (best practice violation).
 10. Generate findings report at `${CLAUDE_SKILL_DIR}/security-findings/misconfig-YYYYMMDD.md` with per-finding severity, CIS/CWE mapping, affected file and line, remediation code, and verification command.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full six-section implementation guide covering IaC, application, and system checks.
+See [`references/implementation.md`](references/implementation.md) for the full six-section implementation guide covering IaC, application, and system checks.
 
 ## Output
 
@@ -83,6 +83,6 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full six-section 
 - tfsec (Terraform scanner): https://github.com/aquasecurity/tfsec
 - Checkov (multi-cloud IaC scanner): https://www.checkov.io/
 - CWE-16 Configuration: https://cwe.mitre.org/data/definitions/16.html
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- full error handling reference
-- `${CLAUDE_SKILL_DIR}/references/examples.md` -- additional usage examples
+- [`references/errors.md`](references/errors.md) -- full error handling reference
+- [`references/examples.md`](references/examples.md) -- additional usage examples
 - https://intentsolutions.io

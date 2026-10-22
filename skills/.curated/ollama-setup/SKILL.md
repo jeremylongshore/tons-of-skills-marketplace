@@ -55,7 +55,7 @@ Auto-configure Ollama for local LLM deployment, eliminating hosted API costs and
 9. Configure model persistence and cache directory if non-default storage location is required
 10. Validate end-to-end inference latency and throughput for the selected model
 
-See `${CLAUDE_SKILL_DIR}/references/skill-workflow.md` for the detailed workflow with code snippets.
+See [`references/skill-workflow.md`](references/skill-workflow.md) for the detailed workflow with code snippets.
 
 ## Output
 
@@ -76,7 +76,7 @@ See `${CLAUDE_SKILL_DIR}/references/skill-workflow.md` for the detailed workflow
 | GPU not detected | CUDA drivers missing or incompatible version | Install CUDA toolkit >= 11.8; verify with `nvidia-smi`; restart Ollama service after driver install |
 | Port 11434 already in use | Another service occupying the default Ollama port | Stop conflicting service; or set `OLLAMA_HOST=0.0.0.0:11435` environment variable |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for additional error scenarios.
+See [`references/errors.md`](references/errors.md) for additional error scenarios.
 
 ## Examples
 

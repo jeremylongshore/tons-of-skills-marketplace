@@ -32,7 +32,7 @@ Scaffolds new Claude Code plugins with proper directory structure, required file
 
 ## Instructions
 
-1. Gather requirements from the user request: plugin name (kebab-case), category (`productivity`, `security`, `devops`, `testing`, etc.), plugin type (commands, agents, skills, MCP, or combination), description, and keywords. Default author to the repository owner if unspecified (see `${CLAUDE_SKILL_DIR}/references/plugin-creation-process.md`).
+1. Gather requirements from the user request: plugin name (kebab-case), category (`productivity`, `security`, `devops`, `testing`, etc.), plugin type (commands, agents, skills, MCP, or combination), description, and keywords. Default author to the repository owner if unspecified (see [`references/plugin-creation-process.md`](references/plugin-creation-process.md)).
 2. Create the plugin directory structure under `plugins/[category]/[plugin-name]/`:
 
    ```
@@ -44,7 +44,7 @@ Scaffolds new Claude Code plugins with proper directory structure, required file
    └── [commands/ | agents/ | skills/ | hooks/ | mcp/]
    ```
 
-3. Generate `.claude-plugin/plugin.json` using the template from `${CLAUDE_SKILL_DIR}/references/file-templates.md`. Populate all required fields: `name`, `version` (default `1.0.0`), `description`, `author` (name and email), `repository`, `license` (default MIT), and `keywords` (minimum 2).
+3. Generate `.claude-plugin/plugin.json` using the template from [`references/file-templates.md`](references/file-templates.md). Populate all required fields: `name`, `version` (default `1.0.0`), `description`, `author` (name and email), `repository`, `license` (default MIT), and `keywords` (minimum 2).
 4. Generate `README.md` with installation instructions, usage examples, a description section, and contributor information.
 5. Create a `LICENSE` file with MIT license text (or the specified license).
 6. Generate component files based on the plugin type:
@@ -80,7 +80,7 @@ A complete, CI-ready plugin containing:
 
 **Create a command plugin:**
 Trigger: "Create a new security plugin called 'owasp-scanner' with commands."
-Process: Create `plugins/security/owasp-scanner/` directory, generate `plugin.json`, `README.md`, `LICENSE`, and `commands/scan.md` with proper frontmatter. Add to marketplace, sync, validate (see `${CLAUDE_SKILL_DIR}/references/examples.md`).
+Process: Create `plugins/security/owasp-scanner/` directory, generate `plugin.json`, `README.md`, `LICENSE`, and `commands/scan.md` with proper frontmatter. Add to marketplace, sync, validate (see [`references/examples.md`](references/examples.md)).
 
 **Scaffold a skills plugin:**
 Trigger: "Scaffold a skills plugin for code review."
@@ -92,7 +92,7 @@ Process: Create `plugins/mcp/db-query/` with `package.json` (including `@modelco
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/plugin-creation-process.md` -- detailed creation workflow
-- `${CLAUDE_SKILL_DIR}/references/file-templates.md` -- templates for `plugin.json`, commands, agents, and skills
-- `${CLAUDE_SKILL_DIR}/references/examples.md` -- creation scenario walkthroughs
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- error handling patterns
+- [`references/plugin-creation-process.md`](references/plugin-creation-process.md) -- detailed creation workflow
+- [`references/file-templates.md`](references/file-templates.md) -- templates for `plugin.json`, commands, agents, and skills
+- [`references/examples.md`](references/examples.md) -- creation scenario walkthroughs
+- [`references/errors.md`](references/errors.md) -- error handling patterns

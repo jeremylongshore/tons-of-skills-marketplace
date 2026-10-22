@@ -72,4 +72,4 @@ Configure load balancers across AWS (ALB, NLB), GCP (HTTP(S) LB, TCP/UDP LB), Ng
 - HAProxy configuration: https://www.haproxy.org/download/2.8/doc/configuration.txt
 - AWS ALB: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/
 - GCP Load Balancing: https://cloud.google.com/load-balancing/docs
-- See `${CLAUDE_SKILL_DIR}/references/errors.md` for additional error handling patterns
+- See [`references/errors.md`](references/errors.md) for additional error handling patterns

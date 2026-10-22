@@ -35,7 +35,7 @@ Generate production-ready Google Cloud Platform code examples sourced from offic
 ## Instructions
 
 1. Identify the target framework by matching the request to one of six categories: ADK agents, Agent Starter Pack, Genkit flows, Vertex AI training, Generative AI multimodal, or AgentSmithy orchestration
-2. Select the appropriate source repository and code pattern from `${CLAUDE_SKILL_DIR}/references/code-example-categories.md`
+2. Select the appropriate source repository and code pattern from [`references/code-example-categories.md`](references/code-example-categories.md)
 3. Adapt the template to the specified programming language (TypeScript, Python, or Go)
 4. Configure security settings: IAM least-privilege service accounts, VPC Service Controls, Model Armor for prompt injection protection
 5. Add monitoring instrumentation: Cloud Monitoring dashboards, alerting policies, structured logging, OpenTelemetry tracing
@@ -45,7 +45,7 @@ Generate production-ready Google Cloud Platform code examples sourced from offic
 9. Provide Terraform or IaC templates for reproducible infrastructure provisioning
 10. Cite the source repository and link to official documentation for each pattern used
 
-See `${CLAUDE_SKILL_DIR}/references/workflow.md` for the phased workflow and `${CLAUDE_SKILL_DIR}/references/best-practices-applied.md` for the full best-practices checklist.
+See [`references/workflow.md`](references/workflow.md) for the phased workflow and [`references/best-practices-applied.md`](references/best-practices-applied.md) for the full best-practices checklist.
 
 ## Output
 
@@ -66,7 +66,7 @@ See `${CLAUDE_SKILL_DIR}/references/workflow.md` for the phased workflow and `${
 | Quota exceeded for API calls | Rate limit hit on Vertex AI prediction endpoint | Request quota increase via Cloud Console; implement exponential backoff with jitter |
 | Dependency version conflict | Incompatible versions of AI SDK, Genkit, or provider packages | Pin versions in `package.json` or `requirements.txt`; use lockfile to ensure reproducibility |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for additional error scenarios.
+See [`references/errors.md`](references/errors.md) for additional error scenarios.
 
 ## Examples
 
@@ -76,7 +76,7 @@ See `${CLAUDE_SKILL_DIR}/references/errors.md` for additional error scenarios.
 
 **Scenario 3: Gemini Multimodal Analysis** -- Analyze video content using the `generative-ai` repository patterns. Create a multimodal prompt combining video URIs with text questions using Gemini 2.5 Pro. Include safety filter configuration, token counting for cost estimation, and structured output parsing.
 
-See `${CLAUDE_SKILL_DIR}/references/example-interactions.md` for detailed interaction examples.
+See [`references/example-interactions.md`](references/example-interactions.md) for detailed interaction examples.
 
 ## Resources
 

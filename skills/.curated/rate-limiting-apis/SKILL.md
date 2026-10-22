@@ -44,7 +44,7 @@ Implement sophisticated rate limiting using sliding window, token bucket, and fi
 8. Implement rate limit bypass for internal service-to-service calls using shared secret or mutual TLS identification to prevent internal traffic from consuming consumer quotas.
 9. Write tests that verify rate limits engage at exact thresholds, headers reflect correct remaining counts, and limits reset at the configured window boundary.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -65,7 +65,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Inconsistent counts | Race condition in read-check-increment cycle | Use Redis `MULTI/EXEC` transaction or Lua script for atomic increment-and-check operations |
 | Bypass abuse | Internal bypass mechanism exploited by external client | Validate bypass credentials per-request; restrict bypass to specific IP ranges or mTLS certificates |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -75,7 +75,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Login endpoint protection**: Apply strict rate limit of 5 attempts per minute per IP on `/auth/login` to prevent brute force attacks, with progressive lockout (15 min, 1 hour, 24 hours) after repeated violations.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

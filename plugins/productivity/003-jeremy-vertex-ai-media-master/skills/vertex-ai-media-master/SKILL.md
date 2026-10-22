@@ -83,7 +83,7 @@ Multimodal media operations on Google Cloud Vertex AI covering video understandi
 
 ## Resources
 
-- Detailed model capabilities and code patterns: `${CLAUDE_SKILL_DIR}/references/core-capabilities.md`
+- Detailed model capabilities and code patterns: [`references/core-capabilities.md`](references/core-capabilities.md)
 - Vertex AI Multimodal overview: https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/overview
 - Imagen documentation: https://cloud.google.com/vertex-ai/generative-ai/docs/image/overview
 - Video understanding guide: https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/video-understanding

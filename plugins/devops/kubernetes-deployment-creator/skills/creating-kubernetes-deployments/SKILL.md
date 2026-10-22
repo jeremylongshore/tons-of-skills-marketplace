@@ -357,7 +357,7 @@ spec:
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive troubleshooting.
+See [`references/errors.md`](references/errors.md) for comprehensive troubleshooting.
 
 | Error | Quick Fix |
 |-------|-----------|
@@ -368,7 +368,7 @@ See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive troubleshooting
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for detailed walkthroughs.
+See [`references/examples.md`](references/examples.md) for detailed walkthroughs.
 
 ## Resources
 

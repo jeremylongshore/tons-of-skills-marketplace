@@ -114,7 +114,7 @@ Gas fee optimization skill that:
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for:
+See [`references/errors.md`](references/errors.md) for:
 
 - RPC connection issues
 - API rate limiting
@@ -123,7 +123,7 @@ See `${CLAUDE_SKILL_DIR}/references/errors.md` for:
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for:
+See [`references/examples.md`](references/examples.md) for:
 
 - Quick start commands
 - Cost estimation scenarios

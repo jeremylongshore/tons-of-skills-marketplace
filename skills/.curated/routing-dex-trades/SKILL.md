@@ -84,7 +84,7 @@ Optimal trade routing across decentralized exchanges by aggregating quotes from 
 - **Split Mode**: Optimal allocation percentages with dollar savings vs. single-venue
 - **MEV Assessment**: Risk score, exposure estimate, protection recommendations
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed output examples.
+See [`references/implementation.md`](references/implementation.md) for detailed output examples.
 
 ## Error Handling
 
@@ -95,7 +95,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed output examp
 | No Route Found | Low liquidity token | Try larger DEXs or reduce trade size |
 | Network Timeout | Aggregator down | Retry or check aggregator status page |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
@@ -117,11 +117,11 @@ python ${CLAUDE_SKILL_DIR}/scripts/dex_router.py ETH USDC 100.0 --split
 python ${CLAUDE_SKILL_DIR}/scripts/dex_router.py ETH USDC 50.0 --mev-check
 ```
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for multi-hop discovery and MEV-protected execution examples.
+See [`references/examples.md`](references/examples.md) for multi-hop discovery and MEV-protected execution examples.
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Trade size guide, split optimization, MEV scoring, API config
+- [`references/implementation.md`](references/implementation.md) - Trade size guide, split optimization, MEV scoring, API config
 - [1inch API](https://docs.1inch.io/) - Primary aggregator
 - [Paraswap API](https://developers.paraswap.network/) - Secondary aggregator
 - [0x API](https://0x.org/docs/api) - Third aggregator

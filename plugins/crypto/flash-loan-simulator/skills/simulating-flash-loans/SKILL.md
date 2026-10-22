@@ -85,7 +85,7 @@ Simulate flash loan strategies across Aave V3, dYdX, and Balancer with profitabi
 - **Comparison Mode**: All providers ranked by net profit with fee differences
 - **Risk Analysis**: Competition, execution, protocol, and liquidity scores (0-100) with viability grade (A-F)
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed output examples and risk scoring methodology.
+See [`references/implementation.md`](references/implementation.md) for detailed output examples and risk scoring methodology.
 
 ## Error Handling
 
@@ -96,7 +96,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed output examp
 | No Profitable Route | All routes lose after costs | Try different pairs or amounts |
 | Insufficient Liquidity | Trade exceeds pool depth | Reduce amount or split across pools |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
@@ -119,11 +119,11 @@ python ${CLAUDE_SKILL_DIR}/scripts/flash_simulator.py arbitrage ETH USDC 100 --c
 python ${CLAUDE_SKILL_DIR}/scripts/flash_simulator.py liquidation --protocol aave --health-factor 0.95
 ```
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for multi-provider comparison and backtesting examples.
+See [`references/examples.md`](references/examples.md) for multi-provider comparison and backtesting examples.
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Provider comparison, strategy details, risk scoring, output modes
+- [`references/implementation.md`](references/implementation.md) - Provider comparison, strategy details, risk scoring, output modes
 - [Aave V3 Flash Loans](https://docs.aave.com/developers/guides/flash-loans)
 - dYdX Flash Loans
 - Balancer Flash Loans

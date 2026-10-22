@@ -77,7 +77,7 @@ Analyze DEX liquidity pools across Uniswap, Curve, and Balancer to evaluate TVL,
 
 Pool analysis reports include chain, TVL, 24h volume, fee tier, fee APR, volume/TVL ratio, and token composition with current price. Impermanent loss reports show IL percentage, dollar impact, HODL vs LP value comparison, and breakeven analysis with days-to-recover based on fee income.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed output format examples.
+See [`references/implementation.md`](references/implementation.md) for detailed output format examples.
 
 ## Error Handling
 
@@ -118,4 +118,4 @@ python pool_analyzer.py --token ETH --format json --output eth_pools.json
 - The Graph: https://thegraph.com/ - Subgraph queries
 - Uniswap Info: https://info.uniswap.org/ - Pool explorer
 - DeFiLlama: https://defillama.com/ - TVL data
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Detailed output formats, configuration, cross-protocol comparison guide
+- [`references/implementation.md`](references/implementation.md) - Detailed output formats, configuration, cross-protocol comparison guide

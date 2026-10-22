@@ -46,7 +46,7 @@ Execute comprehensive load, stress, and soak tests to validate API performance, 
 8. Analyze results: correlate latency spikes with server metrics (CPU, memory, DB connections, event loop lag), identify the bottleneck (database, network, compute), and document findings.
 9. Generate a performance report comparing results against SLO thresholds with recommendations for optimization.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -67,7 +67,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Inconsistent baseline results | Shared staging environment with other traffic | Isolate test environment; run tests during off-hours; use dedicated performance environment |
 | Memory leak detected | Soak test shows steadily increasing memory over hours | Flag for development team; identify leaking endpoint by isolating test scenarios |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -77,7 +77,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Soak test for memory leaks**: Sustain 200 concurrent users for 4 hours, monitoring server memory, connection counts, and response times for degradation patterns indicating resource leaks.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

@@ -27,7 +27,7 @@ operations vulnerable to CSRF attacks.
 - Access to the target codebase and configuration files in `${CLAUDE_SKILL_DIR}/`
 - Familiarity with the web framework in use (Express, Django, Rails, Spring, Laravel, etc.)
 - Standard shell utilities and Grep/Glob available for codebase scanning
-- Reference: `${CLAUDE_SKILL_DIR}/references/README.md` for CSRF protection methods, OWASP CSRF Prevention Cheat Sheet, and framework-specific API examples
+- Reference: [`references/README.md`](references/README.md) for CSRF protection methods, OWASP CSRF Prevention Cheat Sheet, and framework-specific API examples
 
 ## Instructions
 

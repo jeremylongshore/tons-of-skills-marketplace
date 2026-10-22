@@ -172,12 +172,12 @@ find /var/backups/monthly -mtime +365 -delete     # 365: Monthly cleanup
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/postgresql_backup_restore.md` - PostgreSQL backup guide
-- `${CLAUDE_SKILL_DIR}/references/mysql_backup_restore.md` - MySQL backup guide
-- `${CLAUDE_SKILL_DIR}/references/mongodb_backup_restore.md` - MongoDB backup guide
-- `${CLAUDE_SKILL_DIR}/references/sqlite_backup_restore.md` - SQLite backup guide
-- `${CLAUDE_SKILL_DIR}/references/backup_best_practices.md` - Security and storage best practices
-- `${CLAUDE_SKILL_DIR}/references/cron_syntax.md` - Cron scheduling reference
+- [`references/postgresql_backup_restore.md`](references/postgresql_backup_restore.md) - PostgreSQL backup guide
+- [`references/mysql_backup_restore.md`](references/mysql_backup_restore.md) - MySQL backup guide
+- [`references/mongodb_backup_restore.md`](references/mongodb_backup_restore.md) - MongoDB backup guide
+- [`references/sqlite_backup_restore.md`](references/sqlite_backup_restore.md) - SQLite backup guide
+- [`references/backup_best_practices.md`](references/backup_best_practices.md) - Security and storage best practices
+- [`references/cron_syntax.md`](references/cron_syntax.md) - Cron scheduling reference
 
 ## Overview
 

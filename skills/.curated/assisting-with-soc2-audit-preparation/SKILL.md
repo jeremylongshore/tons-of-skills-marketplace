@@ -48,7 +48,7 @@ Automate SOC 2 Type I and Type II audit preparation by assessing controls across
 9. **Generate readiness report**: produce `${CLAUDE_SKILL_DIR}/soc2-audit/readiness-report-YYYYMMDD.md` with overall readiness score, per-criteria assessment with percentage, remediation roadmap with timelines, and evidence collection checklist.
 10. **Prepare auditor interview guide**: draft expected auditor questions by criteria area with suggested evidence references and talking points.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the six-phase implementation guide. See `${CLAUDE_SKILL_DIR}/references/readiness-by-trust-service-category.md` for example per-criteria readiness breakdowns.
+See [`references/implementation.md`](references/implementation.md) for the six-phase implementation guide. See [`references/readiness-by-trust-service-category.md`](references/readiness-by-trust-service-category.md) for example per-criteria readiness breakdowns.
 
 ## Output
 
@@ -80,7 +80,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the six-phase impleme
 - SOC 2 Compliance Checklist:
 - CIS Controls v8: https://www.cisecurity.org/controls/
 - NIST Cybersecurity Framework: https://www.nist.gov/cyberframework
-- `${CLAUDE_SKILL_DIR}/references/readiness-by-trust-service-category.md` -- example per-criteria readiness breakdown
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- full error handling reference
-- `${CLAUDE_SKILL_DIR}/references/examples.md` -- additional usage examples
+- [`references/readiness-by-trust-service-category.md`](references/readiness-by-trust-service-category.md) -- example per-criteria readiness breakdown
+- [`references/errors.md`](references/errors.md) -- full error handling reference
+- [`references/examples.md`](references/examples.md) -- additional usage examples
 - https://intentsolutions.io

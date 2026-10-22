@@ -29,7 +29,7 @@ grants, and violations of the principle of least privilege.
 - Familiarity with the authorization model in use (RBAC, ABAC, ACL, or IAM)
 - `grep`, `find`, and standard shell utilities available via Bash
 - For cloud audits: CLI tools such as `aws iam`, `gcloud`, or `az role` installed and authenticated
-- Reference: `${CLAUDE_SKILL_DIR}/references/README.md` for IAM best practices, ACL vulnerability patterns, and NIST/GDPR access control standards
+- Reference: [`references/README.md`](references/README.md) for IAM best practices, ACL vulnerability patterns, and NIST/GDPR access control standards
 
 ## Instructions
 

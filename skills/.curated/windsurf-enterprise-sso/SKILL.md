@@ -43,7 +43,7 @@ This skill enables enterprise Single Sign-On (SSO) integration for Windsurf depl
 4. **Configure Policies**
 5. **Test and Enable**
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed implementation guide.
+See [`references/implementation.md`](references/implementation.md) for detailed implementation guide.
 
 ## Output
 
@@ -54,11 +54,11 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed implementati
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for detailed examples.
+See [`references/examples.md`](references/examples.md) for detailed examples.
 
 ## Resources
 

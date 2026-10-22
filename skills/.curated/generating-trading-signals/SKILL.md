@@ -86,7 +86,7 @@ The scanner produces a summary table with symbol, signal type, confidence %, pri
 
 **Confidence ranges**: 70-100% high conviction | 50-70% moderate | 30-50% weak | 0-30% avoid
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for full output format examples and signal type tables.
+See [`references/implementation.md`](references/implementation.md) for full output format examples and signal type tables.
 
 ## Error Handling
 
@@ -96,7 +96,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for full output format ex
 | Insufficient data | Period too short for indicators | Use `--period 6m` minimum |
 | Rate limit exceeded | Too many rapid API calls | Add delay between scans |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
@@ -129,4 +129,4 @@ python ${CLAUDE_SKILL_DIR}/scripts/scanner.py --watchlist crypto_top10 --output 
 - **yfinance** for price data
 - **pandas/numpy** for calculations
 - Compatible with trading-strategy-backtester plugin
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Output formats, configuration, backtester integration, file reference
+- [`references/implementation.md`](references/implementation.md) - Output formats, configuration, backtester integration, file reference

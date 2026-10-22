@@ -44,7 +44,7 @@ Build scalable WebSocket servers for real-time bidirectional communication using
 8. Configure Redis pub/sub adapter for horizontal scaling so messages broadcast from any server instance reach all connected clients across the cluster.
 9. Write connection lifecycle tests covering connect, authenticate, subscribe, message exchange, reconnect, and graceful disconnect scenarios.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -66,7 +66,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Memory leak | Connection registry grows unbounded from stale entries | Implement heartbeat-based cleanup sweep every 60s; enforce max connections per server |
 | Message storm | Single client flooding messages beyond acceptable rate | Apply per-connection message rate limiting; disconnect abusive clients with 1008 |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -76,7 +76,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Collaborative editing**: Operational transformation relay server that receives edit operations from clients, transforms against concurrent operations, and broadcasts resolved changes to all document subscribers.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

@@ -45,7 +45,7 @@ Create an API gateway that provides unified entry point routing, load balancing,
 8. Configure health check aggregation: gateway `/health` endpoint reports overall status based on individual backend service health, with degraded state support for non-critical service failures.
 9. Write integration tests covering routing correctness, auth enforcement, rate limiting, circuit breaker behavior, and response aggregation.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -68,7 +68,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Routing miss | Request path does not match any configured route | Return 404 with list of available API paths; log unmatched routes for route configuration review |
 | Auth header stripping | Proxy strips Authorization header before forwarding to backend | Configure gateway to preserve or transform auth headers; verify proxy `proxy_pass_header` settings |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -78,7 +78,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **API versioning gateway**: Route requests to different backend deployments based on `Accept-Version` header, enabling blue-green deployments and gradual version migration without client-side URL changes.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

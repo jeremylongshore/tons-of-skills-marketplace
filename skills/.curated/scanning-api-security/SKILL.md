@@ -46,7 +46,7 @@ Detect API security vulnerabilities by scanning endpoint implementations, authen
 8. Check security headers (CORS, CSP, HSTS, X-Content-Type-Options) and verify CORS `Access-Control-Allow-Origin` is not set to wildcard `*` on authenticated endpoints.
 9. Scan dependencies for known CVEs and generate a prioritized remediation report with severity ratings and fix recommendations.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -66,7 +66,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | CORS misconfiguration missed | CORS configured at reverse proxy level, not in application code | Extend scan to include nginx/Apache config files and cloud provider CORS settings |
 | Dependency scan timeout | Large dependency tree with many transitive dependencies | Run dependency scan in parallel; cache vulnerability database locally |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -76,7 +76,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Authentication flow review**: Trace the complete auth flow from login through token issuance, refresh, and revocation, identifying token lifetime issues, missing refresh rotation, and insecure token storage patterns.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

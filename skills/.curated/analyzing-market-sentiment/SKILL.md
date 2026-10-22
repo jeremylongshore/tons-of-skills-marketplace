@@ -99,7 +99,7 @@ Composite sentiment score (0-100) with classification and weighted component bre
 | News fetch failed | Network issue | Reduces weight of news component |
 | Invalid coin | Unknown symbol | Proceeds with market-wide analysis |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
@@ -124,9 +124,9 @@ python ${CLAUDE_SKILL_DIR}/scripts/sentiment_analyzer.py --period 7d --detailed
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - CLI options, classifications, JSON format, contrarian theory
-- `${CLAUDE_SKILL_DIR}/references/errors.md` - Comprehensive error handling
-- `${CLAUDE_SKILL_DIR}/references/examples.md` - Detailed usage examples
+- [`references/implementation.md`](references/implementation.md) - CLI options, classifications, JSON format, contrarian theory
+- [`references/errors.md`](references/errors.md) - Comprehensive error handling
+- [`references/examples.md`](references/examples.md) - Detailed usage examples
 - Alternative.me Fear & Greed: https://alternative.me/crypto/fear-and-greed-index/
 - CoinGecko API: https://www.coingecko.com/en/api
 - `${CLAUDE_SKILL_DIR}/config/settings.yaml` - Configuration options

@@ -27,7 +27,7 @@ overly permissive header/method exposure.
 - Access to the target codebase and configuration files in `${CLAUDE_SKILL_DIR}/`
 - For live endpoint testing: WebFetch tool available and target URLs accessible
 - Familiarity with the web framework in use (Express, Django, Flask, Spring, ASP.NET, etc.)
-- Reference: `${CLAUDE_SKILL_DIR}/references/README.md` for CORS specification details, common vulnerability patterns, and example policies
+- Reference: [`references/README.md`](references/README.md) for CORS specification details, common vulnerability patterns, and example policies
 
 ## Instructions
 

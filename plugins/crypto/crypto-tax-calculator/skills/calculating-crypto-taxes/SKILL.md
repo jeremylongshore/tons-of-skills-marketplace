@@ -43,7 +43,7 @@ Calculate cryptocurrency tax obligations from transaction history. Supports FIFO
    | Coinbase | Reports > Tax documents > Transaction history CSV |
    | Binance | Orders > Trade History > Export |
    | Kraken | History > Export |
-   | Generic | See `${CLAUDE_SKILL_DIR}/references/exchange_formats.md` for column mapping |
+   | Generic | See [`references/exchange_formats.md`](references/exchange_formats.md) for column mapping |
 
 2. **Run basic tax calculation** using FIFO (IRS default):
 
@@ -81,7 +81,7 @@ Calculate cryptocurrency tax obligations from transaction history. Supports FIFO
 
 Reports include short-term and long-term capital gains/losses broken down by transaction, with proceeds, cost basis, and gain/loss per disposal. Summary shows total proceeds, total cost basis, net capital gain, and short/long-term split. Income report lists staking, airdrop, and mining income with fair market values.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed output format examples.
+See [`references/implementation.md`](references/implementation.md) for detailed output format examples.
 
 ## Error Handling
 
@@ -122,4 +122,4 @@ python tax_calculator.py --transactions trades.csv --verbose --show-lots
 - IRS Virtual Currency Guidance: https://www.irs.gov/businesses/small-businesses-self-employed/virtual-currencies
 - Form 8949 Instructions: https://www.irs.gov/instructions/i8949
 - CoinGecko API for historical prices
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Detailed output formats, configuration, advanced usage
+- [`references/implementation.md`](references/implementation.md) - Detailed output formats, configuration, advanced usage

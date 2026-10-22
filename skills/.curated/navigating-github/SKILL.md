@@ -66,7 +66,7 @@ Each mode runs `git status` as part of its normal operation. Infer level from th
 - Branch naming conventions + conventional commits → **Advanced**
 - Complex history, multiple remotes, CI configured → **Expert**
 
-Only ask via `AskUserQuestion` when signals are genuinely ambiguous. Read `${CLAUDE_SKILL_DIR}/references/skill-assessment-guide.md` for the full adaptive behavior matrix. Apply:
+Only ask via `AskUserQuestion` when signals are genuinely ambiguous. Read [`references/skill-assessment-guide.md`](references/skill-assessment-guide.md) for the full adaptive behavior matrix. Apply:
 
 | Level | Language | Depth | Autonomy |
 |-------|----------|-------|----------|
@@ -89,7 +89,7 @@ Skip completed steps. Explain each step at the inferred level. After completion,
 
 Hands-on lessons using real commands on the user's actual project. Every lesson follows **do-then-explain**: run a real command, observe the result, THEN explain what happened. Verify understanding after each step before proceeding.
 
-Read `${CLAUDE_SKILL_DIR}/references/learning-curriculum.md` for the full curriculum. Route by trigger:
+Read [`references/learning-curriculum.md`](references/learning-curriculum.md) for the full curriculum. Route by trigger:
 
 **Beginner track:**
 
@@ -107,7 +107,7 @@ Read `${CLAUDE_SKILL_DIR}/references/learning-curriculum.md` for the full curric
 
 - "teach me rebase" → **Rebase vs Merge** — interactive rebase, squash, clean history
 - "teach me CI/CD" / "github actions" → **GitHub Actions** — write a workflow, watch it run
-- "how do code review apps work" → **Review Ecosystem** — CodeRabbit, Copilot Review, and the ecosystem (read `${CLAUDE_SKILL_DIR}/references/github-review-apps.md`)
+- "how do code review apps work" → **Review Ecosystem** — CodeRabbit, Copilot Review, and the ecosystem (read [`references/github-review-apps.md`](references/github-review-apps.md))
 
 After each lesson: summarize what was learned (2-3 bullets), give a small challenge to try solo, suggest the next lesson.
 
@@ -156,7 +156,7 @@ Agent: [guides through git rebase -i, explains pick/squash/fixup]
 
 ## Output
 
-Calibrate all output to the inferred skill level. Beginner: plain English with analogies, explain every command. Intermediate: concise summaries, explain rationale. Advanced: minimal commentary. Expert: raw output only. Read `${CLAUDE_SKILL_DIR}/references/git-concepts-glossary.md` when a term definition is needed.
+Calibrate all output to the inferred skill level. Beginner: plain English with analogies, explain every command. Intermediate: concise summaries, explain rationale. Advanced: minimal commentary. Expert: raw output only. Read [`references/git-concepts-glossary.md`](references/git-concepts-glossary.md) when a term definition is needed.
 
 ## Error Handling
 
@@ -168,10 +168,10 @@ Calibrate all output to the inferred skill level. Beginner: plain English with a
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/learning-curriculum.md` — 9 progressive lesson plans from beginner through advanced
-- `${CLAUDE_SKILL_DIR}/references/git-concepts-glossary.md` — term definitions at beginner and technical levels
-- `${CLAUDE_SKILL_DIR}/references/skill-assessment-guide.md` — adaptive behavior matrix with level-up and level-down signals
-- `${CLAUDE_SKILL_DIR}/references/safety-rules.md` — branch protection, secret detection, destructive operation guards
-- `${CLAUDE_SKILL_DIR}/references/error-recovery-playbook.md` — conflict resolution, auth repair, detached HEAD, rebase recovery
-- `${CLAUDE_SKILL_DIR}/references/github-review-apps.md` — CodeRabbit, Copilot Review, Greptile, CodeQL, Qodo
-- `${CLAUDE_SKILL_DIR}/references/claude-github-platforms.md` — platform capabilities across Claude Code, Cursor, Windsurf, and others
+- [`references/learning-curriculum.md`](references/learning-curriculum.md) — 9 progressive lesson plans from beginner through advanced
+- [`references/git-concepts-glossary.md`](references/git-concepts-glossary.md) — term definitions at beginner and technical levels
+- [`references/skill-assessment-guide.md`](references/skill-assessment-guide.md) — adaptive behavior matrix with level-up and level-down signals
+- [`references/safety-rules.md`](references/safety-rules.md) — branch protection, secret detection, destructive operation guards
+- [`references/error-recovery-playbook.md`](references/error-recovery-playbook.md) — conflict resolution, auth repair, detached HEAD, rebase recovery
+- [`references/github-review-apps.md`](references/github-review-apps.md) — CodeRabbit, Copilot Review, Greptile, CodeQL, Qodo
+- [`references/claude-github-platforms.md`](references/claude-github-platforms.md) — platform capabilities across Claude Code, Cursor, Windsurf, and others

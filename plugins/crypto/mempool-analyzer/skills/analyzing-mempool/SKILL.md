@@ -85,7 +85,7 @@ python mempool_analyzer.py --chain arbitrum pending # Or use Arbitrum
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for:
+See [`references/errors.md`](references/errors.md) for:
 
 - RPC connection issues and timeout recovery
 - Mempool access limitations per chain
@@ -113,11 +113,11 @@ python mempool_analyzer.py swaps --limit 200  # 200: max results to scan
 python mempool_analyzer.py mev -v
 ```
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for more usage patterns.
+See [`references/examples.md`](references/examples.md) for more usage patterns.
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Gas analysis, MEV detection, multi-chain details
+- [`references/implementation.md`](references/implementation.md) - Gas analysis, MEV detection, multi-chain details
 - [Ethereum JSON-RPC](https://ethereum.org/en/developers/docs/apis/json-rpc/) - RPC specification
 - [Flashbots](https://flashbots.net) - MEV research and infrastructure
 - [DEX Subgraphs](https://thegraph.com) - Pool and swap data

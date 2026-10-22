@@ -45,7 +45,7 @@ Generate gRPC service definitions, client/server stubs, and implementations from
 8. Write integration tests using an in-process test server, validating all RPC methods including streaming scenarios with multiple messages and error conditions.
 9. Generate a REST-to-gRPC gateway using `grpc-gateway` annotations for HTTP/JSON clients that need to access gRPC services.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -67,7 +67,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | DEADLINE_EXCEEDED (4) | RPC took longer than client-specified deadline | Propagate deadlines to downstream calls; implement cascading timeout budgets |
 | UNAVAILABLE (14) | Server overloaded or downstream dependency unreachable | Client should retry with exponential backoff; server should implement backpressure |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -77,7 +77,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **gRPC-Web frontend**: Generate gRPC-Web compatible stubs for browser clients using Envoy proxy for HTTP/2 to gRPC translation, enabling direct proto-based communication from React/Vue applications.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

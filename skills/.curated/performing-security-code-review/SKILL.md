@@ -91,4 +91,4 @@ Process: Execute all seven scan categories (secrets, injection, auth, dependenci
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/) -- industry-standard vulnerability classification
 - [Node.js Security Checklist](https://blog.risingstack.com/node-js-security-checklist/) -- Node-specific security guidance
 - [CWE/SANS Top 25](https://cwe.mitre.org/top25/) -- most dangerous software weaknesses
-- `${CLAUDE_SKILL_DIR}/references/README.md` -- bundled reference materials
+- [`references/README.md`](references/README.md) -- bundled reference materials

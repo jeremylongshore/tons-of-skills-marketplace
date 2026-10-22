@@ -45,7 +45,7 @@ Analyze DeFi protocol metrics, chain-level TVL, fee revenue, DEX volumes, yield 
 9. Run `python onchain_analytics.py trends --threshold 5` to detect protocols with significant TVL changes (threshold is percentage).
 10. Export results in JSON or CSV format using `--format json` or `--format csv` and redirect to file for downstream analysis.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full four-step implementation workflow.
+See [`references/implementation.md`](references/implementation.md) for the full four-step implementation workflow.
 
 ## Output
 

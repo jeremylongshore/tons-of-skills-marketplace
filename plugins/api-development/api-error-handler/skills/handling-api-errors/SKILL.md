@@ -44,7 +44,7 @@ Implement standardized API error handling with RFC 7807 Problem Details response
 8. Handle unhandled rejections and uncaught exceptions at the process level, returning 500 with a generic error message while logging the full failure and triggering alerts.
 9. Write tests verifying that each error type produces the correct HTTP status code, RFC 7807 response body, and that stack traces are hidden in production mode.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -65,7 +65,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Database error exposed | Raw SQL error message returned to client containing table/column names | Map database errors to generic messages at the error handler layer; log full details server-side |
 | Error monitoring noise | High volume of expected 4xx errors flooding Sentry/Bugsnag | Configure error monitoring to capture only 5xx; track 4xx via metrics, not error monitoring |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -75,7 +75,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Graceful upstream failure**: When a downstream payment service returns 500, wrap it in a `ServiceUnavailableError` with a user-friendly message, log the upstream response for debugging, and trigger a circuit breaker.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

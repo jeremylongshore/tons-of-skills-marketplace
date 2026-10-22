@@ -46,7 +46,7 @@ Audit session management implementations in web applications to identify vulnera
 8. **Identify attack vectors**: assess exposure to session fixation, CSRF via session riding, replay attacks from stolen tokens, and session prediction from weak ID generation.
 9. Produce the session security report at `${CLAUDE_SKILL_DIR}/security-reports/session-security-YYYYMMDD.md` with per-finding severity, CWE mapping, vulnerable code snippet, and remediated code example.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the detailed implementation guide. See `${CLAUDE_SKILL_DIR}/references/critical-findings.md` for example vulnerability patterns with before/after code.
+See [`references/implementation.md`](references/implementation.md) for the detailed implementation guide. See [`references/critical-findings.md`](references/critical-findings.md) for example vulnerability patterns with before/after code.
 
 ## Output
 
@@ -78,6 +78,6 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the detailed implemen
 - CWE-613 Insufficient Session Expiration: https://cwe.mitre.org/data/definitions/613.html
 - CWE-319 Cleartext Transmission: https://cwe.mitre.org/data/definitions/319.html
 - NIST 800-63B Digital Authentication: https://pages.nist.gov/800-63-3/sp800-63b.html
-- `${CLAUDE_SKILL_DIR}/references/critical-findings.md` -- example vulnerability patterns
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- full error handling reference
+- [`references/critical-findings.md`](references/critical-findings.md) -- example vulnerability patterns
+- [`references/errors.md`](references/errors.md) -- full error handling reference
 - https://intentsolutions.io

@@ -34,11 +34,11 @@ Audits Claude Code plugins for security vulnerabilities, best practices complian
 ## Instructions
 
 1. Identify the target plugin path (e.g., `plugins/security/plugin-name/`). Confirm the directory exists and contains `.claude-plugin/plugin.json`.
-2. Run a security scan across all plugin files (see `${CLAUDE_SKILL_DIR}/references/audit-categories.md` for full pattern list):
+2. Run a security scan across all plugin files (see [`references/audit-categories.md`](references/audit-categories.md) for full pattern list):
    - Search for hardcoded secrets, API keys, AWS access keys (`AKIA...`), and private key headers.
    - Detect dangerous commands (`rm -rf /`, `eval()`, `exec()`) and command injection vectors.
    - Flag suspicious URLs (non-HTTPS, raw IP addresses) and obfuscated code (base64 decode, hex encoding).
-3. Validate plugin structure and best practices (see `${CLAUDE_SKILL_DIR}/references/audit-process.md`):
+3. Validate plugin structure and best practices (see [`references/audit-process.md`](references/audit-process.md)):
    - Confirm required files exist: `plugin.json`, `README.md`, `LICENSE`.
    - Verify semantic versioning format in `plugin.json`.
    - Check that all `.sh` scripts have execute permissions.
@@ -52,7 +52,7 @@ Audits Claude Code plugins for security vulnerabilities, best practices complian
    - Check for duplicate plugin names in the catalog.
 6. Assess git hygiene: no committed `node_modules/`, `.env` files, large binaries, or merge conflict markers.
 7. For MCP plugins: validate `package.json` dependencies, TypeScript configuration, `dist/` in `.gitignore`, and build scripts.
-8. Generate a scored audit report following the format in `${CLAUDE_SKILL_DIR}/references/audit-report-format.md`, with per-category scores out of 10 and an overall quality rating.
+8. Generate a scored audit report following the format in [`references/audit-report-format.md`](references/audit-report-format.md), with per-category scores out of 10 and an overall quality rating.
 
 ## Output
 
@@ -78,7 +78,7 @@ A structured audit report containing:
 
 **Full audit before publishing:**
 Trigger: "Audit the security-scanner plugin."
-Process: Run all eight audit categories against `plugins/security/security-scanner/`. Generate a comprehensive report with per-category scores. Report overall rating and prioritized fix list (see `${CLAUDE_SKILL_DIR}/references/examples.md`).
+Process: Run all eight audit categories against `plugins/security/security-scanner/`. Generate a comprehensive report with per-category scores. Report overall rating and prioritized fix list (see [`references/examples.md`](references/examples.md)).
 
 **Publish readiness check:**
 Trigger: "Is this plugin safe to publish?"
@@ -90,8 +90,8 @@ Process: Run full audit with elevated quality thresholds. Apply featured plugin 
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/audit-categories.md` -- all eight audit categories with specific checks
-- `${CLAUDE_SKILL_DIR}/references/audit-process.md` -- step-by-step audit execution procedures
-- `${CLAUDE_SKILL_DIR}/references/audit-report-format.md` -- report template with scoring rubric
-- `${CLAUDE_SKILL_DIR}/references/examples.md` -- audit scenario walkthroughs
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- error handling patterns
+- [`references/audit-categories.md`](references/audit-categories.md) -- all eight audit categories with specific checks
+- [`references/audit-process.md`](references/audit-process.md) -- step-by-step audit execution procedures
+- [`references/audit-report-format.md`](references/audit-report-format.md) -- report template with scoring rubric
+- [`references/examples.md`](references/examples.md) -- audit scenario walkthroughs
+- [`references/errors.md`](references/errors.md) -- error handling patterns

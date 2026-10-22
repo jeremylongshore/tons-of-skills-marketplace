@@ -49,7 +49,7 @@ Guide the full NIST SP 800-61 incident response lifecycle: detection, containmen
 9. **Document the incident**: produce a comprehensive report at `${CLAUDE_SKILL_DIR}/incidents/incident-YYYYMMDD-HHMM.md` containing executive summary, detailed timeline, root cause analysis, IOC list, and lessons learned.
 10. **Create remediation backlog**: list all follow-up actions (patch gaps, monitoring improvements, policy changes) with owners and deadlines.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the seven-phase implementation workflow.
+See [`references/implementation.md`](references/implementation.md) for the seven-phase implementation workflow.
 
 ## Output
 
@@ -81,6 +81,6 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the seven-phase imple
 - CISA Incident Response Guide:
 - Volatility Framework (memory forensics): https://www.volatilityfoundation.org/
 - Autopsy (disk forensics): https://www.autopsy.com/
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- full error handling reference
-- `${CLAUDE_SKILL_DIR}/references/examples.md` -- additional usage examples
+- [`references/errors.md`](references/errors.md) -- full error handling reference
+- [`references/examples.md`](references/examples.md) -- additional usage examples
 - https://intentsolutions.io

@@ -45,7 +45,7 @@ Track and analyze crypto options flow on centralized derivatives exchanges (Deri
 9. Generate a flow summary report with actionable signals: bullish large-block calls, bearish put sweeps, IV skew shifts, and OI buildup at key strikes.
 10. Export results using `--format json` or `--format csv` for integration with trading dashboards or alerting systems.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation workflow.
+See [`references/implementation.md`](references/implementation.md) for the full implementation workflow.
 
 ## Output
 

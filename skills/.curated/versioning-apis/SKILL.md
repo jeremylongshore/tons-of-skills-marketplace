@@ -44,7 +44,7 @@ Implement API versioning strategies -- URL path (`/v1/`, `/v2/`), header-based (
 7. Create a breaking change detector that compares OpenAPI specs between versions and flags removed fields, changed types, new required parameters, and altered response structures.
 8. Write version compatibility tests that send v1-formatted requests and verify correct responses, ensuring the compatibility layer preserves backward compatibility.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -65,7 +65,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Version header ignored | Client sets version header but reverse proxy strips custom headers | Document required proxy configuration; add URL path fallback for header-based versioning |
 | Breaking change undetected | Semantic change (same field name, different meaning) not caught by schema diff | Add contract tests with business-logic assertions beyond schema structure |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -75,7 +75,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Sunset lifecycle management**: Announce v1 deprecation with 6-month sunset timeline, add `Sunset` headers immediately, log v1 usage metrics to track migration progress, and auto-disable after sunset date.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

@@ -320,7 +320,7 @@ jobs:
 
 **Trigger:** "code review apps", "how do code review apps work", "automated review"
 
-**Reference:** See `${CLAUDE_SKILL_DIR}/references/github-review-apps.md` for full details.
+**Reference:** See [`github-review-apps.md`](github-review-apps.md) for full details.
 
 **Concepts covered:**
 

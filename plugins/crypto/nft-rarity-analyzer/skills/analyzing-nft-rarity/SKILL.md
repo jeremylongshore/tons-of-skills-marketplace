@@ -116,7 +116,7 @@ Works with any ERC-721/ERC-1155 collection that has:
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for:
+See [`references/errors.md`](references/errors.md) for:
 
 - API rate limiting
 - IPFS gateway issues
@@ -125,7 +125,7 @@ See `${CLAUDE_SKILL_DIR}/references/errors.md` for:
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for:
+See [`references/examples.md`](references/examples.md) for:
 
 - Collection analysis workflows
 - Token comparison

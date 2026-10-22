@@ -44,7 +44,7 @@ Create comprehensive, interactive API documentation from OpenAPI specifications 
 7. Configure documentation versioning so consumers can switch between API versions (v1, v2) with visual diff highlighting showing changes between versions.
 8. Set up automated documentation deployment: on OpenAPI spec changes, regenerate the documentation site and deploy to hosting with cache invalidation.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -65,7 +65,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Code example errors | Generated code example uses deprecated SDK method or wrong import path | Auto-test code examples against a staging API; version examples alongside SDK releases |
 | Search not working | Full-text search index not rebuilt after content update | Include search index regeneration in documentation build pipeline; verify Algolia/Lunr config |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -75,7 +75,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Developer portal**: Combine API reference docs with getting-started tutorials, use-case guides, webhooks documentation, and SDK installation instructions in a single searchable portal.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

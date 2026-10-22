@@ -50,7 +50,7 @@ Scan application source code for SQL injection vulnerabilities (CWE-89, OWASP A0
 8. **Recommend defense-in-depth measures**: input validation (allowlists over denylists), stored procedures with parameterized calls, least-privilege database accounts, WAF rules, and ORM-only data access policies.
 9. **Produce the vulnerability report** at `${CLAUDE_SKILL_DIR}/security-reports/sqli-scan-YYYYMMDD.md` with per-finding severity, CWE-89 mapping, file path and line number, vulnerable code snippet, attack vector demonstration, and remediated code.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the detection pattern library. See `${CLAUDE_SKILL_DIR}/references/critical-findings.md` for example vulnerability write-ups with attack demonstrations.
+See [`references/implementation.md`](references/implementation.md) for the detection pattern library. See [`references/critical-findings.md`](references/critical-findings.md) for example vulnerability write-ups with attack demonstrations.
 
 ## Output
 
@@ -81,7 +81,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the detection pattern
 - CWE-89 Improper Neutralization of SQL Syntax: https://cwe.mitre.org/data/definitions/89.html
 - OWASP A03:2021 Injection: https://owasp.org/Top10/A03_2021-Injection/
 - CAPEC-66 SQL Injection: https://capec.mitre.org/data/definitions/66.html
-- `${CLAUDE_SKILL_DIR}/references/critical-findings.md` -- example vulnerability write-ups with attack vectors
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- full error handling reference
-- `${CLAUDE_SKILL_DIR}/references/examples.md` -- additional usage examples
+- [`references/critical-findings.md`](references/critical-findings.md) -- example vulnerability write-ups with attack vectors
+- [`references/errors.md`](references/errors.md) -- full error handling reference
+- [`references/examples.md`](references/examples.md) -- additional usage examples
 - https://intentsolutions.io

@@ -45,7 +45,7 @@ Implement intelligent API response caching using Redis, Memcached, or in-memory 
 8. Add cache warming for critical endpoints: pre-populate cache entries on application startup or schedule for frequently accessed resources.
 9. Write tests verifying cache hits, misses, invalidation correctness, TTL expiration, and stale-while-revalidate behavior.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -66,7 +66,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Cache key collision | Different requests generating identical cache keys | Include all varying parameters in key; hash the full normalized request for uniqueness |
 | Memory pressure | Cache grows unbounded consuming all available Redis memory | Configure Redis `maxmemory-policy` to `allkeys-lru`; set per-key size limits; monitor memory usage |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -76,7 +76,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **CDN edge caching**: Set `Cache-Control: public, max-age=300, stale-while-revalidate=60` on public endpoints, enabling CloudFront to serve cached responses at the edge while revalidating asynchronously.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

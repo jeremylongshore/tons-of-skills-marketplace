@@ -43,7 +43,7 @@ Generate type-safe client SDKs in multiple languages (TypeScript, Python, Go, Ja
 8. Generate comprehensive JSDoc/docstring/Javadoc comments from OpenAPI `description` and `summary` fields for full IDE IntelliSense support.
 9. Create a test suite that validates SDK methods against a mock server running the OpenAPI spec, covering authentication, error handling, and pagination.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -64,7 +64,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Pagination exhaustion | Iterator consumes all pages without termination condition | Enforce maximum page count safety limit; detect empty result sets as termination signal |
 | Rate limit handling | SDK retry logic conflicts with application-level retry logic | Expose `retryConfig` option to disable built-in retries; emit retry events for observability |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -74,7 +74,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Multi-language CI pipeline**: On OpenAPI spec change, automatically regenerate SDKs in all target languages, run tests against a mock server, bump semantic versions, and publish to respective package registries.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

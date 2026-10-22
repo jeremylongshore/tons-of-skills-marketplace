@@ -44,7 +44,7 @@ Generate mock API servers from OpenAPI specifications that return realistic, sch
 7. Enable request recording that captures all incoming requests with timestamps and headers for later replay in contract tests.
 8. Create a startup script that launches the mock server on a configurable port with hot-reload when fixture files change.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -66,7 +66,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Port conflict | Mock server port already in use by another dev service | Make port configurable via environment variable; default to spec-defined server URL port |
 | State leak between tests | Stateful mock retains data from previous test run | Reset in-memory state before each test suite; expose `POST /mock/reset` admin endpoint |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -76,7 +76,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Contract testing**: Record all requests to the mock server during frontend E2E tests, then replay them against the real backend to verify the mock accurately represents actual API behavior.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

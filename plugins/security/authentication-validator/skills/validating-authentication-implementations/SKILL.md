@@ -28,7 +28,7 @@ and NIST standards.
 - Access to the target codebase and configuration files in `${CLAUDE_SKILL_DIR}/`
 - Familiarity with the authentication framework in use (Passport.js, Spring Security, Django Auth, NextAuth, etc.)
 - Standard shell utilities and Grep/Glob available for codebase scanning
-- Reference: `${CLAUDE_SKILL_DIR}/references/README.md` for OWASP authentication cheat sheet, NIST password guidelines, and JWT RFC specifications
+- Reference: [`references/README.md`](references/README.md) for OWASP authentication cheat sheet, NIST password guidelines, and JWT RFC specifications
 
 ## Instructions
 

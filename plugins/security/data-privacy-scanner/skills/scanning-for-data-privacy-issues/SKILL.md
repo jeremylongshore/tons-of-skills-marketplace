@@ -27,7 +27,7 @@ anonymization or pseudonymization of sensitive fields.
 - Access to the target codebase and configuration files in `${CLAUDE_SKILL_DIR}/`
 - Knowledge of the data types processed by the application (PII categories, PHI, financial data)
 - Standard shell utilities and Grep/Glob available for pattern matching
-- Reference: `${CLAUDE_SKILL_DIR}/references/README.md` for scanner API documentation, GDPR compliance guide, and sensitive data pattern definitions
+- Reference: [`references/README.md`](references/README.md) for scanner API documentation, GDPR compliance guide, and sensitive data pattern definitions
 
 ## Instructions
 

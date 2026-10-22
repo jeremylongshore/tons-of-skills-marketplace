@@ -28,7 +28,7 @@ actionable remediation guidance with upgrade paths.
 - Access to the target project directory and manifest files in `${CLAUDE_SKILL_DIR}/`
 - At least one package manager CLI available: `npm`, `pip`/`pip-audit`, `composer`, `gem`, `go`, or `cargo`
 - Network access for querying vulnerability databases (NVD, GitHub Advisory Database, OSV)
-- Reference: `${CLAUDE_SKILL_DIR}/references/README.md` for npm/pip audit report formats, license compatibility matrix, and dependency management best practices
+- Reference: [`references/README.md`](references/README.md) for npm/pip audit report formats, license compatibility matrix, and dependency management best practices
 
 ## Instructions
 
@@ -38,7 +38,7 @@ actionable remediation guidance with upgrade paths.
 4. For other ecosystems, run the equivalent audit command (`composer audit`, `bundle audit`, `cargo audit`, `govulncheck`) and normalize the output to a common finding format.
 5. Analyze the dependency tree for transitive vulnerabilities -- identify which direct dependency pulls in the vulnerable transitive dependency, and whether upgrading the direct dependency resolves the issue.
 6. Check for outdated packages by comparing installed versions against the latest available versions. Categorize updates as patch (safe), minor (likely safe), or major (breaking changes possible).
-7. Audit license compliance by extracting license declarations from each dependency. Flag packages using copyleft licenses (GPL, AGPL) in proprietary projects, packages with no declared license, and packages with license conflicts per the compatibility matrix in `${CLAUDE_SKILL_DIR}/references/README.md`.
+7. Audit license compliance by extracting license declarations from each dependency. Flag packages using copyleft licenses (GPL, AGPL) in proprietary projects, packages with no declared license, and packages with license conflicts per the compatibility matrix in [`references/README.md`](references/README.md).
 8. Identify abandoned or unmaintained packages: flag dependencies with no releases in over 2 years, archived repositories, or known deprecation notices.
 9. Classify each finding by severity (critical, high, medium, low) using CVSS scores: critical >= 9.0, high >= 7.0, medium >= 4.0, low < 4.0.
 10. Generate a remediation plan with specific upgrade commands, alternative packages for abandoned dependencies, and a priority order based on severity and exploitability.

@@ -99,7 +99,7 @@ Table showing articles ranked by relevance score (0-100) based on market-moving 
 | No results | Filters too strict | Suggest relaxing filters |
 | Invalid coin | Unknown symbol | List similar valid symbols |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
@@ -124,9 +124,9 @@ python ${CLAUDE_SKILL_DIR}/scripts/news_aggregator.py --coins BTC,ETH,SOL
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - CLI options, categories, JSON format, advanced filtering
-- `${CLAUDE_SKILL_DIR}/references/errors.md` - Comprehensive error handling
-- `${CLAUDE_SKILL_DIR}/references/examples.md` - Detailed usage examples
+- [`references/implementation.md`](references/implementation.md) - CLI options, categories, JSON format, advanced filtering
+- [`references/errors.md`](references/errors.md) - Comprehensive error handling
+- [`references/examples.md`](references/examples.md) - Detailed usage examples
 - `${CLAUDE_SKILL_DIR}/config/sources.yaml` - Full source registry
 - CoinDesk RSS: https://www.coindesk.com/arc/outboundfeeds/rss/
 - feedparser docs: https://feedparser.readthedocs.io/

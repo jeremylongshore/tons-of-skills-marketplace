@@ -43,7 +43,7 @@ Validate API specifications against OpenAPI 3.0/3.1, JSON Schema Draft 2020-12, 
 7. Validate consistency across endpoints: pagination parameters use the same naming (`page`/`limit` vs `offset`/`count`), error response envelopes follow a single standard, and date formats are consistent.
 8. Generate a validation report with severity levels (error, warning, info) and specific file:line references for each finding.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -64,7 +64,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Breaking change detected | Required field added to existing request schema | Make new field optional with default value; or create new API version for breaking changes |
 | Schema too permissive | Use of `additionalProperties: true` or missing type constraints | Set `additionalProperties: false` by default; require explicit type and format on all properties |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -74,7 +74,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Schema completeness audit**: Generate a matrix showing every endpoint vs. documentation status (description, request schema, response schemas for 200/400/401/404/500, examples), highlighting gaps with coverage percentage.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

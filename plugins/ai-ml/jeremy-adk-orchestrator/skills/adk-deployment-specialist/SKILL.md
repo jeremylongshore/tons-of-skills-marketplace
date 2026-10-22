@@ -48,11 +48,11 @@ Expert in building and deploying production multi-agent systems using Google's A
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for detailed examples.
+See [`references/examples.md`](references/examples.md) for detailed examples.
 
 ## Resources
 

@@ -28,7 +28,7 @@ documentation with evidence references and gap analysis.
 - Access to the target codebase, infrastructure configs, and policy documents in `${CLAUDE_SKILL_DIR}/`
 - Knowledge of the target compliance framework and its applicable scope
 - Standard shell utilities and Grep/Glob available for evidence gathering
-- Reference: `${CLAUDE_SKILL_DIR}/references/README.md` for PCI DSS guidelines, HIPAA compliance checklist, SOC 2 framework overview, config schema, and API documentation
+- Reference: [`references/README.md`](references/README.md) for PCI DSS guidelines, HIPAA compliance checklist, SOC 2 framework overview, config schema, and API documentation
 
 ## Instructions
 
@@ -40,7 +40,7 @@ documentation with evidence references and gap analysis.
 6. Calculate an overall compliance score as percentage of applicable controls that are fully compliant.
 7. Generate the report with these sections: Executive Summary, Scope and Methodology, Control-by-Control Assessment, Gap Analysis, Risk Rating, Remediation Roadmap with priority and effort estimates, and Evidence Appendix.
 8. Write the report to `${CLAUDE_SKILL_DIR}/compliance-report-[framework]-[date].md` using the Write tool.
-9. Validate the report against the config schema in `${CLAUDE_SKILL_DIR}/references/README.md` if applicable.
+9. Validate the report against the config schema in [`references/README.md`](references/README.md) if applicable.
 
 ## Output
 

@@ -113,7 +113,7 @@ Default table shows top gainers and losers ranked by significance score (0-100),
 | `Rate limit exceeded` | Too many API calls | Wait or use cached data |
 | `Partial results` | Some assets unavailable | Normal, proceed with available data |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
@@ -135,8 +135,8 @@ python ${CLAUDE_SKILL_DIR}/scripts/scanner.py --min-cap 1000000000 --gainers-onl
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Configuration, presets, JSON format, scoring details
-- `${CLAUDE_SKILL_DIR}/references/errors.md` - Comprehensive error handling
-- `${CLAUDE_SKILL_DIR}/references/examples.md` - Detailed usage examples
+- [`references/implementation.md`](references/implementation.md) - Configuration, presets, JSON format, scoring details
+- [`references/errors.md`](references/errors.md) - Comprehensive error handling
+- [`references/examples.md`](references/examples.md) - Detailed usage examples
 - Depends on: tracking-crypto-prices skill
 - CoinGecko API: https://www.coingecko.com/en/api

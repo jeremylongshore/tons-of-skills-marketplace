@@ -47,7 +47,7 @@ Design and implement multi-agent systems using AI SDK v5 with structured handoff
 9. Implement circuit breakers and timeout guards to prevent workflow deadlocks
 10. Test each agent in isolation, then validate end-to-end handoff chains with representative inputs
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the detailed implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the detailed implementation guide.
 
 ## Output
 
@@ -68,7 +68,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the detailed implemen
 | Tool access violation | Agent invoked a tool outside its scoped permission set | Review `tools` array per agent; ensure tool names match registered definitions exactly |
 | Workflow timeout | Multi-step workflow exceeded deadline without completion | Set per-step timeouts with `AbortController`; add workflow-level deadline and partial-result handling |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for the full error reference.
+See [`references/errors.md`](references/errors.md) for the full error reference.
 
 ## Examples
 
@@ -78,7 +78,7 @@ See `${CLAUDE_SKILL_DIR}/references/errors.md` for the full error reference.
 
 **Scenario 3: Code Review Multi-Agent** -- A supervisor agent distributes pull request diffs to specialized reviewers (security, performance, style). Each reviewer returns findings with severity scores. The supervisor aggregates results into a unified review with prioritized action items.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

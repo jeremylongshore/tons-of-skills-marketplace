@@ -52,7 +52,7 @@ Inspect and validate Vertex AI Agent Engine deployments across seven categories:
 9. Calculate weighted scores across all categories and determine overall production readiness status
 10. Generate a prioritized list of recommendations with estimated score improvement per remediation
 
-See `${CLAUDE_SKILL_DIR}/references/inspection-workflow.md` for the phased inspection process and `${CLAUDE_SKILL_DIR}/references/inspection-categories.md` for detailed check criteria.
+See [`references/inspection-workflow.md`](references/inspection-workflow.md) for the phased inspection process and [`references/inspection-categories.md`](references/inspection-categories.md) for detailed check criteria.
 
 ## Output
 
@@ -63,7 +63,7 @@ See `${CLAUDE_SKILL_DIR}/references/inspection-workflow.md` for the phased inspe
 - Performance metrics dashboard: error rate, latency percentiles, token usage, daily cost estimate
 - Prioritized recommendations with estimated score improvement per item
 
-See `${CLAUDE_SKILL_DIR}/references/example-inspection-report.md` for a complete sample report.
+See [`references/example-inspection-report.md`](references/example-inspection-report.md) for a complete sample report.
 
 ## Error Handling
 
@@ -75,7 +75,7 @@ See `${CLAUDE_SKILL_DIR}/references/example-inspection-report.md` for a complete
 | VPC-SC perimeter blocking access | Inspector running outside VPC Service Controls perimeter | Add inspector service account to access level; use VPC-SC bridge or access policy |
 | Code Execution TTL out of range | State TTL set below 1 day or above 14 days | Adjust TTL to 7-14 days for production; values above 14 days are rejected by Agent Engine |
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for additional error scenarios.
+See [`references/errors.md`](references/errors.md) for additional error scenarios.
 
 ## Examples
 

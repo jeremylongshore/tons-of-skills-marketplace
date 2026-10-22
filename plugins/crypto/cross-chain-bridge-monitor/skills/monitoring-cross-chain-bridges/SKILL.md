@@ -152,7 +152,7 @@ Shows supported bridge protocols with their chains.
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling including:
+See [`references/errors.md`](references/errors.md) for comprehensive error handling including:
 
 - API unavailability and fallback behavior
 - Transaction tracking edge cases
@@ -160,7 +160,7 @@ See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling 
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for detailed examples including:
+See [`references/examples.md`](references/examples.md) for detailed examples including:
 
 - Finding best route for large transfers
 - Monitoring transactions after bridging

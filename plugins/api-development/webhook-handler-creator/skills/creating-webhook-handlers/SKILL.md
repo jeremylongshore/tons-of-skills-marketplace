@@ -44,7 +44,7 @@ Create secure webhook receiver endpoints with HMAC signature verification, idemp
 7. Implement dead-letter handling for events that fail processing after maximum retry attempts, logging the full payload for manual inspection.
 8. Write tests that replay recorded webhook payloads with valid and tampered signatures to verify acceptance and rejection behavior.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -65,7 +65,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | 504 Gateway Timeout | Synchronous processing exceeded provider timeout (typically 5-30s) | Move processing to async queue; respond 200 immediately upon signature verification |
 | 500 Handler Exception | Business logic threw unhandled error during processing | Catch at dispatch layer; log full error with event payload; allow provider to retry |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -75,7 +75,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Multi-provider router**: Single `/webhooks/:provider` endpoint that loads provider-specific signature verifier and event schema from a registry, supporting Stripe, GitHub, Twilio, and custom providers.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

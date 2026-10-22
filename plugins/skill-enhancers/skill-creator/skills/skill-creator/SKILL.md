@@ -127,7 +127,7 @@ Before writing, determine:
 
 Think of it as **narrow bridge vs open field**: a deployment skill is a narrow bridge (one safe path, guard rails everywhere), while a writing skill is an open field (Claude roams freely within broad boundaries). Match constraint level to the task.
 
-**Workflow Pattern** (see `${CLAUDE_SKILL_DIR}/references/workflows.md`):
+**Workflow Pattern** (see [`references/workflows.md`](references/workflows.md)):
 
 - Sequential: fixed steps in order
 - Conditional: branch based on input
@@ -137,7 +137,7 @@ Think of it as **narrow bridge vs open field**: a deployment skill is a narrow b
 - Checklist Workflow: copy-pasteable progress tracking for complex multi-step processes
 - Search-Analyze-Report: explore and summarize
 
-**Output Pattern** (see `${CLAUDE_SKILL_DIR}/references/output-patterns.md`):
+**Output Pattern** (see [`references/output-patterns.md`](references/output-patterns.md)):
 
 - Strict template (exact format)
 - Flexible template (structure with creative content)
@@ -299,9 +299,9 @@ Output:
 - `generate_report.py` — HTML reports | `package_skill.py` — .skill packaging | `utils.py` — Shared utilities
 
 **Eval Viewer:** `${CLAUDE_SKILL_DIR}/eval-viewer/` — `generate_review.py` + `viewer.html` (interactive output comparison)
-**Assets:** `${CLAUDE_SKILL_DIR}/assets/eval_review.html` (trigger eval set editor)
-**Templates:** `${CLAUDE_SKILL_DIR}/templates/skill-template.md` (SKILL.md skeleton)
+**Assets:** [`assets/eval_review.html`](assets/eval_review.html) (trigger eval set editor)
+**Templates:** [`templates/skill-template.md`](templates/skill-template.md) (SKILL.md skeleton)
 
 ---
 
-For advanced workflows (empirical eval, description optimization, blind comparison, packaging, platform notes), see [Creation Guide](references/creation-guide.md) and `${CLAUDE_SKILL_DIR}/references/advanced-eval-workflow.md`.
+For advanced workflows (empirical eval, description optimization, blind comparison, packaging, platform notes), see [Creation Guide](references/creation-guide.md) and [`references/advanced-eval-workflow.md`](references/advanced-eval-workflow.md).

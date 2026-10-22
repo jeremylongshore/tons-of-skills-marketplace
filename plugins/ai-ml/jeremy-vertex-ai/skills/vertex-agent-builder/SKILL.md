@@ -70,9 +70,9 @@ Build and deploy production-ready agents on Vertex AI with Gemini models, retrie
 
 ## Resources
 
-- Implementation patterns (model selection, RAG wiring, deployment config): `${CLAUDE_SKILL_DIR}/references/implementation.md`
-- Worked examples (RAG support agent, multimodal extraction): `${CLAUDE_SKILL_DIR}/references/examples.md`
-- Error-handling and recovery patterns: `${CLAUDE_SKILL_DIR}/references/errors.md`
-- Product / architecture context: `${CLAUDE_SKILL_DIR}/PRD.md`, `${CLAUDE_SKILL_DIR}/ARD.md`
+- Implementation patterns (model selection, RAG wiring, deployment config): [`references/implementation.md`](references/implementation.md)
+- Worked examples (RAG support agent, multimodal extraction): [`references/examples.md`](references/examples.md)
+- Error-handling and recovery patterns: [`references/errors.md`](references/errors.md)
+- Product / architecture context: [`PRD.md`](PRD.md), [`ARD.md`](ARD.md)
 - Vertex AI docs: https://cloud.google.com/vertex-ai/docs
 - Agent Engine docs:

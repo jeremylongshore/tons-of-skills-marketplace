@@ -73,8 +73,8 @@ Build production-ready agents with Google’s Agent Development Kit (ADK): scaff
 
 ## Resources
 
-- Implementation patterns (scaffolds, tool wiring, orchestration): `${CLAUDE_SKILL_DIR}/references/implementation.md`
-- Worked examples (single-agent + multi-agent): `${CLAUDE_SKILL_DIR}/references/examples.md`
-- Error-handling and recovery patterns: `${CLAUDE_SKILL_DIR}/references/errors.md`
-- Product / architecture context: `${CLAUDE_SKILL_DIR}/PRD.md`, `${CLAUDE_SKILL_DIR}/ARD.md`
+- Implementation patterns (scaffolds, tool wiring, orchestration): [`references/implementation.md`](references/implementation.md)
+- Worked examples (single-agent + multi-agent): [`references/examples.md`](references/examples.md)
+- Error-handling and recovery patterns: [`references/errors.md`](references/errors.md)
+- Product / architecture context: [`PRD.md`](PRD.md), [`ARD.md`](ARD.md)
 - ADK / Agent Engine docs:

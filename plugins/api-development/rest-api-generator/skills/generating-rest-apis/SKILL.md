@@ -45,7 +45,7 @@ Generate complete, production-ready REST API implementations from OpenAPI specif
 8. Create integration tests covering happy paths, validation failures, 404s, and auth rejection for every endpoint.
 9. Produce or update the OpenAPI 3.0 specification to match the generated implementation.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full step-by-step implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full step-by-step implementation guide.
 
 ## Output
 
@@ -67,7 +67,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full step-by-step
 | 409 Conflict | Unique constraint violation on create/update | Include conflicting field name and existing value hint in error response |
 | 429 Too Many Requests | Client exceeds rate limit | Return `Retry-After` header with seconds until next allowed request window |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -77,7 +77,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Public read API with admin writes**: Create a dual-access API where `GET` endpoints are publicly cacheable (Cache-Control headers) while `POST/PUT/DELETE` require admin-role JWT tokens.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

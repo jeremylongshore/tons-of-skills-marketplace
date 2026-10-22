@@ -45,7 +45,7 @@ Build secure API authentication systems supporting JWT Bearer tokens, OAuth 2.0 
 8. Add brute-force protection on login endpoints: rate limit to 5 attempts per minute per IP, implement progressive lockout (15 min, 1 hour) after repeated failures, and log all authentication attempts.
 9. Write security tests covering: valid/invalid/expired tokens, refresh token rotation, role enforcement, API key validation, brute-force lockout, and token revocation.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -67,7 +67,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Refresh token reuse | Previously rotated refresh token used (possible token theft) | Invalidate all user sessions immediately; alert user of potential compromise; require re-authentication |
 | API key leaked | API key exposed in client-side code, logs, or version control | Revoke compromised key immediately; issue replacement; scan for exposure source |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -77,7 +77,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **API key with scoped permissions**: Generate API keys with specific scopes (`read:analytics`, `write:webhooks`), stored as SHA-256 hashes, displayed to the user only once at creation, with key rotation support.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

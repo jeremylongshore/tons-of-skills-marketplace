@@ -43,7 +43,7 @@ This skill enables AI-assisted CI/CD workflow creation within Windsurf. Cascade 
 4. **Test Workflows**
 5. **Deploy and Monitor**
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed implementation guide.
+See [`references/implementation.md`](references/implementation.md) for detailed implementation guide.
 
 ## Output
 
@@ -54,11 +54,11 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed implementati
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for detailed examples.
+See [`references/examples.md`](references/examples.md) for detailed examples.
 
 ## Resources
 

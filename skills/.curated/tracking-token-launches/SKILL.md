@@ -163,7 +163,7 @@ python launch_tracker.py chains
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling including:
+See [`references/errors.md`](references/errors.md) for comprehensive error handling including:
 
 - RPC connection issues and fallback chain
 - Rate limiting and backoff strategies
@@ -171,7 +171,7 @@ See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling 
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for detailed examples including:
+See [`references/examples.md`](references/examples.md) for detailed examples including:
 
 - Finding high-risk tokens
 - Multi-chain monitoring scripts

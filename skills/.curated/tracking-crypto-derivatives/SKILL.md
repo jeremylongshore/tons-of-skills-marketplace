@@ -105,7 +105,7 @@ The skill produces structured reports per market type:
 - **Options Overview**: Put/call ratio, IV rank, max pain, and large flow alerts
 - **Basis Report**: Spot-perp and quarterly basis with annualized carry rates
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for detailed output format examples.
+See [`references/implementation.md`](references/implementation.md) for detailed output format examples.
 
 ## Error Handling
 
@@ -146,4 +146,4 @@ python derivatives_tracker.py basis --all --min-yield 5  # 5 = minimum annualize
 - **Coinglass**: Aggregated derivatives data
 - **Exchange APIs**: Binance, Bybit, OKX, Deribit
 - **The Graph**: DEX perpetuals data
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` - Detailed output formats, options/basis guides, key concepts
+- [`references/implementation.md`](references/implementation.md) - Detailed output formats, options/basis guides, key concepts

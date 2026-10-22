@@ -172,11 +172,11 @@ risk:
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for common issues and solutions.
+See [`references/errors.md`](references/errors.md) for common issues and solutions.
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for detailed usage examples including:
+See [`references/examples.md`](references/examples.md) for detailed usage examples including:
 
 - Multi-asset comparison
 - Walk-forward analysis

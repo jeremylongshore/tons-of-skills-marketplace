@@ -30,7 +30,7 @@ Analyzes existing plugins in the repository to extract their capabilities, then 
 
 ## Instructions
 
-1. Analyze the user's task to identify the core capability needed, the domain (security, devops, testing, documentation, etc.), and key requirements or constraints (see `${CLAUDE_SKILL_DIR}/references/how-it-works.md`).
+1. Analyze the user's task to identify the core capability needed, the domain (security, devops, testing, documentation, etc.), and key requirements or constraints (see [`references/how-it-works.md`](references/how-it-works.md)).
 2. Search existing plugins for relevant capabilities using file globbing across `plugins/community/`, `plugins/packages/`, and `plugins/examples/` directories. Match on `plugin.json` descriptions and keyword fields.
 3. For each relevant plugin discovered, extract capabilities from its components:
    - **Commands** (`commands/*.md`): read content, extract approach and input/output patterns.
@@ -63,7 +63,7 @@ A structured adaptation report containing:
 
 **Learning code analysis from security plugins:**
 Task: "Analyze this codebase for issues."
-Process: Discover `owasp-top-10-scanner`, `code-quality-enforcer`, and `security-audit-agent`. Extract OWASP vulnerability checks, complexity/duplication metrics, and dependency scanning patterns. Synthesize a multi-layer analysis covering security, quality, and dependencies. Apply to the target codebase (see `${CLAUDE_SKILL_DIR}/references/example-workflows.md`).
+Process: Discover `owasp-top-10-scanner`, `code-quality-enforcer`, and `security-audit-agent`. Extract OWASP vulnerability checks, complexity/duplication metrics, and dependency scanning patterns. Synthesize a multi-layer analysis covering security, quality, and dependencies. Apply to the target codebase (see [`references/example-workflows.md`](references/example-workflows.md)).
 
 **Adopting documentation skills:**
 Task: "Generate API documentation."
@@ -75,6 +75,6 @@ Process: Search DevOps category for deployment, CI/CD, and Docker plugins. Extra
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/how-it-works.md` -- detailed five-phase adaptation process
-- `${CLAUDE_SKILL_DIR}/references/example-workflows.md` -- end-to-end workflow examples
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- error handling patterns
+- [`references/how-it-works.md`](references/how-it-works.md) -- detailed five-phase adaptation process
+- [`references/example-workflows.md`](references/example-workflows.md) -- end-to-end workflow examples
+- [`references/errors.md`](references/errors.md) -- error handling patterns

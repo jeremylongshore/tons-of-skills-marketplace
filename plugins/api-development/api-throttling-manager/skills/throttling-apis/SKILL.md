@@ -41,7 +41,7 @@ Implement API throttling policies that protect backend services from overload by
 7. Implement graceful degradation strategies per endpoint: serve cached responses, return partial results, or queue requests for deferred processing.
 8. Write load tests that verify throttle engagement at expected thresholds, proper 503 responses with `Retry-After`, and recovery behavior when load subsides.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -61,7 +61,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Stale throttle state | Redis connection lost; throttle counters become inaccurate | Fall back to in-process counters; reconnect with backoff; log state inconsistency |
 | Priority starvation | Low-tier requests never served under sustained high-tier load | Reserve minimum throughput percentage for each tier to prevent complete starvation |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -71,7 +71,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Adaptive autoscaling trigger**: Throttle middleware emits metrics that trigger horizontal pod autoscaling when throttle engagement rate exceeds 20% sustained over 5 minutes.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 

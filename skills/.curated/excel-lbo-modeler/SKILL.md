@@ -66,4 +66,4 @@ Result: Integrated model with synergy phase-in and accretion analysis
 
 - [Macabacus LBO Modeling](https://macabacus.com/)
 - [WSO PE Interview Prep](https://www.wallstreetoasis.com/)
-- `${CLAUDE_SKILL_DIR}/references/lbo-formulas.md` for debt schedule templates
+- [`references/lbo-formulas.md`](references/lbo-formulas.md) for debt schedule templates

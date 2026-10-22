@@ -45,7 +45,7 @@ Build real-time API monitoring with metrics collection (request rate, latency pe
 8. Implement synthetic monitoring that sends periodic requests to critical endpoints from external locations, measuring availability and latency from the consumer perspective.
 9. Add SLO tracking with error budget calculation: define SLO (99.9% availability, p95 < 500ms), compute burn rate, and alert when error budget consumption exceeds projected pace.
 
-See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementation guide.
+See [`references/implementation.md`](references/implementation.md) for the full implementation guide.
 
 ## Output
 
@@ -66,7 +66,7 @@ See `${CLAUDE_SKILL_DIR}/references/implementation.md` for the full implementati
 | Dashboard data gap | Metrics not collected during deployment rollout window | Configure Prometheus scrape interval < deployment duration; use push-based metrics during deploys |
 | SLO miscalculation | Error budget calculation uses wrong time window or includes planned maintenance | Exclude maintenance windows from SLO calculation; align window with business reporting period |
 
-Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patterns.
+Refer to [`references/errors.md`](references/errors.md) for comprehensive error patterns.
 
 ## Examples
 
@@ -76,7 +76,7 @@ Refer to `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error patt
 
 **Dependency health matrix**: Dashboard showing real-time health status of all downstream dependencies (database, cache, external APIs) with latency sparklines and circuit breaker state indicators.
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for additional examples.
+See [`references/examples.md`](references/examples.md) for additional examples.
 
 ## Resources
 
