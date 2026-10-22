@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -34,6 +34,38 @@ test('every harness has an installation or refusal-path receipt', () => {
     git('commit', '--quiet', '-m', 'test: canonical skill fixture');
 
     for (const harness of registry.harnesses) {
+      if (harness.support === 'verified-native') {
+        const emptyProject = join(root, `empty-${harness.id}`);
+        mkdirSync(emptyProject);
+        const args = [
+          CLI,
+          'skills',
+          'doctor',
+          '--harness',
+          harness.id,
+          '--source-repo',
+          root,
+          '--json',
+        ];
+        const empty = JSON.parse(
+          execFileSync(process.execPath, args, {
+            cwd: emptyProject,
+            encoding: 'utf8',
+            stdio: 'pipe',
+          }),
+        );
+        assert.equal(empty.exists, false);
+        assert.deepEqual(empty.skills, []);
+        const missing = JSON.parse(
+          execFileSync(process.execPath, [...args, '--skill', 'missing-skill'], {
+            cwd: emptyProject,
+            encoding: 'utf8',
+            stdio: 'pipe',
+          }),
+        );
+        assert.equal(missing.skills[0].integrity, 'missing');
+        assert.equal(existsSync(join(emptyProject, harness.projectPath)), false);
+      }
       let failure = null;
       try {
         execFileSync(
