@@ -163,11 +163,12 @@ class FundingSchemaTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
 
     def test_parse_errors_do_not_echo_manifest_contents(self):
-        secret = "never-echo-this-credential"
-        self.manifest.write_text(f"github: [{secret}\n", encoding="utf-8")
+        # This public canary is deliberately not a credential.
+        canary = "public-parser-diagnostic-canary"
+        self.manifest.write_text(f"github: [{canary}\n", encoding="utf-8")
         result = self.run_cli(self.manifest)
         self.assertEqual(result.returncode, 1)
-        self.assertNotIn(secret, result.stdout + result.stderr)
+        self.assertNotIn(canary, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

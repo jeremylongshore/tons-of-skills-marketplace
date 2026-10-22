@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -11,7 +12,10 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from scripts.ci import fastlane
+ROOT = Path(__file__).resolve().parents[2]
+SPEC = importlib.util.spec_from_file_location("fastlane_under_test", ROOT / "scripts/ci/fastlane.py")
+fastlane = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(fastlane)
 
 
 class GitRoutingTests(unittest.TestCase):

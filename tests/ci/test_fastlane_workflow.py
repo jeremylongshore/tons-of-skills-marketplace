@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -11,11 +12,12 @@ import unittest
 
 import yaml
 
-from scripts.ci.fastlane import REQUIRED, SKIPPABLE
-
-
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github/workflows/validate-plugins.yml"
+SPEC = importlib.util.spec_from_file_location("fastlane_workflow_under_test", ROOT / "scripts/ci/fastlane.py")
+POLICY = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(POLICY)
+REQUIRED, SKIPPABLE = POLICY.REQUIRED, POLICY.SKIPPABLE
 
 
 def workflow(name: str = "validate-plugins.yml") -> dict:
