@@ -1,490 +1,249 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { createServer, fileMetrics, listRepoFiles } from '../servers/code-metrics.js';
 
-// Mock data and utilities
-let testRepoPath: string;
-let testFilePath: string;
+const execFileAsync = promisify(execFile);
+const packageRoot = fileURLToPath(new URL('../', import.meta.url));
+const sample = [
+  '// café',
+  'export function classify(value: number) {',
+  '  if (value > 0) return 1;',
+  '  return 0;',
+  '}',
+].join('\n');
+let repoPath: string;
+let filePath: string;
+
+async function write(relativePath: string, content = '') {
+  const target = path.join(repoPath, relativePath);
+  await fs.mkdir(path.dirname(target), { recursive: true });
+  await fs.writeFile(target, content);
+  return target;
+}
 
 beforeEach(async () => {
-  // Create temporary test directory
-  testRepoPath = await fs.mkdtemp(path.join(os.tmpdir(), 'test-repo-'));
-
-  // Create test file structure
-  await fs.mkdir(path.join(testRepoPath, 'src'), { recursive: true });
-  await fs.mkdir(path.join(testRepoPath, 'tests'), { recursive: true });
-
-  // Create sample source file
-  testFilePath = path.join(testRepoPath, 'src', 'example.ts');
-  await fs.writeFile(testFilePath, `
-// Example TypeScript file
-export function complexFunction(x: number, y: number): number {
-  if (x > 10) {
-    for (let i = 0; i < y; i++) {
-      if (i % 2 === 0) {
-        console.log(i);
-      } else {
-        console.log('odd');
-      }
-    }
-  } else if (x < 5) {
-    while (y > 0) {
-      y--;
-    }
-  }
-  return x + y;
-}
-
-export function simpleFunction(a: number): number {
-  return a * 2;
-}
-  `.trim());
-
-  // Create sample test file
-  await fs.writeFile(path.join(testRepoPath, 'tests', 'example.test.ts'), `
-import { complexFunction, simpleFunction } from '../src/example';
-
-describe('example', () => {
-  it('should work', () => {
-    expect(complexFunction(1, 2)).toBe(3);
-  });
-});
-  `.trim());
-
-  // Initialize git repo
-  const { execSync } = await import('child_process');
-  try {
-    execSync('git init', { cwd: testRepoPath, stdio: 'ignore' });
-    execSync('git config user.name "Test User"', { cwd: testRepoPath, stdio: 'ignore' });
-    execSync('git config user.email "test@example.com"', { cwd: testRepoPath, stdio: 'ignore' });
-    execSync('git add .', { cwd: testRepoPath, stdio: 'ignore' });
-    execSync('git commit -m "Initial commit"', { cwd: testRepoPath, stdio: 'ignore' });
-
-    // Make some changes and commit for churn analysis
-    await fs.appendFile(testFilePath, '\n// More code\n');
-    execSync('git add .', { cwd: testRepoPath, stdio: 'ignore' });
-    execSync('git commit -m "Second commit"', { cwd: testRepoPath, stdio: 'ignore' });
-  } catch (error) {
-    console.warn('Git operations failed in test setup:', error);
-  }
+  repoPath = await fs.mkdtemp(path.join(os.tmpdir(), 'health-auditor-'));
+  filePath = await write('src/classify.ts', sample);
 });
 
 afterEach(async () => {
-  // Clean up test directory
-  try {
-    await fs.rm(testRepoPath, { recursive: true, force: true });
-  } catch (error) {
-    console.warn('Failed to clean up test directory:', error);
-  }
+  vi.restoreAllMocks();
+  await fs.rm(repoPath, { recursive: true, force: true });
 });
 
-describe('Code Metrics MCP Server', () => {
-  describe('Health Score Calculation', () => {
-    it('should calculate perfect score for simple, well-commented file', () => {
-      // Mock data: low complexity, good comments, reasonable size
-      const complexity = 5;
-      const functions = 2;
-      const commentRatio = 25; // 25% comments
-      const lines = 100;
-
-      // Health score algorithm from server
-      let score = 100;
-      const avgComplexity = functions > 0 ? complexity / functions : complexity;
-
-      if (avgComplexity > 10) score -= 30;
-      else if (avgComplexity > 5) score -= 15;
-
-      if (commentRatio < 5) score -= 10;
-      else if (commentRatio > 20) score += 10;
-
-      if (lines > 500) score -= 20;
-      else if (lines > 300) score -= 10;
-
-      const healthScore = Math.max(0, Math.min(100, score));
-
-      // Score should be capped at 100
-      expect(healthScore).toBe(100);
-      expect(healthScore).toBeLessThanOrEqual(100);
-    });
-
-    it('should penalize high complexity', () => {
-      const complexity = 120;
-      const functions = 10;
-      const commentRatio = 10;
-      const lines = 200;
-
-      let score = 100;
-      const avgComplexity = complexity / functions; // 12
-
-      if (avgComplexity > 10) score -= 30;
-
-      expect(score).toBeLessThan(100);
-      expect(score).toBe(70);
-    });
-
-    it('should penalize very long files', () => {
-      const complexity = 10;
-      const functions = 5;
-      const commentRatio = 15;
-      const lines = 600;
-
-      let score = 100;
-      if (lines > 500) score -= 20;
-
-      expect(score).toBe(80);
-    });
-
-    it('should penalize low comment ratio', () => {
-      const complexity = 8;
-      const functions = 4;
-      const commentRatio = 2; // Only 2% comments
-      const lines = 150;
-
-      let score = 100;
-      if (commentRatio < 5) score -= 10;
-
-      expect(score).toBe(90);
+describe('fileMetrics', () => {
+  it('analyzes the real file and reports byte size for UTF-8 content', async () => {
+    expect(await fileMetrics({ filePath })).toEqual({
+      file: filePath,
+      size: Buffer.byteLength(sample),
+      lines: 5,
+      extension: '.ts',
+      complexity: { cyclomatic: 2, functions: 1, averagePerFunction: 2 },
+      comments: { lines: 1, ratio: 20 },
+      healthScore: 100,
     });
   });
 
-  describe('File Metrics', () => {
-    it('should analyze file complexity correctly', async () => {
-      const content = await fs.readFile(testFilePath, 'utf-8');
-      const lines = content.split('\n').length;
-
-      // Count complexity keywords
-      const complexityKeywords = /\b(if|else|for|while|switch|case|catch|&&|\|\||\?)\b/g;
-      const matches = content.match(complexityKeywords);
-      const cyclomaticComplexity = matches ? matches.length + 1 : 1;
-
-      expect(cyclomaticComplexity).toBeGreaterThan(1);
-      expect(lines).toBeGreaterThan(10);
-    });
-
-    it('should count functions correctly', async () => {
-      const content = await fs.readFile(testFilePath, 'utf-8');
-      const functionPatterns = /\b(function|const\s+\w+\s*=\s*\(|export\s+function)/g;
-      const functions = content.match(functionPatterns);
-
-      expect(functions).toBeTruthy();
-      expect(functions!.length).toBeGreaterThanOrEqual(2); // complexFunction and simpleFunction
-    });
-
-    it('should calculate comment ratio', async () => {
-      const content = await fs.readFile(testFilePath, 'utf-8');
-      const allLines = content.split('\n');
-      const commentLines = allLines.filter(line => {
-        const trimmed = line.trim();
-        return trimmed.startsWith('//') || trimmed.startsWith('#') || trimmed.startsWith('/*');
-      });
-
-      const ratio = (commentLines.length / allLines.length) * 100;
-      expect(ratio).toBeGreaterThanOrEqual(0);
-      expect(ratio).toBeLessThanOrEqual(100);
-    });
-
-  });
-
-  describe('File Discovery', () => {
-    it('should find all TypeScript files', async () => {
-      const { glob } = await import('glob');
-
-      const files = await glob('**/*.ts', {
-        cwd: testRepoPath,
-        ignore: ['node_modules/**', '.git/**'],
-        nodir: true
-      });
-
-      expect(files.length).toBeGreaterThan(0);
-      expect(files).toContain('src/example.ts');
-      expect(files).toContain('tests/example.test.ts');
-    });
-
-    it('should exclude specified patterns', async () => {
-      const { glob } = await import('glob');
-
-      // Create node_modules file (shouldn't appear)
-      await fs.mkdir(path.join(testRepoPath, 'node_modules'), { recursive: true });
-      await fs.writeFile(path.join(testRepoPath, 'node_modules', 'lib.js'), 'content');
-
-      const files = await glob('**/*.{ts,js}', {
-        cwd: testRepoPath,
-        ignore: ['node_modules/**', '.git/**'],
-        nodir: true
-      });
-
-      expect(files).not.toContain('node_modules/lib.js');
-    });
-
-    it('should handle glob patterns correctly', async () => {
-      const { glob } = await import('glob');
-
-      // Only source files
-      const sourceFiles = await glob('src/**/*.ts', {
-        cwd: testRepoPath,
-        nodir: true
-      });
-
-      expect(sourceFiles.length).toBe(1);
-      expect(sourceFiles[0]).toBe('src/example.ts');
-
-      // Only test files
-      const testFiles = await glob('tests/**/*.ts', {
-        cwd: testRepoPath,
-        nodir: true
-      });
-
-      expect(testFiles.length).toBe(1);
-      expect(testFiles[0]).toBe('tests/example.test.ts');
+  it('handles a file without functions or comments', async () => {
+    const empty = await write('empty.txt');
+    expect(await fileMetrics({ filePath: empty })).toMatchObject({
+      size: 0,
+      lines: 1,
+      complexity: { cyclomatic: 1, functions: 0, averagePerFunction: 0 },
+      comments: { lines: 0, ratio: 0 },
+      healthScore: 90,
     });
   });
 
-  describe('Git Churn Analysis', () => {
-    it('should parse git log correctly', async () => {
-      const { simpleGit } = await import('simple-git');
-      const git = simpleGit(testRepoPath);
+  it('penalizes a long, complex file through the real analyzer', async () => {
+    const complex = await write('complex.js', [
+      'function complicated(value) {',
+      ...Array.from({ length: 12 }, () => 'if (value) value--;'),
+      ...Array.from({ length: 500 }, () => ''),
+      '}',
+    ].join('\n'));
+    expect(await fileMetrics({ filePath: complex })).toMatchObject({
+      complexity: { cyclomatic: 13, functions: 1, averagePerFunction: 13 },
+      healthScore: 40,
+    });
+  });
 
+  it('stats and reads the same open file even when its path is replaced', async () => {
+    const open = fs.open.bind(fs);
+    const handle = await open(filePath, 'r');
+    const stat = handle.stat.bind(handle);
+    const statSpy = vi.spyOn(handle, 'stat').mockImplementationOnce(async () => {
+      const originalStats = await stat();
+      await fs.rename(filePath, `${filePath}.original`);
+      await fs.writeFile(filePath, 'replacement');
+      return originalStats;
+    });
+    const readSpy = vi.spyOn(handle, 'readFile');
+    const closeSpy = vi.spyOn(handle, 'close');
+    const openSpy = vi.spyOn(fs, 'open').mockResolvedValueOnce(handle);
+    try {
+      expect(await fileMetrics({ filePath })).toMatchObject({
+        size: Buffer.byteLength(sample),
+        lines: 5,
+        comments: { lines: 1, ratio: 20 },
+      });
+      expect(await fs.readFile(filePath, 'utf8')).toBe('replacement');
+      expect(openSpy).toHaveBeenCalledExactlyOnceWith(filePath, 'r');
+      expect(statSpy).toHaveBeenCalledTimes(1);
+      expect(readSpy).toHaveBeenCalledExactlyOnceWith('utf-8');
+      expect(closeSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      await handle.close();
+    }
+  });
+
+  it.each(['stat', 'readFile'] as const)('closes its handle when %s fails', async (operation) => {
+    const handle = await fs.open(filePath, 'r');
+    vi.spyOn(fs, 'open').mockResolvedValueOnce(handle);
+    vi.spyOn(handle, operation).mockRejectedValueOnce(new Error('injected failure'));
+    const closeSpy = vi.spyOn(handle, 'close');
+    try {
+      await expect(fileMetrics({ filePath })).rejects.toThrow('Failed to analyze file: injected failure');
+      expect(closeSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      await handle.close();
+    }
+  });
+
+  it('reports an actual missing file', async () => {
+    await expect(fileMetrics({ filePath: path.join(repoPath, 'missing.ts') }))
+      .rejects.toThrow(/Failed to analyze file: ENOENT/);
+  });
+});
+
+describe('listRepoFiles', () => {
+  it('sorts and deduplicates overlapping globs, excludes directories and ignored files', async () => {
+    await write('README.md');
+    await write('src/second.ts');
+    await write('src/generated/ignored.ts');
+    const result = await listRepoFiles({
+      repoPath,
+      globs: ['src/**/*.ts', '**/*.ts', '*.md'],
+      exclude: ['src/generated/**'],
+    });
+    expect(result.files).toEqual(['README.md', 'src/classify.ts', 'src/second.ts']);
+    expect(result.totalFiles).toBe(3);
+    expect(result.repoPath).toBe(repoPath);
+  });
+
+  it('returns no files when no pattern matches', async () => {
+    expect(await listRepoFiles({ repoPath, globs: ['**/*.py'], exclude: [] }))
+      .toMatchObject({ totalFiles: 0, files: [] });
+  });
+});
+
+describe('MCP handlers', () => {
+  let client: Client;
+  let server: ReturnType<typeof createServer>;
+
+  beforeEach(async () => {
+    server = createServer();
+    client = new Client({ name: 'health-auditor-tests', version: '1.0.0' });
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+    await server.connect(serverTransport);
+    await client.connect(clientTransport);
+  });
+
+  afterEach(async () => {
+    await client.close();
+    await server.close();
+  });
+
+  it('lists all four tools', async () => {
+    const result = await client.listTools();
+    expect(result.tools.map(tool => tool.name)).toEqual([
+      'list_repo_files', 'file_metrics', 'git_churn', 'map_tests',
+    ]);
+  });
+
+  it('applies real schema defaults before listing repository files', async () => {
+    for (const ignored of ['node_modules', '.git', 'dist', 'build']) {
+      await write(`${ignored}/ignored.ts`);
+    }
+    const result = await client.callTool({ name: 'list_repo_files', arguments: { repoPath } });
+    expect(result.content).toEqual([{ type: 'text', text: expect.any(String) }]);
+    const content = result.content as Array<{ type: 'text'; text: string }>;
+    expect(JSON.parse(content[0].text)).toMatchObject({
+      files: ['src/classify.ts'], totalFiles: 1, patterns: ['**/*'],
+      excluded: ['node_modules/**', '.git/**', 'dist/**', 'build/**'],
+    });
+  });
+
+  it('routes file metrics to the real analyzer', async () => {
+    const result = await client.callTool({ name: 'file_metrics', arguments: { filePath } });
+    expect(result.content).toEqual([{ type: 'text', text: JSON.stringify(await fileMetrics({ filePath }), null, 2) }]);
+  });
+
+  it('maps real source and test files', async () => {
+    await write('src/untested.ts');
+    await write('tests/classify.test.ts');
+    const result = await client.callTool({ name: 'map_tests', arguments: { repoPath } });
+    const content = result.content as Array<{ type: 'text'; text: string }>;
+    expect(JSON.parse(content[0].text)).toMatchObject({
+      summary: { totalSourceFiles: 2, totalTestFiles: 1, testedFiles: 1, coverageRatio: 50 },
+      coverage: { 'src/classify.ts': ['tests/classify.test.ts'] },
+      missingTests: ['src/untested.ts'],
+    });
+  });
+
+  it('rejects invalid tool arguments using the registered schema', async () => {
+    await expect(client.callTool({ name: 'file_metrics', arguments: { filePath: 42 } }))
+      .rejects.toThrow(/Invalid arguments: filePath/);
+  });
+
+  it('rejects unknown tools', async () => {
+    await expect(client.callTool({ name: 'missing', arguments: {} }))
+      .rejects.toThrow('Unknown tool: missing');
+  });
+});
+
+describe('server lifecycle', () => {
+  it.each(['servers/code-metrics.ts', 'dist/servers/code-metrics.js'])(
+    'imports %s without starting stdio or keeping the process alive', async (entry) => {
+      const url = pathToFileURL(path.join(packageRoot, entry)).href;
+      const result = await execFileAsync(process.execPath, [
+        '--import', import.meta.resolve('tsx'), '--input-type=module', '--eval',
+        `await import(${JSON.stringify(url)}); process.stdout.write('imported\\n');`,
+      ], { cwd: repoPath, timeout: 10000 });
+      expect(result.stdout).toBe('imported\n');
+      expect(result.stderr).toBe('');
+    }, 15000,
+  );
+
+  it.each(['direct', 'symlink'])(
+    'starts the shipped bundle through a %s launcher', async (kind) => {
+      let entry = path.join(packageRoot, 'dist/servers/code-metrics.js');
+      if (kind === 'symlink') {
+        const link = path.join(repoPath, 'launcher.mjs');
+        await fs.symlink(entry, link);
+        entry = link;
+      }
+      const transport = new StdioClientTransport({
+        command: process.execPath, args: [entry], cwd: repoPath, stderr: 'pipe',
+      });
+      const client = new Client({ name: 'launch-test', version: '1.0.0' });
       try {
-        const log = await git.log({
-          '--since': '1 year ago'
-        });
-
-        expect(log.total).toBeGreaterThanOrEqual(2); // Initial + second commit
-        expect(log.all.length).toBeGreaterThanOrEqual(2);
-      } catch (error) {
-        console.warn('Git log test skipped:', error);
+        await client.connect(transport);
+        expect((await client.listTools()).tools).toHaveLength(4);
+        const result = await client.callTool({ name: 'file_metrics', arguments: { filePath } });
+        expect(result.content).toEqual([{ type: 'text', text: JSON.stringify(await fileMetrics({ filePath }), null, 2) }]);
+      } finally {
+        await client.close();
+        await transport.close();
       }
-    });
-
-    it('should track file changes', async () => {
-      const { simpleGit } = await import('simple-git');
-      const git = simpleGit(testRepoPath);
-
-      try {
-        const log = await git.log({
-          '--since': '1 year ago',
-          '--name-only': null
-        });
-
-        // Our test file should appear in commits
-        expect(log.total).toBeGreaterThan(0);
-      } catch (error) {
-        console.warn('Git churn test skipped:', error);
-      }
-    });
-  });
-
-  describe('Test Coverage Mapping', () => {
-    it('should find test files', async () => {
-      const { glob } = await import('glob');
-
-      const testFiles = await glob('**/*.{test,spec}.{ts,js}', {
-        cwd: testRepoPath,
-        ignore: ['node_modules/**'],
-        nodir: true
-      });
-
-      expect(testFiles.length).toBe(1);
-      expect(testFiles[0]).toBe('tests/example.test.ts');
-    });
-
-    it('should find source files', async () => {
-      const { glob } = await import('glob');
-
-      const sourceFiles = await glob('**/*.{ts,js}', {
-        cwd: testRepoPath,
-        ignore: ['node_modules/**', '.git/**', '**/*.test.*', '**/*.spec.*'],
-        nodir: true
-      });
-
-      expect(sourceFiles).toContain('src/example.ts');
-      expect(sourceFiles).not.toContain('tests/example.test.ts');
-    });
-
-    it('should map tests to source files', () => {
-      const sourceFile = 'src/example.ts';
-      const testFile = 'tests/example.test.ts';
-
-      const baseName = path.basename(sourceFile, path.extname(sourceFile));
-      const testBaseName = path.basename(testFile, path.extname(testFile));
-
-      // Check if test file matches source file
-      const matches = testBaseName.includes(baseName) ||
-                     baseName.includes(testBaseName.replace('.test', '').replace('.spec', ''));
-
-      expect(matches).toBe(true);
-    });
-
-    it('should calculate coverage ratio', () => {
-      const totalSourceFiles = 10;
-      const testedFiles = 7;
-
-      const coverageRatio = ((testedFiles) / totalSourceFiles) * 100;
-
-      expect(coverageRatio).toBe(70);
-    });
-
-    it('should generate recommendations based on coverage', () => {
-      const lowCoverage = 30;
-      const mediumCoverage = 65;
-      const highCoverage = 85;
-
-      // Low coverage
-      let recommendation: string;
-      if (lowCoverage < 50) {
-        recommendation = ' CRITICAL: Test coverage is below 50%';
-      } else if (lowCoverage < 80) {
-        recommendation = '️  Test coverage is below 80%';
-      } else {
-        recommendation = ' Good test coverage!';
-      }
-      expect(recommendation).toContain('CRITICAL');
-
-      // Medium coverage
-      if (mediumCoverage < 50) {
-        recommendation = ' CRITICAL';
-      } else if (mediumCoverage < 80) {
-        recommendation = '️  Test coverage is below 80%';
-      } else {
-        recommendation = ' Good test coverage!';
-      }
-      expect(recommendation).toContain('below 80%');
-
-      // High coverage
-      if (highCoverage < 50) {
-        recommendation = ' CRITICAL';
-      } else if (highCoverage < 80) {
-        recommendation = '️  below 80%';
-      } else {
-        recommendation = ' Good test coverage!';
-      }
-      expect(recommendation).toContain('Good');
-    });
-  });
-
-  describe('Input Validation', () => {
-    it('should validate repoPath is required', async () => {
-      const { z } = await import('zod');
-
-      const ListRepoFilesSchema = z.object({
-        repoPath: z.string(),
-        globs: z.array(z.string()).optional(),
-        exclude: z.array(z.string()).optional()
-      });
-
-      expect(() => {
-        ListRepoFilesSchema.parse({ repoPath: testRepoPath });
-      }).not.toThrow();
-
-      expect(() => {
-        ListRepoFilesSchema.parse({});
-      }).toThrow();
-    });
-
-    it('should validate filePath is string', async () => {
-      const { z } = await import('zod');
-
-      const FileMetricsSchema = z.object({
-        filePath: z.string()
-      });
-
-      expect(() => {
-        FileMetricsSchema.parse({ filePath: '/path/to/file.ts' });
-      }).not.toThrow();
-
-      expect(() => {
-        FileMetricsSchema.parse({ filePath: 123 });
-      }).toThrow();
-    });
-
-    it('should have defaults for optional fields', async () => {
-      const { z } = await import('zod');
-
-      const ListRepoFilesSchema = z.object({
-        repoPath: z.string(),
-        globs: z.array(z.string()).optional().default(['**/*']),
-        exclude: z.array(z.string()).optional().default(['node_modules/**'])
-      });
-
-      const result = ListRepoFilesSchema.parse({ repoPath: '/path' });
-
-      expect(result.globs).toEqual(['**/*']);
-      expect(result.exclude).toEqual(['node_modules/**']);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle non-existent file gracefully', async () => {
-      const nonExistentFile = path.join(testRepoPath, 'does-not-exist.ts');
-
-      await expect(fs.readFile(nonExistentFile, 'utf-8')).rejects.toThrow();
-    });
-
-    it('should handle invalid git repository', async () => {
-      const { simpleGit } = await import('simple-git');
-      const nonGitDir = await fs.mkdtemp(path.join(os.tmpdir(), 'non-git-'));
-
-      const git = simpleGit(nonGitDir);
-
-      await expect(git.log()).rejects.toThrow();
-
-      await fs.rm(nonGitDir, { recursive: true });
-    });
-
-    it('should handle empty repository', async () => {
-      const { glob } = await import('glob');
-      const emptyDir = await fs.mkdtemp(path.join(os.tmpdir(), 'empty-'));
-
-      const files = await glob('**/*', {
-        cwd: emptyDir,
-        nodir: true
-      });
-
-      expect(files.length).toBe(0);
-
-      await fs.rm(emptyDir, { recursive: true });
-    });
-  });
-
-  describe('Integration Tests', () => {
-    it('should provide complete analysis workflow', async () => {
-      // 1. List files
-      const { glob } = await import('glob');
-      const allFiles = await glob('**/*.ts', {
-        cwd: testRepoPath,
-        ignore: ['node_modules/**', '.git/**'],
-        nodir: true
-      });
-
-      expect(allFiles.length).toBeGreaterThan(0);
-
-      // 2. Analyze complexity
-      const content = await fs.readFile(testFilePath, 'utf-8');
-      const lines = content.split('\n').length;
-      const keywords = content.match(/\b(if|else|for|while)\b/g);
-
-      expect(lines).toBeGreaterThan(0);
-      expect(keywords).toBeTruthy();
-
-      // 3. Check git history
-      const { simpleGit } = await import('simple-git');
-      const git = simpleGit(testRepoPath);
-
-      try {
-        const log = await git.log();
-        expect(log.total).toBeGreaterThan(0);
-      } catch (error) {
-        console.warn('Git integration test skipped:', error);
-      }
-
-      // 4. Map tests
-      const testFiles = await glob('**/*.test.ts', {
-        cwd: testRepoPath,
-        nodir: true
-      });
-
-      expect(testFiles.length).toBe(1);
-    });
-  });
+    }, 15000,
+  );
 });
