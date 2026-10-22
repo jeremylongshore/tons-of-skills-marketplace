@@ -110,6 +110,7 @@ class WorkflowRoutingContractTests(unittest.TestCase):
 
     def test_security_and_schema_test_matrix_is_preserved(self):
         matrix = self.jobs["test"]
+        self.assertEqual(matrix["needs"], "classify-changes")
         self.assertEqual(
             matrix["strategy"]["matrix"]["test-type"], ["mcp-plugins", "python-tests", "validation-scripts"]
         )
@@ -127,6 +128,32 @@ class WorkflowRoutingContractTests(unittest.TestCase):
             with self.subTest(step=name):
                 self.assertEqual(steps[name]["if"], f"matrix.test-type == '{lane}'")
                 self.assertIn(command, steps[name]["run"])
+
+    def test_mcp_build_routes_only_the_exact_lightweight_lane_and_propagates_failure(self):
+        step = next(s for s in self.jobs["test"]["steps"] if s.get("name") == "Build MCP plugins")
+        self.assertEqual(step["env"], {"CI_LANE": "${{ needs.classify-changes.outputs.lane }}"})
+        with tempfile.TemporaryDirectory(prefix="ci-build-routing-") as directory:
+            root = Path(directory)
+            trace = root / "trace"
+            command = root / "pnpm"
+            command.write_text('#!/bin/bash\nprintf "%s\\n" "$@" > "$TRACE"\nexit "${BUILD_EXIT:-0}"\n')
+            command.chmod(0o755)
+            for lane in ("lightweight", "full", "", "unknown", None):
+                for code in (0, 23):
+                    with self.subTest(lane=lane, exit_code=code):
+                        env = {
+                            **os.environ,
+                            "PATH": f"{root}:{os.environ['PATH']}",
+                            "TRACE": str(trace),
+                            "BUILD_EXIT": str(code),
+                        }
+                        env.pop("CI_LANE", None)
+                        if lane is not None:
+                            env["CI_LANE"] = lane
+                        result = subprocess.run(["bash", "-c", step["run"]], env=env, text=True, capture_output=True)
+                        self.assertEqual(result.returncode, code, result.stderr)
+                        expected = ["--filter", "./plugins/mcp/*...", "build"] if lane == "lightweight" else ["build"]
+                        self.assertEqual(trace.read_text().splitlines(), expected)
 
     def test_security_and_funding_steps_remain_unconditional(self):
         protected = {
@@ -151,6 +178,50 @@ class WorkflowRoutingContractTests(unittest.TestCase):
         names = [step.get("name") for step in self.jobs["validate"]["steps"]]
         self.assertLess(names.index("Enforce the safety ratchet"), names.index("Test CI routing policy"))
         self.assertLess(names.index("Enforce the safety ratchet"), names.index("Validate funding metadata"))
+
+    def test_python_provisioning_preserves_full_fallback_and_fails_on_missing_fixture_dependencies(self):
+        step = next(s for s in self.jobs["test"]["steps"] if s.get("name") == "Install Python test dependencies")
+        self.assertEqual(step["env"], {"CI_LANE": "${{ needs.classify-changes.outputs.lane }}"})
+        with tempfile.TemporaryDirectory(prefix="ci-python-routing-") as directory:
+            root = Path(directory)
+            trace = root / "trace"
+            (root / "requirements.txt").touch()
+            scripts = {
+                "python": "#!/bin/bash\nexit 0\n",
+                "find": '#!/bin/bash\nprintf "%s\\n" plugins/full-runtime/requirements.txt\n',
+                "pip": '#!/bin/bash\nprintf "%s\\n" "$@" >> "$TRACE"\nif [ "${FAIL_FIXTURE:-0}" = 1 ] && [[ "$*" == *lumera* ]]; then exit 23; fi\n',
+            }
+            for name, content in scripts.items():
+                command = root / name
+                command.write_text(content)
+                command.chmod(0o755)
+            for lane in ("lightweight", "full", "", "unknown", None):
+                with self.subTest(lane=lane):
+                    trace.write_text("")
+                    env = {**os.environ, "PATH": f"{root}:{os.environ['PATH']}", "TRACE": str(trace)}
+                    env.pop("CI_LANE", None)
+                    if lane is not None:
+                        env["CI_LANE"] = lane
+                    result = subprocess.run(
+                        ["bash", "-c", step["run"]], cwd=root, env=env, text=True, capture_output=True
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    installed = trace.read_text().splitlines()
+                    self.assertIn("requirements.txt", installed)
+                    for tool in ("pytest", "pytest-cov", "pytest-asyncio", "pyyaml", "jsonschema"):
+                        self.assertIn(tool, installed)
+                    fixtures = {
+                        "plugins/mcp/lumera-agent-memory/requirements.txt",
+                        "plugins/security/penetration-tester/skills/performing-penetration-testing/scripts/requirements.txt",
+                        "plugins/crypto/trading-strategy-backtester/requirements.txt",
+                    }
+                    actual = {arg for arg in installed if arg.startswith("plugins/")}
+                    self.assertEqual(
+                        actual, fixtures if lane == "lightweight" else {"plugins/full-runtime/requirements.txt"}
+                    )
+            env.update(CI_LANE="lightweight", FAIL_FIXTURE="1")
+            result = subprocess.run(["bash", "-c", step["run"]], cwd=root, env=env, text=True, capture_output=True)
+            self.assertEqual(result.returncode, 23, result.stderr)
 
 
 class TrustedClassifierExecutionTests(unittest.TestCase):

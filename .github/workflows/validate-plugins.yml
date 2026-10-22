@@ -815,7 +815,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: validate
+    # The matrix consumes no validate outputs. Run alongside validation;
+    # ci-required still requires both jobs to succeed.
+    needs: classify-changes
     strategy:
       fail-fast: false
       matrix:
@@ -858,9 +860,18 @@ jobs:
 
       - name: Build MCP plugins
         if: matrix.test-type == 'mcp-plugins'
+        env:
+          CI_LANE: ${{ needs.classify-changes.outputs.lane }}
         run: |
+          set -euo pipefail
           echo "Building MCP plugins..."
-          pnpm build
+          if [ "${CI_LANE:-}" = lightweight ]; then
+            # Keep every MCP build and its workspace dependency closure. The
+            # independent marketplace job still builds and audits the site.
+            pnpm --filter './plugins/mcp/*...' build
+          else
+            pnpm build
+          fi
           echo "✅ Build complete"
 
       - name: Install evidence emitter dependencies
@@ -991,7 +1002,10 @@ jobs:
 
       - name: Install Python test dependencies
         if: matrix.test-type == 'python-tests'
+        env:
+          CI_LANE: ${{ needs.classify-changes.outputs.lane }}
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
           pip install pytest pytest-cov pytest-asyncio
 
@@ -1000,11 +1014,21 @@ jobs:
             pip install -r requirements.txt
           fi
 
-          # Install dependencies from plugin requirements.txt files
-          find plugins/ -name "requirements.txt" | while read -r req; do
-            echo "Installing deps from $req"
-            pip install -r "$req" || true
-          done
+          if [ "${CI_LANE:-}" = lightweight ]; then
+            # Complete dependency closure for the unchanged Python fixture
+            # suite. No tests or coverage are omitted. Changes to any source,
+            # test, or requirements file select the full provisioning below.
+            pip install \
+              -r plugins/mcp/lumera-agent-memory/requirements.txt \
+              -r plugins/security/penetration-tester/skills/performing-penetration-testing/scripts/requirements.txt \
+              -r plugins/crypto/trading-strategy-backtester/requirements.txt
+          else
+            # Preserve full-lane provisioning of plugin runtime dependencies.
+            find plugins/ -name "requirements.txt" | while read -r req; do
+              echo "Installing deps from $req"
+              pip install -r "$req" || true
+            done
+          fi
 
           # Install additional testing tools
           pip install pyyaml jsonschema

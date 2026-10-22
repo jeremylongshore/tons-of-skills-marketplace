@@ -93,3 +93,29 @@ cancelled/retried attempts disclosed. Local timings are not hosted savings.
 The initial seven-job reduction does not remove the runtime matrices or claim
 their savings; completion evidence for the broader fast-lane work is tracked
 in Beads `claude-lz24`.
+
+The first paired observation used tree
+`228cf55cdc6fcee42801f94d01047e76c68e1593`. Lightweight
+[run 39769023664](https://github.com/jeremylongshore/tons-of-skills-marketplace/actions/runs/39769023664)
+executed 20 jobs and skipped seven: 471 seconds of workflow execution and
+1,326 summed job seconds. Forced-full
+[run 39769016410](https://github.com/jeremylongshore/tons-of-skills-marketplace/actions/runs/39769016410)
+executed all 27: 479 seconds and 1,326 summed job seconds. Initial queue times
+were six and three seconds respectively. Both were successful first attempts;
+an earlier failed attempt on a different tree is excluded. This single pair
+shows eight seconds less elapsed execution and **no runner-second savings**.
+These figures cover this workflow, not billing or separate review workflows.
+
+The next optimization lets the unchanged test matrix run alongside validation
+after classification. Neither job consumes outputs from the other, and the
+aggregate still requires both. For proven lightweight changes, the MCP job
+builds every MCP workspace and its workspace dependencies; the independent
+marketplace job still builds the site and checks CSP and Cowork artifacts.
+Full, missing, and unknown lane values retain the whole-workspace build.
+The MCP job retains its full dependency installation, tests, coverage,
+typechecking, and linting. The lightweight Python job installs the test tools
+and the Lumera, penetration-tester, and trading-strategy requirements used by
+the complete fixture suite. It still installs root requirements when present.
+Full, missing, and unknown lanes retain recursive plugin provisioning. Python
+test selection, coverage, and the pinned-Dolt publication fixture are unchanged.
+Hosted savings from these changes require a new paired measurement.
