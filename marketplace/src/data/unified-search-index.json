@@ -9994,7 +9994,7 @@
         "url": "https://github.com/damienlaine"
       },
       "authorType": "community",
-      "version": "1.20.0",
+      "version": "1.21.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -16465,7 +16465,7 @@
         "Read"
       ],
       "compatibleWith": [],
-      "version": "1.20.0",
+      "version": "1.21.0",
       "parentPlugin": {
         "name": "sprint",
         "category": "community"
@@ -19160,7 +19160,7 @@
         "Read"
       ],
       "compatibleWith": [],
-      "version": "1.20.0",
+      "version": "1.21.0",
       "parentPlugin": {
         "name": "sprint",
         "category": "community"
@@ -72469,7 +72469,7 @@
         "Read"
       ],
       "compatibleWith": [],
-      "version": "1.20.0",
+      "version": "1.21.0",
       "parentPlugin": {
         "name": "sprint",
         "category": "community"
@@ -72702,7 +72702,7 @@
         "Read"
       ],
       "compatibleWith": [],
-      "version": "1.20.0",
+      "version": "1.21.0",
       "parentPlugin": {
         "name": "sprint",
         "category": "community"
