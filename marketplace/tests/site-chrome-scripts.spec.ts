@@ -34,9 +34,10 @@ test.describe('site-wide scripts', () => {
     const links = page.locator('.nav-links');
     await page.locator('.mobile-menu-toggle').click();
     await expect(links).toHaveClass(/active/);
-    // The open menu covers the toggle (a pre-existing layout issue, tracked
-    // separately), so dispatch the click to the toggle to exercise the script.
-    await page.locator('.mobile-menu-toggle').dispatchEvent('click');
+    await test.info().attach('mobile-menu-open', {
+      body: await page.screenshot(), contentType: 'image/png',
+    });
+    await page.locator('.mobile-menu-toggle').click();
     await expect(links).not.toHaveClass(/active/);
   });
 

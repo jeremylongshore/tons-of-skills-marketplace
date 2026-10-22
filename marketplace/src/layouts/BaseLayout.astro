@@ -606,6 +606,9 @@ const isHome = currentPath === '/';
 
             .mobile-menu-toggle {
                 display: block;
+                /* Keep the close control above the open navigation panel. */
+                position: relative;
+                z-index: 1000;
             }
 
             .nav-links {
