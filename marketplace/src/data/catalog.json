@@ -7243,7 +7243,7 @@
       "name": "sprint",
       "displayName": "sprint",
       "description": "Autonomous multi-agent development framework with spec-driven sprints. Write specs, run /sprint, and let coordinated agents (backend, frontend, QA, UI testing) handle implementation through self-iterating convergent loops.",
-      "version": "1.20.0",
+      "version": "1.21.0",
       "category": "community",
       "keywords": [
         "autonomous",

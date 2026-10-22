@@ -845,3 +845,258 @@ test('scorecard corpus counts reject a supplied SKILL.md symlink', (t) => {
     /symbolic link is not a corpus authority/,
   );
 });
+
+function marketplaceGateFixture(t) {
+  const base = fixture(t);
+  const wrapper =
+    'python3 scripts/check-marketplace-compliance-baseline.py --checkout-sha "$CHECKOUT_SHA"';
+  const document = {
+    on: { pull_request: null, push: { branches: ['main'] }, workflow_dispatch: null },
+    jobs: {
+      'marketplace-compliance-ratchet': {
+        'runs-on': 'ubuntu-latest',
+        steps: [
+          { uses: 'actions/checkout@v7', with: { 'fetch-depth': 0 } },
+          {
+            name: 'Enforce marketplace ratchet',
+            env: { CHECKOUT_SHA: '${{ github.sha }}' },
+            run: wrapper,
+          },
+        ],
+      },
+      'ci-required': {
+        if: 'always()',
+        needs: ['marketplace-compliance-ratchet'],
+        steps: [
+          { uses: 'actions/checkout@v7' },
+          {
+            env: { NEEDS_JSON: '${{ toJSON(needs) }}' },
+            run: 'python3 scripts/ci/fastlane.py gate',
+          },
+        ],
+      },
+    },
+  };
+  for (const path of [
+    'scripts/check-marketplace-compliance-baseline.py',
+    'scripts/ci/fastlane.py',
+  ]) {
+    put(base.root, path, readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'));
+    base.paths.push(path);
+  }
+  const measure = () => {
+    put(base.root, '.github/workflows/validate-plugins.yml', JSON.stringify(document));
+    return buildExtendedScorecardRows(input(base))[40];
+  };
+  return {
+    base,
+    document,
+    wrapper,
+    measure,
+    job: document.jobs['marketplace-compliance-ratchet'],
+    aggregate: document.jobs['ci-required'],
+  };
+}
+
+test('row 40 counts one required wrapper job and labels the proof as static', (t) => {
+  const state = marketplaceGateFixture(t);
+  state.job.steps[1].run =
+    'python3 -c "import yaml" 2>/dev/null || python3 -m pip install --quiet pyyaml\n' +
+    state.wrapper;
+  state.job.steps.push({
+    if: "github.event_name == 'pull_request'",
+    run: 'python3 scripts/check-marketplace-compliance-baseline.py --check-growth-only --base origin/main',
+  });
+  state.job.steps.push({ ...state.job.steps[1] });
+  const row = state.measure();
+  assert.equal(row.status, 'target_met');
+  assert.equal(row.values.blocking_candidates, 1);
+  assert.equal(row.values.proof_kind, 'static_required_job_wiring');
+  assert.equal(row.values.invocations.filter((entry) => entry.blocking_candidate).length, 2);
+  assert.ok(
+    row.values.invocations.some(
+      (entry) => entry.kind === 'unproven-reference' && !entry.blocking_candidate,
+    ),
+  );
+  assert.match(row.limitations[0], /hosted red-run evidence/);
+});
+
+test('row 40 still recognizes an unsuppressed direct full marketplace validator', (t) => {
+  const state = marketplaceGateFixture(t);
+  state.job.steps[1].run = 'python3 scripts/validate-skills-schema.py --marketplace';
+  delete state.job.steps[1].env;
+  state.job.steps[0].with = {
+    repository: '${{ github.repository }}',
+    ref: '${{ github.sha }}',
+    path: '.',
+  };
+  const row = state.measure();
+  assert.equal(row.values.blocking_candidates, 1);
+  assert.ok(
+    row.values.invocations.some(
+      (entry) => entry.kind === 'direct-marketplace-validator' && entry.blocking_candidate,
+    ),
+  );
+  state.job.steps[0].with.repository = 'other/repo';
+  assert.equal(state.measure().values.blocking_candidates, 0);
+});
+
+test('row 40 refuses broken required workflow wiring and policy bypasses', async (t) => {
+  const cases = {
+    'foreign enforcement repository': (s) => {
+      s.job.steps[0].with.repository = 'other/repo';
+    },
+    'mutable enforcement revision': (s) => {
+      s.job.steps[0].with.ref = 'old-branch';
+    },
+    'different enforcement checkout directory': (s) => {
+      s.job.steps[0].with.path = 'other';
+    },
+    'conditional enforcement checkout': (s) => {
+      s.job.steps[0].if = 'false';
+    },
+    'suppressed enforcement checkout': (s) => {
+      s.job.steps[0]['continue-on-error'] = true;
+    },
+    'missing enforcement checkout': (s) => {
+      s.job.steps.shift();
+    },
+    'checkout after enforcement': (s) => {
+      s.job.steps.reverse();
+    },
+    'ambiguous multiple checkouts': (s) => {
+      s.job.steps.unshift({ ...s.job.steps[0] });
+    },
+    'foreign aggregate repository': (s) => {
+      s.aggregate.steps[0].with = { repository: 'other/repo' };
+    },
+    'missing required dependency': (s) => {
+      s.aggregate.needs = ['another-job'];
+    },
+    'duplicate dependency': (s) => {
+      s.aggregate.needs.push('marketplace-compliance-ratchet');
+    },
+    'conditional job': (s) => {
+      s.job.if = "github.event_name == 'push'";
+    },
+    'job failure suppressed': (s) => {
+      s.job['continue-on-error'] = true;
+    },
+    'job has potentially skipped upstream dependency': (s) => {
+      s.job.needs = 'conditional-upstream';
+    },
+    'conditional step': (s) => {
+      s.job.steps[1].if = "github.event_name == 'push'";
+    },
+    'step failure suppressed': (s) => {
+      s.job.steps[1]['continue-on-error'] = true;
+    },
+    'path filter': (s) => {
+      s.document.on.pull_request = { paths: ['plugins/**'] };
+    },
+    'branch filter': (s) => {
+      s.document.on.pull_request = { branches: ['main'] };
+    },
+    'missing pull request trigger': (s) => {
+      delete s.document.on.pull_request;
+    },
+    'aggregate not always reporting': (s) => {
+      delete s.aggregate.if;
+    },
+    'aggregate tolerates failure': (s) => {
+      s.aggregate['continue-on-error'] = true;
+    },
+    'aggregate reads fake needs': (s) => {
+      s.aggregate.steps[1].env.NEEDS_JSON = '{}';
+    },
+    'aggregate bypass command': (s) => {
+      s.aggregate.steps[1].run += ' || true';
+    },
+    'aggregate conditional command': (s) => {
+      s.aggregate.steps[1].if = 'false';
+    },
+    'aggregate checkout wrong revision': (s) => {
+      s.aggregate.steps[0].with = { ref: 'main' };
+    },
+    'aggregate writes a different checkout path': (s) => {
+      s.aggregate.steps[0].with = { path: 'other' };
+    },
+    'unrecognized additional aggregate step': (s) => {
+      s.aggregate.steps.push({ run: 'true' });
+    },
+    'missing checkout SHA binding': (s) => {
+      delete s.job.steps[1].env;
+    },
+    'mutable checkout binding': (s) => {
+      s.job.steps[1].env.CHECKOUT_SHA = '${{ github.head_ref }}';
+    },
+    'different working directory': (s) => {
+      s.job.steps[1]['working-directory'] = 'fixture';
+    },
+    'workflow default working directory': (s) => {
+      s.document.defaults = { run: { 'working-directory': 'fixture' } };
+    },
+    'unrecognized shell': (s) => {
+      s.job.steps[1].shell = 'python {0}';
+    },
+    'missing canonical wrapper': (s) => {
+      s.base.paths = s.base.paths.filter(
+        (p) => p !== 'scripts/check-marketplace-compliance-baseline.py',
+      );
+    },
+    'missing canonical aggregation policy': (s) => {
+      s.base.paths = s.base.paths.filter((p) => p !== 'scripts/ci/fastlane.py');
+    },
+  };
+  for (const [name, mutate] of Object.entries(cases)) {
+    await t.test(name, (subtest) => {
+      const state = marketplaceGateFixture(subtest);
+      mutate(state);
+      const row = state.measure();
+      assert.equal(row.values.blocking_candidates, 0);
+      assert.equal(row.status, 'partial');
+    });
+  }
+});
+
+test('row 40 treats unsupported shell text as references, never full corpus execution', async (t) => {
+  const cases = {
+    comment: (cmd) => `# ${cmd}`,
+    echo: (cmd) => `echo '${cmd}'`,
+    heredoc: (cmd) => `cat <<'EXAMPLE'\n${cmd}\nEXAMPLE`,
+    'shell condition': (cmd) => `if false; then\n${cmd}\nfi`,
+    'early success exit': (cmd) => `exit 0\n${cmd}`,
+    'swallowed failure': (cmd) => `${cmd} || true`,
+    pipeline: (cmd) => `${cmd} | cat`,
+    'growth-only': (cmd) => `${cmd} --check-growth-only --base origin/main`,
+    'fixture input': (cmd) => `${cmd} --current /tmp/passing.json`,
+    'different corpus': (cmd) => `${cmd} --repo-root /tmp/fixture`,
+    'alternate baseline': (cmd) => `${cmd} --baseline /tmp/permissive.json`,
+  };
+  for (const [name, transform] of Object.entries(cases)) {
+    await t.test(name, (subtest) => {
+      const state = marketplaceGateFixture(subtest);
+      state.job.steps[1].run = transform(state.wrapper);
+      const row = state.measure();
+      assert.equal(row.values.blocking_candidates, 0);
+      assert.ok(
+        row.values.invocations.some((entry) =>
+          entry.reason_codes.includes('UNPROVEN_FULL_CORPUS_COMMAND'),
+        ),
+      );
+    });
+  }
+});
+
+test('row 40 reports malformed workflow syntax without fabricating a blocking gate', (t) => {
+  const state = marketplaceGateFixture(t);
+  put(state.base.root, '.github/workflows/validate-plugins.yml', 'jobs: [');
+  const row = buildExtendedScorecardRows(input(state.base))[40];
+  assert.equal(row.values.blocking_candidates, 0);
+  assert.equal(row.status, 'partial');
+  assert.ok(
+    row.values.parse_errors.some(
+      (entry) => entry.path === '.github/workflows/validate-plugins.yml',
+    ),
+  );
+});

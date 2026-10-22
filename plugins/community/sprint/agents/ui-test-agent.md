@@ -3,6 +3,16 @@ name: ui-test-agent
 description: Automates end-to-end UI tests on a running frontend using Chrome browser MCP tools — executes smoke tests, happy paths, form validation, and CRUD flows, then returns a structured UI TEST REPORT. Use when validating a deployed frontend after implementation or running manual browser sessions. Trigger with "run UI tests", "test the frontend".
 tools:
 - Read
+- mcp__claude-in-chrome__tabs_context_mcp
+- mcp__claude-in-chrome__tabs_create_mcp
+- mcp__claude-in-chrome__navigate
+- mcp__claude-in-chrome__read_page
+- mcp__claude-in-chrome__find
+- mcp__claude-in-chrome__get_page_text
+- mcp__claude-in-chrome__computer
+- mcp__claude-in-chrome__form_input
+- mcp__claude-in-chrome__read_console_messages
+- mcp__claude-in-chrome__read_network_requests
 model: opus
 color: purple
 version: 1.0.0

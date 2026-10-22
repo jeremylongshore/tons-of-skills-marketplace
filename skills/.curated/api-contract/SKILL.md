@@ -8,7 +8,7 @@ description: 'Configure this skill should be used when the user asks about "API 
 
   '
 allowed-tools: Read
-version: 1.20.0
+version: 1.21.0
 author: Damien Laine <damien.laine@gmail.com>
 license: MIT
 tags:
