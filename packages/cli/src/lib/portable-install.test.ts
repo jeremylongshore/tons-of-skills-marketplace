@@ -185,7 +185,8 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     const write = fs.writeFile.bind(fs);
     vi.spyOn(fs, 'writeFile').mockImplementation(async (file, ...args) => {
       const result = await write(file, ...args);
-      if (String(file).endsWith(PORTABLE_INSTALL_RECEIPT_FILE)) await write(file, '{}');
+      if (String(file).endsWith(PORTABLE_INSTALL_RECEIPT_FILE))
+        await write(file, Buffer.alloc((await fs.readFile(file)).length, 32));
       return result;
     });
     await expect(installPortableTree(options())).rejects.toThrow(/receipt/);
@@ -198,9 +199,36 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
       path.join(evidenceRoot, `${receipt.evidence[0].sha256.slice(7)}.json`),
       'corrupted',
     );
-    await expect(installPortableTree(options())).rejects.toThrow(/evidence does not match/);
+    await expect(installPortableTree(options())).rejects.toThrow(/changed identity or content/);
     await assertNoPartialInstall();
   });
+
+  test.each(['staged file', 'evidence'])(
+    'refuses %s replacement after opening its verification descriptor',
+    async (phase) => {
+      const open = fs.open.bind(fs);
+      let replaced = false;
+      vi.spyOn(fs, 'open').mockImplementation(async (file, ...args) => {
+        const handle = await open(file, ...args);
+        const target = String(file);
+        if (
+          !replaced &&
+          (phase === 'evidence'
+            ? target.includes('.ccpi-evidence')
+            : target.includes('.install-') && path.basename(target) === 'run.sh')
+        ) {
+          replaced = true;
+          const bytes = await fs.readFile(file);
+          await fs.rename(file, `${target}.previous`);
+          await fs.writeFile(file, bytes);
+        }
+        return handle;
+      });
+      await expect(installPortableTree(options())).rejects.toThrow(/changed identity/);
+      expect(replaced).toBe(true);
+      await assertNoPartialInstall();
+    },
+  );
 
   test.each(['copy', 'receipt', 'evidence', 'rename'])(
     'cleans staging after %s failure',

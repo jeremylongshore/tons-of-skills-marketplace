@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { promises as fs } from 'node:fs';
+import { constants, promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
@@ -22,6 +22,38 @@ const ROOT_FILES = new Set(['SKILL.md', 'README.md', 'LICENSE', 'LICENSE.md', 'e
 const PRIVATE_COMPONENT =
   /^(?:\..*|node_modules|__pycache__|cache|coverage|dist|build|credentials(?:\..*)?|secrets?(?:\..*)?|id_(?:rsa|dsa|ecdsa|ed25519))(?:$)/i;
 const PRIVATE_EXTENSION = /\.(?:key|pem|p12|pfx|pyc|log|sqlite|db)$/i;
+
+async function readRegularFile(file: string, expectedSize: number) {
+  const handle = await fs.open(
+    file,
+    constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0),
+  );
+  try {
+    const info = await handle.stat({ bigint: true });
+    const check = async () => {
+      const current = await fs.lstat(file, { bigint: true });
+      const opened = await handle.stat({ bigint: true });
+      if (
+        !info.isFile() ||
+        !current.isFile() ||
+        current.isSymbolicLink() ||
+        current.dev !== info.dev ||
+        current.ino !== info.ino ||
+        opened.size !== BigInt(expectedSize) ||
+        opened.mtimeNs !== info.mtimeNs ||
+        opened.ctimeNs !== info.ctimeNs
+      )
+        throw new Error('Portable file changed identity or content while being verified');
+    };
+    await check();
+    const bytes = await handle.readFile();
+    await check();
+    if (bytes.length !== expectedSize) throw new Error('Portable file size changed during read');
+    return { bytes, mode: info.mode };
+  } finally {
+    await handle.close();
+  }
+}
 
 function admitFiles(files: PortableTreeInput[]): void {
   for (const file of files) {
@@ -87,14 +119,15 @@ async function stagedTree(
         const entry = entries.get(child);
         if (!entry || info.size !== entry.size)
           throw new Error(`Staged file differs from source digest: ${child}`);
+        const verified = await readRegularFile(absolute, entry.size);
         files.push({
           path: child,
-          bytes: await fs.readFile(absolute),
+          bytes: verified.bytes,
           // Windows does not represent POSIX executable bits; retain the source Git metadata.
           mode:
             process.platform === 'win32'
               ? entry.mode
-              : (info.mode & 0o111) !== 0
+              : (verified.mode & 0o111n) !== 0n
                 ? '100755'
                 : '100644',
         });
@@ -197,12 +230,15 @@ export async function installPortableTree(options: {
       acquisition,
     );
     const receiptPath = path.join(staging, PORTABLE_INSTALL_RECEIPT_FILE);
-    await fs.writeFile(receiptPath, serializePortableInstallReceipt(receipt), {
+    const serializedReceipt = serializePortableInstallReceipt(receipt);
+    await fs.writeFile(receiptPath, serializedReceipt, {
       flag: 'wx',
       mode: 0o644,
     });
     assertReceiptMatchesAcquisition(
-      parsePortableInstallReceipt(await fs.readFile(receiptPath)),
+      parsePortableInstallReceipt(
+        (await readRegularFile(receiptPath, Buffer.byteLength(serializedReceipt))).bytes,
+      ),
       acquisition,
     );
     if (
@@ -222,12 +258,8 @@ export async function installPortableTree(options: {
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
       }
-      const evidenceInfo = await fs.lstat(evidenceFile);
-      if (
-        !evidenceInfo.isFile() ||
-        evidenceInfo.isSymbolicLink() ||
-        (await fs.readFile(evidenceFile, 'utf8')) !== evidence
-      ) {
+      const retained = await readRegularFile(evidenceFile, Buffer.byteLength(evidence));
+      if (retained.bytes.toString('utf8') !== evidence) {
         throw new Error('Retained portable validation evidence does not match its digest');
       }
       await fs.chmod(staging, 0o755);
