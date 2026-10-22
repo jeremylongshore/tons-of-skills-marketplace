@@ -45,6 +45,16 @@ const FIXTURES = [
     false,
     'consistency-validator golden fixture corpus must stay trackable (GH #991)',
   ],
+  [
+    'plugins/saas-packs/databricks-pack/000-docs/999-ZZ-TEST-new-record.md',
+    false,
+    'new Databricks pack records must be addable without force',
+  ],
+  [
+    'plugins/saas-packs/databricks-pack/000-docs/research/999-ZZ-TEST-nested-record.md',
+    false,
+    'the Databricks exception includes nested public records',
+  ],
   // ── must be IGNORED (local by default / private / runtime) ──
   [
     '000-docs/728-RA-REPT-unledgered.md',

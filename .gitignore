@@ -2,8 +2,6 @@
 !/.npmrc
 !plugins/**/.mcp.json
 !plugins/mcp/*/.mcp.json
-!plugins/saas-packs/databricks-pack/000-docs/
-!plugins/saas-packs/databricks-pack/000-docs/**
 #
 #    NOTE: the pattern below uses `**/*/000-docs/` (requires at least one parent
 #    canonical cross-repo standards via `!` rules below.
@@ -70,6 +68,8 @@
 # was explicitly NOT done). No inherent secrets risk; transparency is the point.
 **/*/000-docs/
 **/*/000-docs/**
+!plugins/saas-packs/databricks-pack/000-docs/
+!plugins/saas-packs/databricks-pack/000-docs/**
 # EXCEPTION: Grammarly v2 public contract research, architecture decisions,
 # and release evidence ship with the operator pack.
 !plugins/saas-packs/grammarly-pack/000-docs/
