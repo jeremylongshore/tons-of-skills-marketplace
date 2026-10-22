@@ -537,7 +537,7 @@ export function assertReceiptMatchesAcquisition(
 
 async function git(repoRoot: string, args: string[]): Promise<Buffer> {
   try {
-    const result = await execFile('git', args, {
+    const result = await execFile('git', ['--no-optional-locks', ...args], {
       cwd: repoRoot,
       encoding: 'buffer',
       maxBuffer: MAX_GIT_OUTPUT_BYTES,
@@ -662,12 +662,35 @@ async function assertCleanCheckout(
   }
 }
 
-export async function readPortableTreeFromCleanCommit(input: {
+type PortableAcquisitionInput = {
   repoRoot: string;
   repository: string;
   commit: string;
   sourcePath: string;
-}): Promise<ImmutablePortableTree> {
+};
+
+export function readPortableTreeFromCleanCommit(input: PortableAcquisitionInput) {
+  return readPortableTree(input, true);
+}
+
+/** Read committed history without changing the checkout or refreshing its index. */
+export function readPortableTreeFromCommit(input: PortableAcquisitionInput) {
+  return readPortableTree(input, false);
+}
+
+export async function portableRepositoryHead(repoRoot: string) {
+  return {
+    repository: canonicalizeGitRemote(
+      (await git(repoRoot, ['remote', 'get-url', 'origin'])).toString('utf8').trim(),
+    ),
+    commit: (await git(repoRoot, ['rev-parse', '--verify', 'HEAD'])).toString('ascii').trim(),
+  };
+}
+
+async function readPortableTree(
+  input: PortableAcquisitionInput,
+  cleanCheckout: boolean,
+): Promise<ImmutablePortableTree> {
   const sourcePath = validateCanonicalSkillSourcePath(input.sourcePath);
   const repository = canonicalRepository(input.repository);
   const commit = objectIdFromDigest(input.commit, 'commit');
@@ -691,7 +714,8 @@ export async function readPortableTreeFromCleanCommit(input: {
     .toString('ascii')
     .trim();
   if (commitType !== 'commit') fail('commit must identify a Git commit object');
-  await assertCleanCheckout(resolvedRoot, sourcePath, commit.digest);
+  if (cleanCheckout) await assertCleanCheckout(resolvedRoot, sourcePath, commit.digest);
+  else await git(resolvedRoot, ['merge-base', '--is-ancestor', commit.digest, 'HEAD']);
 
   const sourceSegments = sourcePath.split('/');
   for (let index = 1; index <= sourceSegments.length; index += 1) {
@@ -757,15 +781,16 @@ export async function readPortableTreeFromCleanCommit(input: {
     if (!repositoryPath.startsWith(prefix))
       fail('git ls-tree emitted a path outside the source tree');
     const relativePath = normalizePortablePath(repositoryPath.slice(prefix.length));
-    try {
-      await execFile('git', ['check-ignore', '--no-index', '--quiet', '--', repositoryPath], {
-        cwd: resolvedRoot,
-      });
-      fail(`tracked source file is excluded by ignore rules: ${relativePath}`);
-    } catch (error) {
-      // check-ignore returns exactly 1 for a non-ignored path; every other failure refuses.
-      if ((error as { code?: number }).code !== 1) throw error;
-    }
+    if (cleanCheckout)
+      try {
+        await execFile('git', ['check-ignore', '--no-index', '--quiet', '--', repositoryPath], {
+          cwd: resolvedRoot,
+        });
+        fail(`tracked source file is excluded by ignore rules: ${relativePath}`);
+      } catch (error) {
+        // check-ignore returns exactly 1 for a non-ignored path; every other failure refuses.
+        if ((error as { code?: number }).code !== 1) throw error;
+      }
     const bytes = await git(resolvedRoot, ['cat-file', 'blob', oid]);
     totalBytes += bytes.byteLength;
     if (!Number.isSafeInteger(totalBytes) || totalBytes > MAX_TREE_BYTES) {

@@ -2,6 +2,8 @@ import { promises as fs } from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { installPortableTree } from '../lib/portable-install.js';
+import { realDirectories } from '../lib/portable-install.js';
+import { diagnosePortableSkill } from '../lib/portable-doctor.js';
 
 type Scope = 'project' | 'user';
 type Support =
@@ -76,15 +78,48 @@ export async function listHarnesses(json: boolean): Promise<void> {
   );
 }
 
-export async function doctorSkills(id: string, scope: Scope, json: boolean): Promise<void> {
+export async function doctorSkills(
+  id: string,
+  scope: Scope,
+  json: boolean,
+  sourceRepo = process.cwd(),
+  skill?: string,
+): Promise<void> {
   const resolvedScope = asScope(scope);
   const harness = await selectedHarness(id);
   const destination = target(harness, resolvedScope);
+  if (skill && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(skill))
+    throw new Error('Skill name must be lowercase kebab-case');
+  await realDirectories(destination, false);
+  const names = skill
+    ? [skill]
+    : await fs.readdir(destination).then(
+        (items) => items.filter((name) => !name.startsWith('.')).sort(),
+        (error: NodeJS.ErrnoException) => {
+          if (error.code === 'ENOENT') return [];
+          throw error;
+        },
+      );
+  const diagnoses = [];
+  for (const name of names)
+    diagnoses.push(
+      await diagnosePortableSkill({
+        destination: path.join(destination, name),
+        sourceRepo,
+        harness: id,
+        scope: resolvedScope,
+      }),
+    );
   const result = {
+    schemaVersion: 'ccpi-portable-doctor/v1',
     harness: id,
     support: harness.support,
     scope: resolvedScope,
     destination,
+    sourceRepo: path.resolve(sourceRepo),
+    verificationScope: 'source-and-installed-bytes',
+    quality: 'not-assessed',
+    skills: diagnoses,
     exists: await fs
       .stat(destination)
       .then(() => true)
@@ -93,7 +128,18 @@ export async function doctorSkills(id: string, scope: Scope, json: boolean): Pro
   console.log(
     json
       ? JSON.stringify(result, null, 2)
-      : `${result.exists ? 'Found' : 'Missing'} ${destination}`,
+      : diagnoses.length
+        ? diagnoses
+            .map(
+              (item) =>
+                `${item.name}: ${item.integrity} (byte integrity; quality not assessed)\n` +
+                `  Source: ${item.source?.commit.digest ?? 'unavailable'} ${item.source?.path ?? 'unavailable'}\n` +
+                `  Digest: expected ${item.expectedDigest ?? 'unavailable'}; installed ${item.installedDigest ?? 'unavailable'}\n` +
+                `  Local HEAD: ${item.upstream.state}; ${item.upstream.commit ?? 'unavailable'}\n` +
+                `  ${item.reason}\n  ${item.nextAction}`,
+            )
+            .join('\n')
+        : `${result.exists ? 'No installed skills in' : 'Missing'} ${destination}`,
   );
 }
 

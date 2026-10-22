@@ -23,7 +23,7 @@ const PRIVATE_COMPONENT =
   /^(?:\..*|node_modules|__pycache__|cache|coverage|dist|build|credentials(?:\..*)?|secrets?(?:\..*)?|id_(?:rsa|dsa|ecdsa|ed25519))(?:$)/i;
 const PRIVATE_EXTENSION = /\.(?:key|pem|p12|pfx|pyc|log|sqlite|db)$/i;
 
-async function readRegularFile(file: string, expectedSize: number) {
+export async function readRegularFile(file: string, expectedSize: number) {
   const handle = await fs.open(
     file,
     constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0),
@@ -55,7 +55,7 @@ async function readRegularFile(file: string, expectedSize: number) {
   }
 }
 
-function admitFiles(files: PortableTreeInput[]): void {
+export function admitFiles(files: PortableTreeInput[]): void {
   for (const file of files) {
     const segments = file.path.split('/');
     if (
@@ -79,7 +79,7 @@ async function absent(destination: string): Promise<void> {
   throw new Error(`Refusing to overwrite existing portable skill: ${destination}`);
 }
 
-async function realDirectories(directory: string, create = true): Promise<void> {
+export async function realDirectories(directory: string, create = true): Promise<void> {
   const absolute = path.resolve(directory);
   let current = path.parse(absolute).root;
   for (const segment of absolute.slice(current.length).split(path.sep).filter(Boolean)) {
@@ -102,7 +102,7 @@ async function realDirectories(directory: string, create = true): Promise<void> 
   }
 }
 
-async function stagedTree(
+export async function stagedTree(
   directory: string,
   expected: PortableTreeManifest,
 ): Promise<PortableTreeInput[]> {

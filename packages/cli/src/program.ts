@@ -30,8 +30,18 @@ export function buildProgram() {
     .command('doctor')
     .requiredOption('--harness <id>', 'Harness identifier')
     .option('--scope <scope>', 'project or user scope', 'project')
+    .option('--source-repo <path>', 'Trusted local source repository (default: current directory)')
+    .option('--skill <name>', 'Inspect one skill, including a missing installation')
     .option('--json', 'Output JSON')
-    .action(async (options) => doctorSkills(options.harness, options.scope, !!options.json));
+    .action(async (options) =>
+      doctorSkills(
+        options.harness,
+        options.scope,
+        !!options.json,
+        options.sourceRepo,
+        options.skill,
+      ),
+    );
   skills
     .command('install <source>')
     .description('Install one portable SKILL.md directory into a verified harness path')

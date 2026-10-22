@@ -58,6 +58,43 @@ test('every harness has an installation or refusal-path receipt', () => {
         );
         assert.equal(receipt.source.commit.digest, git('rev-parse', 'HEAD').toString().trim());
         assert.equal(receipt.installation.harness, harness.id);
+        const doctorArgs = [
+          CLI,
+          'skills',
+          'doctor',
+          '--harness',
+          harness.id,
+          '--source-repo',
+          root,
+        ];
+        const report = JSON.parse(
+          execFileSync(process.execPath, [...doctorArgs, '--json'], {
+            cwd: root,
+            encoding: 'utf8',
+            stdio: 'pipe',
+          }),
+        );
+        assert.equal(report.verificationScope, 'source-and-installed-bytes');
+        assert.equal(report.skills[0].integrity, 'verified');
+        assert.equal(report.skills[0].quality, 'not-assessed');
+        assert.deepEqual(report.skills[0].source, receipt.source);
+        assert.equal(report.skills[0].installedDigest, receipt.tree.digest);
+        const human = execFileSync(process.execPath, doctorArgs, {
+          cwd: root,
+          encoding: 'utf8',
+          stdio: 'pipe',
+        });
+        assert.ok(human.includes('quality not assessed'));
+        assert.ok(human.includes(receipt.source.commit.digest));
+        assert.ok(human.includes(receipt.tree.digest));
+        const missing = JSON.parse(
+          execFileSync(process.execPath, [...doctorArgs, '--skill', 'missing-skill', '--json'], {
+            cwd: root,
+            encoding: 'utf8',
+            stdio: 'pipe',
+          }),
+        );
+        assert.equal(missing.skills[0].integrity, 'missing');
       } else {
         assert.notEqual(
           failure,

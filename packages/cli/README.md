@@ -98,6 +98,36 @@ use an exclusive per-skill lock and publish the verified directory by atomic ren
 paths. `--scope user` selects the harness's user directory. `--json` includes the
 destination and receipt path. Unknown and unverified harnesses are refused.
 
+### `tons skills doctor`
+
+Inspect installed byte integrity without changing files:
+
+```bash
+tons skills doctor --harness claude-code --source-repo /path/to/trusted/checkout --json
+tons skills doctor --harness claude-code --source-repo /path/to/trusted/checkout --skill example-skill
+```
+
+The selected source repository defaults to the current directory. Doctor checks its
+origin identity and committed history against each receipt, rehashes installed files,
+and verifies retained compatibility evidence. It reports `verified`, `outdated`,
+`locally-modified`, `missing`, or `unverifiable` in the **integrity** field. Every
+result includes source commit/path and expected/installed digest evidence, or an
+explicit unavailable value. `--skill` can diagnose an absent installation; without
+it, doctor inspects the visible entries in the harness skill directory.
+
+`verified` here means byte identity only. Quality remains `not-assessed`; this command
+does not certify marketplace grades, production readiness, or behavioral evaluations.
+The selected checkout is your trust source; a receipt cannot authenticate itself.
+Malformed receipts, missing evidence, and mismatched repository provenance fail closed.
+
+Update availability is reported separately against the selected repository's local
+`HEAD`, never an implied latest remote version. A newer unrelated commit is not a
+skill update. A deleted source path can leave original bytes verified while current
+source availability is unknown. Local modifications remain visible even when an
+update exists. Doctor never fetches, checks out commits, refreshes the Git index,
+uploads installed content, writes reports, or repairs a skill. Review its suggested
+next action and preserve local work before explicitly changing anything.
+
 ### `ccpi install <plugin>`
 
 Install a plugin from the marketplace.
