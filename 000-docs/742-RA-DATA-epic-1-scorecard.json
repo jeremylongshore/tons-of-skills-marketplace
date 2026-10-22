@@ -3389,7 +3389,7 @@
           {
             "authority": [
               {
-                "line": 797,
+                "line": 829,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
               }
@@ -3408,7 +3408,7 @@
           {
             "authority": [
               {
-                "line": 924,
+                "line": 956,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3465,12 +3465,12 @@
           {
             "authority": [
               {
-                "line": 570,
+                "line": 581,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # grep status 1 means no matches; operational errors must still fail."
               },
               {
-                "line": 93,
+                "line": 112,
                 "path": "tests/test_ci_scan_failures.py",
                 "text": "    def test_dangerous_scan_io_error_does_not_report_clean(self):"
               }
@@ -3482,19 +3482,19 @@
             "owner": null,
             "promotion": null,
             "rationale": "Only grep's no-match status 1 is normalized; producer and exclusion-filter errors remain blocking under pipefail. Extracted-workflow tests cover matches, exclusions and real scan/filter errors.",
-            "run_line": 22,
+            "run_line": 33,
             "step": 57,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
             "authority": [
               {
-                "line": 1128,
+                "line": 1160,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
               {
-                "line": 131,
+                "line": 150,
                 "path": "tests/test_ci_scan_failures.py",
                 "text": "    def test_discovery_find_error_with_partial_matches_fails_before_pytest(self):"
               }
@@ -3580,8 +3580,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Warning-only scan role and bound remain unresolved.",
-            "run_line": 30,
+            "rationale": "Only grep's no-match status 1 is normalized across discovery and both exclusion filters; operational errors fail the existing capture under pipefail. Matching eval findings remain warning-only; role and bounds remain unresolved.",
+            "run_line": 41,
             "step": 57,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3593,7 +3593,7 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 654
+              "source_line": 686
             },
             "owner": null,
             "promotion": null,
@@ -3636,7 +3636,7 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 1226
+              "source_line": 1258
             },
             "owner": null,
             "promotion": null,
@@ -3666,8 +3666,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
-            "run_line": 37,
+            "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching numeric-HTTP findings remain warning-only; role and bounds remain unresolved.",
+            "run_line": 48,
             "step": 57,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3679,8 +3679,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
-            "run_line": 42,
+            "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching base64 findings remain warning-only; role and bounds remain unresolved.",
+            "run_line": 55,
             "step": 57,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3692,8 +3692,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
-            "run_line": 3,
+            "rationale": "Parent-shell PIPESTATUS handling checks every producer/filter status under pipefail, permitting no-match status 1 but failing operational errors. Matching insecure-URL findings remain warning-only; role and bounds remain unresolved.",
+            "run_line": 16,
             "step": 58,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3705,8 +3705,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
-            "run_line": 8,
+            "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching short-URL findings remain warning-only; role and bounds remain unresolved.",
+            "run_line": 23,
             "step": 58,
             "workflow": ".github/workflows/validate-plugins.yml"
           },

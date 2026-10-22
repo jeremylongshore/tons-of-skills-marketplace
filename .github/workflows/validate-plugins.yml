@@ -567,6 +567,17 @@ jobs:
         run: |
           set -e -o pipefail
 
+          # Only grep status 1 is an expected no-match; all operational errors block.
+          fail_on_grep_error() {
+            local grep_status
+            for grep_status in "$@"; do
+              if [ "$grep_status" -gt 1 ]; then
+                echo "::error::Warning scan failed (grep status $grep_status)" >&2
+                exit "$grep_status"
+              fi
+            done
+          }
+
           # grep status 1 means no matches; operational errors must still fail.
           grep_allow_no_match() {
             local grep_status
@@ -594,7 +605,7 @@ jobs:
           fi
 
           # Check for command injection risks (exclude README documentation)
-          EVAL_USES=$(grep -r -E "eval\s*\(" plugins/ 2>/dev/null | grep -v "README.md" | grep -v "this.redis.eval" || true)
+          EVAL_USES=$(grep_allow_no_match -r -E "eval\s*\(" plugins/ | grep_allow_no_match -v "README.md" | grep_allow_no_match -v "this.redis.eval")
           if [ -n "$EVAL_USES" ]; then
             echo "⚠️  WARNING: 'eval()' detected - potential command injection risk"
             echo "$EVAL_USES"
@@ -603,11 +614,15 @@ jobs:
           # Check for suspicious curl/wget to unknown domains
           if grep -r -E "curl.*http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" plugins/ 2>/dev/null; then
             echo "⚠️  WARNING: curl to IP address detected - potential data exfiltration"
+          else
+            fail_on_grep_error "$?"
           fi
 
           # Check for base64 encoded content (potential obfuscation)
           if grep -r -E "base64\s+-d" plugins/ 2>/dev/null; then
             echo "⚠️  WARNING: base64 decoding detected - potential obfuscation"
+          else
+            fail_on_grep_error "$?"
           fi
 
           if [ $FOUND_ISSUES -eq 0 ]; then
@@ -618,15 +633,32 @@ jobs:
 
       - name: Security scan - Suspicious URLs
         run: |
+          set -e -o pipefail
+
+          # Only grep status 1 is an expected no-match; all operational errors block.
+          fail_on_grep_error() {
+            local grep_status
+            for grep_status in "$@"; do
+              if [ "$grep_status" -gt 1 ]; then
+                echo "::error::Warning scan failed (grep status $grep_status)" >&2
+                exit "$grep_status"
+              fi
+            done
+          }
+
           echo "Scanning for suspicious URLs..."
           # Check for non-HTTPS URLs (except localhost)
           if grep -r -E "http://[^l]" plugins/ | grep -v "localhost" | grep -v "127.0.0.1" 2>/dev/null; then
             echo "⚠️  WARNING: Non-HTTPS URLs detected (security risk)"
+          else
+            fail_on_grep_error "${PIPESTATUS[@]}"
           fi
 
           # Check for URL shorteners (potential phishing)
           if grep -r -E "(bit\.ly|tinyurl\.com|goo\.gl)" plugins/ 2>/dev/null; then
             echo "⚠️  WARNING: URL shorteners detected (potential phishing)"
+          else
+            fail_on_grep_error "$?"
           fi
 
           echo "✅ URL scan complete"

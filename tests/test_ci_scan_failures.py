@@ -21,7 +21,7 @@ def workflow_step(job, name):
 
 
 class ScanFailureTests(unittest.TestCase):
-    def run_step(self, job, name, files, *, failed_tool=None, pytest_status=0):
+    def run_step(self, job, name, files, *, failed_tool=None, pytest_status=0, warning_fault=None):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for filename, content in files.items():
@@ -51,10 +51,29 @@ class ScanFailureTests(unittest.TestCase):
                     f'exec "{shutil.which("grep")}" "$@"\n'
                 )
                 tool.chmod(0o755)
+            if warning_fault is not None:
+                tool = tools / "grep"
+                tool.write_text(
+                    "#!" + sys.executable + "\n"
+                    "import json, os, subprocess, sys\n"
+                    "args = sys.argv[1:]\n"
+                    "fault = json.loads(os.environ['SCAN_WARNING_FAULT'])\n"
+                    "pattern = args[2] if args[:2] == ['-r', '-E'] else args[-1]\n"
+                    "if pattern == fault['pattern']:\n"
+                    "    if fault.get('filter'):\n        args = ['-v', '[']\n"
+                    "    else:\n"
+                    "        if fault.get('partial'):\n"
+                    "            subprocess.run([os.environ['SCAN_REAL_GREP'], *args])\n"
+                    "        args[-1] = os.environ['SCAN_MISSING_ROOT']\n"
+                    "sys.exit(subprocess.run([os.environ['SCAN_REAL_GREP'], *args]).returncode)\n"
+                )
+                tool.chmod(0o755)
             args_file = root / "pytest-arguments"
             env = {
                 **os.environ,
                 "PATH": f"{tools}{os.pathsep}{os.environ['PATH']}",
+                "SCAN_WARNING_FAULT": json.dumps(warning_fault),
+                "SCAN_REAL_GREP": shutil.which("grep"),
                 "SCAN_PYTEST_ARGS": str(args_file),
                 "SCAN_PYTEST_STATUS": str(pytest_status),
                 "SCAN_MISSING_ROOT": str(root / "missing-scan-root"),
@@ -147,6 +166,149 @@ class ScanFailureTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIsNotNone(args)
         self.assertNotIn("Python tests passed", result.stdout)
+
+    def test_warning_scan_operational_errors_are_not_clean(self):
+        cases = [
+            (
+                "eval-producer",
+                "Security scan - Dangerous patterns",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "eval\\s*\\("},
+            ),
+            (
+                "eval-readme-filter",
+                "Security scan - Dangerous patterns",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "README.md", "filter": True},
+            ),
+            (
+                "eval-redis-filter",
+                "Security scan - Dangerous patterns",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "this.redis.eval", "filter": True},
+            ),
+            (
+                "numeric-http",
+                "Security scan - Dangerous patterns",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "curl.*http://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+"},
+            ),
+            (
+                "base64",
+                "Security scan - Dangerous patterns",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "base64\\s+-d"},
+            ),
+            (
+                "insecure-producer",
+                "Security scan - Suspicious URLs",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "http://[^l]"},
+            ),
+            (
+                "insecure-localhost-filter",
+                "Security scan - Suspicious URLs",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "localhost", "filter": True},
+            ),
+            (
+                "insecure-loopback-filter",
+                "Security scan - Suspicious URLs",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "127.0.0.1", "filter": True},
+            ),
+            (
+                "shortener",
+                "Security scan - Suspicious URLs",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                {"pattern": "(bit\\.ly|tinyurl\\.com|goo\\.gl)"},
+            ),
+            (
+                "insecure-partial-output",
+                "Security scan - Suspicious URLs",
+                {"plugins/example.txt": "http://example.invalid\n"},
+                {"pattern": "http://[^l]", "partial": True},
+            ),
+            (
+                "eval-partial-output",
+                "Security scan - Dangerous patterns",
+                {"plugins/example.js": "eval(value)\n"},
+                {"pattern": "eval\\s*\\(", "partial": True},
+            ),
+        ]
+        for label, name, files, fault in cases:
+            with self.subTest(case=label):
+                result, args = self.run_step("validate", name, files, warning_fault=fault)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertTrue(result.stderr)
+                self.assertNotIn("No dangerous patterns detected", result.stdout)
+                self.assertNotIn("URL scan complete", result.stdout)
+                self.assertIsNone(args)
+
+    def test_warning_scan_controls_preserve_exact_output(self):
+        cases = [
+            (
+                "dangerous-no-match",
+                "Security scan - Dangerous patterns",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                "Scanning for dangerous command patterns...\n✅ No dangerous patterns detected\n",
+            ),
+            (
+                "urls-no-match",
+                "Security scan - Suspicious URLs",
+                {"plugins/fixture.txt": "inert benign fixture\n"},
+                "Scanning for suspicious URLs...\n✅ URL scan complete\n",
+            ),
+            (
+                "warning-eval",
+                "Security scan - Dangerous patterns",
+                {"plugins/example.js": "eval(value)\n"},
+                "Scanning for dangerous command patterns...\n⚠️  WARNING: 'eval()' detected - potential command injection risk\nplugins/example.js:eval(value)\n✅ No dangerous patterns detected\n",
+            ),
+            (
+                "eval-exclusions",
+                "Security scan - Dangerous patterns",
+                {"plugins/README.md": "eval(value)\n", "plugins/redis.js": "this.redis.eval(value)\n"},
+                "Scanning for dangerous command patterns...\n✅ No dangerous patterns detected\n",
+            ),
+            (
+                "warning-numeric",
+                "Security scan - Dangerous patterns",
+                {"plugins/example.txt": "curl http://203.0.113.5\n"},
+                "Scanning for dangerous command patterns...\nplugins/example.txt:curl http://203.0.113.5\n⚠️  WARNING: curl to IP address detected - potential data exfiltration\n✅ No dangerous patterns detected\n",
+            ),
+            (
+                "warning-base64",
+                "Security scan - Dangerous patterns",
+                {"plugins/example.txt": "base64 -d inert\n"},
+                "Scanning for dangerous command patterns...\nplugins/example.txt:base64 -d inert\n⚠️  WARNING: base64 decoding detected - potential obfuscation\n✅ No dangerous patterns detected\n",
+            ),
+            (
+                "warning-http",
+                "Security scan - Suspicious URLs",
+                {"plugins/example.txt": "http://example.invalid\n"},
+                "Scanning for suspicious URLs...\nplugins/example.txt:http://example.invalid\n⚠️  WARNING: Non-HTTPS URLs detected (security risk)\n✅ URL scan complete\n",
+            ),
+            (
+                "url-exclusions",
+                "Security scan - Suspicious URLs",
+                {"plugins/example.txt": "http://localhost\nhttp://127.0.0.1\n"},
+                "Scanning for suspicious URLs...\n✅ URL scan complete\n",
+            ),
+            (
+                "warning-shortener",
+                "Security scan - Suspicious URLs",
+                {"plugins/example.txt": "https://bit.ly/inert\n"},
+                "Scanning for suspicious URLs...\nplugins/example.txt:https://bit.ly/inert\n⚠️  WARNING: URL shorteners detected (potential phishing)\n✅ URL scan complete\n",
+            ),
+        ]
+        for label, name, files, expected in cases:
+            with self.subTest(case=label):
+                result, args = self.run_step("validate", name, files)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, expected)
+                self.assertEqual(result.stderr, "")
+                self.assertIsNone(args)
 
 
 class PackageDiscoveryTests(unittest.TestCase):

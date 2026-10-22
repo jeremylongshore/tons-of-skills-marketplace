@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "d60d0fd8336a3f17c22db5d6e6525f5a6646799c701e798ed59f3a66709ed713"
+      "sha256": "8fc2cd4d045d4a4ede03ffc267936f29ed4cc4f57c5c9ba2b86f63d03f4118d5"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -80,7 +80,7 @@
       "job": "validate",
       "step": 13,
       "step_name": "Enforce the safety ratchet",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
       "step_sha256": "592009d8a7bc847feb3aa5b3cf192b99bd5dd9e91ac1e95296c0b444992a8cd2",
       "run_sha256": "0502a1eb56c0748cf95dd68637452811c09c4702d343a0334371517c8ca7ebf5",
       "anchor": {
@@ -120,7 +120,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 797,
+          "line": 829,
           "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
         }
       ],
@@ -146,7 +146,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 924,
+          "line": 956,
           "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
         }
       ],
@@ -158,7 +158,7 @@
       "job": "validate",
       "step": 32,
       "step_name": "Sync CLI marketplace catalog",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
       "step_sha256": "f52645d81bb0c1c2056ef11c0894d8afb04102c45f02a02254de662d8522e80b",
       "run_sha256": "232568b2bef02489e07c3a26b204604fe9cc0fee0e6f014d7352615ee45dc606",
       "anchor": {
@@ -184,7 +184,7 @@
       "job": "validate",
       "step": 56,
       "step_name": "Security scan - Informational sweep (non-blocking)",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
       "step_sha256": "b63dc39b057d39478a2ebfcf3a1448bc8f60f6d131dd634f9c628f258b3439c6",
       "run_sha256": "e30d8d8a76b7b725da343354b40414b821df1a9e2602de1177a3cc2baf79f417",
       "anchor": {
@@ -210,11 +210,11 @@
       "job": "validate",
       "step": 57,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
-      "step_sha256": "1a87a39ef3c3e82debb4444527b45958fb401073d665fb16a51c172ae633dcac",
-      "run_sha256": "f7069b2523a82829d6c847fb81ed2cbb8ead189c33b84742c4dc72952d040953",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
+      "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
+      "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
-        "line": 22,
+        "line": 33,
         "text": "DANGEROUS_RM=$(grep_allow_no_match -r -E \"rm\\s+-rf\\s+/(\\s|$|\\*)\" plugins/ | grep_allow_no_match -v \"/var/\" | grep_allow_no_match -v \"/tmp/\" | grep_allow_no_match -v \"/prometheus/\")"
       },
       "classification": "authorized_control_flow",
@@ -224,12 +224,12 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 570,
+          "line": 581,
           "text": "          # grep status 1 means no matches; operational errors must still fail."
         },
         {
           "path": "tests/test_ci_scan_failures.py",
-          "line": 93,
+          "line": 112,
           "text": "    def test_dangerous_scan_io_error_does_not_report_clean(self):"
         }
       ],
@@ -255,12 +255,12 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 1128,
+          "line": 1160,
           "text": "          # Normalize only grep's no-match status, never a find traversal error."
         },
         {
           "path": "tests/test_ci_scan_failures.py",
-          "line": 131,
+          "line": 150,
           "text": "    def test_discovery_find_error_with_partial_matches_fails_before_pytest(self):"
         }
       ],
@@ -272,7 +272,7 @@
       "job": "validate",
       "step": 29,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
       "step_sha256": "47c304f65274cfde778c04665640d7bd3ec8e439d0b21a944fa2af18f099190f",
       "run_sha256": "67f55c92e26550b1de1af470d30d67a0d9661a65e346011562b15196f4c086de",
       "anchor": {
@@ -306,7 +306,7 @@
       "job": "validate",
       "step": 29,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
       "step_sha256": "47c304f65274cfde778c04665640d7bd3ec8e439d0b21a944fa2af18f099190f",
       "run_sha256": "67f55c92e26550b1de1af470d30d67a0d9661a65e346011562b15196f4c086de",
       "anchor": {
@@ -329,7 +329,7 @@
       "job": "validate",
       "step": 30,
       "step_name": "Validate .mcp.json configs (advisory + unambiguous gate)",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
       "step_sha256": "5114e3fe37a1e6b52d6406dbc5887faf90d27e889613c7b5ce4a8212f55d4cf4",
       "run_sha256": "adeac5780a51f52948d5267db0492cd8800f1c8994cbaecc56295cd7d93ea55c",
       "anchor": {
@@ -352,15 +352,15 @@
       "job": "validate",
       "step": 57,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
-      "step_sha256": "1a87a39ef3c3e82debb4444527b45958fb401073d665fb16a51c172ae633dcac",
-      "run_sha256": "f7069b2523a82829d6c847fb81ed2cbb8ead189c33b84742c4dc72952d040953",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
+      "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
+      "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
-        "line": 30,
-        "text": "EVAL_USES=$(grep -r -E \"eval\\s*\\(\" plugins/ 2>/dev/null | grep -v \"README.md\" | grep -v \"this.redis.eval\" || true)"
+        "line": 41,
+        "text": "EVAL_USES=$(grep_allow_no_match -r -E \"eval\\s*\\(\" plugins/ | grep_allow_no_match -v \"README.md\" | grep_allow_no_match -v \"this.redis.eval\")"
       },
       "classification": "unresolved",
-      "rationale": "Warning-only scan role and bound remain unresolved.",
+      "rationale": "Only grep's no-match status 1 is normalized across discovery and both exclusion filters; operational errors fail the existing capture under pipefail. Matching eval findings remain warning-only; role and bounds remain unresolved.",
       "owner": null,
       "promotion": null,
       "authority": [],
@@ -372,7 +372,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - MCP plugin dependencies",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
       "step_sha256": "278ff7bd4b4ef8c8c9831a97f0900cfe96a3b372056bd47fe600f257d2ac7387",
       "run_sha256": "79505db3e5579cb6ddd98ccb918942e52a9bfbc51743499d0792ae9108527b27",
       "anchor": {
@@ -385,7 +385,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 654,
+        "line": 686,
         "sha256": "15f9c3dcaa247121df51133baf3f5b482a7339e966c3d79444c2919b988646ab"
       }
     },
@@ -448,7 +448,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 1226,
+        "line": 1258,
         "sha256": "bc0bb0c3f03adb8e4cfe7c48574c54154d1c17f1f641b4445c6173502e78e054"
       }
     },
@@ -478,15 +478,15 @@
       "job": "validate",
       "step": 57,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
-      "step_sha256": "1a87a39ef3c3e82debb4444527b45958fb401073d665fb16a51c172ae633dcac",
-      "run_sha256": "f7069b2523a82829d6c847fb81ed2cbb8ead189c33b84742c4dc72952d040953",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
+      "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
+      "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
-        "line": 37,
+        "line": 48,
         "text": "if grep -r -E \"curl.*http://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\" plugins/ 2>/dev/null; then"
       },
       "classification": "unresolved",
-      "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+      "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching numeric-HTTP findings remain warning-only; role and bounds remain unresolved.",
       "owner": null,
       "promotion": null,
       "authority": [],
@@ -498,15 +498,15 @@
       "job": "validate",
       "step": 57,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
-      "step_sha256": "1a87a39ef3c3e82debb4444527b45958fb401073d665fb16a51c172ae633dcac",
-      "run_sha256": "f7069b2523a82829d6c847fb81ed2cbb8ead189c33b84742c4dc72952d040953",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
+      "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
+      "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
-        "line": 42,
+        "line": 55,
         "text": "if grep -r -E \"base64\\s+-d\" plugins/ 2>/dev/null; then"
       },
       "classification": "unresolved",
-      "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+      "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching base64 findings remain warning-only; role and bounds remain unresolved.",
       "owner": null,
       "promotion": null,
       "authority": [],
@@ -518,15 +518,15 @@
       "job": "validate",
       "step": 58,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
-      "step_sha256": "55cb614dbd339897baa5cb802b2bc235c1678bd836508122c7de0eee7f6784ce",
-      "run_sha256": "0abeda4a456cfe340701c770a6177be5e955b9ae646872552383c8d01e2105c1",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
+      "step_sha256": "cf085d6c4bb286ac74f69520cace1e9c10a599199a2eed9e131753c239f6ec4d",
+      "run_sha256": "75ad2f24c7cc506ce4f5f829ec854fc79a041831ba4e0df0fca782fde7752f07",
       "anchor": {
-        "line": 3,
+        "line": 16,
         "text": "if grep -r -E \"http://[^l]\" plugins/ | grep -v \"localhost\" | grep -v \"127.0.0.1\" 2>/dev/null; then"
       },
       "classification": "unresolved",
-      "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+      "rationale": "Parent-shell PIPESTATUS handling checks every producer/filter status under pipefail, permitting no-match status 1 but failing operational errors. Matching insecure-URL findings remain warning-only; role and bounds remain unresolved.",
       "owner": null,
       "promotion": null,
       "authority": [],
@@ -538,15 +538,15 @@
       "job": "validate",
       "step": 58,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "66caaa87c0ba7e349a16cef9b0fc780234df8e8ce993848af4d3b6821a26bbe5",
-      "step_sha256": "55cb614dbd339897baa5cb802b2bc235c1678bd836508122c7de0eee7f6784ce",
-      "run_sha256": "0abeda4a456cfe340701c770a6177be5e955b9ae646872552383c8d01e2105c1",
+      "job_sha256": "4d3734224049b4eec60f1cafa945eb387d5ea2e8f6f6dc059534b574442a01a4",
+      "step_sha256": "cf085d6c4bb286ac74f69520cace1e9c10a599199a2eed9e131753c239f6ec4d",
+      "run_sha256": "75ad2f24c7cc506ce4f5f829ec854fc79a041831ba4e0df0fca782fde7752f07",
       "anchor": {
-        "line": 8,
+        "line": 23,
         "text": "if grep -r -E \"(bit\\.ly|tinyurl\\.com|goo\\.gl)\" plugins/ 2>/dev/null; then"
       },
       "classification": "unresolved",
-      "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
+      "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching short-URL findings remain warning-only; role and bounds remain unresolved.",
       "owner": null,
       "promotion": null,
       "authority": [],
