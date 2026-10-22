@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "dolt-mcp-vcs": {
-      "command": "dolt-mcp-server",
+      "command": "python3",
       "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/dolt-mcp-guard.py",
+        "--",
+        "dolt-mcp-server",
         "--stdio",
         "--dolt",
         "--host", "${DOLT_HOST:-127.0.0.1}",
