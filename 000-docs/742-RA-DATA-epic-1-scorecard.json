@@ -3489,7 +3489,7 @@
           {
             "authority": [
               {
-                "line": 1117,
+                "line": 1116,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
@@ -3610,8 +3610,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Corpus provisioning intent does not establish authority for the suppressed installation failure.",
-            "run_line": 22,
+            "rationale": "Full-lane optional runtime installation remains best-effort without case-specific failure authority; the three-file fixture dependency closure is installed strictly afterward in both lanes.",
+            "run_line": 14,
             "step": 13,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3636,7 +3636,7 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 1215
+              "source_line": 1214
             },
             "owner": null,
             "promotion": null,

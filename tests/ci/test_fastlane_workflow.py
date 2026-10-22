@@ -188,8 +188,8 @@ class WorkflowRoutingContractTests(unittest.TestCase):
             (root / "requirements.txt").touch()
             scripts = {
                 "python": "#!/bin/bash\nexit 0\n",
-                "find": '#!/bin/bash\nprintf "%s\\n" plugins/full-runtime/requirements.txt\n',
-                "pip": '#!/bin/bash\nprintf "%s\\n" "$@" >> "$TRACE"\nif [ "${FAIL_FIXTURE:-0}" = 1 ] && [[ "$*" == *lumera* ]]; then exit 23; fi\n',
+                "find": '#!/bin/bash\nprintf "%s\\n" plugins/full-runtime/requirements.txt plugins/optional-runtime/requirements.txt\n',
+                "pip": '#!/bin/bash\nprintf "%s\\n" "$@" >> "$TRACE"\nif [ -n "${FAIL_FIXTURE:-}" ] && [[ "$*" == *"$FAIL_FIXTURE"* ]]; then exit 23; fi\nif [[ "$*" == *optional-runtime* ]]; then exit 24; fi\n',
             }
             for name, content in scripts.items():
                 command = root / name
@@ -217,11 +217,26 @@ class WorkflowRoutingContractTests(unittest.TestCase):
                     }
                     actual = {arg for arg in installed if arg.startswith("plugins/")}
                     self.assertEqual(
-                        actual, fixtures if lane == "lightweight" else {"plugins/full-runtime/requirements.txt"}
+                        actual,
+                        fixtures
+                        if lane == "lightweight"
+                        else fixtures
+                        | {"plugins/full-runtime/requirements.txt", "plugins/optional-runtime/requirements.txt"},
                     )
-            env.update(CI_LANE="lightweight", FAIL_FIXTURE="1")
-            result = subprocess.run(["bash", "-c", step["run"]], cwd=root, env=env, text=True, capture_output=True)
-            self.assertEqual(result.returncode, 23, result.stderr)
+                    if lane != "lightweight":
+                        self.assertLess(
+                            installed.index("plugins/optional-runtime/requirements.txt"),
+                            installed.index("plugins/mcp/lumera-agent-memory/requirements.txt"),
+                        )
+            for lane, fixture in ((lane, fixture) for lane in ("lightweight", "full") for fixture in sorted(fixtures)):
+                with self.subTest(failed_fixture_lane=lane, fixture=fixture):
+                    trace.write_text("")
+                    env.update(CI_LANE=lane, FAIL_FIXTURE=fixture)
+                    result = subprocess.run(
+                        ["bash", "-c", step["run"]], cwd=root, env=env, text=True, capture_output=True
+                    )
+                    self.assertEqual(result.returncode, 23, result.stderr)
+                    self.assertNotIn("pyyaml", trace.read_text().splitlines())
 
 
 class TrustedClassifierExecutionTests(unittest.TestCase):

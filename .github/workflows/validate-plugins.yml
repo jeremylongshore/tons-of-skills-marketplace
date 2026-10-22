@@ -1041,21 +1041,20 @@ jobs:
             pip install -r requirements.txt
           fi
 
-          if [ "${CI_LANE:-}" = lightweight ]; then
-            # Complete dependency closure for the unchanged Python fixture
-            # suite. No tests or coverage are omitted. Changes to any source,
-            # test, or requirements file select the full provisioning below.
-            pip install \
-              -r plugins/mcp/lumera-agent-memory/requirements.txt \
-              -r plugins/security/penetration-tester/skills/performing-penetration-testing/scripts/requirements.txt \
-              -r plugins/crypto/trading-strategy-backtester/requirements.txt
-          else
+          if [ "${CI_LANE:-}" != lightweight ]; then
             # Preserve full-lane provisioning of plugin runtime dependencies.
             find plugins/ -name "requirements.txt" | while read -r req; do
               echo "Installing deps from $req"
               pip install -r "$req" || true
             done
           fi
+
+          # Install the fixture dependency closure strictly in both lanes after
+          # runtime provisioning, which can change the installed packages.
+          pip install \
+            -r plugins/mcp/lumera-agent-memory/requirements.txt \
+            -r plugins/security/penetration-tester/skills/performing-penetration-testing/scripts/requirements.txt \
+            -r plugins/crypto/trading-strategy-backtester/requirements.txt
 
           # Install additional testing tools
           pip install pyyaml jsonschema
