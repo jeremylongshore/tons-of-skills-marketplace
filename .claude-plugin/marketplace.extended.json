@@ -3186,7 +3186,7 @@
       "name": "formatter",
       "source": "./plugins/examples/formatter",
       "description": "Code formatting plugin using hooks to auto-format on save",
-      "version": "2.27.0",
+      "version": "2.26.0",
       "category": "examples",
       "keywords": [
         "formatting",
@@ -6568,7 +6568,7 @@
       "name": "jeremy-github-actions-gcp",
       "source": "./plugins/devops/jeremy-github-actions-gcp",
       "description": "GitHub Actions CI/CD workflows for Google Cloud and Vertex AI deployments",
-      "version": "2.28.0",
+      "version": "2.27.0",
       "category": "devops",
       "keywords": [
         "github-actions",
