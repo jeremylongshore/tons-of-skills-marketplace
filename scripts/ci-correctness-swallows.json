@@ -585,11 +585,32 @@
         "line": 7,
         "text": "  BASE=\"$(git rev-parse --verify 'HEAD~1^{commit}' 2>/dev/null)\""
       },
-      "classification": "unresolved",
-      "rationale": "Unknown or zero push bases fall back only to a verified parent commit; unavailable parents fail before scanning. Broader Git diff error handling remains unresolved in claude-xicy.",
+      "classification": "authorized_control_flow",
+      "rationale": "Zero or unavailable push bases select only the verified parent commit under 793; unavailable parents fail before scanning, and comparison/staged/untracked enumeration failures fail operationally rather than reporting clean. Available-base scans preserve full grading.",
       "owner": null,
       "promotion": null,
-      "authority": [],
+      "authority": [
+        {
+          "path": "000-docs/793-AA-AACR-epic-4-scan-push-main.md",
+          "line": 19,
+          "text": "unknown-`before` fallback to the parent commit so a forced push cannot silently pass) with"
+        },
+        {
+          "path": "tests/test_ci_push_scan_parent.py",
+          "line": 77,
+          "text": "    def test_available_parent_preserves_full_refuse_grading(self):"
+        },
+        {
+          "path": "tests/test_ci_push_scan_parent.py",
+          "line": 94,
+          "text": "    def assert_fails_before_scanner(self):"
+        },
+        {
+          "path": "scripts/scan-synced-content.test.mjs",
+          "line": 1076,
+          "text": "  test(`changed CLI fails operationally: ${JSON.stringify(options)}`, () => {"
+        }
+      ],
       "deadline_marker": null
     },
     {
