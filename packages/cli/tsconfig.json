@@ -14,6 +14,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "removeComments": true,
     "types": ["node"]
   },
   "include": ["src/**/*"],
