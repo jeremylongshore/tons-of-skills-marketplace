@@ -1,3 +1,5 @@
+# Platform keys and handle formats are validated by scripts/ci/validate_funding.py.
+# Adding a platform requires a validator update and the full CI lane.
 github: [jeremylongshore]
 buy_me_a_coffee: jeremylongshore
 ko_fi: jeremylongshore
