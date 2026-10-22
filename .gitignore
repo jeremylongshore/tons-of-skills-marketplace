@@ -68,6 +68,12 @@
 # was explicitly NOT done). No inherent secrets risk; transparency is the point.
 **/*/000-docs/
 **/*/000-docs/**
+# CoreWeave: publish only the four reviewed GPU-operations research records.
+!plugins/saas-packs/coreweave-pack/000-docs/
+!plugins/saas-packs/coreweave-pack/000-docs/002-RL-RSRC-platform-api-auth.md
+!plugins/saas-packs/coreweave-pack/000-docs/003-RL-RSRC-gpu-node-fabric.md
+!plugins/saas-packs/coreweave-pack/000-docs/004-RL-RSRC-training-storage-checkpoints.md
+!plugins/saas-packs/coreweave-pack/000-docs/005-RL-RSRC-inference-cost-observability.md
 !plugins/saas-packs/databricks-pack/000-docs/
 !plugins/saas-packs/databricks-pack/000-docs/**
 # EXCEPTION: Grammarly v2 public contract research, architecture decisions,
