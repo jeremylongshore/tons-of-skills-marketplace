@@ -61,6 +61,8 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     git('init', '--quiet');
     git('config', 'user.name', 'Portable Test');
     git('config', 'user.email', 'portable@example.invalid');
+    git('config', 'core.filemode', 'false');
+    git('config', 'core.autocrlf', 'false');
     git('remote', 'add', 'origin', 'https://github.com/example/skills');
     await commit();
   });
@@ -126,8 +128,12 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
         await commit();
       }
       if (state === 'symlink') {
-        await fs.symlink('../../../../../../outside', path.join(source, 'scripts', 'link'));
-        await commit();
+        const linkedPath = `${sourcePath}/scripts/link`;
+        await fs.writeFile(path.join(root, linkedPath), '../../../../../../outside');
+        const blob = git('hash-object', '-w', '--', linkedPath);
+        git('update-index', '--add', '--cacheinfo', `120000,${blob},${linkedPath}`);
+        git('config', 'core.symlinks', 'false');
+        git('commit', '--quiet', '-m', 'test: portable Git symlink');
       }
       if (state === 'mirror') {
         await fs.writeFile(path.join(root, 'plugins/testing/demo-plugin/.source.json'), '{}');
@@ -144,7 +150,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
       await fs.mkdir(destinationRoot, { recursive: true });
       if (kind === 'directory') await fs.mkdir(destination);
       if (kind === 'file') await fs.writeFile(destination, 'user data');
-      if (kind === 'symlink') await fs.symlink(source, destination);
+      if (kind === 'symlink') await fs.symlink(source, destination, 'junction');
       await expect(installPortableTree(options())).rejects.toThrow(/overwrite/);
       expect(await fs.lstat(destination)).toBeDefined();
     },
@@ -154,7 +160,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     const outside = path.join(root, 'outside');
     await fs.mkdir(outside);
     await fs.mkdir(path.dirname(destinationRoot), { recursive: true });
-    await fs.symlink(outside, destinationRoot);
+    await fs.symlink(outside, destinationRoot, 'junction');
     await expect(installPortableTree(options())).rejects.toThrow(/real directories/);
     await expect(installPortableTree(options(true))).rejects.toThrow(/real directories/);
     expect(await fs.readdir(outside)).toEqual([]);
@@ -205,7 +211,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
         vi.spyOn(fs, 'writeFile').mockImplementation(async (file, ...args) => {
           const name = String(file);
           if (
-            (phase === 'copy' && name.endsWith('/SKILL.md')) ||
+            (phase === 'copy' && path.basename(name) === 'SKILL.md') ||
             (phase === 'receipt' && name.endsWith(PORTABLE_INSTALL_RECEIPT_FILE)) ||
             (phase === 'evidence' && name.includes('.ccpi-evidence'))
           )
@@ -221,7 +227,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     const write = fs.writeFile.bind(fs);
     vi.spyOn(fs, 'writeFile').mockImplementation(async (file, ...args) => {
       const result = await write(file, ...args);
-      if (String(file).endsWith('/scripts/run.sh')) await write(file, 'corrupted');
+      if (String(file).endsWith(path.join('scripts', 'run.sh'))) await write(file, 'corrupted');
       return result;
     });
     await expect(installPortableTree(options())).rejects.toThrow(/source digest/);
@@ -229,7 +235,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     vi.restoreAllMocks();
     vi.spyOn(fs, 'writeFile').mockImplementation(async (file, ...args) => {
       const result = await write(file, ...args);
-      if (String(file).includes('.install-') && String(file).endsWith('/SKILL.md')) {
+      if (String(file).includes('.install-') && path.basename(String(file)) === 'SKILL.md') {
         await write(path.join(source, 'SKILL.md'), `${skill}changed during staging`);
       }
       return result;
