@@ -5,6 +5,8 @@ from pathlib import Path
 import re
 import unittest
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PACK = ROOT / "plugins" / "productivity" / "publishing-skills"
@@ -22,6 +24,12 @@ class PublishingSkillsContractTest(unittest.TestCase):
     def setUp(self) -> None:
         self.skill_files = sorted(SKILLS.glob("*/SKILL.md"))
         self.assertEqual(set(EXPECTED_SKILLS), {path.parent.name for path in self.skill_files})
+
+    def test_reviewed_local_hardening_is_frozen_against_upstream_sync(self) -> None:
+        sources = yaml.safe_load((ROOT / "sources.yaml").read_text())["sources"]
+        source = next(item for item in sources if item["name"] == "publishing-skills")
+        self.assertIs(source.get("curated"), True)
+        self.assertEqual(source["repo"], "AutomateLab-tech/publishing-skills")
 
     def test_marketplace_contract_and_bounded_size(self) -> None:
         for skill_file in self.skill_files:

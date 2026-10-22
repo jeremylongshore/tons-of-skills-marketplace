@@ -100,6 +100,7 @@ export function createReplyPoster(client: WebClient): ReplyPoster {
     const res = await client.chat.postMessage({
       channel: obligation.channel,
       text: obligation.payload,
+      ...(obligation.blocks !== undefined ? { blocks: obligation.blocks as any } : {}),
       thread_ts: obligation.thread || undefined,
       unfurl_links: false,
       unfurl_media: false,
@@ -136,6 +137,10 @@ export interface DurableReply {
   channel: string
   thread: string
   text: string
+  /** Block Kit blocks for a rich-layout reply; `text` is the notification
+   *  fallback. Recorded on the obligation so poller redelivery re-sends the
+   *  same rich message. */
+  blocks?: Array<Record<string, unknown>>
 }
 
 export type DurableDeliveryResult =
@@ -193,12 +198,14 @@ export async function deliverReplyDurably(
     channel: reply.channel,
     thread: reply.thread,
     payload: reply.text,
+    ...(reply.blocks !== undefined ? { blocks: reply.blocks } : {}),
   })
   const obligation: DeliveryObligation = {
     id: reply.id,
     channel: reply.channel,
     thread: reply.thread,
     payload: reply.text,
+    ...(reply.blocks !== undefined ? { blocks: reply.blocks } : {}),
     attempts: 0,
     state: 'pending',
     createdAt: 0,
@@ -481,6 +488,8 @@ export interface DurableFileReply {
   thread: string
   chunks: string[]
   files: { path: string; filename: string; comment?: string }[]
+  /** Block Kit blocks, attached to the first text chunk's obligation. */
+  blocks?: Array<Record<string, unknown>>
 }
 
 export type DurableFileDeliveryResult =
@@ -528,6 +537,9 @@ export async function deliverFileReplyDurably(
     channel: reply.channel,
     thread: reply.thread,
     payload,
+    // Blocks ride on the FIRST text message only (a blocks reply is one
+    // message; trailing chunks, if any, are plain-text continuation).
+    ...(i === 0 && reply.blocks !== undefined ? { blocks: reply.blocks } : {}),
   }))
   const fileRecords = reply.files.map((upload, j) => ({
     id: `${reply.id}:file:${j}`,

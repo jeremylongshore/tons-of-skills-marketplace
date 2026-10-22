@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Xquik Contributors
+# SPDX-License-Identifier: MIT
+
 from __future__ import annotations
 
 import json
@@ -71,6 +74,38 @@ def build_headers(key: str, *, has_body: bool) -> dict[str, str]:
     return headers
 
 
+def _agent_readable_response(response: httpx.Response) -> bool:
+    content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
+    return (
+        not content_type
+        or content_type.startswith("text/")
+        or content_type == "application/json"
+        or content_type.endswith("+json")
+    )
+
+
+def _response_payload(response: httpx.Response) -> Any:
+    if response.is_success and not _agent_readable_response(response):
+        return {
+            "success": False,
+            "error": "Binary response unavailable. Use the Xquik REST API to download it.",
+            "status_code": response.status_code,
+            "content_type": response.headers.get("content-type", ""),
+        }
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = {"text": response.text}
+    if not response.is_success:
+        return {
+            "success": False,
+            "error": "API request failed. Review the status and response.",
+            "status_code": response.status_code,
+            "response": payload,
+        }
+    return payload
+
+
 def request(
     method: Any,
     path: Any,
@@ -81,16 +116,22 @@ def request(
     normalized_path = _request_text(path)
     params = normalize_query_params(query)
     if not normalized_path.startswith(API_V1_PREFIX):
-        return {"success": False, "error": f"Path must start with {API_V1_PREFIX}"}
+        return {
+            "success": False,
+            "error": f"Invalid path. Start it with {API_V1_PREFIX}",
+        }
     if "?" in normalized_path or "#" in normalized_path:
         return {
             "success": False,
-            "error": "Pass query parameters through the query object, not in the path.",
+            "error": "Query parameters misplaced. Pass them through the query object.",
         }
 
     key = api_key()
     if not key:
-        return {"success": False, "error": "XQUIK_API_KEY is not configured."}
+        return {
+            "success": False,
+            "error": "API key missing. Set XQUIK_API_KEY in the runtime environment.",
+        }
 
     url = urljoin(base_url(), normalized_path.lstrip("/"))
     try:
@@ -102,20 +143,12 @@ def request(
                 json=body,
                 headers=build_headers(key, has_body=body is not None),
             )
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {"text": response.text}
-        if not response.is_success:
-            return {
-                "success": False,
-                "error": "API request failed.",
-                "status_code": response.status_code,
-                "response": payload,
-            }
-        return payload
-    except httpx.HTTPError as exc:
-        return {"success": False, "error": str(exc)}
+        return _response_payload(response)
+    except httpx.HTTPError:
+        return {
+            "success": False,
+            "error": "Network request failed. Check the connection and retry.",
+        }
 
 
 def dumps(data: Any) -> str:

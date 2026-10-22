@@ -1,50 +1,80 @@
 #!/usr/bin/env bash
-# Initialize a Box workspace: download folder contents and build a manifest.
+# Initialize an opt-in local workspace from one Box folder.
 # Usage: box-init-workspace.sh <BOX_FOLDER_ID> [WORKSPACE_PATH]
-# Requires: box CLI (@box/cli), jq
+# Remote reads happen here; later Write/Edit hooks only queue local changes.
 
 set -euo pipefail
 
-BOX_FOLDER_ID="${1:?Usage: box-init-workspace.sh <BOX_FOLDER_ID> [WORKSPACE_PATH]}"
-WORKSPACE="${2:-/tmp/box-workspace}"
+box_folder_id="${1:?Usage: box-init-workspace.sh <BOX_FOLDER_ID> [WORKSPACE_PATH]}"
+workspace_path="${2:-/tmp/box-workspace}"
+config_root="${XDG_CONFIG_HOME:-${HOME}/.config}/box-cloud-filesystem"
+config_path="${config_root}/config.json"
 
-# Verify Box CLI is available and authenticated
-if ! command -v box &>/dev/null; then
-  echo "Error: box CLI not found. Install with: npm install --global @box/cli" >&2
+if ! command -v box >/dev/null 2>&1; then
+  echo "Error: Box CLI not found. Review installation at https://github.com/box/boxcli" >&2
   exit 1
 fi
 
-if ! box users:get --me &>/dev/null; then
-  echo "Error: Box CLI not authenticated. Run: box login" >&2
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Error: jq is required." >&2
   exit 1
 fi
 
-mkdir -p "$WORKSPACE"
+if ! [[ "$box_folder_id" =~ ^[0-9]+$ ]]; then
+  echo "Error: Box folder ID must contain digits only." >&2
+  exit 1
+fi
 
-# Download folder contents
-echo "Downloading Box folder $BOX_FOLDER_ID to $WORKSPACE..."
-box folders:download "$BOX_FOLDER_ID" --destination "$WORKSPACE"
+if ! box users:get me --json >/dev/null; then
+  echo "Error: Box CLI is not authenticated. Run 'box login' and retry." >&2
+  exit 1
+fi
 
-# Build manifest (filename -> file_id mapping for sync hooks)
-echo "Building file manifest..."
-box folders:items "$BOX_FOLDER_ID" --json --fields name,id,content_modified_at \
-  > "$WORKSPACE/.box-manifest.json"
+if [ -e "$workspace_path" ] && [ ! -d "$workspace_path" ]; then
+  echo "Error: Workspace target exists and is not a directory." >&2
+  exit 1
+fi
 
-# Save workspace config for hooks to discover
-cat > "${HOME}/.box-cloud-filesystem.json" <<EOF
-{
-  "workspace": "$WORKSPACE",
-  "box_folder_id": "$BOX_FOLDER_ID",
-  "initialized_at": "$(date -Iseconds)"
-}
-EOF
+if [ -d "$workspace_path" ] &&
+  [ -n "$(find "$workspace_path" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+  echo "Error: Workspace must be new or empty to avoid overwriting local files." >&2
+  exit 1
+fi
 
-ITEM_COUNT=$(jq '.entries | length' "$WORKSPACE/.box-manifest.json" 2>/dev/null || echo "0")
+mkdir -p "$workspace_path" "$config_root"
+workspace_path="$(cd "$workspace_path" && pwd -P)"
 
-echo ""
+echo "Downloading Box folder ${box_folder_id} to ${workspace_path}..."
+box folders:download "$box_folder_id" \
+  --destination "$workspace_path" \
+  --create-path
+
+echo "Building top-level file manifest..."
+box folders:items "$box_folder_id" \
+  --json \
+  --fields name,id,type,content_modified_at \
+  > "${workspace_path}/.box-manifest.json"
+
+temporary_config="$(mktemp "${config_root}/config.XXXXXX")"
+jq -n \
+  --arg workspace "$workspace_path" \
+  --arg folder_id "$box_folder_id" \
+  --arg initialized_at "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+  '{
+    workspace: $workspace,
+    box_folder_id: $folder_id,
+    initialized_at: $initialized_at,
+    queue_changes: true,
+    auto_upload: false
+  }' > "$temporary_config"
+chmod 600 "$temporary_config"
+mv "$temporary_config" "$config_path"
+
+item_count="$(jq '[.entries[]? | select(.type == "file")] | length' \
+  "${workspace_path}/.box-manifest.json")"
+
 echo "Box workspace initialized:"
-echo "  Local path:  $WORKSPACE"
-echo "  Box folder:  $BOX_FOLDER_ID"
-echo "  Files:       $ITEM_COUNT"
-echo ""
-echo "Files written or edited inside $WORKSPACE will auto-sync to Box."
+echo "  Local path: ${workspace_path}"
+echo "  Box folder: ${box_folder_id}"
+echo "  Top-level files: ${item_count}"
+echo "  Write/Edit behavior: queue only; no automatic Box upload"

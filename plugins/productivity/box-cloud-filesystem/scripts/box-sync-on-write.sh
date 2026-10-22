@@ -1,65 +1,50 @@
 #!/usr/bin/env bash
-# PostToolUse hook: auto-sync files to Box after Write/Edit
-# Reads tool_input JSON from stdin, uploads changed files to Box cloud storage.
-# Only fires for files inside the configured Box workspace directory.
-# Requires: box CLI (@box/cli), jq
+# PostToolUse hook: queue changed local files for a reviewed Box sync.
+# This hook never calls Box and never performs a remote write.
 
 set -euo pipefail
+umask 077
 
-INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.file // empty' 2>/dev/null)
+input_json="$(cat)"
+file_path="$(jq -r '.tool_input.file_path // .tool_input.file // empty' \
+  <<<"$input_json" 2>/dev/null)"
+[ -n "$file_path" ] || exit 0
 
-# Exit silently if no file path extracted
-[ -z "$FILE_PATH" ] && exit 0
+config_root="${XDG_CONFIG_HOME:-${HOME}/.config}/box-cloud-filesystem"
+config_path="${config_root}/config.json"
+[ -f "$config_path" ] || exit 0
 
-# Exit if Box workspace not configured
-BOX_CONFIG="${HOME}/.box-cloud-filesystem.json"
-[ ! -f "$BOX_CONFIG" ] && exit 0
+queue_changes="$(jq -r '.queue_changes // false' "$config_path" 2>/dev/null)"
+[ "$queue_changes" = "true" ] || exit 0
 
-WORKSPACE=$(jq -r '.workspace' "$BOX_CONFIG" 2>/dev/null)
-BOX_FOLDER_ID=$(jq -r '.box_folder_id' "$BOX_CONFIG" 2>/dev/null)
+workspace_path="$(jq -r '.workspace // empty' "$config_path" 2>/dev/null)"
+[ -n "$workspace_path" ] && [ -d "$workspace_path" ] || exit 0
 
-# Only sync files inside the configured workspace
-[[ "$FILE_PATH" != "$WORKSPACE"* ]] && exit 0
+canonical_workspace="$(cd "$workspace_path" && pwd -P)"
+[ -e "$file_path" ] || exit 0
+[ ! -L "$file_path" ] || exit 0
+file_directory="$(cd "$(dirname "$file_path")" && pwd -P)"
+canonical_file="${file_directory}/$(basename "$file_path")"
 
-# Verify the file actually exists on disk
-[ ! -f "$FILE_PATH" ] && exit 0
+case "$canonical_file" in
+  "$canonical_workspace"/*) ;;
+  *) exit 0 ;;
+esac
 
-MANIFEST="$WORKSPACE/.box-manifest.json"
-BASENAME=$(basename "$FILE_PATH")
-ACTION="unknown"
-FILE_ID=""
-NEW_ID=""
+[ -f "$canonical_file" ] || exit 0
+relative_path="${canonical_file#"$canonical_workspace"/}"
+case "$relative_path" in
+  *$'\n'*|*$'\r'*) exit 0 ;;
+esac
+normalized_path="$(printf '%s' "$relative_path" | tr '[:upper:]' '[:lower:]')"
 
-if [ -f "$MANIFEST" ]; then
-  FILE_ID=$(jq -r --arg name "$BASENAME" \
-    '.entries[]? | select(.name == $name) | .id' "$MANIFEST" 2>/dev/null)
+case "/$normalized_path" in
+  */.*|*credential*|*secret*|*token*|*private-key*|*.pem|*.p12|*.pfx)
+    exit 0
+    ;;
+esac
 
-  if [ -n "$FILE_ID" ] && [ "$FILE_ID" != "null" ]; then
-    # Known file — upload as new version (preserves history)
-    box files:versions:upload "$FILE_ID" "$FILE_PATH" 2>/dev/null
-    ACTION="version_upload"
-  else
-    # New file — upload to the Box folder
-    RESULT=$(box files:upload "$FILE_PATH" --parent-id "$BOX_FOLDER_ID" --json 2>/dev/null)
-    NEW_ID=$(echo "$RESULT" | jq -r '.entries[0].id // empty' 2>/dev/null)
-
-    # Append new file to the manifest so subsequent edits use version upload
-    if [ -n "$NEW_ID" ] && [ "$NEW_ID" != "null" ]; then
-      TIMESTAMP=$(date -Iseconds)
-      jq --arg name "$BASENAME" --arg id "$NEW_ID" --arg ts "$TIMESTAMP" \
-        '.entries += [{"name": $name, "id": $id, "content_modified_at": $ts}]' \
-        "$MANIFEST" > "${MANIFEST}.tmp" && mv "${MANIFEST}.tmp" "$MANIFEST"
-    fi
-    ACTION="new_upload"
-  fi
-else
-  # No manifest — upload as new file
-  RESULT=$(box files:upload "$FILE_PATH" --parent-id "$BOX_FOLDER_ID" --json 2>/dev/null)
-  NEW_ID=$(echo "$RESULT" | jq -r '.entries[0].id // empty' 2>/dev/null)
-  ACTION="new_upload"
+pending_path="${canonical_workspace}/.box-sync-pending"
+if ! grep -Fqx -- "$relative_path" "$pending_path" 2>/dev/null; then
+  printf '%s\n' "$relative_path" >> "$pending_path"
 fi
-
-# Log the sync action for the Stop hook summary
-LOG_FILE="$WORKSPACE/.box-sync.log"
-echo "$(date -Iseconds) $ACTION $BASENAME ${FILE_ID:-$NEW_ID}" >> "$LOG_FILE"

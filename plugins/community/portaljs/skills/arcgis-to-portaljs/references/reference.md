@@ -79,7 +79,9 @@ one push (bytes → Giftless/R2, no GitHub remote required) → `git lfs prune`.
 `${R2_PUBLIC_BASE:-https://data.portaljs.com}/lfs/datopian/<slug>/<oid>`. OSS self-host signs
 locally with `giftless/mint-token.py`. Dual-tier `datasets.json` entry shape: see
 `portaljs-add-geo` §10 (`tiles` pmtiles + `geo` geoparquet + `source` original, with a
-bbox-first `query` filled from the layer extent).
+bbox-first `query` filled from the layer extent). Also emit the sync ledger
+`arcgis-sync-state.json` (per-layer `serviceUrl`/`recordCount`/`dataLastEditDate`/`extent`) so the
+Phase-3 scheduled sync can detect drift — see [`sync-and-cutover.md`](sync-and-cutover.md).
 
 ## Phasing (epic po-0qe §6)
 
@@ -88,7 +90,7 @@ bbox-first `query` filled from the layer extent).
 | 0 | Harvest + export + convert + publish + parity (the automatable core) | **Yes** |
 | 1 | Lewisville shadow portal (single-publisher, geo-heavy) | Run the skill; own bead |
 | 2 | Stream (multi-publisher orgs, content pages, triage workflow) | Own bead |
-| 3 | Scheduled sync + cutover playbook (re-harvest, redirects, DNS) | Own bead |
+| 3 | Scheduled sync + cutover playbook (re-harvest, redirects, DNS) | **Yes** → [`references/sync-and-cutover.md`](sync-and-cutover.md) |
 | 4 | Koop FeatureServer-compat adapter (keep old REST consumers) | Own bead (optional) |
 
 3D scenes / StoryMaps / drone imagery have no serverless open equivalent — link-out or leave

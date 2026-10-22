@@ -102,6 +102,25 @@ collect_skills() {
 _usage_scan() { collect_skills "$1" "$2" "$4"; }
 for_each_skill_dir _usage_scan
 
+# --- Transcript-based Skill invocations (v1.7) ---
+# Session transcripts record every Skill tool_use — including skills Claude
+# auto-triggered, which the slash-command history can't see. Pre-filter with
+# grep (transcript trees run to GBs) over files inside the lookback window.
+export SKILL_CALLS_TMP=$(mktemp)
+trap "rm -f $SKILLS_TMPFILE $SKILL_CALLS_TMP" EXIT
+_DAYS=$(( WEEKS * 7 ))
+_seen_tr_roots=""
+for _proj_root in "${CLAUDE_CONFIG_DIR:-/nonexistent}/projects" "$HOME/.claude/projects" "$HOME"/.claude-account-*/projects; do
+    [[ -d "$_proj_root" ]] || continue
+    _rr=$(cd "$_proj_root" 2>/dev/null && pwd -P || echo "$_proj_root")
+    case "|$_seen_tr_roots|" in *"|$_rr|"*) continue ;; esac
+    _seen_tr_roots="$_seen_tr_roots|$_rr"
+    find "$_proj_root" -name "*.jsonl" -type f -mtime "-$_DAYS" 2>/dev/null \
+        | while IFS= read -r _tf; do
+            LC_ALL=C grep -h '"name":"Skill"' "$_tf" 2>/dev/null || true
+        done >> "$SKILL_CALLS_TMP"
+done
+
 # --- Run analysis ---
 python3 << 'PYEOF'
 import json
@@ -280,6 +299,42 @@ for line in history_lines:
                     if s["name"] not in last_used or entry_time > last_used[s["name"]]:
                         last_used[s["name"]] = entry_time
                     weekly_totals[week_key] += 1
+
+# --- Transcript Skill invocations (real tool_use records) ---
+# Highest-fidelity source: includes auto-triggered skills. Counted into
+# explicit_counts under the matching registry name (qualified or bare).
+SKILL_CALLS = os.environ.get("SKILL_CALLS_TMP", "")
+_sk_rx = re.compile(r'"name":"Skill".{0,400}?"skill":"([^"]+)"', re.S)
+_ts_rx = re.compile(r'"timestamp":"([0-9T:.\-]+)')
+if SKILL_CALLS and os.path.isfile(SKILL_CALLS):
+    with open(SKILL_CALLS, errors="replace") as f:
+        for line in f:
+            for m in _sk_rx.finditer(line):
+                inv = m.group(1)
+                ts_m = _ts_rx.search(line)
+                try:
+                    t = datetime.fromisoformat(ts_m.group(1)[:19]).replace(tzinfo=timezone.utc) if ts_m else None
+                except Exception:
+                    t = None
+                if t is None or t < cutoff:
+                    continue
+                wk = t.strftime("%Y-W%W")
+                matched = None
+                for s in skills:
+                    if inv == s["name"]:
+                        matched = s
+                        break
+                if matched is None and ":" not in inv:
+                    for s in skills:
+                        if ":" in s["name"] and inv == s["name"].split(":", 1)[1]:
+                            matched = s
+                            break
+                if matched is not None:
+                    name = matched["name"]
+                    explicit_counts[name][wk] += 1
+                    if name not in last_used or t > last_used[name]:
+                        last_used[name] = t
+                    weekly_totals[wk] += 1
 
 # --- Build results ---
 all_skill_names = [s["name"] for s in skills]

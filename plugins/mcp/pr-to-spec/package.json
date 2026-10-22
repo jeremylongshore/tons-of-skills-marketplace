@@ -1,64 +1,37 @@
 {
-  "name": "pr-to-spec",
+  "name": "@intentsolutionsio/pr-to-spec",
   "private": true,
-  "version": "0.8.0",
-  "description": "Convert code changes into structured, agent-consumable spec artifacts",
-  "type": "module",
-  "main": "dist/index.js",
-  "bin": {
-    "pr-to-spec": "dist/cli/index.js"
-  },
-  "files": [
-    "dist/",
-    "action.yml",
-    "README.md",
-    "LICENSE"
-  ],
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "lint": "biome check src/ tests/",
-    "lint:fix": "biome check --write src/ tests/",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "format": "biome format --write src/ tests/",
-    "check": "pnpm lint && pnpm typecheck && pnpm test",
-    "bundle:action": "pnpm build && ncc build dist/action/index.js -o dist/action-bundle --minify",
-    "prepublishOnly": "pnpm check && pnpm build"
-  },
+  "version": "0.8.1",
+  "description": "The flight envelope for agentic coding. Convert PRs and local diffs into structured, agent-consumable specs with intent drift detection.",
   "keywords": [
-    "github",
-    "pull-request",
-    "prompt",
-    "spec",
-    "ai",
+    "mcp",
+    "pr-analysis",
     "code-review",
-    "claude",
-    "llm",
-    "developer-tools"
+    "intent-drift",
+    "agent-protocol",
+    "spec-generation",
+    "drift-detection",
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
   ],
-  "author": "Jeremy Longshore",
-  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jeremylongshore/pr-to-spec.git"
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/mcp/pr-to-spec"
   },
-  "engines": {
-    "node": ">=20.0.0"
+  "homepage": "https://tonsofskills.com/plugins/pr-to-spec",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Jeremy Longshore",
+    "email": "jeremy@intentsolutions.io"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "@octokit/rest": "^21.1.1",
-    "commander": "^13.1.0",
-    "yaml": "^2.9.0",
-    "zod": "^3.25.76"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.19.19",
-    "@vercel/ncc": "^0.38.4",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+  "files": [
+    "README.md",
+    ".claude-plugin"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install pr-to-spec\\\\n  or /plugin install pr-to-spec@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
   }
 }

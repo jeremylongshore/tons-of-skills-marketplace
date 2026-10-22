@@ -1,5 +1,71 @@
 # Changelog
 
+## v1.8.0 (2026-09-30)
+
+Final feature release: the project moves to maintenance mode. Claude Code now covers the core use case natively: `/skill-doctor` (per-skill context cost and usage, never-invoked skills), `/doctor` (unused skills, MCP servers and plugins against their context cost, with fixes) and `/doctor prompt-audit` (outdated or conflicting instructions in CLAUDE.md, skills, agents and commands). If you only use Claude Code and only want to trim context, use those.
+
+The janitor stays for what still isn't built in: the security scan, the pre-install check, duplicate detection, Codex support and hard deletes. Bug fixes and PRs are still welcome.
+
+### Fixed
+
+Both contributed by [@jerryhuangzq-lang](https://github.com/jerryhuangzq-lang) (#9). Both logged `[FIXED]` and exited 0, so the damage only showed up in the written file.
+
+- **`fix --apply` no longer corrupts block-scalar frontmatter.** The missing-`metadata.version` fix anchored on `^description:`, which also matches the `description: >` / `description: |` header, and spliced the new block straight after it. That ended the scalar early and left frontmatter that no longer parsed as YAML. The block is now inserted just before the closing `---` (LF and CRLF). When no closing delimiter is found, the file is left alone instead of reporting a fix that didn't happen.
+- **`fix --apply` no longer writes through symlinked skill dirs.** The plugin guard only inspected the path string, so a symlink into a plugin marketplace clone, `~/.agents/skills` or a personal repo was followed and its target edited. Symlinked skills are now skipped with `[SKIP] name: symlink -> target - edit at source`.
+- Regression tests for both (`blocky`, `victim`) in `tests/test_cli_regression.sh`. The block-scalar test asserts position as well as bytes, because the broken placement inserted the same two lines and would have passed a byte-identity check.
+
+### Changed
+
+- README leads with the maintenance-mode status and points to the built-in Claude Code commands.
+- Marketplace description refreshed to match the GitHub About text.
+
+## v1.7.1 (2026-08-11)
+
+Patch release: SKILL.md frontmatter parsing is now robust across lint, scan, and fix on real-world collections — CRLF files, apostrophes, and every YAML block-scalar header form. All four fixes contributed by [@lulzpid](https://github.com/lulzpid) (#7), found by running the janitor over a ~440-skill collection. Two of the four were silent data loss; if you ever distrusted a lint report or lost a skill from the inventory, upgrade.
+
+### Fixed
+
+- **Descriptions with an odd number of apostrophes no longer report CRITICAL "Missing 'description' field".** Lint trimmed values through `xargs`, which parses shell quoting and aborts on `the user's` or `Don't`; the failure was swallowed into a phantom finding. Trimming now uses `sed` character classes — apostrophes are just characters.
+- **Every YAML block-scalar header form is parsed** (`|`, `>`, with optional chomp indicator and indent digit: `|-`, `>+`, `>2`, `>-2`, …). `description: >-` — the most common form — was previously read as the literal two-character string `>-`, tripping "too short" and "doesn't explain when to trigger".
+- **CRLF SKILL.md files no longer vanish from the scan inventory.** A Windows-authored skill's trailing CR split its TSV row under universal newlines and both halves were silently dropped. CRLF tolerance is layered end-to-end: delimiter scans match `^---\r?$`, values are CR-stripped at the point of reading, and the TSV reader pins `newline="\n"` as the last line of defense.
+- **`fix --apply` no longer corrupts CRLF files.** The missing-opening-delimiter check compared the raw first line, so a valid `---\r` opener triggered the corrupting path: a duplicate `---` prepended and the real description overwritten with a placeholder. The check now compares CR-stripped; only intended fixes fire.
+
+### Added
+
+- **Regression test harness under `tests/`** — plain bash, no framework, green on macOS bash 3.2. Seam 1 runs the lint/scan/fix CLIs whole under a fixture `$HOME` pinning all four failure modes (including byte-identity after `fix --apply` on a CRLF file); seam 2 tests `extract_description` and the TSV reader per-function.
+- **`scripts/tsv_reader.py`** — the scan module's TSV reader extracted into a standalone, importable helper (scan output unchanged).
+
+## v1.7.0 (2026-07-20)
+
+### MCP servers join the triage
+
+- **`scripts/mcp.sh`** — inventories every configured MCP server (user `~/.claude.json`, per-project entries, project `.mcp.json`, plugin-bundled) and cross-references REAL usage from session transcripts (`mcp__server__tool` tool_use records). No invented token numbers — schemas live server-side, so the janitor reports calls, distinct tools used, and last-used. Servers seen in transcripts but no longer configured are listed separately.
+- **Swipe deck includes MCP cards.** Unused connected servers rank high (their tool schemas load into context for nothing). Swiping one left removes the entry from its config file with a timestamped `.bak` backup — reversible. Plugin-bundled MCP servers are flagged for plugin review instead.
+
+### Usage tracking got real
+
+Skill usage now also counts actual `Skill` tool_use records from session transcripts — including skills Claude auto-triggered, which the slash-command history never sees. On a machine where the old heuristic found 1 active skill in 4 weeks, transcripts reveal 11.
+
+### Notes
+
+- Transcript scanning adds ~10-15s to `usage`/`value`/deck builds on large transcript trees (pre-filtered by grep and modification time).
+
+## v1.6.0 (2026-07-15)
+
+### `/janitor-security` — prompt-injection and malicious-pattern scan
+
+New command that audits every installed skill (all scopes) for the shapes found in real-world malicious skills: instruction-override phrases ("ignore all previous instructions"), hide-from-the-user directives, instructions concealed in HTML comments or zero-width/bidi unicode, large decodable base64 blobs, and scripts that pipe the network into a shell, decode-and-execute, touch credential stores (`~/.ssh`, `~/.aws`, keychain), call URL shorteners or plain-HTTP endpoints, or upload variable data.
+
+Verdicts are per-skill heuristics — PASS / REVIEW / RISK — with file + evidence for every finding. Calibrated for low noise: legitimate emoji ZWJ sequences, "secretly" as prose, and benign HTML comments don't trip it (on a real 178-skill machine: 2 flagged, both genuinely worth reading).
+
+### Pre-install security in `/janitor-discover`
+
+`precheck` now runs the same scan on the candidate: full-directory scan for local paths (including bundled scripts), fetched-SKILL.md scan for URLs (with an explicit note that scripts aren't fetched — re-check after cloning).
+
+### Fixed
+
+- `precheck` with a `github.com/.../tree/<branch>/<path>` URL computed the raw URL but never downloaded it, so every tree-style precheck failed with "Could not fetch SKILL.md" — a format the help text has advertised since v1.0.
+
 ## v1.5.1 (2026-07-11)
 
 Docs-only release: every SKILL.md now follows the emerging marketplace schema (8 frontmatter fields incl. `allowed-tools`/`license`/`compatibility`, plus Overview/Prerequisites/Instructions/Output/Error Handling/Examples/Resources sections). All five skills grade A (93-94/100, 0 errors) on the tonsofskills marketplace validator. Operative instructions are unchanged; descriptions gained only an additive "Trigger with '/command'." sentence.

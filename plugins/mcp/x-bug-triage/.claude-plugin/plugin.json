@@ -1,7 +1,7 @@
 {
   "name": "x-bug-triage-plugin",
-  "version": "0.3.0",
-  "description": "Closed-loop bug triage: X complaints → clusters → repo evidence → owner routing → terminal review → filed issues",
+  "version": "0.6.7",
+  "description": "Public X complaint intake and local triage prototype with explicitly labeled downstream contract stubs",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,6 +9,12 @@
   "repository": "https://github.com/jeremylongshore/x-bug-triage-plugin",
   "homepage": "https://github.com/jeremylongshore/x-bug-triage-plugin",
   "license": "MIT",
-  "keywords": ["mcp", "triage", "x-api", "bug-tracking", "clustering"],
+  "keywords": [
+    "mcp",
+    "triage",
+    "x-api",
+    "bug-tracking",
+    "clustering"
+  ],
   "hooks": "./hooks/hooks.json"
 }

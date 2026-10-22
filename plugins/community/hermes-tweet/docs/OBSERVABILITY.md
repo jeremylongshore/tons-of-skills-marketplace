@@ -1,9 +1,9 @@
-# Observability
+# Runtime checks
 
-Hermes Tweet exposes operational visibility through structured tool outputs,
-Hermes plugin logs, and slash commands.
+Hermes Tweet reports runtime state through tool output, plugin logs, and slash
+commands.
 
-## Runtime Signals
+## Runtime status
 
 - `/xstatus` returns account, subscription, and usage status.
 - `/xtrends` confirms authenticated read access and current trend availability.
@@ -17,19 +17,19 @@ Hermes plugin logs, and slash commands.
   individual plugin tool name.
 - The Hermes plugin registry exposes loaded tools, slash commands, and bundled
   plugin skills for deterministic runtime smoke tests.
-- Hermes Agent v0.16.0 Desktop, TUI, CLI, and gateway sessions can all surface
+- Hermes Agent v0.16.0 Desktop, TUI, CLI, and gateway sessions can all use
   the same enabled `hermes-tweet` runtime toolset.
 - Remote gateway profiles execute plugin code on the remote Hermes host, so
   install state and environment variables must be verified there.
 
-## Safety Signals
+## Safety checks
 
 - `tweet_read` rejects private or write-like endpoints.
 - `tweet_action` rejects every call unless `HERMES_TWEET_ENABLE_ACTIONS=true`.
 - Dashboard-only admin, billing, credit top-up, support-ticket, API-key, and
   account re-authentication endpoints are omitted from the catalog.
 
-## CI Signals
+## CI checks
 
 Public CI runs workflow linting, formatting, linting, type checking, tests,
 coverage, security scan, dependency audit, package build, and package metadata
@@ -37,7 +37,7 @@ validation.
 The release workflow uses current artifact actions so trusted-publishing runs
 stay ahead of GitHub Actions runtime deprecations.
 
-## Runtime Smoke Test
+## Runtime smoke test
 
 Use this check after installing or updating Hermes Tweet:
 
@@ -56,8 +56,8 @@ Record only sanitized outcomes:
   was unset.
 - `/xstatus` and `/xtrends` were registered.
 
-Hermes one-shot runs do not provide a reliable non-interactive slash-command
-probe through `hermes -z "/xstatus"` or `hermes -z "/xtrends"`; that text can
+Hermes one-shot runs cannot verify slash-command registration through
+`hermes -z "/xstatus"` or `hermes -z "/xtrends"`; that text can
 route as a model prompt. Verify slash-command registration in an active CLI,
 TUI, Desktop, or gateway session, or through the plugin registry tests. Use
 one-shot `hermes -z` for tool-call probes such as `tweet_explore` and

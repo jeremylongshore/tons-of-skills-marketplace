@@ -50,6 +50,25 @@ instead of leaving lightweight pointers, bloating the upload. Framework chunks u
 legitimately large *app* asset with `MAX_FILE_MB=<n> npm run check-export`. Portals
 scaffolded before this script shipped skip the gate rather than blocking deploy.
 
+## Source snapshots (interim Artifacts workaround)
+
+Cloudflare Artifacts — the intended versioned-source backing for Arc deploys — is closed-beta
+and not yet enrolled on the Datopian account. Until it lands, each successful deploy also
+persists an **immutable snapshot of the pre-build source tree** (everything the build ran
+against, minus `node_modules`/`.git`/`out`/`.next`/`.env*`) to R2, linked to that deployment's
+owner and slug:
+
+- `POST /v1/deploy/<deployment_id>/source` — upload a snapshot for a deployment just created
+  by step 5. One snapshot per deployment; a second upload for the same id 409s rather than
+  overwriting the first.
+- `GET /v1/repos/<slug>/sources` — list a slug's snapshot history (deployment id, size,
+  timestamp), newest first.
+- `GET /v1/repos/<slug>/sources/<deployment_id>` — download one snapshot's gzipped tar.
+
+Both retrieval endpoints are gated to the slug's owner (the account whose token deployed it)
+or Datopian staff. This is snapshot storage, not version control — no diffing/branching; if
+Artifacts access is later granted, that becomes the upgrade path.
+
 ## Troubleshooting
 
 - **`check-export` script not found** — older portal predates the script; the deploy

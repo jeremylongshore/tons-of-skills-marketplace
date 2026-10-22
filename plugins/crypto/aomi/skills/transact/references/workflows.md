@@ -1,6 +1,6 @@
 # Workflows
 
-End-to-end operational procedures. Use the CLI as one-shot commands — each `aomi` call starts, runs, and exits. Conversation history lives on the backend; local thread data lives under `AOMI_STATE_DIR` or `~/.aomi`.
+End-to-end operational procedures. Use the CLI as one-shot commands — each `aomi` call starts, runs, and exits. Conversation history lives on the backend; local session data lives under `AOMI_STATE_DIR` or `~/.aomi`.
 
 ## Quick Start
 
@@ -9,19 +9,21 @@ Run once at the start of a thread:
 ```bash
 aomi --version 2>/dev/null || npx @aomi-labs/client@latest --version
 aomi chat "hello" --new-session
-aomi thread status 2>/dev/null || echo "no thread"
+aomi session status 2>/dev/null || echo "no session"
 ```
 
-Expected: `aomi --version` prints `0.1.42` or newer. If older, run `npm install -g @aomi-labs/client@latest` or use `npx @aomi-labs/client@latest`.
+Expected: `aomi --version` prints `0.4.2` or newer.
+
+**A globally installed `aomi` is not upgraded by installing this skill.** If `aomi --version` reports anything below 0.4.2, parts of this doc will not match: on 0.1.x, account auth lived at `aomi wallet login` (with `aomi account` a two-command alias), and `aomi tx sign` still attempted AA locally with mode fallback. Tell the user to run `npm install -g @aomi-labs/client@latest`, or use `npx @aomi-labs/client@latest` for this run.
 
 ## Default Workflow
 
 1. Chat with the agent.
-2. If the agent asks whether to proceed, reply with a short confirmation in the same thread.
+2. If the agent asks whether to proceed, reply with a short confirmation in the same session.
 3. Review pending requests with `aomi tx list`.
 4. For multi-step batches, run `aomi tx simulate tx-1 tx-2 …` before signing.
 5. Sign with `aomi tx sign <id>`.
-6. Verify with `aomi tx list`, `aomi thread log`, or `aomi thread status`.
+6. Verify with `aomi tx list`, `aomi session log`, or `aomi session status`.
 
 The CLI output is the source of truth. If you do not see `Wallet request queued: tx-N`, there is nothing to sign yet. For a scriptable wrapper, see [../templates/aomi-workflow.sh](../templates/aomi-workflow.sh).
 
@@ -33,14 +35,14 @@ Use when the user does not need signing:
 aomi chat "<message>" --new-session
 aomi chat "<message>" --verbose
 aomi tx list
-aomi thread log
-aomi thread status
+aomi session log
+aomi session status
 aomi --version
 aomi app list
 aomi app current
 aomi chain list
-aomi thread list
-aomi thread resume <id>
+aomi session list
+aomi session resume <id>
 ```
 
 For chain-specific requests, prefer `--chain <id>` on the command itself. Use `AOMI_CHAIN_ID=<id>` only when multiple consecutive commands should stay on the same chain.
@@ -54,7 +56,7 @@ aomi chat "swap 1 ETH for USDC" --new-session --public-key 0xUserAddress --chain
 aomi chat "swap 1 POL for USDC on Polygon" --app khalani --chain 137
 ```
 
-A chat response does not always queue a transaction immediately — the agent may return a quote or route first and ask whether to proceed. Keep the same thread and reply with a short confirmation message. Only move to `aomi tx sign` after a wallet request is queued. Confirm with `aomi tx list`.
+A chat response does not always queue a transaction immediately — the agent may return a quote or route first and ask whether to proceed. Keep the same session and reply with a short confirmation message. Only move to `aomi tx sign` after a wallet request is queued. Confirm with `aomi tx list`.
 
 Queued request:
 
@@ -99,16 +101,18 @@ Full simulation-and-signing walkthrough on a multi-step batch in [examples.md](e
 
 ## Signing Policy
 
-- Default: `aomi tx sign <tx-id> [<tx-id> ...]` — AA-first; uses configured BYOK provider or backend proxy where available, then can fall back to EOA unless `--aa` is explicit.
-- `--eoa` skips AA entirely.
-- `--aa`, `--aa-provider`, or `--aa-mode` force AA mode; incompatible with `--eoa`.
-- **Mode fallback**: when AA is used, the CLI tries the preferred mode (current default 7702 on displayed AA chains). If it fails, tries the alternative. If both fail and `--aa` was not set, it can try EOA; with `--aa`, it returns an AA-only error.
+**Local signing is EOA-only in v0.4.2.** AA execution moved to the backend lane; the CLI no longer attempts AA locally and there is no local mode fallback.
+
+- Default: `aomi tx sign <tx-id> [<tx-id> ...]` — plain EOA. `--eoa` is the same thing, stated explicitly.
+- `--aa`, `--aa-provider`, and `--aa-mode` select AA execution, which `aomi tx sign` rejects: `AA execution now runs in the backend lane (rolling out); use --eoa for local execution.`
+- The same rejection fires with **no flags** if `AOMI_AA_PROVIDER` or `AOMI_AA_MODE` is exported. Check the environment before concluding the tx itself is bad.
+- Because there is no local sponsorship path, the signing EOA must hold native gas on the destination chain.
 
 ```bash
-aomi tx sign tx-1                                     # default: zero-config AA
-aomi tx sign tx-1 --eoa                               # force EOA
-aomi tx sign tx-1 --aa --aa-provider pimlico --aa-mode 4337
+aomi tx sign tx-1                                     # EOA (the default)
+aomi tx sign tx-1 --eoa                               # EOA, explicit
 aomi tx sign tx-1 --cluster devnet                    # Solana cluster override
+aomi tx sign evm:tx-1                                 # chain-qualified when tx-1 is ambiguous
 ```
 
 Signing rules that always apply:
@@ -116,6 +120,7 @@ Signing rules that always apply:
 - `aomi tx sign` handles both transaction requests and EIP-712 typed-data signatures. Batch signing is supported for transactions only, not EIP-712.
 - Solana sign-only requests are supported when the pending request includes an unsigned transaction payload; instruction-only `svm_ixs` requests may not be CLI-signable yet.
 - A single `--rpc-url` override cannot be used for a mixed-chain multi-sign request.
+- Duplicate tx ids in one `aomi tx sign` call are rejected.
 - The pending transaction already contains its target chain — pass `--rpc-url` matching that chain if the default RPC is wrong.
 
 If signing fails because credentials are missing, stop and ask the user to configure them — do not try to set them from the skill.
@@ -141,15 +146,15 @@ Before doing so, warn about the trust boundary (below) so the user can abort. Do
 
 **Trust boundary.** `aomi secret add` transmits each credential value to the aomi backend and stores a handle locally. The backend — not just the user's machine — becomes a trust boundary. If the user prefers the value to stay entirely local, advise them to export it in their shell environment and let the CLI read it from there.
 
-## Thread And Storage
+## Session And Storage
 
-A thread is split across two stores: the **backend** holds the conversation transcript and tool calls; the **local disk** (`$AOMI_STATE_DIR` or `~/.aomi/`) holds lookup keys, pending/signed tx state, and secret handle names. `aomi tx list` reads local; `aomi thread log` reads backend.
+A session is split across two stores: the **backend** holds the conversation transcript and tool calls; the **local disk** (`$AOMI_STATE_DIR` or `~/.aomi/`) holds lookup keys, pending/signed tx state, and secret handle names. `aomi tx list` reads local; `aomi session log` reads backend.
 
 ```bash
-aomi thread list
-aomi thread resume <id>
-aomi thread delete <id>
-aomi thread close
+aomi session list
+aomi session resume <id>
+aomi session delete <id>
+aomi session close
 ```
 
-Full layout (`~/.aomi/sessions/session-N.json`, `active-session.txt`), the local-vs-backend split, lifecycle rules for `--new-session` vs `resume`, and cleanup hygiene in [thread.md](thread.md).
+Full layout (`~/.aomi/sessions/session-N.json`, `active-session.txt`), the local-vs-backend split, lifecycle rules for `--new-session` vs `resume`, and cleanup hygiene in [session.md](session.md).

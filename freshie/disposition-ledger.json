@@ -3,8 +3,8 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "8885b69405419047c6902fee11c96745859aeb4b03c40e2c9cb6cd47260536d7",
-    "artifact_count": 3491
+    "sha256": "b0d99fcdd9cedb0112b2e8ea90d844b96f8a65d4102719af10f1c77dbcc7f0e8",
+    "artifact_count": 3494
   },
   "rule_order": [
     "G0",
@@ -24,7 +24,7 @@
     "CERTIFY-PENDING-EVIDENCE": 3144,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
-    "QUARANTINE": 345
+    "QUARANTINE": 348
   },
   "artifacts": [
     {
@@ -6469,7 +6469,7 @@
     {
       "path": "plugins/community/hermes-tweet/hermes_tweet/skills/hermes-tweet/SKILL.md",
       "grade": "A",
-      "score": 100,
+      "score": 98,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -6480,7 +6480,7 @@
     {
       "path": "plugins/community/hermes-tweet/skills/hermes-tweet/SKILL.md",
       "grade": "A",
-      "score": 100,
+      "score": 98,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -6728,8 +6728,8 @@
     },
     {
       "path": "plugins/community/skills-janitor/skills/janitor-discover/SKILL.md",
-      "grade": "A",
-      "score": 93,
+      "grade": "B",
+      "score": 88,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -6760,9 +6760,20 @@
       ]
     },
     {
-      "path": "plugins/community/skills-janitor/skills/janitor-swipe/SKILL.md",
+      "path": "plugins/community/skills-janitor/skills/janitor-security/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 90,
+      "diagnostics": [],
+      "disposition": "QUARANTINE",
+      "gate": "G1",
+      "reason_codes": [
+        "SOURCE_COMMIT_UNPINNED"
+      ]
+    },
+    {
+      "path": "plugins/community/skills-janitor/skills/janitor-swipe/SKILL.md",
+      "grade": "B",
+      "score": 89,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -6773,7 +6784,7 @@
     {
       "path": "plugins/community/skills-janitor/skills/janitor-value/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 95,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -6830,7 +6841,7 @@
       "grade": "A",
       "score": 94,
       "diagnostics": [
-        "[frontmatter] 'compatibility' exceeds 500 characters (agentskills.io/specification limit): 536 chars"
+        "[frontmatter] 'compatibility' exceeds 500 characters (agentskills.io/specification limit): 640 chars"
       ],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -7930,7 +7941,7 @@
     {
       "path": "plugins/mcp/dolt-mcp-vcs/skills/dolt-mcp-vcs/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 95,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -7940,8 +7951,8 @@
     },
     {
       "path": "plugins/mcp/governed-second-brain/skills/brain-save/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -7952,7 +7963,7 @@
     {
       "path": "plugins/mcp/governed-second-brain/skills/brain/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 97,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -7963,7 +7974,7 @@
     {
       "path": "plugins/mcp/pr-to-spec/.claude/skills/pr-to-spec/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 95,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8171,8 +8182,8 @@
     },
     {
       "path": "plugins/mcp/slack-channel/skills/access/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8183,7 +8194,7 @@
     {
       "path": "plugins/mcp/slack-channel/skills/configure/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 97,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8193,8 +8204,8 @@
     },
     {
       "path": "plugins/mcp/slack-channel/skills/install/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8205,7 +8216,7 @@
     {
       "path": "plugins/mcp/slack-channel/skills/policy/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 96,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8215,8 +8226,8 @@
     },
     {
       "path": "plugins/mcp/x-bug-triage/skills/bug-clustering/SKILL.md",
-      "grade": "B",
-      "score": 83,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8226,8 +8237,8 @@
     },
     {
       "path": "plugins/mcp/x-bug-triage/skills/owner-routing/SKILL.md",
-      "grade": "B",
-      "score": 87,
+      "grade": "A",
+      "score": 97,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8238,7 +8249,7 @@
     {
       "path": "plugins/mcp/x-bug-triage/skills/repo-scanning/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 99,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8248,8 +8259,8 @@
     },
     {
       "path": "plugins/mcp/x-bug-triage/skills/triage-display/SKILL.md",
-      "grade": "B",
-      "score": 82,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8260,7 +8271,7 @@
     {
       "path": "plugins/mcp/x-bug-triage/skills/x-bug-triage/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 99,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -8623,7 +8634,7 @@
     {
       "path": "plugins/productivity/box-cloud-filesystem/skills/box-cloud-filesystem/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 100,
       "diagnostics": [],
       "disposition": "QUARANTINE",
       "gate": "G1",
@@ -9109,7 +9120,7 @@
     {
       "path": "plugins/productivity/intent-labs-pack/skills/validate-skillmd/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -35026,6 +35037,28 @@
       "gate": "G7",
       "reason_codes": [
         "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/security/hol-guard/skills/hol-guard/SKILL.md",
+      "grade": "A",
+      "score": 90,
+      "diagnostics": [],
+      "disposition": "QUARANTINE",
+      "gate": "G1",
+      "reason_codes": [
+        "SOURCE_COMMIT_UNPINNED"
+      ]
+    },
+    {
+      "path": "plugins/security/hol-guard/skills/plugin-scanner/SKILL.md",
+      "grade": "A",
+      "score": 90,
+      "diagnostics": [],
+      "disposition": "QUARANTINE",
+      "gate": "G1",
+      "reason_codes": [
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {

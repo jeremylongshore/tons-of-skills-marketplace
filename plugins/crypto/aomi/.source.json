@@ -4,7 +4,7 @@
     "path": "plugins/aomi",
     "branch": "main"
   },
-  "last_sync": "2026-07-13T17:27:04.520Z",
+  "last_sync": "2026-10-01T05:33:53.547Z",
   "author": {
     "name": "aomi-labs",
     "github": "aomi-labs"
@@ -34,7 +34,7 @@
     "skills/transact/references/drain-vectors.md",
     "skills/transact/references/examples.md",
     "skills/transact/references/gotchas.md",
-    "skills/transact/references/thread.md",
+    "skills/transact/references/session.md",
     "skills/transact/references/troubleshooting.md",
     "skills/transact/references/workflows.md",
     "skills/transact/templates/aomi-workflow.sh"

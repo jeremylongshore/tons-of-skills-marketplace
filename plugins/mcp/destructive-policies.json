@@ -54,8 +54,8 @@
     },
     "pr-to-spec": {
       "policy": "permit",
-      "enforcing_artifact": "plugins/mcp/pr-to-spec/src/core/intent/storage.ts",
-      "rationale": "set_intent unconditionally overwrites one fixed plugin-owned file (.intent/intent.yaml); no remote writes. Mirror content \u2014 declaration lives here, not in the mirror."
+      "enforcing_artifact": "plugins/mcp/pr-to-spec/dist/mcp-bundle/index.js",
+      "rationale": "set_intent unconditionally overwrites one fixed plugin-owned file (<repoPath>/.pr-to-spec/intent.yaml; directory overridable via PR_TO_SPEC_DIR); GitHub access is read-only (pulls.get, listFiles, listReviews, listReviewComments). Mirror content \u2014 declaration lives here, not in the mirror."
     },
     "project-health-auditor": {
       "policy": "refuse",

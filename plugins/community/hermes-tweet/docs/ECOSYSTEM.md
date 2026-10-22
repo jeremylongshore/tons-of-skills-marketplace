@@ -5,14 +5,13 @@ X/Twitter plugin for tweet search, user lookup, reply reading, trend checks,
 monitoring, posting, replies, DMs, and other approval-gated X actions through
 Xquik.
 
-This page tracks public, accepted surfaces only. Private outreach notes,
-pending submissions, duplicate checks, manual review routes, and maintainer
-follow-up belong outside the public repository. Use
-`docs/SUBMISSION_READINESS.md` before proposing or adding a new public surface.
+This page tracks accepted public listings. Keep outreach notes, pending
+submissions, duplicate checks, and maintainer follow-up outside this repository.
+Use `docs/SUBMISSION_READINESS.md` before proposing a new listing.
 
-## Public Surfaces
+## Public listings
 
-| Surface | Link |
+| Listing | Link |
 | --- | --- |
 | GitHub | <https://github.com/Xquik-dev/hermes-tweet> |
 | Repository guide | <https://github.com/Xquik-dev/hermes-tweet#readme> |
@@ -21,11 +20,11 @@ follow-up belong outside the public repository. Use
 | DeepWiki | <https://deepwiki.com/Xquik-dev/hermes-tweet> |
 | Context7 | <https://context7.com/xquik-dev/hermes-tweet> |
 
-## Skill And Directory Listings
+## Skill and directory listings
 
-| Surface | Link |
+| Listing | Link |
 | --- | --- |
-| ClawHub | <https://clawhub.ai/skills/hermes-tweet> |
+| ClawHub | <https://clawhub.ai/xquik/hermes-tweet> |
 | SKILLS.re | <https://skills.re/> |
 | Terminal Skills xquik-twitter skill | <https://github.com/TerminalSkills/skills/blob/main/skills/xquik-twitter/SKILL.md> |
 | Antigravity Awesome Skills Xquik X/Twitter skill | <https://github.com/sickn33/antigravity-awesome-skills/blob/main/skills/x-twitter-scraper/SKILL.md> |
@@ -60,14 +59,15 @@ follow-up belong outside the public repository. Use
 | RA-Skills Hermes Tweet mirror | <https://github.com/Lord1Egypt/RA-Skills/blob/master/skills/community/clawhub/h/hermes-tweet/SKILL.md> |
 | TweetClaw cross-link | <https://github.com/Xquik-dev/tweetclaw#readme> |
 
-## MCP And Agent Integrations
+## MCP and agent integrations
 
-| Surface | Link |
+| Integration | Link |
 | --- | --- |
+| Xquik remote MCP with OAuth 2.1 | <https://docs.xquik.com/mcp/overview> |
 | GenAIwithMS Twitter MCP optional Hermes Tweet backend | <https://github.com/GenAIwithMS/twitter-mcp#readme> |
 | xpost optional Hermes Tweet topic context | <https://github.com/Hakurei-git/xpost#readme> |
 
-## Public Positioning
+## Public wording
 
 Use these concrete phrases in public docs when they match the workflow:
 

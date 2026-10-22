@@ -59,7 +59,8 @@ lint_skill() {
 
     # Check closing frontmatter
     local fm_close
-    fm_close=$(awk 'NR>1 && /^---$/{print NR; exit}' "$skill_file")
+    # \r? so a CRLF file is not misreported as "missing closing ---"
+    fm_close=$(awk 'NR>1 && /^---\r?$/{print NR; exit}' "$skill_file")
     if [[ -z "$fm_close" ]]; then
         print_issue "critical" "$name" "Missing closing --- in frontmatter"
         return
@@ -71,19 +72,28 @@ lint_skill() {
 
     # Check name field
     local name_field
-    name_field=$(echo "$frontmatter" | grep -E '^name:' | sed 's/^name:[[:space:]]*//' | tr -d '"' | tr -d "'" | xargs 2>/dev/null || echo "")
+    # NB: trim with sed, never xargs — xargs parses shell quoting and aborts with
+    # "unterminated quote" on any apostrophe (user's, Don't), and the old
+    # `|| echo ""` swallowed that into a bogus "missing field" finding.
+    # The `|| true` is still required: grep exits 1 when the field is absent,
+    # and a bare assignment propagates that under `set -e`.
+    name_field=$(echo "$frontmatter" | grep -E '^name:' | sed 's/^name:[[:space:]]*//' | tr -d '"' | tr -d "'" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true)
     if [[ -z "$name_field" ]]; then
         print_issue "warning" "$name" "Missing 'name' field in frontmatter"
     elif [[ "$(echo "$name_field" | tr '[:upper:]' '[:lower:]')" != "$(echo "$name" | tr '[:upper:]' '[:lower:]')" && "$(echo "$name_field" | tr ' ' '-' | tr '[:upper:]' '[:lower:]')" != "$(echo "$name" | tr '[:upper:]' '[:lower:]')" ]]; then
         print_issue "info" "$name" "Folder name '$name' doesn't match skill name '$name_field'"
     fi
 
-    # Check description field — supports both inline and block scalar (|, >)
+    # Check description field — supports inline and every YAML block-scalar header
     local desc_raw
-    desc_raw=$(echo "$frontmatter" | grep -E '^description:' | sed 's/^description:[[:space:]]*//' | xargs 2>/dev/null || echo "")
+    desc_raw=$(echo "$frontmatter" | grep -E '^description:' | sed 's/^description:[[:space:]]*//' | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true)
 
+    # A block-scalar header is [|>] plus an optional chomp indicator (- or +) and
+    # an optional explicit indent digit: | |- |+ |2 > >- >+ >2 >-2 … Matching only
+    # bare "|" and ">" left "description: >-" parsed as the two-character string
+    # ">-", which then tripped both the "too short" and "no trigger word" checks.
     local desc
-    if [[ -z "$desc_raw" || "$desc_raw" == "|" || "$desc_raw" == ">" ]]; then
+    if [[ -z "$desc_raw" || "$desc_raw" =~ ^[|\>][-+]?[0-9]*$ || "$desc_raw" =~ ^[|\>][0-9]*[-+]?$ ]]; then
         # Block scalar: collect indented lines following 'description:'
         desc=$(echo "$frontmatter" | awk '
             /^description:/ { capture=1; next }
@@ -113,7 +123,7 @@ lint_skill() {
 
         # Check disable-model-invocation: auto-loaded skills need a meaningful description
         local dmi
-        dmi=$(echo "$frontmatter" | grep -E '^disable-model-invocation:' | sed 's/^disable-model-invocation:[[:space:]]*//' | xargs 2>/dev/null || echo "")
+        dmi=$(echo "$frontmatter" | grep -E '^disable-model-invocation:' | sed 's/^disable-model-invocation:[[:space:]]*//' | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true)
         if [[ "$dmi" == "true" && $desc_len -lt 50 ]]; then
             print_issue "warning" "$name" "Skill uses disable-model-invocation but description is very short — Claude may not trigger it correctly"
         fi

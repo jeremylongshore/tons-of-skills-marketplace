@@ -177,7 +177,7 @@ Polymarket Order Preview
 ```bash
 aomi chat "place the order"
 aomi tx list                                # confirm a wallet request was queued
-aomi tx sign tx-1                           # AA-first signing on Polygon (default 4337)
+aomi tx sign tx-1                           # EOA signing on Polygon (needs native POL for gas)
 ```
 
 Notes:
@@ -271,7 +271,7 @@ aomi tx sign tx-1 tx-2
 Observed behavior in earlier CLI/backend captures:
 
 - Across requests carry an expiring `fillDeadline`. If the agent's first build expires by the time simulation runs, the agent automatically rebuilds with a fresh deadline and the new tx-N will pass. **Old failed attempts remain visible in `aomi tx list`** with `batch_status: "Batch [N,M] failed at step 2: 0x..."` — sign only the txs whose status reads `Batch [...] passed`.
-- The mainnet→L2 leg uses AA 7702 (default for chain 1) and signs cleanly with the EOA's small ETH stash paying.
-- The L2→mainnet leg requires the EOA to have native gas on the L2 unless a real 4337 sponsor path is configured — see [account-abstraction.md → Sponsorship in practice](account-abstraction.md#sponsorship-in-practice-verified-against-v0142-source-behavior).
+- The mainnet→L2 leg signs cleanly with the EOA's small ETH stash paying gas.
+- The L2→mainnet leg requires the EOA to have native gas on the L2 — local signing is EOA-only, so there is no sponsor path to fall back on. See [account-abstraction.md → Gas](account-abstraction.md#gas-the-rule-the-skill-must-follow).
 
 > **TODO — direct integration.** If a standalone `across` app gets added later, replace this stub with read + write examples in the same shape as the other entries.

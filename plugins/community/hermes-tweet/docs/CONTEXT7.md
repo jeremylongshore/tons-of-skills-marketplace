@@ -1,4 +1,4 @@
-# Context7 Guide
+# Context7 guide
 
 Use this page as the compact Context7-facing guide for Hermes Tweet. It focuses
 on install, auth, safe tool use, and smoke tests for coding agents.
@@ -30,7 +30,7 @@ Use the PyPI package name `hermes-tweet` and the Hermes toolset name
 
 Hermes Agent v0.16.0 includes Desktop and remote gateway profiles. For a remote
 gateway profile, install and enable Hermes Tweet on the remote Hermes host and
-set `XQUIK_API_KEY` there. The desktop app is only the client surface unless it
+set `XQUIK_API_KEY` there. The desktop app is only the client unless it
 also runs the Hermes runtime locally.
 
 ## Configure
@@ -66,7 +66,7 @@ media reads, monitors, webhooks, draws, or extraction jobs.
 Copied endpoint URLs are accepted only when they resolve to catalog-listed
 paths.
 
-## Hermes Agent Patterns
+## Hermes Agent patterns
 
 - Treat Hermes Tweet as the X context layer for Hermes Agent research,
   monitoring, support, launch, and content workflows.
@@ -88,7 +88,7 @@ only when the workflow intentionally allows posting, replies, likes, retweets,
 follows, DMs, monitor changes, webhook changes, media uploads, or other account
 changes.
 
-## Smoke Test
+## Smoke test
 
 ```bash
 hermes tools list
@@ -105,12 +105,12 @@ Expected result:
 If you edit `~/.hermes/.env` during an active Hermes CLI session, run
 `/reload`. Gateway and cron sessions need a restart or new session.
 
-## Public Sources
+## Public sources
 
-- GitHub: <https://github.com/Xquik-dev/hermes-tweet>
-- Repository guide: <https://github.com/Xquik-dev/hermes-tweet#readme>
-- PyPI: <https://pypi.org/project/hermes-tweet/>
-- DeepWiki: <https://deepwiki.com/Xquik-dev/hermes-tweet>
-- Context7: <https://context7.com/xquik-dev/hermes-tweet>
-- Hermes Agent plugins guide: <https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins/>
-- Build a Hermes Plugin: <https://hermes-agent.nousresearch.com/docs/developer-guide/plugins>
+- [GitHub repository](https://github.com/Xquik-dev/hermes-tweet)
+- [Repository guide](https://github.com/Xquik-dev/hermes-tweet#readme)
+- [PyPI package](https://pypi.org/project/hermes-tweet/)
+- [DeepWiki](https://deepwiki.com/Xquik-dev/hermes-tweet)
+- [Context7](https://context7.com/xquik-dev/hermes-tweet)
+- [Hermes Agent plugins guide](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins/)
+- [Build a Hermes Plugin](https://hermes-agent.nousresearch.com/docs/developer-guide/plugins)

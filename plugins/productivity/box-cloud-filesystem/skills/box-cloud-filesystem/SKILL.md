@@ -1,177 +1,157 @@
 ---
 name: box-cloud-filesystem
 description: |
-  Cloud filesystem operations via Box CLI. Use when the user mentions
-  Box, cloud files, cloud storage, uploading to the cloud, sharing files,
-  document management, or syncing project files offsite. Trigger with
-  "upload to box", "save to cloud", "pull from box", "search my box files",
-  "share this file", "box sync", "cloud backup", or "box filesystem".
-allowed-tools: Read, Write, Edit, Bash(box:*), Bash(npm:*), Bash(npx:*), Glob, Grep
-version: 1.0.0
-author: Jeremy Longshore <jeremy@intentsolutions.io>
-license: MIT
-compatibility: Designed for Claude Code, also compatible with Codex and OpenClaw
+  Manage Box files with the official Box CLI using reviewed, receipt-backed
+  reads, uploads, version updates, and sharing. Use when a user asks to search,
+  download, upload, update, organize, share, or synchronize Box content,
+  and trigger with "upload to Box", "search Box", "share this Box file", or
+  "review my Box sync queue."
+allowed-tools: "Read,Write,Edit,Glob,Grep,Bash(box:*)"
+argument-hint: "[search|download|upload|update|share|sync] [target]"
+version: "2.0.0"
+author: "Jeremy Longshore <jeremy@intentsolutions.io>"
+license: "MIT"
+compatibility: "Explicit operations require Node.js 18+, Box CLI 4.x, Box authentication, and network access. Claude Code workspace queue hooks additionally require Bash and jq. Other Agent Skills hosts can use explicit Box CLI mode."
 tags: [box, cloud-storage, filesystem, sync, collaboration, document-management]
+model: inherit
+effort: medium
 ---
 
 # Box Cloud Filesystem
 
-Two modes, one goal: treat Box like a local filesystem.
-
-**Transparent mode** — initialize a workspace, then every Write or Edit inside it auto-syncs to Box via PostToolUse hooks. No `box` commands needed.
-
-**Explicit mode** — search, download, share, or organize files using Box CLI commands directly. See `references/operations-guide.md` for the full command reference.
-
-## Contents
-
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Instructions](#instructions)
-- [Workspace Sync Pattern](#workspace-sync-pattern)
-- [Output](#output)
-- [Error Handling](#error-handling)
-- [Examples](#examples)
-- [Resources](#resources)
-
 ## Overview
 
-Box CLI (`@box/cli`) wraps the full Box API as shell commands. This skill adds three layers:
-
-- **Hooks (transparent sync)** — PostToolUse hooks on Write/Edit auto-upload changed files to Box.
-- **Operational judgment** — file identity via numeric IDs, version uploads over duplicates, narrow sharing defaults, manifest-based conflict detection.
-- **Sync patterns** — pull/work/push workflow with automatic hook-driven uploads and conflict resolution.
-
-Key principle: **inspect before acting, report after acting.** Folder ID `0` is always root.
+Operate Box through numeric file and folder IDs, narrow sharing defaults, and
+verified receipts. The plugin's Write/Edit hook only queues local workspace
+changes for review and never uploads automatically; see the
+[reviewed sync pattern](references/sync-pattern.md) for the complete flow.
 
 ## Prerequisites
 
 ```bash
-npm install --global @box/cli
-box login
-box users:get --me   # verify auth + enterprise context
+box version
+box users:get me --json
 ```
 
-Auth methods: OAuth (interactive), JWT (automation), CCG (server-to-server), Developer Token (testing, 60 min).
+- Install the current supported Box CLI 4.x through an operator-approved Node
+  package workflow; do not install packages automatically.
+- Use `box login` for interactive OAuth. JWT and CCG require a Box Platform App,
+  appropriate scopes, secure configuration, and enterprise admin authorization.
+- Never request or pass access tokens through chat or the CLI `--token` flag.
+- The bundled workspace scripts require Bash and `jq`.
 
-`jq` is required for the hook scripts.
+## Workflow
 
-## Instructions
+1. Classify the request as discover, read, create, update, expose, synchronize,
+   or destructive.
+2. Verify the active Box identity with `box users:get me --json` and report the
+   account or enterprise without exposing credentials.
+3. Discover the target by listing or searching. Use `Read`, `Glob`, and `Grep`
+   only for the local files the user placed in scope.
+4. Resolve every remote target to a numeric Box ID. Names are not unique.
+5. Preview the operation:
+   - uploads: local path, size, parent folder ID, and collision result;
+   - updates: file ID, local path, and remote `content_modified_at`;
+   - sharing: target ID, access level, download/edit flags, and expiry;
+   - deletion or bulk moves: every target and recoverability.
+6. Execute only the operation the user authorized. Ask before public/open links,
+   deletes, bulk reorganizations, overwriting remote changes, or widening app
+   access. Use `Write` or `Edit` only for requested local artifacts.
+7. Re-read the affected Box item and return the receipt contract below.
 
-Follow this workflow for every Box operation:
+## Trust zones
 
-1. **Classify the intent** — discover, read, upload, update, organize, sync, share, or cleanup
-2. **Orient** — run `box users:get --me`, identify target folder ID, check the trust zone
-3. **Discover** — list or search Box to understand what exists before modifying anything
-4. **Execute** — perform the operation (see `references/operations-guide.md` for commands)
-5. **Report** — return file IDs, folder IDs, action types, and any conflicts
+| Zone | Examples | Boundary |
+|---|---|---|
+| Read | search, list, metadata, download | Stay within the requested account/folder scope |
+| Create | upload, create folder | Verify parent ID and name collision |
+| Update | version upload, move, copy | Verify file ID and remote modification time |
+| Expose | shared link, collaborator access | Confirm audience and access settings |
+| Destructive | delete, bulk move | Explicit request plus target summary |
 
-### Operation Trust Zones
+Never use `--yes` to suppress a Box CLI confirmation for expose or destructive
+operations.
 
-| Zone | Operations | Behavior |
-|------|-----------|----------|
-| **Read** | search, list, download, metadata | Execute freely |
-| **Create** | upload new, create folders | Verify parent folder ID first |
-| **Update** | version upload, move, copy | Use file ID, prefer `files:versions:upload` |
-| **Expose** | share links, access levels | Default `collaborators`, never `open` unless explicit |
-| **Destructive** | delete, bulk reorganize | Only on explicit request; summarize first |
-
-### Safety Rules
-
-1. Inspect folder contents before writing to it.
-2. Use file IDs, not filenames, when updating — names are not unique in Box.
-3. Prefer `box files:versions:upload FILE_ID` for updates. Avoids 409 conflicts, preserves history.
-4. Never delete unless explicitly requested. No "convenience cleanup."
-5. Never create `--access open` shared links unless user says "public" or "open."
-6. Summarize bulk operations before executing.
-7. Report file ID, folder ID, and action type after every write.
-8. If unexpected files exist in a folder, stop and ask before modifying.
-
-### Quick Command Reference
+## Current command surface
 
 ```bash
-box folders:items FOLDER_ID --json                    # list folder
-box search "query" --type file --json                  # search
-box files:download FILE_ID --destination ./             # download
-box files:upload ./file.txt --parent-id FOLDER_ID       # upload new
-box files:versions:upload FILE_ID ./file.txt            # update existing
-box files:share FILE_ID --access collaborators          # share (narrow)
-box folders:download FOLDER_ID --destination ./         # bulk download
+box folders:items FOLDER_ID --json --fields name,id,type,content_modified_at
+box search "query" --type file --json
+box files:get FILE_ID --json --fields name,size,content_modified_at,shared_link
+box files:download FILE_ID --destination LOCAL_PATH
+box files:upload LOCAL_PATH --parent-id FOLDER_ID --json
+box files:versions:upload FILE_ID LOCAL_PATH --json
+box files:share FILE_ID --access collaborators --json
 ```
 
-Full command reference with examples: `references/operations-guide.md`
+Use `box COMMAND --help` as command truth. The
+[operations guide](references/operations-guide.md) covers moves, folders,
+sharing, and recovery.
 
-## Workspace Sync Pattern
+## Reviewed workspace queue
 
-Initialize a workspace, work locally, push changes back. The manifest tracks file IDs.
+Initialize only when the user explicitly selects a Box folder and local path:
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/box-init-workspace.sh FOLDER_ID /tmp/box-workspace
 ```
 
-With hooks active, every Write/Edit auto-syncs. For manual sync, compare local state against the manifest:
+Initialization performs a Box read, downloads the folder, and stores a
+permission-restricted local config. Subsequent Write/Edit hooks add eligible
+relative paths to `.box-sync-pending`; hidden files and credential-like names are
+excluded. The Stop hook reports the queue and performs no upload.
 
-- Changed file in manifest → `box files:versions:upload FILE_ID` (version update)
-- New file not in manifest → `box files:upload --parent-id FOLDER_ID` (new upload)
-- Deleted locally → do NOT auto-delete from Box; ask user
-- Conflict detected → warn user before overwriting
-
-Full sync workflow with conflict detection: `references/sync-pattern.md`
+Before syncing, list each remote item again, compare modification timestamps,
+show create/update/conflict groups, and obtain approval. Upload changed known
+files with `files:versions:upload`; upload genuinely new files with
+`files:upload`. Never infer a remote deletion from a missing local file.
 
 ## Output
 
-Every write operation returns:
+Return:
 
-- File/folder ID
-- Parent folder ID
-- Action type (created / versioned / moved / copied / shared)
-- Access level (if sharing)
-- Conflicts or skipped items
-
-Read operations return JSON with id, name, size, modified date.
+- Box account context and target folder ID;
+- operation and local/remote target;
+- created or updated file/folder ID;
+- sharing access, expiry, and URL when applicable;
+- preflight comparison and any conflict;
+- command exit result plus post-operation metadata;
+- queued/skipped paths and the reason.
 
 ## Error Handling
 
-| Error | Recovery |
-|-------|----------|
-| `Not Found` (404) | Verify ID with `box search` or re-list parent folder |
-| `Conflict` (409) | Use `files:versions:upload` to update, or `--name` for distinct file |
-| `Forbidden` (403) | Re-run `box login` or check JWT scopes |
-| `Rate Limited` (429) | CLI retries automatically; batch via `--bulk-file-path` |
-| `Auth expired` | Run `box login`; use JWT/CCG for production |
-| `box: command not found` | `npm install --global @box/cli` |
-| Name collision | Use file ID, never filename, to identify targets |
-| Local/remote divergence | Re-download, diff, ask user which to keep |
-
-Always report what failed and what succeeded. Never silently skip. Full error table: `references/operations-guide.md`
+- **401/expired auth:** run `box login`; never ask for a token in chat.
+- **403:** report the missing scope or collaboration/admin boundary; do not widen
+  access automatically.
+- **404:** verify identity and ID by re-listing the parent.
+- **409/name collision:** choose a version upload or an explicitly distinct name.
+- **429:** honor retry guidance and reduce/batch read operations; do not loop
+  indefinitely.
+- **Remote changed since download:** stop and ask whether to keep remote, local,
+  or both.
+- **Partial bulk failure:** re-list the target, report confirmed successes, and
+  retry only unresolved items after approval.
+- **Hook queue failure:** preserve local work; report that no Box upload occurred.
 
 ## Examples
 
-**Back up docs to Box:**
+Update an existing file without creating a duplicate:
+
 ```bash
-box folders:create 0 "my-project-docs" --json
-box files:upload docs/README.md --parent-id FOLDER_ID
-box folders:share FOLDER_ID --access collaborators
+box files:get FILE_ID --json --fields name,content_modified_at
+box files:versions:upload FILE_ID approved-report.md --json
+box files:get FILE_ID --json --fields name,version_number,content_modified_at
 ```
 
-**Pull, analyze, push back:**
-```bash
-box search "Q1 sales" --type file --json
-box files:download FILE_ID --destination /tmp/box-workspace/
-# analyze locally, then push result
-box files:upload /tmp/box-workspace/summary.md --parent-id PARENT_ID
-```
+Create a collaborators-only link after confirming the audience:
 
-**Workspace sync (with hooks):**
 ```bash
-${CLAUDE_PLUGIN_ROOT}/scripts/box-init-workspace.sh FOLDER_ID /tmp/box-workspace
-# edit files normally — hooks auto-sync to Box
+box files:share FILE_ID --access collaborators --json
 ```
-
-More detailed examples: `references/sync-pattern.md`
 
 ## Resources
 
-- Box CLI: https://github.com/box/boxcli
-- Box Developer Docs: https://developer.box.com/
-- Box API Reference: https://developer.box.com/reference/
-- Box pricing: https://www.box.com/ (free tier available for individual users)
+- [Box CLI operations and recovery](references/operations-guide.md)
+- [Reviewed workspace synchronization](references/sync-pattern.md)
+- [Box CLI source and generated command docs](https://github.com/box/boxcli)
+- [Box security model](https://developer.box.com/guides/security/)

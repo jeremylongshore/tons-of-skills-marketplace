@@ -11,6 +11,7 @@ import {
   isRepositoryGeneratedTrackingManifest,
   isPathAtOrBelow,
   reconcileGeneratedPackageMetadata,
+  reconcileMirrorPackage,
   repositoryRelativePath,
   slugFromPath,
   trackingPostinstall,
@@ -67,6 +68,7 @@ const expectedManagedMirrorDirectories = [
   'plugins/community/ejentum-memory',
   'plugins/community/ejentum-reasoning',
   'plugins/community/hermes-tweet',
+  'plugins/community/llm-box',
   'plugins/community/mnemos',
   'plugins/community/portaljs',
   'plugins/community/quit-sponsor',
@@ -78,6 +80,7 @@ const expectedManagedMirrorDirectories = [
   'plugins/devops/sugar',
   'plugins/mcp/dolt-mcp-vcs',
   'plugins/mcp/governed-second-brain',
+  'plugins/mcp/pr-to-spec',
   'plugins/mcp/servicegraph',
   'plugins/productivity/box-cloud-filesystem',
   'plugins/productivity/claude-workflow-skills',
@@ -89,14 +92,13 @@ const expectedManagedMirrorDirectories = [
   'plugins/productivity/publishing-skills',
   'plugins/productivity/schedule-after-usage-reset',
   'plugins/productivity/skyvern',
+  'plugins/security/hol-guard',
   'plugins/testing/cli-ux-tester',
   'plugins/testing/kobiton-automate',
 ];
 
 const expectedUpstreamMirrorDirectories = [
   'plugins/ai-agency/hyperflow',
-  'plugins/community/llm-box',
-  'plugins/mcp/pr-to-spec',
   'plugins/mcp/slack-channel',
   'plugins/mcp/x-bug-triage',
   'plugins/productivity/cli-power-skills',
@@ -238,7 +240,7 @@ test('upstream-owned source package remains byte/object unchanged', () => {
   assert.equal(JSON.stringify(result.pkg), before);
 });
 
-test('current source-owned package census has exactly 31 managed and 6 upstream manifests', () => {
+test('current source-owned package census has exactly 34 managed and 4 upstream manifests', () => {
   const rows = sourcePackageRows(repositoryRoot);
   const managed = rows
     .filter((row) => isRepositoryGeneratedTrackingManifest(row.package, row.directory))
@@ -247,9 +249,58 @@ test('current source-owned package census has exactly 31 managed and 6 upstream 
     .filter((row) => !isRepositoryGeneratedTrackingManifest(row.package, row.directory))
     .map((row) => row.directory);
 
-  assert.equal(rows.length, 37);
+  assert.equal(rows.length, 38);
   assert.deepEqual(managed, expectedManagedMirrorDirectories);
   assert.deepEqual(upstream, expectedUpstreamMirrorDirectories);
+});
+
+test('source inventory replaces an unowned stale build manifest with a private tracking package', () => {
+  const pluginDir = join(repositoryRoot, 'plugins/mcp/pr-to-spec');
+  const stale = {
+    name: 'pr-to-spec',
+    version: '0.8.0',
+    private: true,
+    scripts: { test: 'vitest run', build: 'tsc', prepublishOnly: 'pnpm build' },
+    devDependencies: { vitest: '^3.0.0' },
+  };
+  const marker = { files: ['.claude-plugin/plugin.json', 'dist/mcp-bundle/package.json'] };
+  const first = reconcileMirrorPackage(pluginDir, stale, marker);
+  assert.equal(first.changed, true);
+  assert.equal(first.pkg.name, '@intentsolutionsio/pr-to-spec');
+  assert.equal(first.pkg.private, true);
+  assert.equal(first.pkg.devDependencies, undefined);
+  assert.equal(first.pkg.publishConfig, undefined);
+  assert.deepEqual(Object.keys(first.pkg.scripts), ['postinstall']);
+  assert.equal(reconcileMirrorPackage(pluginDir, first.pkg, marker).changed, false);
+  const drifted = {
+    ...first.pkg,
+    scripts: { ...first.pkg.scripts, test: 'vitest run' },
+    devDependencies: { vitest: '^3.0.0' },
+  };
+  const repaired = reconcileMirrorPackage(pluginDir, drifted, marker);
+  assert.equal(repaired.changed, true);
+  assert.deepEqual(repaired.pkg, first.pkg);
+  assert.equal(reconcileMirrorPackage(pluginDir, stale, { files: ['package.json'] }).pkg, stale);
+  assert.equal(reconcileMirrorPackage(pluginDir, stale, {}).pkg, stale);
+});
+
+test('source inventory refuses malformed ownership instead of replacing an upstream package', () => {
+  const pluginDir = join(repositoryRoot, 'plugins/mcp/pr-to-spec');
+  for (const files of [
+    null,
+    'package.json',
+    ['../package.json'],
+    ['/package.json'],
+    ['a\\package.json'],
+    [''],
+    [null],
+    ['package.json', 'package.json'],
+  ]) {
+    assert.throws(
+      () => reconcileMirrorPackage(pluginDir, {}, { files }),
+      /Invalid source file inventory/,
+    );
+  }
 });
 
 test('managed mirror reconciliation is deterministic and drift-free on its second run', () => {

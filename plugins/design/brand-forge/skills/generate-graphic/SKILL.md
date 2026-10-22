@@ -113,6 +113,7 @@ Warns that baked-in text renders poorly, generates the background here, and comp
 ## Resources
 
 - `references/brand-raster-prompting.md` — how the prompt is built from the profile, why text stays out of the image, provider notes, and steering tips.
+- Rendered preview — `lib/context/graphic-hero.png`. Some marketplaces omit binary assets from that directory; if your copy did, view it at [localplugins/plugins](https://github.com/localplugins/plugins/tree/main/brand-forge/lib/context).
 - Sibling skills: generate-social and generate-doc-template for text-heavy, zero-permission assets — route between them with the `/brand-make` command.
 - [Gemini image generation docs](https://ai.google.dev/gemini-api/docs/image-generation) — the default provider's API.
 - [Agent Skills documentation](https://code.claude.com/docs/en/skills) — how skills are authored and invoked.

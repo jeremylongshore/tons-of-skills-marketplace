@@ -5,19 +5,20 @@
     "url": "https://github.com/khendzel"
   },
   "metadata": {
-    "description": "Audit, clean and swipe-triage your Claude Code + Codex skills. Honest always-loaded vs on-demand token costs, subagent inventory, actually deletes what you don't need.",
-    "version": "1.5.1",
+    "description": "Tinder for your Claude Code skills, subagents and MCP servers. Swipe away what wastes context, scan for prompt injection, get honest token costs. Fixes what it finds and actually deletes. Zero dependencies, Claude Code + Codex.",
+    "version": "1.8.0",
     "repository": "https://github.com/khendzel/skills-janitor"
   },
   "plugins": [
     {
       "name": "skills-janitor",
-      "description": "5 skill hygiene tools: health report (skills+agents+plugin updates), auto-fix + prune, value (honest token split + usage), discover (search+precheck), swipe (interactive triage).",
+      "description": "6 skill hygiene tools: health report, auto-fix + prune, value (honest token split + usage), security scan (prompt injection + malicious patterns), discover (search + precheck), swipe (interactive triage).",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/janitor-report",
         "./skills/janitor-fix",
+        "./skills/janitor-security",
         "./skills/janitor-value",
         "./skills/janitor-discover",
         "./skills/janitor-swipe"

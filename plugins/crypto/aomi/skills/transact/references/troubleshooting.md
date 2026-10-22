@@ -2,17 +2,17 @@
 
 Read this when a command fails unexpectedly or behaves differently than the workflow predicts.
 
-## Chat / Thread
+## Chat / Session
 
-- If `aomi chat` returns `(no response)`, wait briefly and run `aomi thread status`.
-- If `aomi thread status` shows the thread is gone, the local pointer may be stale — retry with `--new-session`.
+- If `aomi chat` returns `(no response)`, wait briefly and run `aomi session status`.
+- If `aomi session status` shows the session is gone, the local pointer may be stale — retry with `--new-session`.
 
 ## Signing
 
-- If AA signing fails, the CLI tries the alternative AA mode automatically. If both modes fail and `--aa` was not set, it can try EOA. Read the console output before retrying manually.
-- If AA fails with a credential error, stop and ask the user to check their provider configuration on their side. Do not try to configure it from the skill.
+- If `aomi tx sign` fails with `AA execution now runs in the backend lane (rolling out); use --eoa for local execution.`, an AA path was selected. Drop `--aa` / `--aa-provider` / `--aa-mode` — and if no flags were passed, check for `AOMI_AA_PROVIDER` or `AOMI_AA_MODE` in the environment and have the user unset them.
 - If a transaction fails on-chain, check the RPC URL, balance, and chain.
-- If the signer address differs from the stored thread public key, the CLI updates the thread to the signer address and continues — this is expected, not an error.
+- If the signer address differs from the stored session public key, the CLI updates the session to the signer address and continues — this is expected, not an error.
+- `--public-key` must match the address derived from `--private-key`; a mismatch is a hard error, not a warning.
 
 ## RPC
 
@@ -27,25 +27,27 @@ Read this when a command fails unexpectedly or behaves differently than the work
 
 ## Cross-chain
 
-- When the chat/thread chain (`--chain`) differs from the chain the agent eventually queues a tx for, that's normal — the user may have asked for a cross-chain operation. Sign with `--rpc-url` matching the *queued tx*'s chain, not the thread chain.
+- When the chat/session chain (`--chain`) differs from the chain the agent eventually queues a tx for, that's normal — the user may have asked for a cross-chain operation. Sign with `--rpc-url` matching the *queued tx*'s chain, not the session chain.
 
 ## Invocation
 
 - If `aomi: command not found`, the user does not have the global install. Substitute `npx @aomi-labs/client@latest` for `aomi` in every command and retry.
-- If `aomi --version` reports a version older than `0.1.42`, advise `npm install -g @aomi-labs/client@latest` (or use `npx @aomi-labs/client@latest …` for one-shot calls) before continuing — older versions may lack flags or Solana/account-auth behavior this skill assumes.
+- If `aomi --version` reports a version older than `0.4.2`, advise `npm install -g @aomi-labs/client@latest` (or use `npx @aomi-labs/client@latest …` for one-shot calls) before continuing. This matters more than it looks: **a global `aomi` is never upgraded by reinstalling the skill**, so a machine can sit on an old binary indefinitely while the skill docs move ahead. On 0.1.x, `aomi account` had only `login` and `whoami`, account auth lived at `aomi wallet login`, and `aomi tx sign` still attempted AA locally.
+- If a command errors with `Unknown command`, check it against [commands.md → Not in v0.4.2](commands.md#not-in-v042) before assuming the CLI is broken.
 
 ## Quirks observed in current CLI/source
 
 These are not bugs the skill should try to fix — they are CLI behaviors to recognize and route around.
 
 - **`[session] Backend user_state mismatch (non-fatal)` log spam** appears between the prompt and the agent response. These lines are large JSON dumps that look alarming. Ignore them — they are not errors. Look past them for the actual agent response and the `⚡ Wallet request queued: tx-N` line.
-- **The active thread pointer can disappear between shell invocations.** If `aomi tx list` returns `No active thread` after a successful chat, run `aomi thread list` to find the thread id (look for `topic` matching what you just asked the agent), then `aomi thread resume <N> > /dev/null && aomi tx list` in the **same** shell call.
+- **The active session pointer can disappear between shell invocations.** If `aomi tx list` returns `No active session. Run \`aomi chat\` first.` after a successful chat, run `aomi session list` to find the session id (look for `topic` matching what you just asked the agent), then `aomi session resume <N> > /dev/null && aomi tx list` in the **same** shell call.
+- **`aomi deploy` is advertised but not wired up.** It appears in `aomi --help` under COMMANDS, but it is not registered as a subcommand in v0.4.2, so `aomi deploy` exits with `❌ Unknown command deploy` and `aomi deploy --help` prints the generic root help. Fix pending in aomi-labs/aomi#467; until a release ships it, do not use it.
 - **Stale failed-simulation txs accumulate.** When the agent retries (e.g. Across with expired deadlines), the failed prior attempts stay visible in `aomi tx list`. Match against the `batch_status` metadata: only sign txs whose status reads `Batch [...] passed`. Skip ones tagged `failed at step N: 0x...`.
 - **Agent self-heals expired deadlines.** For deadline-bearing routes (Across, Khalani fillers), if simulation reports an expiry, the agent will rebuild the request automatically with fresh deadlines. Do not re-prompt — just check `aomi tx list` for the latest passing batch.
 - **`BYOK key set for anthropic: sk-ant-...` echoes the first ~7 characters of the provider key.** This is by design (provider identification, not authentication). Do not try to scrub it from output — it is not a credential leak.
 - **Public backend app/model introspection can return 404.** Treat `aomi app list` and `aomi model list` as convenience commands. A 404 there does not prove chat, tx, simulation, or signing is broken.
 - **Solana instruction-only pending requests are not fully CLI-signable yet.** The current TypeScript signer reconstructs pending Solana signables when the backend/local pending record includes `unsigned_tx` / `unsignedTx`. Canonical `svm_ixs` without an unsigned tx may be filtered out.
 
-## AA and native gas
+## Native gas
 
-If `aomi tx sign` returns `insufficient funds for transfer` from viem, the active path needs native gas from the EOA. See `references/account-abstraction.md#sponsorship-in-practice-verified-against-v0142-source-behavior` for the expected behavior and recovery options. Short version: the EOA needs a small amount of native gas on the destination chain, or the user needs to configure a real BYOK 4337 provider with a sponsorship policy. Do not retry with `--eoa` blindly — that path also requires gas.
+If `aomi tx sign` returns `insufficient funds for transfer` from viem, the signing EOA has no native gas on the destination chain. Since local signing is EOA-only in v0.4.2, there is no sponsorship path to fall back on — the EOA needs a small amount of native gas on that chain (~0.0005 ETH equivalent is enough). Do not retry with different flags; see [account-abstraction.md](account-abstraction.md#gas-the-rule-the-skill-must-follow).

@@ -12,6 +12,8 @@ mutation gate that keeps destructive operations recommend-only.
 > The [beads (`bd`) task tracker](https://github.com/gastownhall/beads) ships as **use-case
 > adapter #1**.
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U5S225PTME)
+
 ## Why this exists
 
 The Dolt ecosystem is no longer one product. There is classic **Dolt** (MySQL wire, GA),

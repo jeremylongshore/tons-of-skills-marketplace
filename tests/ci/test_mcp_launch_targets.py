@@ -1,4 +1,4 @@
-"""Every first-party MCP plugin must launch a file that ships with the plugin.
+"""Every node-launched MCP plugin must launch a file that ships with the plugin.
 
 The marketplace installs a plugin by copying its directory; it does not run
 `npm install` or a build. Bead claude-e1mk.10 found most `plugins/mcp/*`
@@ -7,8 +7,9 @@ gitignored, so the server file did not exist after install, and several used a
 path relative to the user's working directory. This pins the fix: a `node`
 launch target must be anchored at `${CLAUDE_PLUGIN_ROOT}` and committed.
 
-External mirrors (directories with `.source.json`) are exempt: their launch
-contract is owned upstream and fixed there.
+Mirrors are included. Their files come from upstream, but the commit is ours:
+a mirrored bundle that is locked in sources.lock.json yet gitignored here
+(pr-to-spec's dist/mcp-bundle, caught on #1595) installs without its server.
 """
 
 import json
@@ -31,23 +32,38 @@ def tracked(path: Path) -> bool:
     return result.returncode == 0
 
 
-def first_party_node_launches():
+def installed_servers(plugin: Path) -> dict:
+    """The MCP servers a marketplace install launches.
+
+    A manifest-declared `mcpServers` (in .claude-plugin/plugin.json) is what an
+    installed plugin uses; the root .mcp.json applies only when the manifest
+    declares none (it may also serve as project-scope config for the repo itself).
+    """
+    manifest = plugin / ".claude-plugin" / "plugin.json"
+    if manifest.is_file():
+        declared = json.loads(manifest.read_text(encoding="utf-8")).get("mcpServers")
+        if isinstance(declared, dict) and declared:
+            return declared
+    config = plugin / ".mcp.json"
+    if config.is_file():
+        return json.loads(config.read_text(encoding="utf-8")).get("mcpServers", {})
+    return {}
+
+
+def node_launches():
     for plugin in sorted(p for p in MCP_DIR.iterdir() if p.is_dir()):
-        config = plugin / ".mcp.json"
-        if not config.is_file() or (plugin / ".source.json").exists():
-            continue
-        servers = json.loads(config.read_text(encoding="utf-8")).get("mcpServers", {})
+        servers = installed_servers(plugin)
         for name, server in servers.items():
             if server.get("command") == "node":
                 yield plugin, name, server.get("args", [])
 
 
 class McpLaunchTargets(unittest.TestCase):
-    def test_there_are_first_party_node_launches_to_check(self):
-        self.assertGreaterEqual(len(list(first_party_node_launches())), 6)
+    def test_there_are_node_launches_to_check(self):
+        self.assertGreaterEqual(len(list(node_launches())), 6)
 
     def test_node_launch_targets_are_plugin_root_anchored_and_committed(self):
-        for plugin, name, args in first_party_node_launches():
+        for plugin, name, args in node_launches():
             with self.subTest(plugin=plugin.name, server=name):
                 self.assertTrue(args, "node launch needs a script argument")
                 target = args[0]

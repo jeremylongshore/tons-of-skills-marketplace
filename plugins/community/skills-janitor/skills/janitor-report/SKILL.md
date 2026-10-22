@@ -3,7 +3,7 @@ name: janitor-report
 description: "Full health check of all your skills in one report. Use when the user wants to check for errors, find duplicates, detect broken skills, or get a complete overview of skill health. Pass --brief for inventory only. Trigger with '/janitor-report'."
 allowed-tools: Read, Bash(bash:*)
 argument-hint: "[--brief]"
-version: 1.5.1
+version: 1.7.0
 author: Krzysztof Hendzel <krzysztoff.hendzel@gmail.com>
 license: MIT
 compatibility: Designed for Claude Code. Requires bash 3.2+ (macOS default works). Reads local Claude Code data only (~/.claude/skills, ~/.claude/agents, installed plugin metadata).
@@ -81,6 +81,8 @@ Recommended actions per issue type:
 - User-vs-plugin duplicates → uninstall the user-scope copy and rely on the plugin (or vice versa)
 - Stale plugins (`update_available: true`) → `/plugin update <name>`
 - Token waste → `/janitor-value`
+- Suspicious content (injection phrases, dangerous scripts) → `/janitor-security`
+- Unused MCP servers (run `scripts/mcp.sh` for the inventory) → remove the config entry or `/janitor-swipe`
 
 ## Error Handling
 

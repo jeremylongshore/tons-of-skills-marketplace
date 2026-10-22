@@ -37,10 +37,10 @@ import { canonicalJson } from './journal.ts'
  *  - `channel`    — Slack channel ID, e.g. "C0123456789".
  *  - `thread_ts`  — Slack thread timestamp, e.g. "1712345678.001100".
  *                   Scopes a rule to a single thread within a channel.
- *                   Schema-only in v0.5.x: reserved for Epic 29-B's
- *                   evaluate() wiring so operators can ship thread-
- *                   scoped rules against a stable v1 schema without a
- *                   migration edit once enforcement lands.
+ *                   Enforced by evaluate() via matchApplies(): compared
+ *                   against `call.sessionKey.thread`. (Previously schema-
+ *                   only; wiring landed in Epic 29-B — before that a
+ *                   thread_ts-only rule silently matched every thread.)
  *  - `actor`      — who is calling the tool. Approvers arrive on a
  *                   later turn so they are not a valid `actor` here.
  *  - `argEquals`  — subset equality on validated MCP input args. Keys
@@ -227,6 +227,15 @@ export type PolicyDecision =
        *  approve before the decision flips to allow. Propagated from
        *  `RequireApprovalRule.approvers` (default 1). */
       approvers: number
+      /** Set ONLY on the input-unavailable fail-safe path (ccsc-x0t.5):
+       *  a `deny`/`require_approval` rule matched every enforceable field
+       *  but its `pathPrefix`/`argEquals` predicate could not be evaluated
+       *  at the gate, so the call is routed to a human. Honest-journaling
+       *  signal — the server writes it into the `policy.require` event so
+       *  the audit chain records WHY the human was asked, never claiming
+       *  the predicate was evaluated. Undefined on a genuine
+       *  `require_approval` match. */
+      reason?: string
     }
 
 // Compile-time shape-drift guard. `lib.ts` deliberately duplicates the
@@ -338,6 +347,20 @@ export interface ToolCall {
   input: Record<string, unknown>
   sessionKey: { channel: string; thread: string }
   actor: 'session_owner' | 'claude_process'
+  /** Whether `input` carries the structured tool args. Defaults to `true`.
+   *
+   *  The sole production caller — the MCP `permission_request` notification
+   *  handler — sets this `false`: that notification carries only an
+   *  `input_preview` string, never the structured args, so it builds the
+   *  call with `input: {}`. When `false`, `matchApplies` cannot evaluate the
+   *  `pathPrefix`/`argEquals` predicates and returns `'indeterminate'`
+   *  instead of the old fail-open `false`; `evaluate()` then fails a
+   *  `deny`/`require_approval` rule SAFE to `require` (routes to a human)
+   *  rather than letting a later broad `auto_approve` swallow the call.
+   *  See 000-docs/policy-evaluation-flow.md § Input-unavailable fail-safe
+   *  (ccsc-x0t.5). Defaulting to `true` keeps every existing call site and
+   *  test byte-for-byte unchanged. */
+  inputAvailable?: boolean
 }
 
 /** Key into the approvals map: `${ruleId}:${channel}:${thread}`. Scoped
@@ -389,6 +412,27 @@ export interface EvaluateOptions {
  *  tiers are not consulted. */
 const TIER_PRIORITY: readonly PolicyTier[] = ['admin', 'user', 'workspace', 'default']
 
+// ---------------------------------------------------------------------------
+// Input-unavailable fail-safe constants (ccsc-x0t.5)
+// ---------------------------------------------------------------------------
+
+/** Reason stamped on a `require` decision produced by the input-unavailable
+ *  fail-safe. Exported so tests and the server assert against one string,
+ *  not a copy. The server writes this into the `policy.require` journal
+ *  event so the audit chain records WHY the human was asked. */
+export const INDETERMINATE_PREDICATE_REASON = 'predicate unevaluable at gate → routed to human'
+
+/** Approval-window TTL applied when a `deny` rule is fail-safed to `require`
+ *  (a `deny` has no `ttlMs` of its own). Mirrors the `require_approval`
+ *  schema default (5 min) so the hold clears promptly and doesn't linger. */
+export const FAILSAFE_APPROVAL_TTL_MS = 5 * 60 * 1000
+
+/** Quorum applied when a `deny` rule is fail-safed to `require` (a `deny`
+ *  has no `approvers` of its own). One operator can clear the hold —
+ *  matches the `require_approval` schema default and avoids a surprise
+ *  deadlock when no second approver is configured. */
+export const FAILSAFE_APPROVAL_QUORUM = 1
+
 export function evaluate(
   call: ToolCall,
   rules: readonly PolicyRule[],
@@ -415,8 +459,46 @@ export function evaluate(
   for (const tier of TIER_PRIORITY) {
     for (const rule of rules) {
       if (effectiveTier(rule) !== tier) continue
-      if (!matchApplies(rule.match, call)) continue
 
+      const outcome = matchApplies(rule.match, call)
+      if (outcome === 'no_match') continue
+
+      if (outcome === 'indeterminate') {
+        // Input-unavailable fail-safe (ccsc-x0t.5). Every enforceable field
+        // (tool/channel/thread_ts/actor) matched, but an input-dependent
+        // predicate (pathPrefix/argEquals) could not be evaluated because the
+        // call carries no structured input (inputAvailable === false). NEVER
+        // fail-open here:
+        //   - auto_approve → skip (never auto-approve on an unconfirmable
+        //     predicate); fall through to later rules / the default branch,
+        //     exactly the pre-x0t.5 no-match net effect, now made explicit.
+        //   - deny / require_approval → route to a human (require), which
+        //     PREEMPTS any later broad auto_approve that would otherwise
+        //     swallow the call. This is the whole fix: an operator's
+        //     `{deny, pathPrefix:/etc}` no longer silently loses to a later
+        //     `{auto_approve, tool:Bash}`.
+        // See 000-docs/policy-evaluation-flow.md § Input-unavailable fail-safe.
+        if (rule.effect === 'auto_approve') continue
+        // Honor a fresh (rule, session) approval — an indeterminate
+        // require_approval then behaves identically to a matched one, and a
+        // human who already cleared an indeterminate deny isn't re-prompted.
+        const approval = approvals.get(approvalKey(rule.id, call.sessionKey))
+        if (approval && approval.ttlExpires > now) {
+          return { kind: 'allow', rule: rule.id }
+        }
+        return {
+          kind: 'require',
+          rule: rule.id,
+          approver: 'human_approver',
+          // require_approval carries its own window; a deny has none, so
+          // fall back to the conservative fail-safe defaults.
+          ttlMs: rule.effect === 'require_approval' ? rule.ttlMs : FAILSAFE_APPROVAL_TTL_MS,
+          approvers: rule.effect === 'require_approval' ? rule.approvers : FAILSAFE_APPROVAL_QUORUM,
+          reason: INDETERMINATE_PREDICATE_REASON,
+        }
+      }
+
+      // outcome === 'match' — every field evaluated; original semantics.
       switch (rule.effect) {
         case 'auto_approve':
           return { kind: 'allow', rule: rule.id }
@@ -450,32 +532,61 @@ export function evaluate(
   return { kind: 'allow' }
 }
 
-/** Does `match` apply to `call`? Every undefined field is a wildcard. */
-function matchApplies(match: MatchSpec, call: ToolCall): boolean {
-  if (match.tool !== undefined && match.tool !== call.tool) return false
-  if (match.channel !== undefined && match.channel !== call.sessionKey.channel) return false
-  if (match.actor !== undefined && match.actor !== call.actor) return false
+/** Tri-state result of `matchApplies` (ccsc-x0t.5).
+ *
+ *  - `'match'`         — the rule applies to the call.
+ *  - `'no_match'`      — the rule genuinely does not apply.
+ *  - `'indeterminate'` — every ENFORCEABLE field matched, but an
+ *    input-dependent predicate (`pathPrefix`/`argEquals`) could not be
+ *    evaluated because the call carries no structured input
+ *    (`inputAvailable === false`). `evaluate()` fails a
+ *    `deny`/`require_approval` rule SAFE to `require` on this signal, and
+ *    skips an `auto_approve`. */
+type MatchOutcome = 'match' | 'no_match' | 'indeterminate'
+
+/** Does `match` apply to `call`? Every undefined field is a wildcard.
+ *
+ *  Enforceable fields (`tool`/`channel`/`thread_ts`/`actor`) are evaluable
+ *  regardless of input availability, so they are checked FIRST and any
+ *  mismatch short-circuits to `'no_match'` — a rule that mismatches one of
+ *  them genuinely does not apply and never reaches the fail-safe path. Only
+ *  when every enforceable field matches do the input-dependent predicates
+ *  run; under `inputAvailable === false` an unevaluable `pathPrefix`/
+ *  `argEquals` yields `'indeterminate'` instead of the pre-x0t.5 fail-open
+ *  `false`. When input IS available (the default), the tri-state collapses
+ *  to the original boolean and behavior is byte-for-byte unchanged. */
+function matchApplies(match: MatchSpec, call: ToolCall): MatchOutcome {
+  if (match.tool !== undefined && match.tool !== call.tool) return 'no_match'
+  if (match.channel !== undefined && match.channel !== call.sessionKey.channel) return 'no_match'
+  if (match.thread_ts !== undefined && match.thread_ts !== call.sessionKey.thread) return 'no_match'
+  if (match.actor !== undefined && match.actor !== call.actor) return 'no_match'
+
+  // Enforceable fields all matched. Input-dependent predicates come next;
+  // they are unevaluable at a call site that carries no structured input.
+  const inputAvailable = call.inputAvailable ?? true
 
   if (match.pathPrefix !== undefined) {
+    if (!inputAvailable) return 'indeterminate'
     const raw = call.input.path
-    if (typeof raw !== 'string') return false
+    if (typeof raw !== 'string') return 'no_match'
     try {
       const resolvedPrefix = canonicalizeRulePathPrefix(match.pathPrefix)
       const resolvedInput = canonicalizeRequestPath(raw)
-      if (!pathMatchesPrefix(resolvedInput, resolvedPrefix)) return false
+      if (!pathMatchesPrefix(resolvedInput, resolvedPrefix)) return 'no_match'
     } catch {
       // Either side failed to resolve: treat as non-match. Fail-closed.
-      return false
+      return 'no_match'
     }
   }
 
   if (match.argEquals !== undefined) {
+    if (!inputAvailable) return 'indeterminate'
     for (const [k, v] of Object.entries(match.argEquals)) {
-      if (!jsonEqual(call.input[k], v)) return false
+      if (!jsonEqual(call.input[k], v)) return 'no_match'
     }
   }
 
-  return true
+  return 'match'
 }
 
 /** Structural equality via JSON round-trip. Good enough for validated
@@ -645,6 +756,15 @@ export function detectShadowing(rules: readonly PolicyRule[]): ShadowWarning[] {
 function matchSubsetOrEqual(outer: MatchSpec, inner: MatchSpec): boolean {
   if (outer.tool !== undefined && outer.tool !== inner.tool) return false
   if (outer.channel !== undefined && outer.channel !== inner.channel) return false
+  // thread_ts (ccsc-x0t.1): mirror matchesIntersect, which already honors it.
+  // Without this, a thread-scoped `outer` was treated as covering EVERY thread,
+  // so detectShadowing / checkMonotonicity false-flagged thread-disjoint rules
+  // (e.g. warned that a rule scoped to thread B is shadowed by one scoped to
+  // thread A, or refused a reload adding a thread-B auto_approve alongside a
+  // thread-A deny). A thread-scoped outer only subsets an inner in the SAME
+  // thread. Enforcement in evaluate() (matchApplies) already compared thread_ts;
+  // this closes the same gap in the subset/monotonicity linters.
+  if (outer.thread_ts !== undefined && outer.thread_ts !== inner.thread_ts) return false
   if (outer.actor !== undefined && outer.actor !== inner.actor) return false
 
   if (outer.pathPrefix !== undefined) {
@@ -813,6 +933,69 @@ export function detectBroadAutoApprove(rules: readonly PolicyRule[]): BroadMatch
           `a misconfiguration. Narrow the rule or convert to require_approval.`,
       })
     }
+  }
+  return warnings
+}
+
+// ---------------------------------------------------------------------------
+// detectUnenforceablePredicates() — boot-time honesty warning for rules whose
+// pathPrefix/argEquals predicate the production MCP permission gate cannot
+// evaluate (ccsc-x0t.5). Sibling of detectShadowing / detectBroadAutoApprove.
+// ---------------------------------------------------------------------------
+
+export interface UnenforceablePredicateWarning {
+  ruleId: string
+  /** Which input-dependent predicate(s) the gate cannot evaluate. */
+  predicates: ('pathPrefix' | 'argEquals')[]
+  message: string
+}
+
+/** Flag every rule whose `match` constrains `pathPrefix` or `argEquals`.
+ *
+ *  The sole production caller of `evaluate()` is the MCP `permission_request`
+ *  handler, whose notification carries only an `input_preview` string — no
+ *  structured args. So at that gate these predicates are unevaluable and the
+ *  input-unavailable fail-safe kicks in: a `deny`/`require_approval` rule is
+ *  routed to a human (never silently skipped), and an `auto_approve` rule is
+ *  skipped (never auto-approved on an unconfirmable predicate). Either way the
+ *  rule does NOT behave the way its JSON literally reads against structured
+ *  input.
+ *
+ *  This warning states that plainly at boot so an operator authoring a
+ *  `pathPrefix`/`argEquals` rule is never surprised that it behaves more
+ *  coarsely than written. It names the effective behavior per effect.
+ *
+ *  Warn-not-block (same posture as `detectShadowing` / `detectBroadAutoApprove`):
+ *  the predicate IS enforceable in a test harness or a future MCP surface that
+ *  carries structured args, so an operator shouldn't be blocked from booting.
+ *  Not shadow-detection (unreachable rules), not monotonicity (weakening
+ *  reloads), not broad-auto-approve (over-scoped grants) — a distinct axis:
+ *  "this predicate can't be checked at the live gate, here's what happens
+ *  instead."
+ */
+export function detectUnenforceablePredicates(
+  rules: readonly PolicyRule[],
+): UnenforceablePredicateWarning[] {
+  const warnings: UnenforceablePredicateWarning[] = []
+  for (const rule of rules) {
+    const predicates: ('pathPrefix' | 'argEquals')[] = []
+    if (rule.match.pathPrefix !== undefined) predicates.push('pathPrefix')
+    if (rule.match.argEquals !== undefined) predicates.push('argEquals')
+    if (predicates.length === 0) continue
+
+    const behavior =
+      rule.effect === 'auto_approve'
+        ? 'is SKIPPED (never auto-approved on an unconfirmable predicate)'
+        : 'FAILS SAFE to human approval'
+    warnings.push({
+      ruleId: rule.id,
+      predicates,
+      message:
+        `rule '${rule.id}' constrains ${predicates.join(' + ')}, which the MCP ` +
+        `permission_request gate cannot evaluate (it carries only a preview string, ` +
+        `not structured args). At that gate this ${rule.effect} rule ${behavior}. ` +
+        `See 000-docs/policy-evaluation-flow.md § Input-unavailable fail-safe.`,
+    })
   }
   return warnings
 }

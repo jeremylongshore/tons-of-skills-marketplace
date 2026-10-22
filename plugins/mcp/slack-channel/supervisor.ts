@@ -253,7 +253,13 @@ export interface SessionHandle {
    *  (`pending`), and `createdAt` are stamped here. */
   recordTerminalDelivery(
     token: number,
-    reply: { id: string; channel: string; thread: string; payload: string },
+    reply: {
+      id: string
+      channel: string
+      thread: string
+      payload: string
+      blocks?: Array<Record<string, unknown>>
+    },
   ): Promise<void>
 
   /** Batch sibling of `recordTerminalDelivery` for a chunked reply (ccsc-o7x.4):
@@ -277,6 +283,7 @@ export interface SessionHandle {
       channel: string
       thread: string
       payload: string
+      blocks?: Array<Record<string, unknown>>
       upload?: { path: string; filename: string; comment?: string }
     }[],
   ): Promise<void>
@@ -517,19 +524,19 @@ export interface SessionSupervisor {
 /** Structured log line emitted by the supervisor. `event` is a stable
  *  identifier (e.g. `session.activate`); `fields` carries the event's
  *  payload. Consumers are expected to inject their own writer; the
- *  default writes one newline-delimited JSON object per call to stdout
- *  so the journal sink (Epic 30-A) can tail the stream. */
+ *  default writes one newline-delimited JSON object per call to stderr
+ *  (stdout is the MCP stdio protocol channel and must stay clean). */
 export type SupervisorLog = (event: string, fields: Record<string, unknown>) => void
 
 /** Injection points for a SessionSupervisor. All are optional; defaults
- *  give you a production-shaped supervisor that writes to stdout and
+ *  give you a production-shaped supervisor that logs to stderr and
  *  reads real wall-clock time. Tests supply their own `log` and `clock`
  *  to keep assertions deterministic. */
 export interface SupervisorOptions {
   /** State directory root, e.g. `~/.claude/channels/slack`. The same
    *  root passed to `sessionPath()` and `loadSession()` in lib.ts. */
   stateRoot: string
-  /** Optional structured log sink. Defaults to a stdout JSON-line
+  /** Optional structured log sink. Defaults to a stderr JSON-line
    *  writer. */
   log?: SupervisorLog
   /** Optional wall-clock source, returning epoch-ms. Defaults to
@@ -603,15 +610,23 @@ export function resolveMaxConcurrentSessions(
 }
 
 /** Default structured log writer: one newline-delimited JSON object per
- *  call, written to stdout. Matches the format the journal sink will
- *  tail. Keeping this internal means callers who want a different sink
- *  just pass their own `log` — no global config. */
-function defaultLog(event: string, fields: Record<string, unknown>): void {
+ *  call, written to STDERR. Keeping this internal means callers who want
+ *  a different sink just pass their own `log` — no global config.
+ *
+ *  This must NOT write to stdout: the server speaks MCP over stdio, so
+ *  stdout is the protocol channel. A structured log line there arrives
+ *  at the client as an invalid JSON-RPC message (no jsonrpc/method/id
+ *  keys) and Claude Code drops the whole connection — in practice every
+ *  `session.activate` (one per inbound message) and every boot-time
+ *  recovery-sweep line killed the transport. */
+// Exported (ccsc-x0t.10) so a regression test can assert it writes to STDERR,
+// never STDOUT — the stdout-is-the-MCP-protocol-channel invariant #267 fixed.
+export function defaultLog(event: string, fields: Record<string, unknown>): void {
   const line = JSON.stringify({ event, ...fields })
-  // process.stdout.write is sync for TTYs, async for pipes; either way
+  // process.stderr.write is sync for TTYs, async for pipes; either way
   // the supervisor does not await the flush. Structured logs are best-
   // effort; loss of a line is not a correctness issue.
-  process.stdout.write(`${line}\n`)
+  process.stderr.write(`${line}\n`)
 }
 
 /** Construct a SessionSupervisor bound to a state directory.
@@ -1493,13 +1508,20 @@ class ConcreteHandle implements SessionHandle {
 
   recordTerminalDelivery(
     token: number,
-    reply: { id: string; channel: string; thread: string; payload: string },
+    reply: {
+      id: string
+      channel: string
+      thread: string
+      payload: string
+      blocks?: Array<Record<string, unknown>>
+    },
   ): Promise<void> {
     const obligation: DeliveryObligation = {
       id: reply.id,
       channel: reply.channel,
       thread: reply.thread,
       payload: reply.payload,
+      ...(reply.blocks !== undefined ? { blocks: reply.blocks } : {}),
       attempts: 0,
       state: 'pending',
       createdAt: this.clock(),
@@ -1520,6 +1542,7 @@ class ConcreteHandle implements SessionHandle {
       channel: string
       thread: string
       payload: string
+      blocks?: Array<Record<string, unknown>>
       // ccsc-o7x.5 — when present, this is a durable FILE-upload obligation.
       upload?: { path: string; filename: string; comment?: string }
     }[],
@@ -1533,6 +1556,7 @@ class ConcreteHandle implements SessionHandle {
       attempts: 0,
       state: 'pending',
       createdAt: now,
+      ...(reply.blocks !== undefined ? { blocks: reply.blocks } : {}),
       ...(reply.upload !== undefined ? { upload: reply.upload } : {}),
     }))
     // One atomic save appends ALL obligations AND clears the in-flight marker:

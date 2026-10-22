@@ -4,14 +4,14 @@
     "path": ".",
     "branch": "main"
   },
-  "last_sync": "2026-08-24T03:55:25.061Z",
+  "last_sync": "2026-10-01T05:33:07.238Z",
   "author": {
     "name": "Jeremy Longshore",
     "github": "jeremylongshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
-  "files_synced": 70,
+  "files_synced": 75,
   "files": [
     ".claude-plugin/plugin.json",
     ".mcp.json",
@@ -73,14 +73,19 @@
     "scripts/backup.sh",
     "scripts/cleanup.sh",
     "skills/bug-clustering/SKILL.md",
+    "skills/bug-clustering/references/runtime-contract.md",
     "skills/owner-routing/SKILL.md",
+    "skills/owner-routing/references/runtime-contract.md",
     "skills/repo-scanning/SKILL.md",
+    "skills/repo-scanning/references/runtime-contract.md",
     "skills/triage-display/SKILL.md",
+    "skills/triage-display/references/runtime-contract.md",
     "skills/x-bug-triage/SKILL.md",
     "skills/x-bug-triage/references/escalation-rules.md",
     "skills/x-bug-triage/references/evidence-policy.md",
     "skills/x-bug-triage/references/review-memory-policy.md",
     "skills/x-bug-triage/references/routing-rules.md",
+    "skills/x-bug-triage/references/runtime-contract.md",
     "skills/x-bug-triage/references/schemas.md",
     "tsconfig.base.json"
   ]

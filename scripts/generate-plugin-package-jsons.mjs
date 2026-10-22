@@ -259,6 +259,45 @@ export function reconcileGeneratedPackageMetadata(pkg, relDir, { sourceOwned = f
   };
 }
 
+export function reconcileMirrorPackage(pluginDir, pkg, marker) {
+  const relDir = repositoryRelativePath(ROOT, pluginDir);
+  // Older frozen mirrors may lack a file inventory. Absence is not authority
+  // to replace their package; retain the existing conservative classifier.
+  if (!Object.hasOwn(marker, 'files')) {
+    return reconcileGeneratedPackageMetadata(pkg, relDir, { sourceOwned: true });
+  }
+  if (
+    !Array.isArray(marker.files) ||
+    marker.files.some(
+      (file) =>
+        typeof file !== 'string' ||
+        !file ||
+        file.includes('\\') ||
+        file.includes('\0') ||
+        file.split('/').some((part) => !part || part === '.' || part === '..'),
+    ) ||
+    new Set(marker.files).size !== marker.files.length
+  ) {
+    throw new Error(`Invalid source file inventory in ${relDir}/.source.json`);
+  }
+  // The sync inventory, not the package's name, decides ownership. Upstream
+  // root manifests remain untouched here (sync owns the private transform).
+  if (marker.files.includes('package.json')) return { changed: false, pkg };
+  if (
+    isRepositoryGeneratedTrackingManifest(pkg, relDir) &&
+    Object.keys(pkg.scripts).every((name) => name === 'postinstall') &&
+    ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies'].every(
+      (field) => Object.keys(pkg[field] ?? {}).length === 0,
+    )
+  ) {
+    return reconcileGeneratedPackageMetadata(pkg, relDir, { sourceOwned: true });
+  }
+  const generated = buildPackageJson(pluginDir, readPluginJson(pluginDir), {
+    sourceOwned: true,
+  });
+  return { changed: JSON.stringify(pkg) !== JSON.stringify(generated), pkg: generated };
+}
+
 export function rewriteLegacyRepositoryUrls(source) {
   return LEGACY_REPO_URLS.reduce(
     (current, legacyUrl) => current.replaceAll(legacyUrl, REPO_URL),
@@ -358,13 +397,13 @@ async function main() {
       const source = readFileSync(packagePath, 'utf-8');
       const pkg = JSON.parse(source);
       const sourceOwned = existsSync(join(pluginDir, '.source.json'));
-      const reconciled = reconcileGeneratedPackageMetadata(
-        pkg,
-        repositoryRelativePath(ROOT, pluginDir),
-        {
-          sourceOwned,
-        },
-      );
+      const reconciled = sourceOwned
+        ? reconcileMirrorPackage(
+            pluginDir,
+            pkg,
+            JSON.parse(readFileSync(join(pluginDir, '.source.json'), 'utf8')),
+          )
+        : reconcileGeneratedPackageMetadata(pkg, repositoryRelativePath(ROOT, pluginDir));
       existing.push(pluginDir);
       if (reconciled.changed) {
         metadataUpdates.push({

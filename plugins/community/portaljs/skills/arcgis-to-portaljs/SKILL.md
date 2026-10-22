@@ -55,6 +55,15 @@ The canonical, full step-by-step workflow is
 3. Validate the portal directory and confirm the geo showcase components exist.
 4. Harvest the Hub `/data.json` (reuse the `portaljs-migrate` DCAT-US map) and classify each
    item: vector (FeatureService), table, or non-data (web map / 3D / imagery → skipped).
+   Under `--namespace-mode owner`, resolve namespaces through a publisher-normalization
+   table with title-prefix fallback for broken `{{source}}` publishers (multi-publisher
+   Hubs ship dirty publisher labels). Dedup near-duplicate hosted-`view` layers — but only
+   after a mandatory live record-count check on BOTH twins: equal ⇒ dedup (keep the source
+   layer, log the pair); different ⇒ keep both as distinct datasets. Consolidate per-year
+   dataset series into one year-partitioned Parquet with legacy per-year view entries. Enrich
+   from the AGOL item: sanitized metadata (license/description/dates), cleaned display title
+   (`cleanTitle` — raw title still drives the slug), `category` (item categories → meaningful
+   theme → keyword mapping), and a `thumbnail` snapshot into `public/thumbnails/`.
 5. Export each vector layer through the ArcGIS REST `query` API with `resultOffset` paging
    (`f=geojson`, `outSR=4326`); fall back to keyset paging on transfer limits; accept a
    customer File Geodatabase dump for very large layers.
@@ -111,5 +120,6 @@ The canonical, full step-by-step workflow is
 
 - Full workflow: [`.claude/commands/arcgis-to-portaljs.md`](https://github.com/datopian/portaljs/blob/main/.claude/commands/arcgis-to-portaljs.md)
 - REST export, classification, parity, and phasing details: [`references/reference.md`](references/reference.md)
+- Ongoing sync, parity dashboard, and cutover (Phase 3): [`references/sync-and-cutover.md`](references/sync-and-cutover.md)
 - Related skills: `portaljs-migrate`, `portaljs-add-geo`, `portaljs-add-dataset`, `portaljs-deploy`
 - ArcGIS REST query API: <https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer/> · tippecanoe: <https://github.com/felt/tippecanoe> · DuckDB spatial: <https://duckdb.org/docs/extensions/spatial>

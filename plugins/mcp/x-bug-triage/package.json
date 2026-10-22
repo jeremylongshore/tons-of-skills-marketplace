@@ -1,8 +1,8 @@
 {
   "name": "x-bug-triage-plugin",
-  "version": "0.6.2",
+  "version": "0.6.7",
   "private": true,
-  "description": "Closed-loop bug triage: X complaints → clusters → repo evidence → owner routing → terminal review → filed issues",
+  "description": "Public X complaint intake and local triage prototype with explicitly labeled downstream contract stubs",
   "author": "Jeremy Longshore <jeremy@intentsolutions.io>",
   "license": "MIT",
   "scripts": {
@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@types/bun": "^1.2.0",
-    "typescript": "^5.7.0"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"

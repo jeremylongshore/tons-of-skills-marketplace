@@ -1200,6 +1200,79 @@ export interface VerifyOptions {
    *   `input.new_public_key` becomes the active key for subsequent
    *   events. (ccsc-22l) */
   initialPublicKey?: string
+  /** Pinned genesis anchor (ccsc-x0t.7). When set, the FIRST accepted event's
+   *  `prevHash` must equal this exact value, instead of being trusted as an
+   *  opaque per-file random anchor. Defeats head-shear + rechain (v1 and v2): a
+   *  sheared file's new first event carries a different `prevHash`. The value is
+   *  the writer's `initialPrevHash`, captured out-of-band at journal creation.
+   *  Absent → the first `prevHash` is trusted (prior behavior). */
+  pinnedGenesisHash?: string
+  /** v2 signing-floor anchor (ccsc-x0t.7). When set, every event with
+   *  `seq >= v2FloorSeq` MUST be a v2 event — a v1 event at or after the floor
+   *  is a downgrade tamper signal. Defeats a uniform rewrite of a signed chain
+   *  to unsigned v1 (which the in-file v2→v1 rollback check cannot catch,
+   *  because a uniformly-v1 file never trips it). The value is the `seq` at
+   *  which the operator turned signing on. Absent → no floor (prior behavior). */
+  v2FloorSeq?: number
+}
+
+/** Verification anchors (ccsc-x0t.7), factored out of verifyJournal to keep its
+ *  CRAP score under the Wall-5 gate (mirrors checkSeqContinuity). Returns a
+ *  break descriptor or null.
+ *   - v2 floor: a v1 event at `seq >= v2FloorSeq` is a downgrade tamper signal.
+ *   - pinned genesis: the FIRST accepted event's prevHash must equal the
+ *     operator's out-of-band anchor (defeats head-shear + rechain).
+ *  Both anchors are optional; absent → no check (prior behavior). */
+function checkVerifyAnchors(
+  event: { v: number; seq: number; prevHash: string },
+  isGenesis: boolean,
+  opts: { pinnedGenesisHash?: string; v2FloorSeq?: number },
+): { reason: string; expected?: string; actual?: string } | null {
+  const { pinnedGenesisHash, v2FloorSeq } = opts
+  if (v2FloorSeq !== undefined && event.v === 1 && event.seq >= v2FloorSeq) {
+    return {
+      reason: `downgrade below v2 floor — v1 event at seq ${event.seq} (signing floor is seq ${v2FloorSeq})`,
+    }
+  }
+  if (isGenesis && pinnedGenesisHash !== undefined && event.prevHash !== pinnedGenesisHash) {
+    return {
+      reason: 'genesis prevHash does not match the pinned anchor — head may be truncated',
+      expected: pinnedGenesisHash,
+      actual: event.prevHash,
+    }
+  }
+  return null
+}
+
+/** Sequence-continuity check, factored out of verifyJournal to keep its
+ *  cyclomatic complexity under the Wall-5 gate. Enforces two rules:
+ *   - genesis: the first accepted event (prevAcceptedSeq === null) must
+ *     carry seq 1, else the journal head was truncated;
+ *   - continuity: every later event increments seq by exactly 1.
+ *  Returns a break descriptor (reason + expected/actual) or null when the
+ *  seq is valid. */
+function checkSeqContinuity(
+  seq: number,
+  prevAcceptedSeq: number | null,
+): { reason: string; expected: string; actual: string } | null {
+  if (prevAcceptedSeq === null) {
+    if (seq !== 1) {
+      return {
+        reason: `first event has seq ${seq}, expected 1 — journal head truncated`,
+        expected: '1',
+        actual: String(seq),
+      }
+    }
+    return null
+  }
+  if (seq !== prevAcceptedSeq + 1) {
+    return {
+      reason: `seq gap — expected ${prevAcceptedSeq + 1}, got ${seq}`,
+      expected: String(prevAcceptedSeq + 1),
+      actual: String(seq),
+    }
+  }
+  return null
 }
 
 /** Verify a journal file end-to-end per audit-journal-architecture.md
@@ -1224,7 +1297,24 @@ export interface VerifyOptions {
  *      (first event's `prevHash` is trusted as the genesis value —
  *      that's the `TRUSTED_ANCHOR` contract from §76-85; validating
  *      the anchor is a caller concern for now).
- *    - `seq` is strictly monotonic by +1 with no gaps.
+ *    - `seq` is strictly monotonic by +1 with no gaps, AND the first
+ *      accepted event has `seq === 1`. The genesis-seq pin defeats
+ *      head-truncation (shearing lines off the top) **only for signed,
+ *      key-verified (v2) chains**: the surviving prefix would otherwise
+ *      verify cleanly because its new first event's `prevHash` is trusted
+ *      as genesis, but on a v2 chain the attacker cannot renumber the
+ *      survivors' `seq` and recompute the chain without also reforging
+ *      every Ed25519 signature (checked against `opts.initialPublicKey`),
+ *      which requires the signing key. **On an unsigned v1 chain the pin
+ *      adds nothing**: the hash chain is a bare keyless SHA-256, so a
+ *      writer-capable attacker renumbers survivors to `seq === 1` and
+ *      recomputes `hash = sha256(prevHash + canonicalJson(event))` with no
+ *      secret — the sheared file verifies clean (encoded as a
+ *      known-limitation test in server.test.ts, ccsc-x0t.2). Tail-
+ *      truncation and a uniform full-file downgrade of a signed chain to
+ *      unsigned v1 (stripping every Ed25519 signature) likewise remain
+ *      residual — defeating them needs a pinned "signing began at seq N"
+ *      v2-floor anchor (deferred; tracked as ccsc-x0t.7 under epic #269).
  *
  *  The function never modifies the file (read-only contract).
  *  Returns on the first break; a second broken event after a fixed
@@ -1253,6 +1343,7 @@ export async function verifyJournal(path: string, opts: VerifyOptions = {}): Pro
   let eventsVerified = 0
   let seenV2 = false // ccsc-22l — once true, v2 → v1 is a rollback signal
   let activePublicKey: string | undefined = opts.initialPublicKey
+  const { pinnedGenesisHash, v2FloorSeq } = opts // ccsc-x0t.7 anchors
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
@@ -1313,6 +1404,20 @@ export async function verifyJournal(path: string, opts: VerifyOptions = {}): Pro
       seenV2 = true
     }
 
+    // Verification anchors (ccsc-x0t.7) — factored into checkVerifyAnchors to
+    // keep verifyJournal under the Wall-5 CRAP gate (mirrors checkSeqContinuity).
+    const anchorBreak = checkVerifyAnchors(event, prevAcceptedHash === null, {
+      pinnedGenesisHash,
+      v2FloorSeq,
+    })
+    if (anchorBreak !== null) {
+      return {
+        ok: false,
+        eventsVerified,
+        break: { lineNumber, seq: event.seq, ts: event.ts, ...anchorBreak },
+      }
+    }
+
     if (prevAcceptedHash !== null && event.prevHash !== prevAcceptedHash) {
       return {
         ok: false,
@@ -1328,18 +1433,12 @@ export async function verifyJournal(path: string, opts: VerifyOptions = {}): Pro
       }
     }
 
-    if (prevAcceptedSeq !== null && event.seq !== prevAcceptedSeq + 1) {
+    const seqBreak = checkSeqContinuity(event.seq, prevAcceptedSeq)
+    if (seqBreak !== null) {
       return {
         ok: false,
         eventsVerified,
-        break: {
-          lineNumber,
-          seq: event.seq,
-          ts: event.ts,
-          reason: `seq gap — expected ${prevAcceptedSeq + 1}, got ${event.seq}`,
-          expected: String(prevAcceptedSeq + 1),
-          actual: String(event.seq),
-        },
+        break: { lineNumber, seq: event.seq, ts: event.ts, ...seqBreak },
       }
     }
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Aomi Transact"
   short_description: "Chat, simulate, and sign on-chain transactions via the Aomi CLI"
-  default_prompt: "Use $aomi-transact to chat with the Aomi agent, build and review pending wallet requests, and sign transactions with AA-first execution. Always inspect `aomi tx list` before signing and simulate multi-step batches first."
+  default_prompt: "Use $aomi-transact to chat with the Aomi agent, build and review pending wallet requests, and sign transactions with local EOA execution. Always inspect `aomi tx list` before signing and simulate multi-step batches first."

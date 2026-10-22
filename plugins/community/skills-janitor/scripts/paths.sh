@@ -158,18 +158,23 @@ for_each_skill_dir() {
 }
 
 # --- Shared: extract the description from SKILL.md frontmatter ---
-# Handles inline scalars AND block scalars (|, >, |-, >-, or a bare
-# `description:` followed by indented lines). Skills with folded
-# descriptions previously read as empty, which made the always-loaded
-# token split report 0 for them and hid them from duplicate detection.
+# Handles inline scalars AND block scalars. Skills with folded descriptions
+# previously read as empty, which made the always-loaded token split report 0
+# for them and hid them from duplicate detection.
+#
+# The block-scalar header is [|>] plus an optional chomp indicator (- or +) and
+# an optional explicit indent digit — | |- |+ |2 >- >+ >2 >-2 … Enumerating only
+# the four commonest forms left the rest parsed as literal one- or two-character
+# descriptions.
 extract_description() {
     local file="$1"
     awk '
+        { sub(/\r$/, "") }
         NR==1 && /^---$/ {started=1; next}
         started && /^---$/ {exit}
         started && !block && /^description:/ {
             val=$0; sub(/^description:[[:space:]]*/, "", val); gsub(/"/, "", val)
-            if (val=="" || val=="|" || val==">" || val=="|-" || val==">-") {block=1; next}
+            if (val=="" || val ~ /^[|>][-+]?[0-9]*$/ || val ~ /^[|>][0-9]*[-+]?$/) {block=1; next}
             print val; exit
         }
         started && block && /^[[:space:]]+/ {line=$0; sub(/^[[:space:]]+/, "", line); printf "%s ", line; next}

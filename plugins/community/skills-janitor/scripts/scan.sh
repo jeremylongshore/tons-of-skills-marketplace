@@ -15,6 +15,9 @@ command -v python3 &>/dev/null || { echo "ERROR: python3 required" >&2; exit 1; 
 # --- Load platform paths ---
 source "$(dirname "$0")/paths.sh"
 
+# Absolute path so the python pass can import tsv_reader.py regardless of cwd
+JANITOR_SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+
 USER_COMMANDS="$HOME/.claude/commands"
 PROJECT_COMMANDS="./.claude/commands"
 USER_AGENTS="$HOME/.claude/agents"
@@ -82,15 +85,20 @@ scan_skill() {
         if head -1 "$skill_file" | grep -q '^---'; then
             has_frontmatter="true"
             local frontmatter
-            frontmatter=$(awk 'NR==1 && /^---$/{next} /^---$/{exit} {print}' "$skill_file")
-            name_field=$(echo "$frontmatter" | grep -E '^name:' | head -1 | sed 's/^name:[[:space:]]*//' | tr -d '"' || true)
+            frontmatter=$(awk 'NR==1 && /^---\r?$/{next} /^---\r?$/{exit} {print}' "$skill_file")
+            # tr -d '\r' is load-bearing, not cosmetic: these values are written
+            # into a TSV that python reads with universal newlines, where a bare
+            # CR terminates a line. A CRLF skill's "name: foo\r" split its row in
+            # two, both halves failed read_tsv's field-count check, and the skill
+            # vanished from the inventory with no error.
+            name_field=$(echo "$frontmatter" | grep -E '^name:' | head -1 | sed 's/^name:[[:space:]]*//' | tr -d '"' | tr -d '\r' || true)
             # Shared helper handles block scalars (|, >) that a plain grep misses
             description=$(extract_description "$skill_file")
-            version=$(echo "$frontmatter" | grep -E '^version:' | head -1 | sed 's/^version:[[:space:]]*//' | tr -d '"' || true)
+            version=$(echo "$frontmatter" | grep -E '^version:' | head -1 | sed 's/^version:[[:space:]]*//' | tr -d '"' | tr -d '\r' || true)
         fi
 
         local body_start
-        body_start=$(awk '/^---$/{c++; if(c==2){print NR; exit}}' "$skill_file" 2>/dev/null || echo "0")
+        body_start=$(awk '/^---\r?$/{c++; if(c==2){print NR; exit}}' "$skill_file" 2>/dev/null || echo "0")
         if [[ "${body_start:-0}" -gt 0 ]]; then
             local remaining
             # `|| true`, not `|| echo 0` — grep -c already prints "0" when it
@@ -145,7 +153,7 @@ scan_agent() {
     agent_name=$(basename "$file" .md)
     # Shared helper: handles block-scalar descriptions like the skill side
     description=$(extract_description "$file")
-    model=$(awk 'NR==1 && /^---$/{started=1; next} started && /^---$/{exit} started && /^model:/{sub(/^model:[[:space:]]*/,""); print; exit}' "$file" || true)
+    model=$(awk 'NR==1 && /^---\r?$/{started=1; next} started && /^---\r?$/{exit} started && /^model:/{sub(/^model:[[:space:]]*/,""); print; exit}' "$file" || true)
     word_count=$(wc -w < "$file" | tr -d ' ')
     printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
         "$(_f "$agent_name")" "$(_f "$scope")" "$(_f "$file")" \
@@ -198,31 +206,20 @@ for_each_skill_dir _broken_iter
 
 # --- Render everything in ONE python pass ---
 export SKILLS_TSV AGENTS_TSV COMMANDS_TSV BROKEN_COUNT="$broken_count"
-export INSTALLED_PLUGINS_FILE
+export INSTALLED_PLUGINS_FILE JANITOR_SCRIPT_DIR
 export KNOWN_MARKETPLACES_FILE="$HOME/.claude/plugins/known_marketplaces.json"
+# Importing tsv_reader must not litter the (possibly read-only) install dir
+# with __pycache__
+export PYTHONDONTWRITEBYTECODE=1
 
 python3 <<'PYEOF'
-import json, os, subprocess
+import json, os, subprocess, sys
 from datetime import datetime, timezone
 
-S = "_"  # sentinel for empty fields
-def d(v):
-    return "" if v == S else v
-
-def read_tsv(path, n_fields):
-    rows = []
-    if not path or not os.path.isfile(path):
-        return rows
-    with open(path) as f:
-        for line in f:
-            line = line.rstrip("\n")
-            if not line:
-                continue
-            parts = line.split("\t")
-            if len(parts) != n_fields:
-                continue
-            rows.append([d(p) for p in parts])
-    return rows
+# The TSV reader lives in tsv_reader.py (same dir as this script) so tests can
+# import it directly; it keeps the newline="\n" pin against CR record-splitting.
+sys.path.insert(0, os.environ["JANITOR_SCRIPT_DIR"])
+from tsv_reader import read_tsv
 
 skills = []
 for r in read_tsv(os.environ.get("SKILLS_TSV", ""), 15):

@@ -112,6 +112,7 @@ Produces a 1080×1920 story, insetting text clear of the platform's top and bott
 ## Resources
 
 - `references/platform-sizes.md` — every preset size, safe zones, the layout the generator produces, and how to add a preset.
+- Rendered preview — `lib/context/social-instagram-square.png`. Some marketplaces omit binary assets from that directory; if your copy did, view it at [localplugins/plugins](https://github.com/localplugins/plugins/tree/main/brand-forge/lib/context).
 - Sibling skills: generate-logo for marks, and generate-graphic for photographic backgrounds — route between them with the `/brand-make` command.
 - [Open Graph protocol](https://ogp.me/) — the metadata standard `og-card` targets.
 - [Agent Skills documentation](https://code.claude.com/docs/en/skills) — how skills are authored and invoked.

@@ -2,31 +2,21 @@
   "hooks": {
     "PostToolUse": [
       {
-        "description": "Auto-sync written/edited files to Box cloud storage",
         "matcher": "Write|Edit",
-        "priority": 50,
-        "enabled": true,
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/box-sync-on-write.sh",
-            "timeout": 15000,
-            "continueOnError": true,
-            "async": true
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/box-sync-on-write.sh"
           }
         ]
       }
     ],
     "Stop": [
       {
-        "description": "Report Box sync activity when Claude finishes responding",
-        "matcher": ".*",
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/box-sync-summary.sh",
-            "timeout": 10000,
-            "continueOnError": true
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/box-sync-summary.sh"
           }
         ]
       }

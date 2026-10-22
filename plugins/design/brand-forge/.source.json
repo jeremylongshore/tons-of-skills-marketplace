@@ -4,14 +4,14 @@
     "path": "brand-forge",
     "branch": "main"
   },
-  "last_sync": "2026-07-13T17:27:24.445Z",
+  "last_sync": "2026-10-01T05:34:54.337Z",
   "author": {
     "name": "localplugins",
     "github": "Local-Plugins",
     "email": "localplugins@proton.me"
   },
   "license": "MIT",
-  "files_synced": 39,
+  "files_synced": 41,
   "files": [
     ".claude-plugin/plugin.json",
     "LICENSE",
@@ -34,6 +34,8 @@
     "lib/context/20-brand-status",
     "lib/context/30-preflight",
     "lib/doctpl.mjs",
+    "lib/extract-brand-url.mjs",
+    "lib/extract-brand.mjs",
     "lib/field.mjs",
     "lib/genimage.mjs",
     "lib/logo.mjs",

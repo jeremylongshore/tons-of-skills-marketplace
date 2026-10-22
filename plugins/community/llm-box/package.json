@@ -1,31 +1,24 @@
 {
   "name": "@intentsolutionsio/llm-box",
   "private": true,
-  "version": "0.3.0",
-  "description": "Terminal-first workflow automation engine. Generate and execute YAML workflows from plain English descriptions. Features 20+ built-in nodes, 15+ LLM providers (Ollama, DeepSeek, OpenAI-compatible), an",
+  "version": "0.1.0",
+  "description": "Terminal-first workflow automation engine. Generate and execute YAML workflows from plain English with 20+ nodes and 15+ LLM providers.",
   "keywords": [
-    "workflow",
-    "automation",
-    "terminal",
-    "cli",
-    "yaml",
-    "llm",
-    "mcp",
     "claude-code",
     "claude-plugin",
     "tonsofskills"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alib8b8/llm-box.git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/community/llm-box"
   },
-  "homepage": "https://github.com/alib8b8/llm-box",
-  "bugs": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills/issues",
+  "homepage": "https://tonsofskills.com/plugins/llm-box",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
   "license": "AGPL-3.0",
-  "author": "alib8b8 <https://github.com/alib8b8>",
-  "publishConfig": {
-    "access": "restricted"
+  "author": {
+    "name": "alib8b8",
+    "url": "https://github.com/alib8b8"
   },
   "files": [
     "README.md",

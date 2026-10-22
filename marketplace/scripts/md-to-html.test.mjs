@@ -121,11 +121,16 @@ test('accounts for the authoritative README presentation cohort without editing 
     const readmeBytes = await readFile(join(ROOT_DIR, entry.readme));
     const readme = readmeBytes.toString('utf8');
     assert.ok(readme.length > 0, entry.readme);
-    const sourceBytes = execFileSync(
-      'git',
-      ['show', `${registry.audit.source_commit}:${entry.readme}`],
-      { cwd: ROOT_DIR },
-    );
+    // A mirror re-audited after a reviewed relock pins its own audit commit;
+    // otherwise the registry-wide 2026-09-02 audit commit applies.
+    const auditCommit = entry.source_commit ?? registry.audit.source_commit;
+    if (entry.source_commit) {
+      assert.equal(entry.ownership, 'upstream-mirror', `${entry.plugin} per-entry audit commit`);
+      assert.match(entry.source_commit, /^[0-9a-f]{40}$/u);
+    }
+    const sourceBytes = execFileSync('git', ['show', `${auditCommit}:${entry.readme}`], {
+      cwd: ROOT_DIR,
+    });
     const sourceHash = createHash('sha256').update(sourceBytes).digest('hex');
     const currentHash = createHash('sha256').update(readmeBytes).digest('hex');
     assert.equal(entry.source_sha256, sourceHash, `${entry.plugin} source audit hash`);

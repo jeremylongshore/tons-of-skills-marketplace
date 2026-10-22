@@ -1,10 +1,10 @@
-# Endpoint and Approval Contract
+# Endpoint and approval contract
 
 Use this reference when the selected Xquik route or approval boundary is
 unclear. The rules apply to CLI, Desktop, dashboard, gateway, scheduled, and
 delegated Hermes Agent sessions.
 
-## Tool Matrix
+## Tool matrix
 
 | Tool | API key | Network | Action gate | User approval |
 |---|---:|---:|---:|---:|
@@ -16,7 +16,7 @@ delegated Hermes Agent sessions.
 catalog-listed read-only routes. `tweet_action` handles writes, private reads,
 monitors, webhooks, extraction jobs, giveaway draws, and media operations.
 
-## Approval Checklist
+## Approval checklist
 
 Before calling `tweet_action`, state and confirm:
 
@@ -30,7 +30,7 @@ Approval for one operation does not authorize retries, related operations, or
 future scheduled runs. Stop after policy, authentication, validation, or
 account-state failures.
 
-## Hermes Agent Surfaces
+## Hermes Agent interfaces
 
 Hermes Tweet uses the same plugin entry point across Desktop, TUI, CLI,
 dashboard, and gateway sessions. Install and configure the plugin on the Hermes
@@ -41,7 +41,7 @@ Use active CLI or gateway sessions for `/xstatus` and `/xtrends`. Keep
 `HERMES_TWEET_ENABLE_ACTIONS=false` unless the session intentionally permits an
 approved account-changing operation.
 
-## Runtime Checks
+## Runtime checks
 
 ```bash
 hermes plugins list
@@ -55,10 +55,12 @@ unless `HERMES_TWEET_ENABLE_ACTIONS=true` is intentionally configured.
 After environment changes, reload an active CLI session. For gateway use, run
 `hermes gateway restart`, then start a new session.
 
-## Version History
+## Version history
 
-- Unreleased: Add marketplace metadata, required sections, and reference docs.
-- Unreleased: Add capability declarations, risk controls, and release gates.
-- 0.1.6: Refresh catalog wording from the current Xquik OpenAPI.
-- 0.1.5: Add registry metadata and Hermes runtime guidance.
-- 0.1.4: Add public registry frontmatter for skill discovery.
+- **0.1.8.** Clarify the separate Xquik MCP integration and package discovery scope.
+- **0.1.7.** Align prepaid read and direct MPP metadata with the current API.
+- **Unreleased.** Add marketplace metadata, required sections, and reference docs.
+- **Unreleased.** Add capability declarations, risk controls, and release gates.
+- **0.1.6.** Refresh catalog wording from the current Xquik OpenAPI.
+- **0.1.5.** Add registry metadata and Hermes runtime guidance.
+- **0.1.4.** Add public registry frontmatter for Skill discovery.

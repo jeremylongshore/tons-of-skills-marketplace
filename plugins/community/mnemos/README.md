@@ -151,18 +151,26 @@ Export a skill as a JSON pack, share by file or URL, install with `mnemos skill 
 }
 ```
 
-`mnemos init` also writes a `SessionStart` hook to `~/.claude/settings.json` calling `mnemos prewarm`. Honours `CLAUDE_CONFIG_DIR`. Manual hook shape:
+`mnemos init` also writes hooks to `~/.claude/settings.json` (honours `CLAUDE_CONFIG_DIR`) and removes ones earlier releases installed that are no longer used. The two `SessionStart` hooks open a session with a prewarm block, and restore that session's state after a compaction:
 
 ```json
 {
   "hooks": {
-    "SessionStart": [{
-      "matcher": "startup",
-      "hooks": [{ "type": "command", "command": "/full/path/to/mnemos prewarm", "timeout": 10 }]
-    }]
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [{ "type": "command", "command": "/full/path/to/mnemos prewarm", "timeout": 10 }]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [{ "type": "command", "command": "/full/path/to/mnemos prewarm --mode compaction_recovery", "timeout": 10 }]
+      }
+    ]
   }
 }
 ```
+
+`mnemos doctor` lists the rest (`UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `SessionEnd`) and flags any obsolete entry still installed.
 
 ### Cursor / Windsurf / Claude Desktop / Codex CLI
 

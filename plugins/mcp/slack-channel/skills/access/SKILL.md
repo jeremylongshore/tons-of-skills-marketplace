@@ -1,7 +1,7 @@
 ---
 name: access
 description: Manage Slack channel access control — pairing, allowlist, channel opt-in. Use when approving a pairing code, changing the DM policy, editing the user allowlist, or opting a channel in or out. Trigger with "/slack-channel:access", "pair my slack account", "add user to slack allowlist", or "opt in a slack channel".
-version: 1.0.1
+version: 1.1.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: Apache-2.0
 compatibility: Requires Claude Code with the slack-channel plugin installed (state under ~/.claude/channels/slack/); pairing confirmations additionally need the MCP server running.
@@ -9,17 +9,17 @@ tags: [slack, access-control, pairing, allowlist]
 user-invocable: true
 argument-hint: "pair <code> | policy <mode> | add <user_id> | remove <user_id> | channel <id> [opts] | status"
 allowed-tools: [Read, Write, "Bash(chmod:*)", "Bash(mv:*)"]
+model: inherit
+effort: medium
 ---
 
 # /slack-channel:access
 
 ## Overview
 
-Manage who can reach your Claude Code session through Slack. This skill is the
-terminal-side half of the access-control model: it approves pairing codes,
-sets the DM policy, maintains the user allowlist, and opts channels in or out
-with an interaction mode. Every subcommand reads and rewrites the single state
-file (`access.json`) atomically.
+Manage who can reach your Claude Code session through Slack. This terminal-only
+workflow approves pairing codes, sets the DM policy, maintains allowlists, and
+atomically updates channel interaction modes in `access.json`.
 
 ## Usage
 
@@ -45,9 +45,12 @@ file (`access.json`) atomically.
 
 ## Instructions
 
-Parse `$ARGUMENTS` and execute the matching subcommand:
+Parse `$ARGUMENTS` and execute the matching subcommand. Use `Read` to inspect
+the complete state and `Write` only for the complete temporary replacement;
+then use `mv` for the atomic swap and `chmod` to restore mode `0600`.
 
 ### `pair <code>`
+
 1. Load `access.json`
 2. Find the pending entry matching `<code>` (case-insensitive)
 3. If not found or expired: show "No pending pairing with that code."
@@ -59,6 +62,7 @@ Parse `$ARGUMENTS` and execute the matching subcommand:
    - Send a confirmation message to the user in Slack (via the reply tool if the MCP server is running)
 
 ### `policy <mode>`
+
 1. Validate mode is one of: `pairing`, `allowlist`, `disabled`
 2. Update `dmPolicy` in `access.json`
 3. Save with 0o600
@@ -68,11 +72,13 @@ Parse `$ARGUMENTS` and execute the matching subcommand:
    - `disabled`: No DMs accepted
 
 ### `add <user_id>`
+
 1. Add the Slack user ID to `allowFrom` (deduplicate)
 2. Save with 0o600
 3. Show confirmation
 
 ### `remove <user_id>`
+
 1. Remove from `allowFrom`
 2. Also remove from any channel-level `allowFrom` lists
 3. Save with 0o600
@@ -82,11 +88,11 @@ Parse `$ARGUMENTS` and execute the matching subcommand:
 
 Opting a channel in chooses an **interaction mode**. There are three; pick one:
 
-| Mode | `access.json` | Behavior |
-|---|---|---|
-| **Mention-to-engage** (default) | `requireMention: true` | Humans converse freely; Claude only sees messages that `@`-mention it. Once a human mentions the bot in a thread, they keep talking in that thread without re-mentioning (thread-stickiness, `ccsc-apj.1`). **Peer agents are never sticky — they must `@`-mention every message.** |
-| **Ambient** (`--ambient`) | `requireMention: false` | Claude sees every message in the channel. Use for a dedicated bot channel where every message is for Claude. |
-| **Per-user allowlist** (`--allow`) | `allowFrom: [ids]` | Only the listed users are heard. Composes with either mode above. |
+| Mode                               | `access.json`           | Behavior                                                                                                                                                                                                                                                                            |
+| ---------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mention-to-engage** (default)    | `requireMention: true`  | Humans converse freely; Claude only sees messages that `@`-mention it. Once a human mentions the bot in a thread, they keep talking in that thread without re-mentioning (thread-stickiness, `ccsc-apj.1`). **Peer agents are never sticky — they must `@`-mention every message.** |
+| **Ambient** (`--ambient`)          | `requireMention: false` | Claude sees every message in the channel. Use for a dedicated bot channel where every message is for Claude.                                                                                                                                                                        |
+| **Per-user allowlist** (`--allow`) | `allowFrom: [ids]`      | Only the listed users are heard. Composes with either mode above.                                                                                                                                                                                                                   |
 
 1. Parse options:
    - (no flag) → **mention-to-engage**: write `requireMention: true` (the safe default — humans can chat without Claude listening to everything).
@@ -97,11 +103,13 @@ Opting a channel in chooses an **interaction mode**. There are three; pick one:
 4. Show the channel policy and state which interaction mode is now active.
 
 ### `channel remove <channel_id>`
+
 1. Delete `channels[channel_id]`
 2. Save with 0o600
 3. Show confirmation
 
 ### `status`
+
 1. Load `access.json`
 2. Display:
    - DM policy
@@ -156,6 +164,10 @@ Common flows, from first pairing to locking the channel down:
 - Always use atomic writes (write to .tmp then rename) for `access.json`
 - Always set 0o600 permissions on `access.json`
 - If `access.json` is corrupt, move it aside and start fresh
+
+Read [`references/security-boundary.md`](references/security-boundary.md)
+before any mutation when the invocation source, state ownership, or rollback
+path is uncertain.
 
 ## Resources
 

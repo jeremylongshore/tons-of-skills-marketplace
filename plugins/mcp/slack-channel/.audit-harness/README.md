@@ -4,13 +4,17 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Provenance](https://img.shields.io/badge/sigstore-provenance-066da5)](https://www.npmjs.com/package/@intentsolutions/audit-harness)
 
-Part of the **[Intent Eval Platform](https://github.com/intent-solutions-io/intent-eval-platform)** — the umbrella mapping the six repos that converge via a shared Evidence Bundle schema.
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U5S225PTME)
 
-Deterministic test-enforcement toolkit. Companion to the `audit-tests` and `implement-tests` Claude Code skills — but usable standalone in any repo that wants hash-pinned, escape-scanned, AI-proof quality gates.
+Part of the **[Intent Eval Platform](https://github.com/intent-solutions-io/intent-eval-platform)** — the umbrella grouping the platform's six repos: five converge via a shared Evidence Bundle schema (`intent-eval-core`, `intent-eval-lab`, `audit-harness`, `j-rig-skill-binary-eval`, `intent-rollout-gate`), plus `intent-eval-dashboard` as a satellite consumer (not part of the convergence taxonomy).
+
+Deterministic test-enforcement toolkit. Companion to the `audit-tests` and `implement-tests` Claude Code skills — but usable standalone in any repo that wants hash-pinned, escape-scanned, AI-resistant quality gates.
+
+**On "AI-resistant", precisely:** the hash-pin is a *complete* guarantee for the files you pin — they cannot change without an explicit, committed re-pin. The escape-scan is a *heuristic net* over the staged diff: it catches the common escapes (deleted tests, lowered coverage floors, new skip markers, architecture-rule bypasses), not every conceivable dodge. Deliberately not claiming bulletproof.
 
 ## What it is
 
-A small CLI wrapping 6 deterministic scripts:
+A small CLI dispatching 17 released deterministic commands (shell + stdlib-Python scripts) — an 18th, `audit-harness migration-notes`, is on disk and staged for the next release (see CHANGELOG `[Unreleased]`):
 
 | Command | Purpose |
 |---|---|
@@ -18,10 +22,19 @@ A small CLI wrapping 6 deterministic scripts:
 | `audit-harness init` | Pin the current state of engineer-owned policy files |
 | `audit-harness list` | Show pinned files |
 | `audit-harness escape-scan --staged` | Detect AI attempts to lower test thresholds, delete tests, bypass architecture rules |
+| `audit-harness cred-gate` | Provider-credential PASS/FAIL gate — FAIL if a declared secret, provider-key shape, or serialized env leaks into the artifact about to be signed |
 | `audit-harness arch` | Run language-appropriate architecture-rule checker (dependency-cruiser / import-linter / ArchUnit / deptrac / arch-go) |
 | `audit-harness bias` | Count common test-bias patterns |
 | `audit-harness gherkin-lint` | Advisory Gherkin quality check |
 | `audit-harness crap` | CRAP (Complexity × Coverage) scorer — Python, Go, JS/TS, Rust |
+| `audit-harness emit-evidence` | Wrap a gate-result JSON envelope in an in-toto Statement v1 (predicate `gate-result/v1`) |
+| `audit-harness classify` | Read-only repo classifier → an `audit-profile/v1` value (never writes) |
+| `audit-harness conform` | Read-only conformance gate-runner → `gate-result/v1` rows against bundled content-addressed schemas |
+| `audit-harness audit` | Read-only testing-depth gate-runner → coverage presence per pyramid layer + crap-score |
+| `audit-harness scan` | Read-only security/hygiene/skill-quality gate-runner (gitleaks / osv-scanner / Semgrep / syft / markdownlint / lychee) |
+| `audit-harness fp-rate` | Measure each gate's false-positive / false-negative rate over a labeled corpus |
+| `audit-harness currency` | Advisory poll-freshness report over the per-upstream pin relation |
+| `audit-harness gen-layer-applicability` | Project the canonical audit-profile registry into `layer-applicability.md` |
 
 ## Install
 
@@ -95,9 +108,21 @@ git commit -m "chore(test): lower coverage floor to 75"
 
 The harness enforces this rule: **policy changes must be conscious, not silent.**
 
-Engineer-owned files (`tests/TESTING.md`, `features/*.feature`, `.dependency-cruiser.cjs`, `stryker.conf.json`, etc.) are hashed into a manifest. Any diff that changes their content without a fresh `audit-harness init` is caught by pre-commit / CI and **REFUSED**.
+Engineer-owned files (`tests/TESTING.md`, package test scripts, CI workflows,
+coverage and mutation configs, acceptance features, and architecture rules) are
+hashed into a manifest. Any diff that changes their content without a fresh
+`audit-harness init` is caught by pre-commit / CI and **REFUSED**. Ordinary
+application source is deliberately outside this denominator.
 
 AI agents remain useful (they can read policy, they can implement within constraints). What they can't do is silently weaken the constraints. That's the entire design.
+
+The same walls can close the loop **before a push leaves the machine**:
+`audit-harness worktree-run --pre-push` checks the exact ref being pushed in a
+disposable `git worktree` — `verify` + `escape-scan` on the push range stay
+fail-closed, `conform` + `audit` contribute advisory gate-result/v1 rows — then
+removes the worktree. It has no push authority, no LLM stage, and never writes
+to the repo. Wire it as a lefthook `pre-push` job (this repo's `lefthook.yml`
+is the reference) so CI becomes confirmation instead of discovery.
 
 See `audit-tests/references/philosophy.md` in the companion skill for the full rationale.
 
