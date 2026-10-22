@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "d8360629b13054782cf76dd66772f4114ddc1eb6cd85192186c5acd5158054c7"
+      "sha256": "ed3b161036f36de88f3e3282c45911cf6b962beca53f07511d7fe57117cfc336"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -23,7 +23,7 @@
       {
         "path": "CLAUDE.md",
         "line": 192,
-        "text": "## CI gate architecture \u2014 three required checks (rebuilt 2026-07; skill-conform added 2026-07-23)"
+        "text": "## CI gate architecture — three required checks (rebuilt 2026-07; skill-conform added 2026-07-23)"
       },
       {
         "path": "000-docs/727-AT-ARCH-master-modernization-blueprint.md",
@@ -80,7 +80,7 @@
       "job": "validate",
       "step": 13,
       "step_name": "Enforce the safety ratchet",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "592009d8a7bc847feb3aa5b3cf192b99bd5dd9e91ac1e95296c0b444992a8cd2",
       "run_sha256": "0502a1eb56c0748cf95dd68637452811c09c4702d343a0334371517c8ca7ebf5",
       "anchor": {
@@ -120,7 +120,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 781,
+          "line": 797,
           "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
         }
       ],
@@ -131,8 +131,8 @@
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
       "step": 8,
-      "step_name": "Run plugin tests (widened loop \u2014 every package.json with a test script)",
-      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
+      "job_sha256": "2e8bd93753d99a46c82d48c1369dbb6cb0d56cb41837d84b3473446fbca2bdfe",
       "step_sha256": "7a59310b497bf2866097cc49f6bec76e9d91675b6f5cee9a45575e0477697f58",
       "run_sha256": "45ec28a2df5f6a338c8956f29b015ce2d4cd2b42fcd278e3d06be18a5c731951",
       "anchor": {
@@ -146,8 +146,8 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 908,
-          "text": "      - name: Run plugin tests (widened loop \u2014 every package.json with a test script)"
+          "line": 924,
+          "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
         }
       ],
       "deadline_marker": null
@@ -158,7 +158,7 @@
       "job": "validate",
       "step": 32,
       "step_name": "Sync CLI marketplace catalog",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "f52645d81bb0c1c2056ef11c0894d8afb04102c45f02a02254de662d8522e80b",
       "run_sha256": "232568b2bef02489e07c3a26b204604fe9cc0fee0e6f014d7352615ee45dc606",
       "anchor": {
@@ -184,7 +184,7 @@
       "job": "validate",
       "step": 56,
       "step_name": "Security scan - Informational sweep (non-blocking)",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "b63dc39b057d39478a2ebfcf3a1448bc8f60f6d131dd634f9c628f258b3439c6",
       "run_sha256": "e30d8d8a76b7b725da343354b40414b821df1a9e2602de1177a3cc2baf79f417",
       "anchor": {
@@ -210,18 +210,29 @@
       "job": "validate",
       "step": 57,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
-      "step_sha256": "cdaa020690396b90784cffc91f6f7a938d7e5f3de83e44aee00b2563ff1d9500",
-      "run_sha256": "06c9b7aebe8e76f241fb2cdb38ddeabb13fdfd05cc31e964cd339d664cdfe2be",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
+      "step_sha256": "1a87a39ef3c3e82debb4444527b45958fb401073d665fb16a51c172ae633dcac",
+      "run_sha256": "f7069b2523a82829d6c847fb81ed2cbb8ead189c33b84742c4dc72952d040953",
       "anchor": {
-        "line": 6,
-        "text": "DANGEROUS_RM=$(grep -r -E \"rm\\s+-rf\\s+/(\\s|$|\\*)\" plugins/ 2>/dev/null | grep -v \"/var/\" | grep -v \"/tmp/\" | grep -v \"/prometheus/\" || true)"
+        "line": 22,
+        "text": "DANGEROUS_RM=$(grep_allow_no_match -r -E \"rm\\s+-rf\\s+/(\\s|$|\\*)\" plugins/ | grep_allow_no_match -v \"/var/\" | grep_allow_no_match -v \"/tmp/\" | grep_allow_no_match -v \"/prometheus/\")"
       },
-      "classification": "unbounded_correctness",
-      "rationale": "Operational scan errors can collapse into empty output and a clean result; no bound authority is established.",
+      "classification": "authorized_control_flow",
+      "rationale": "Only grep's no-match status 1 is normalized; producer and exclusion-filter errors remain blocking under pipefail. Extracted-workflow tests cover matches, exclusions and real scan/filter errors.",
       "owner": null,
       "promotion": null,
-      "authority": [],
+      "authority": [
+        {
+          "path": ".github/workflows/validate-plugins.yml",
+          "line": 570,
+          "text": "          # grep status 1 means no matches; operational errors must still fail."
+        },
+        {
+          "path": "tests/test_ci_scan_failures.py",
+          "line": 91,
+          "text": "    def test_dangerous_scan_io_error_does_not_report_clean(self):"
+        }
+      ],
       "deadline_marker": null
     },
     {
@@ -230,18 +241,29 @@
       "job": "test",
       "step": 16,
       "step_name": "Run Python tests",
-      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
-      "step_sha256": "356568f3c9a69a87f17c733bf112e319b773dbbadb85e7d589424a0c0c86ab81",
-      "run_sha256": "189f5647d678210a75a741a42d0521821574c70ed9cdb42af0577c6eb257259f",
+      "job_sha256": "2e8bd93753d99a46c82d48c1369dbb6cb0d56cb41837d84b3473446fbca2bdfe",
+      "step_sha256": "84d634f64c05089931a10f8d658c32adc00033838d084019727135c2f0b4b639",
+      "run_sha256": "1f3d09305dde4e29d0ab05ef255ed72204d231ad36a6c7a61d4118c03ca656c5",
       "anchor": {
-        "line": 4,
-        "text": "TEST_FILES=$(find . -name \"test_*.py\" -o -name \"*_test.py\" | grep -v \"__pycache__\" | grep -v \"backups/\" || true)"
+        "line": 20,
+        "text": "TEST_FILES=$(find . -name \"test_*.py\" -o -name \"*_test.py\" | grep_allow_no_match -v \"__pycache__\" | grep_allow_no_match -v \"backups/\")"
       },
-      "classification": "unbounded_correctness",
-      "rationale": "Discovery errors can collapse into an empty test list and successful no-tests result; no bound authority is established.",
+      "classification": "authorized_control_flow",
+      "rationale": "Only grep's no-match status 1 is normalized; find traversal and exclusion-filter failures remain blocking under pipefail, including partial discovery output. Extracted-workflow tests preserve pytest arguments and failures.",
       "owner": null,
       "promotion": null,
-      "authority": [],
+      "authority": [
+        {
+          "path": ".github/workflows/validate-plugins.yml",
+          "line": 1117,
+          "text": "          # Normalize only grep's no-match status, never a find traversal error."
+        },
+        {
+          "path": "tests/test_ci_scan_failures.py",
+          "line": 129,
+          "text": "    def test_discovery_find_error_with_partial_matches_fails_before_pytest(self):"
+        }
+      ],
       "deadline_marker": null
     },
     {
@@ -250,7 +272,7 @@
       "job": "validate",
       "step": 29,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "66dd604a04a3c8f701f6d5c0b9bfb29e1d6962d136adfaf10c311719883dfe27",
       "run_sha256": "057cff96aab0e8c561af1bcbf6baa77c2c6c1b617a2508b6761c66dc5d72d5da",
       "anchor": {
@@ -273,7 +295,7 @@
       "job": "validate",
       "step": 29,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "66dd604a04a3c8f701f6d5c0b9bfb29e1d6962d136adfaf10c311719883dfe27",
       "run_sha256": "057cff96aab0e8c561af1bcbf6baa77c2c6c1b617a2508b6761c66dc5d72d5da",
       "anchor": {
@@ -296,7 +318,7 @@
       "job": "validate",
       "step": 30,
       "step_name": "Validate .mcp.json configs (advisory + unambiguous gate)",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "5114e3fe37a1e6b52d6406dbc5887faf90d27e889613c7b5ce4a8212f55d4cf4",
       "run_sha256": "adeac5780a51f52948d5267db0492cd8800f1c8994cbaecc56295cd7d93ea55c",
       "anchor": {
@@ -319,11 +341,11 @@
       "job": "validate",
       "step": 57,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
-      "step_sha256": "cdaa020690396b90784cffc91f6f7a938d7e5f3de83e44aee00b2563ff1d9500",
-      "run_sha256": "06c9b7aebe8e76f241fb2cdb38ddeabb13fdfd05cc31e964cd339d664cdfe2be",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
+      "step_sha256": "1a87a39ef3c3e82debb4444527b45958fb401073d665fb16a51c172ae633dcac",
+      "run_sha256": "f7069b2523a82829d6c847fb81ed2cbb8ead189c33b84742c4dc72952d040953",
       "anchor": {
-        "line": 14,
+        "line": 30,
         "text": "EVAL_USES=$(grep -r -E \"eval\\s*\\(\" plugins/ 2>/dev/null | grep -v \"README.md\" | grep -v \"this.redis.eval\" || true)"
       },
       "classification": "unresolved",
@@ -339,7 +361,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - MCP plugin dependencies",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "278ff7bd4b4ef8c8c9831a97f0900cfe96a3b372056bd47fe600f257d2ac7387",
       "run_sha256": "79505db3e5579cb6ddd98ccb918942e52a9bfbc51743499d0792ae9108527b27",
       "anchor": {
@@ -352,7 +374,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 638,
+        "line": 654,
         "sha256": "15f9c3dcaa247121df51133baf3f5b482a7339e966c3d79444c2919b988646ab"
       }
     },
@@ -362,7 +384,7 @@
       "job": "test",
       "step": 13,
       "step_name": "Install Python test dependencies",
-      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "job_sha256": "2e8bd93753d99a46c82d48c1369dbb6cb0d56cb41837d84b3473446fbca2bdfe",
       "step_sha256": "ded0daf8608df5baa4da587506fbd3bbc22248c330f75933e3b0f246ad56ce9d",
       "run_sha256": "73fca9f27fbe19e14fbaa144497ce6ae801181c0c1d57161b7d58314059acde8",
       "anchor": {
@@ -382,7 +404,7 @@
       "job": "test",
       "step": 22,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "job_sha256": "2e8bd93753d99a46c82d48c1369dbb6cb0d56cb41837d84b3473446fbca2bdfe",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -402,7 +424,7 @@
       "job": "test",
       "step": 22,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "job_sha256": "2e8bd93753d99a46c82d48c1369dbb6cb0d56cb41837d84b3473446fbca2bdfe",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -415,7 +437,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 1183,
+        "line": 1215,
         "sha256": "bc0bb0c3f03adb8e4cfe7c48574c54154d1c17f1f641b4445c6173502e78e054"
       }
     },
@@ -445,11 +467,11 @@
       "job": "validate",
       "step": 57,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
-      "step_sha256": "cdaa020690396b90784cffc91f6f7a938d7e5f3de83e44aee00b2563ff1d9500",
-      "run_sha256": "06c9b7aebe8e76f241fb2cdb38ddeabb13fdfd05cc31e964cd339d664cdfe2be",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
+      "step_sha256": "1a87a39ef3c3e82debb4444527b45958fb401073d665fb16a51c172ae633dcac",
+      "run_sha256": "f7069b2523a82829d6c847fb81ed2cbb8ead189c33b84742c4dc72952d040953",
       "anchor": {
-        "line": 21,
+        "line": 37,
         "text": "if grep -r -E \"curl.*http://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\" plugins/ 2>/dev/null; then"
       },
       "classification": "unresolved",
@@ -465,11 +487,11 @@
       "job": "validate",
       "step": 57,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
-      "step_sha256": "cdaa020690396b90784cffc91f6f7a938d7e5f3de83e44aee00b2563ff1d9500",
-      "run_sha256": "06c9b7aebe8e76f241fb2cdb38ddeabb13fdfd05cc31e964cd339d664cdfe2be",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
+      "step_sha256": "1a87a39ef3c3e82debb4444527b45958fb401073d665fb16a51c172ae633dcac",
+      "run_sha256": "f7069b2523a82829d6c847fb81ed2cbb8ead189c33b84742c4dc72952d040953",
       "anchor": {
-        "line": 26,
+        "line": 42,
         "text": "if grep -r -E \"base64\\s+-d\" plugins/ 2>/dev/null; then"
       },
       "classification": "unresolved",
@@ -485,7 +507,7 @@
       "job": "validate",
       "step": 58,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "55cb614dbd339897baa5cb802b2bc235c1678bd836508122c7de0eee7f6784ce",
       "run_sha256": "0abeda4a456cfe340701c770a6177be5e955b9ae646872552383c8d01e2105c1",
       "anchor": {
@@ -505,7 +527,7 @@
       "job": "validate",
       "step": 58,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "b05a49e06b9e134096030a53e98f6fab103b75c251364209e4289a8b17696a5b",
+      "job_sha256": "50b33fea5dd2687db7d9aa4207b81c00f9ed1c2c06e1d1cc417fe1740266c000",
       "step_sha256": "55cb614dbd339897baa5cb802b2bc235c1678bd836508122c7de0eee7f6784ce",
       "run_sha256": "0abeda4a456cfe340701c770a6177be5e955b9ae646872552383c8d01e2105c1",
       "anchor": {
@@ -524,8 +546,8 @@
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
       "step": 8,
-      "step_name": "Run plugin tests (widened loop \u2014 every package.json with a test script)",
-      "job_sha256": "0882fb52753df046f12ced26c79e675e32d1b84087b20abaa8cdf91c83703444",
+      "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
+      "job_sha256": "2e8bd93753d99a46c82d48c1369dbb6cb0d56cb41837d84b3473446fbca2bdfe",
       "step_sha256": "7a59310b497bf2866097cc49f6bec76e9d91675b6f5cee9a45575e0477697f58",
       "run_sha256": "45ec28a2df5f6a338c8956f29b015ce2d4cd2b42fcd278e3d06be18a5c731951",
       "anchor": {

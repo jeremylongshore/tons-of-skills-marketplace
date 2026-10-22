@@ -1,0 +1,151 @@
+"""Execute the real CI scan steps with isolated input trees and offline tools."""
+
+import os
+import shutil
+import subprocess
+import tempfile
+import unittest
+from pathlib import Path
+
+import yaml
+
+
+WORKFLOW = Path(__file__).resolve().parents[1] / ".github/workflows/validate-plugins.yml"
+
+
+def workflow_step(job, name):
+    workflow = yaml.safe_load(WORKFLOW.read_text())
+    return next(step["run"] for step in workflow["jobs"][job]["steps"] if step.get("name") == name)
+
+
+class ScanFailureTests(unittest.TestCase):
+    def run_step(self, job, name, files, *, failed_tool=None, pytest_status=0):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for filename, content in files.items():
+                target = root / filename
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content)
+            tools = root / "offline-tools"
+            tools.mkdir()
+            pytest = tools / "pytest"
+            pytest.write_text(
+                '#!/usr/bin/env bash\nprintf "%s\\n" "$@" > "$SCAN_PYTEST_ARGS"\nexit "$SCAN_PYTEST_STATUS"\n'
+            )
+            pytest.chmod(0o755)
+            if failed_tool == "find":
+                # Emit real matching results, then fail a real filesystem traversal.
+                tool = tools / "find"
+                tool.write_text(
+                    f'#!/usr/bin/env bash\n"{shutil.which("find")}" "$@"\n'
+                    f'exec "{shutil.which("find")}" "$SCAN_MISSING_ROOT"\n'
+                )
+                tool.chmod(0o755)
+            elif failed_tool == "grep-filter":
+                tool = tools / "grep"
+                tool.write_text(
+                    '#!/usr/bin/env bash\nif [ "$1" = -v ]; then\n'
+                    f'  exec "{shutil.which("grep")}" -v "["\nfi\n'
+                    f'exec "{shutil.which("grep")}" "$@"\n'
+                )
+                tool.chmod(0o755)
+            args_file = root / "pytest-arguments"
+            env = {
+                **os.environ,
+                "PATH": f"{tools}{os.pathsep}{os.environ['PATH']}",
+                "SCAN_PYTEST_ARGS": str(args_file),
+                "SCAN_PYTEST_STATUS": str(pytest_status),
+                "SCAN_MISSING_ROOT": str(root / "missing-scan-root"),
+            }
+            result = subprocess.run(
+                ["bash", "-e", "-c", workflow_step(job, name)],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            return result, args_file.read_text().splitlines() if args_file.exists() else None
+
+    def dangerous(self, files, **kwargs):
+        return self.run_step("validate", "Security scan - Dangerous patterns", files, **kwargs)
+
+    def discovery(self, files, **kwargs):
+        return self.run_step("test", "Run Python tests", files, **kwargs)
+
+    def test_dangerous_match_still_fails(self):
+        result, _ = self.dangerous({"plugins/example.txt": "rm -rf /\n"})
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("Dangerous 'rm -rf /' pattern detected", result.stdout)
+
+    def test_dangerous_no_match_still_passes(self):
+        result, _ = self.dangerous({"plugins/example.txt": "rm -rf /var/application\n"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("No dangerous patterns detected", result.stdout)
+
+    def test_all_original_dangerous_path_exclusions_still_apply(self):
+        files = {f"plugins/{name}/example.txt": "rm -rf /\n" for name in ("var", "tmp", "prometheus")}
+        result, _ = self.dangerous(files)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_dangerous_scan_io_error_does_not_report_clean(self):
+        result, _ = self.dangerous({})
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("plugins/", result.stderr)
+        self.assertNotIn("No dangerous patterns detected", result.stdout)
+
+    def test_dangerous_filter_error_does_not_report_clean(self):
+        result, _ = self.dangerous({"plugins/example.txt": "rm -rf /\n"}, failed_tool="grep-filter")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertTrue(result.stderr)
+        self.assertNotIn("No dangerous patterns detected", result.stdout)
+
+    def test_discovery_preserves_names_exclusions_and_pytest_arguments(self):
+        result, args = self.discovery(
+            {
+                "test_alpha.py": "",
+                "nested/alpha_test.py": "",
+                "__pycache__/test_ignored.py": "",
+                "backups/test_ignored.py": "",
+            }
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("./test_alpha.py", result.stdout)
+        self.assertIn("./nested/alpha_test.py", result.stdout)
+        self.assertNotIn("test_ignored", result.stdout)
+        self.assertEqual(args, ["-v", "--cov=.", "--cov-report=term-missing", "--cov-report=xml"])
+
+    def test_discovery_no_match_still_skips_pytest(self):
+        result, args = self.discovery({"README.md": "No tests here.\n"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("No Python test files found", result.stdout)
+        self.assertIsNone(args)
+
+    def test_discovery_all_excluded_still_skips_pytest(self):
+        result, args = self.discovery({"backups/test_ignored.py": "", "__pycache__/test_ignored.py": ""})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIsNone(args)
+
+    def test_discovery_find_error_with_partial_matches_fails_before_pytest(self):
+        result, args = self.discovery({"test_alpha.py": ""}, failed_tool="find")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("missing-scan-root", result.stderr)
+        self.assertNotIn("No Python test files found", result.stdout)
+        self.assertIsNone(args)
+
+    def test_discovery_filter_error_is_not_a_no_tests_result(self):
+        result, args = self.discovery({"test_alpha.py": ""}, failed_tool="grep-filter")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertTrue(result.stderr)
+        self.assertNotIn("No Python test files found", result.stdout)
+        self.assertIsNone(args)
+
+    def test_pytest_failure_still_fails_the_step(self):
+        result, args = self.discovery({"test_alpha.py": ""}, pytest_status=7)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIsNotNone(args)
+        self.assertNotIn("Python tests passed", result.stdout)
+
+
+if __name__ == "__main__":
+    unittest.main()

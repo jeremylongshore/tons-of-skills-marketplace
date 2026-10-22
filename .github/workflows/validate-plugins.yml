@@ -565,12 +565,28 @@ jobs:
 
       - name: Security scan - Dangerous patterns
         run: |
+          set -e -o pipefail
+
+          # grep status 1 means no matches; operational errors must still fail.
+          grep_allow_no_match() {
+            local grep_status
+            if grep "$@"; then
+              return 0
+            else
+              grep_status=$?
+            fi
+            if [ "$grep_status" -eq 1 ]; then
+              return 0
+            fi
+            return "$grep_status"
+          }
+
           echo "Scanning for dangerous command patterns..."
           FOUND_ISSUES=0
 
           # Check for destructive commands (only root deletion, not /var/... paths)
           # Match: rm -rf / or rm -rf /* but NOT rm -rf /var/... etc.
-          DANGEROUS_RM=$(grep -r -E "rm\s+-rf\s+/(\s|$|\*)" plugins/ 2>/dev/null | grep -v "/var/" | grep -v "/tmp/" | grep -v "/prometheus/" || true)
+          DANGEROUS_RM=$(grep_allow_no_match -r -E "rm\s+-rf\s+/(\s|$|\*)" plugins/ | grep_allow_no_match -v "/var/" | grep_allow_no_match -v "/tmp/" | grep_allow_no_match -v "/prometheus/")
           if [ -n "$DANGEROUS_RM" ]; then
             echo "❌ ERROR: Dangerous 'rm -rf /' pattern detected!"
             echo "$DANGEROUS_RM"
@@ -1096,10 +1112,26 @@ jobs:
       - name: Run Python tests
         if: matrix.test-type == 'python-tests'
         run: |
+          set -e -o pipefail
+
+          # Normalize only grep's no-match status, never a find traversal error.
+          grep_allow_no_match() {
+            local grep_status
+            if grep "$@"; then
+              return 0
+            else
+              grep_status=$?
+            fi
+            if [ "$grep_status" -eq 1 ]; then
+              return 0
+            fi
+            return "$grep_status"
+          }
+
           echo "Running Python tests..."
 
           # Find all Python test files
-          TEST_FILES=$(find . -name "test_*.py" -o -name "*_test.py" | grep -v "__pycache__" | grep -v "backups/" || true)
+          TEST_FILES=$(find . -name "test_*.py" -o -name "*_test.py" | grep_allow_no_match -v "__pycache__" | grep_allow_no_match -v "backups/")
 
           if [ -n "$TEST_FILES" ]; then
             echo "Found Python test files:"

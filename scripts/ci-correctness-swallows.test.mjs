@@ -123,9 +123,9 @@ test('reviewed subset is reproducible without claiming repository totals or shel
   const result = inspect(f);
   assert.equal(result.valid, true);
   assert.deepEqual(result.values.site_counts, {
-    authorized_control_flow: 5,
+    authorized_control_flow: 7,
     informational: 1,
-    unbounded_correctness: 2,
+    unbounded_correctness: 0,
     unresolved: 16,
   });
   assert.deepEqual(result.values.coverage, {
@@ -138,7 +138,7 @@ test('reviewed subset is reproducible without claiming repository totals or shel
     unreviewed_run_containers: f.review.expected.run_containers - 17,
     counts_overlap: true,
   });
-  assert.equal(result.values.reviewed_unbounded_correctness_lower_bound, 2);
+  assert.equal(result.values.reviewed_unbounded_correctness_lower_bound, 0);
   assert.equal(result.values.unbounded_correctness_total, null);
   assert.equal(result.values.repository_unbounded_total, null);
   assert.equal(result.values.target_met, false);

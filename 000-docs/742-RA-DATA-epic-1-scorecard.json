@@ -3340,11 +3340,11 @@
           "workflows": 3
         },
         "repository_unbounded_total": null,
-        "reviewed_unbounded_correctness_lower_bound": 2,
+        "reviewed_unbounded_correctness_lower_bound": 0,
         "site_counts": {
-          "authorized_control_flow": 5,
+          "authorized_control_flow": 7,
           "informational": 1,
-          "unbounded_correctness": 2,
+          "unbounded_correctness": 0,
           "unresolved": 16
         },
         "sites": [
@@ -3389,7 +3389,7 @@
           {
             "authority": [
               {
-                "line": 781,
+                "line": 797,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
               }
@@ -3408,7 +3408,7 @@
           {
             "authority": [
               {
-                "line": 908,
+                "line": 924,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3463,28 +3463,50 @@
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
-            "authority": [],
-            "classification": "unbounded_correctness",
+            "authority": [
+              {
+                "line": 570,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "          # grep status 1 means no matches; operational errors must still fail."
+              },
+              {
+                "line": 91,
+                "path": "tests/test_ci_scan_failures.py",
+                "text": "    def test_dangerous_scan_io_error_does_not_report_clean(self):"
+              }
+            ],
+            "classification": "authorized_control_flow",
             "id": "dangerous-rm-scan",
             "job": "validate",
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Operational scan errors can collapse into empty output and a clean result; no bound authority is established.",
-            "run_line": 6,
+            "rationale": "Only grep's no-match status 1 is normalized; producer and exclusion-filter errors remain blocking under pipefail. Extracted-workflow tests cover matches, exclusions and real scan/filter errors.",
+            "run_line": 22,
             "step": 57,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
-            "authority": [],
-            "classification": "unbounded_correctness",
+            "authority": [
+              {
+                "line": 1117,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "          # Normalize only grep's no-match status, never a find traversal error."
+              },
+              {
+                "line": 129,
+                "path": "tests/test_ci_scan_failures.py",
+                "text": "    def test_discovery_find_error_with_partial_matches_fails_before_pytest(self):"
+              }
+            ],
+            "classification": "authorized_control_flow",
             "id": "python-test-discovery",
             "job": "test",
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Discovery errors can collapse into an empty test list and successful no-tests result; no bound authority is established.",
-            "run_line": 4,
+            "rationale": "Only grep's no-match status 1 is normalized; find traversal and exclusion-filter failures remain blocking under pipefail, including partial discovery output. Extracted-workflow tests preserve pytest arguments and failures.",
+            "run_line": 20,
             "step": 16,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3548,7 +3570,7 @@
             "owner": null,
             "promotion": null,
             "rationale": "Warning-only scan role and bound remain unresolved.",
-            "run_line": 14,
+            "run_line": 30,
             "step": 57,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3560,7 +3582,7 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 638
+              "source_line": 654
             },
             "owner": null,
             "promotion": null,
@@ -3603,7 +3625,7 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 1183
+              "source_line": 1215
             },
             "owner": null,
             "promotion": null,
@@ -3634,7 +3656,7 @@
             "owner": null,
             "promotion": null,
             "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
-            "run_line": 21,
+            "run_line": 37,
             "step": 57,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
@@ -3647,7 +3669,7 @@
             "owner": null,
             "promotion": null,
             "rationale": "Conditional warning-only scan has unresolved correctness role and bound.",
-            "run_line": 26,
+            "run_line": 42,
             "step": 57,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
