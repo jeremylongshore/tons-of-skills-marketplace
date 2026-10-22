@@ -22,7 +22,7 @@ allowed-tools:
   - Bash(bd config get:*)
   - Bash(curl:*)
   - Bash(python3 ${CLAUDE_PLUGIN_ROOT}/scripts/dolt-detect.py:*)
-version: 0.2.0
+version: 0.2.1
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: Apache-2.0
 compatibility: "Designed for Claude Code. Requires bd >= 1.0.4 with a Dolt-backed workspace; the dolt-mcp-server binary on PATH enables the SQL-capable agents."
@@ -165,7 +165,7 @@ The SQL-capable agents (bead-epic-auditor, bead-dependency-mapper) query the bea
 | Push gives PermissionDenied after "Uploading…" | DoltHub repo doesn't exist (creds are fine) | Create the database in the DoltHub UI, re-push |
 | Push gives an auth error before uploading | Stale or absent dolt creds | dolt login (interactive), or set DOLT_REMOTE_USER and DOLT_REMOTE_PASSWORD |
 | JSONL stale after a burst of writes | 60s export throttle | bd config set export.interval 1s, or flush with bd export |
-| Many dolt sql-server processes pile up | Each workspace runs its own per-project server | Reap idle ones: scripts/dolt-idle-reaper.sh (bd respawns each on next use — non-destructive), cron it; or consolidate via shared-server mode (read `bd init --help` live for the current flags) |
+| Many dolt sql-server processes pile up | Each workspace runs its own per-project server | Reap idle ones: scripts/dolt-idle-reaper.sh (clean-main/idle checks; see the [reaper contract](https://github.com/jeremylongshore/dolt-mcp-vcs-plugin/blob/main/000-docs/006-DR-STND-idle-reaper-safety.md)), cron it; or consolidate via shared-server mode (read `bd init --help` live for the current flags) |
 | MCP server won't connect | Wrong port or database | bd dolt show for the live port and database; set DOLT_PORT and DOLT_DATABASE |
 
 ## Examples
@@ -177,7 +177,7 @@ Run bd dolt remote list; it shows "No remotes configured" — explain that is th
 Dispatch bead-epic-auditor; it queries the bead graph over the Dolt MCP and returns a closure table.
 
 **"bd has 15 dolt servers running, it's a mess."**
-Dispatch dolt-sync-advisor; it reaps idle servers with scripts/dolt-idle-reaper.sh (each respawns on its next bd command — non-destructive), or walks shared-server consolidation if you want one durable server — it reads `bd init --help` live for the current flags rather than assuming them.
+Dispatch dolt-sync-advisor; it reaps idle servers with scripts/dolt-idle-reaper.sh (clean-main/idle checks; see the [reaper contract](https://github.com/jeremylongshore/dolt-mcp-vcs-plugin/blob/main/000-docs/006-DR-STND-idle-reaper-safety.md)), or walks shared-server consolidation if you want one durable server — it reads `bd init --help` live for the current flags rather than assuming them.
 
 ## Resources
 

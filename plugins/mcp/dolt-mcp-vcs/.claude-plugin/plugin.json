@@ -1,6 +1,6 @@
 {
   "name": "dolt-mcp-vcs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Dolt/DoltHub version-control toolkit for Claude Code, via the dolthub/dolt-mcp server. A version-control-surface skill + expert agents over a Dolt backend — diagnosing DoltHub visibility, taming server sprawl, auditing the graph, and recovering incidents — with a verb-class mutation gate that keeps destructive ops (push/merge/reset/branch-delete) recommend-only. Ships the beads (bd) task-tracker as use-case adapter #1 today; evolving to a dialect-invariant core with thin flavor adapters (Dolt/Doltgres/DoltLite/DumboDB). Formerly `beads-dolt`.",
   "author": {
     "name": "Jeremy Longshore",

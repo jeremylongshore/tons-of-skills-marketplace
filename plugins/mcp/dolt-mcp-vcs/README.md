@@ -1,5 +1,11 @@
 # dolt-mcp-vcs
 
+<!-- intent-select-partner:start -->
+<p><a href="https://intentsolutions.io/"><img src="https://raw.githubusercontent.com/intent-solutions-io/.github/b82af5d3e7951d85e39ea9e65cc24ee8278722a7/assets/brand/claude-select-partner.svg" alt="Intent Solutions: Claude Partner Network Select Services Partner" width="300" height="95" /></a></p>
+
+Intent Solutions is a Claude Partner Network Select Services Partner.
+<!-- intent-select-partner:end -->
+
 **One plugin for every make and model of Dolt.** Point it at any workspace and it answers the
 first question that matters — *what kind of Dolt database am I working with?* — then does the
 work: version-control verbs (branch / merge / diff / log / `AS OF` / data-PR awareness) over
@@ -173,3 +179,25 @@ This plugin was run end-to-end through the [Intent Eval Platform](https://github
 ## License
 
 Apache-2.0. See [LICENSE](./LICENSE).
+
+## Idle reaper safety
+
+Version 0.2.1 checks user databases named `dolt` and refuses failed or malformed
+MCP responses. Encoded schema discovery prevents embedded newlines from hiding
+databases behind apparently clean rows. Positive bd ownership is required before
+queries; unrelated/Freshie processes remain untouched. The reaper verifies the candidate PID owns the loopback listener,
+queries `main` explicitly, and rechecks process identity and activity before
+SIGTERM. Deploy `scripts/reaper_endpoint.py` beside `scripts/dolt-idle-reaper.sh`;
+a missing helper keeps the server alive. The pinned MCP dependency is unchanged.
+
+Use automatic reaping only for bd-managed servers whose work lives on `main`,
+whose account sees all databases. Encoded identifiers outside the supported
+single-line ASCII set conservatively retain the server. Other branches, hidden
+databases, and a concurrent write after the final check are outside this
+observation protocol. This is not an atomic shutdown guarantee.
+
+The [complete safety contract and hermetic validation procedure](https://github.com/jeremylongshore/dolt-mcp-vcs-plugin/blob/main/000-docs/006-DR-STND-idle-reaper-safety.md)
+record the formatter provenance and refusal cases. Roll back by disabling the
+reaper schedule first, then restoring a reviewed prior revision; keep scheduling
+disabled while that revision contains the skip-`dolt` defect. No cron or live
+process is changed by installing this patch.
