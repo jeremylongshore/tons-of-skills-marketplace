@@ -39,6 +39,15 @@
         "source_commit": "b4782cbd69a4128a15f5aab824a56f9d3eef1616",
         "reason": "Reviewed upstream SDK security update through 940e2fce also adds the official partner README block; mirrored bytes remain equal to sources.lock.json.",
         "note": "The historical 178-tag audit and earlier re-audit stay unchanged. Raw HTML remains escaped by the existing renderer."
+      },
+      {
+        "date": "2026-10-22",
+        "entries": [
+          "slack-channel"
+        ],
+        "source_commit": "940fb8d99161cb8c4b6834334e8c5f31a1674888",
+        "reason": "Reviewed upstream PR304 at b313d118f81609c185c9d03f93007fdf8aba9432 removes two commented speculative official-marketplace installation lines; the canonical source-specific sync remains byte-identical to its locked upstream README.",
+        "note": "The historical audits, presentation disposition and escaped raw HTML behavior remain unchanged; the removed comments were inside a fenced code example."
       }
     ]
   },
@@ -83,15 +92,15 @@
     {
       "plugin": "slack-channel",
       "readme": "plugins/mcp/slack-channel/README.md",
-      "source_sha256": "2a2b42dec69e5579e7e96bbf02c66f1dbc17784b2aac7a45f74bbae12e29575f",
-      "current_sha256": "2a2b42dec69e5579e7e96bbf02c66f1dbc17784b2aac7a45f74bbae12e29575f",
+      "source_sha256": "c751ca08125dd5311a8ee2796491efbe53662da5ccef00c84d22204ce1051b26",
+      "current_sha256": "c751ca08125dd5311a8ee2796491efbe53662da5ccef00c84d22204ce1051b26",
       "ownership": "upstream-mirror",
       "sources_lock_key": "slack-channel",
       "provenance": "plugins/mcp/slack-channel/.source.json",
       "upstream": "jeremylongshore/claude-code-slack-channel",
       "route": "https://github.com/jeremylongshore/claude-code-slack-channel/issues/new",
       "limitation": "The safe marketplace renderer displays the three upstream named installation anchors and the official partner badge HTML as escaped text. The adjacent partner description remains readable; raw HTML is not executed.",
-      "source_commit": "b4782cbd69a4128a15f5aab824a56f9d3eef1616",
+      "source_commit": "940fb8d99161cb8c4b6834334e8c5f31a1674888",
       "reaudited_at": "2026-10-22"
     },
     {
