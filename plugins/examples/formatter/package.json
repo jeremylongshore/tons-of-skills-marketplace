@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/formatter",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Comprehensive code formatting plugin with Prettier integration. Use when you need to format code, validate formatting, or maintain consistent code style. Activates with phrases like 'format my code', ",
   "keywords": [
     "formatting",

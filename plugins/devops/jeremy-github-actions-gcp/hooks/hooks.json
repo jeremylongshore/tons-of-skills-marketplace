@@ -14,7 +14,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-workflow.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/validate-workflow.sh\"",
+            "enabled": true,
+            "blocking": true,
             "description": "Validates GCP Workload Identity Federation configuration and best practices",
             "timeout": 10000,
             "continueOnError": false

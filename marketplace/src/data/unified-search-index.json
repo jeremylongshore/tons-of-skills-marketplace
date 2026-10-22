@@ -5626,7 +5626,7 @@
         "name": "Claude Code Plugins"
       },
       "authorType": "official",
-      "version": "2.26.0",
+      "version": "2.27.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -9760,7 +9760,7 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "2.27.0",
+      "version": "2.28.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -28533,7 +28533,7 @@
         "Bash(cmd:*)"
       ],
       "compatibleWith": [],
-      "version": "2.26.0",
+      "version": "2.27.0",
       "parentPlugin": {
         "name": "formatter",
         "category": "examples"
@@ -43144,7 +43144,7 @@
         "Bash(gcloud:*)"
       ],
       "compatibleWith": [],
-      "version": "2.27.0",
+      "version": "2.28.0",
       "parentPlugin": {
         "name": "jeremy-github-actions-gcp",
         "category": "devops"
