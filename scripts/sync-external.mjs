@@ -8,7 +8,7 @@
  * Usage:
  *   node scripts/sync-external.mjs [options]
  *
- * Options:
+ * Options (--help / -h prints these without starting a sync):
  *   --force        Force sync even if no changes detected (does NOT bypass the
  *                  sources.lock.json drift quarantine — only --relock does)
  *   --dry-run      Show what would be synced without making changes
@@ -17,6 +17,7 @@
  *                  upstream state and advance its sources.lock.json entry.
  *                  Repeatable. Only for use after a human reviewed the drift.
  *   --relock-all   Re-baseline every drifted source (post-review bulk approve)
+ *   --strict       Fail on any source error, quarantine, or refusal
  *   --verbose      Show detailed output
  *
  * 2026-06-02 rewrite (claude-5h8v):
@@ -1422,8 +1423,28 @@ async function main() {
 const invokedDirectly =
   process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (invokedDirectly) {
-  main().catch((error) => {
-    console.error('Fatal error:', error);
-    process.exit(1);
-  });
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(`Usage: node scripts/sync-external.mjs [options]
+
+Sync external plugins declared in sources.yaml.
+
+Options:
+  --help, -h     Print this help without reading sync configuration or starting a sync
+  --source=NAME  Sync only the named source
+  --dry-run      Preview mirror/catalog/lock changes; still fetches upstream content
+  --force        Sync even when unchanged; does NOT bypass drift quarantine
+  --relock=NAME  Approve reviewed drift and advance its lock entry (repeatable)
+  --relock-all   Approve all reviewed drift and advance its lock entries
+  --strict       Fail on any source error, quarantine, or refusal
+  --verbose      Show detailed output
+
+Only --relock/--relock-all advance a drifted lock. Review upstream changes first.
+Total source failure exits nonzero even without --strict.
+Help takes precedence over all sync flags.`);
+  } else {
+    main().catch((error) => {
+      console.error('Fatal error:', error);
+      process.exit(1);
+    });
+  }
 }

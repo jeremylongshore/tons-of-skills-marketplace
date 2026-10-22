@@ -15,6 +15,9 @@
  * Run: node --test scripts/sync-lockfile.test.mjs
  */
 
+// Exercise direct help through the existing zero-install sync test lane.
+import './sync-external-help.test.mjs';
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
