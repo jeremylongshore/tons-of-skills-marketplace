@@ -49,7 +49,8 @@ async function assertNoPartialInstall() {
 
 describe('atomic portable installation', { timeout: 30_000 }, () => {
   beforeEach(async () => {
-    root = await fs.mkdtemp(path.join(tmpdir(), 'ccpi-install-test-'));
+    // macOS exposes its temp directory through /var -> /private/var.
+    root = await fs.realpath(await fs.mkdtemp(path.join(tmpdir(), 'ccpi-install-test-')));
     source = path.join(root, sourcePath);
     destinationRoot = path.join(root, 'consumer', '.claude', 'skills');
     destination = path.join(destinationRoot, 'demo-skill');
