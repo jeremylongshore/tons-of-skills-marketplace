@@ -38,11 +38,11 @@ async function commit() {
 async function snapshot(directory: string): Promise<Record<string, string>> {
   const result: Record<string, string> = {};
   async function walk(relative: string) {
-    for (const name of (await fs.readdir(path.join(directory, relative))).sort()) {
-      const child = path.join(relative, name);
+    const entries = await fs.readdir(path.join(directory, relative), { withFileTypes: true });
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      const child = path.join(relative, entry.name);
       const file = path.join(directory, child);
-      const info = await fs.lstat(file);
-      if (info.isDirectory()) await walk(child);
+      if (entry.isDirectory()) await walk(child);
       else {
         const handle = await fs.open(file, 'r');
         try {
