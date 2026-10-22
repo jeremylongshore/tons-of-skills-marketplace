@@ -1807,7 +1807,7 @@ export function sanitizeFilename(name: string): string {
  * forge fields inside the context window.
  *
  * This sanitizer:
- *  - strips ASCII control chars (including \n, \r, \t, \0, DEL)
+ *  - strips C0 (U+0000–U+001F), DEL (U+007F), and C1 (U+0080–U+009F)
  *  - strips tag/attribute delimiters: < > " ' `
  *  - collapses whitespace runs to a single space
  *  - trims
@@ -1820,7 +1820,7 @@ export function sanitizeDisplayName(raw: unknown): string {
   if (typeof raw !== 'string') return 'unknown'
   const cleaned = raw
     // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional — strip C0/C1 control chars from untrusted Slack display names before rendering
-    .replace(/[\u0000-\u001f\u007f]/g, '')
+    .replace(/[\u0000-\u001f\u007f-\u009f]/g, '')
     .replace(/[<>"'`]/g, '')
     .replace(/\s+/g, ' ')
     .trim()

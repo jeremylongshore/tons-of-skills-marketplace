@@ -2008,8 +2008,21 @@ describe('sanitizeFilename', () => {
 // ---------------------------------------------------------------------------
 
 describe('sanitizeDisplayName', () => {
-  test('strips control characters', () => {
-    expect(sanitizeDisplayName('alice\u0000\u001fbob')).toBe('alicebob')
+  const controlCodePoints = [
+    ...Array.from({ length: 32 }, (_, index) => index),
+    ...Array.from({ length: 33 }, (_, index) => 0x7f + index),
+  ]
+
+  test.each(controlCodePoints)('strips control code point %i from names', (codePoint) => {
+    expect(sanitizeDisplayName(`alice${String.fromCodePoint(codePoint)}bob`)).toBe('alicebob')
+  })
+
+  test('returns "unknown" for a name containing only C0, DEL, and C1 controls', () => {
+    expect(sanitizeDisplayName(String.fromCodePoint(...controlCodePoints))).toBe('unknown')
+  })
+
+  test('preserves ordinary Unicode names and the printable character after C1', () => {
+    expect(sanitizeDisplayName('¡Zoë 李明 👩🏽‍💻')).toBe('¡Zoë 李明 👩🏽‍💻')
   })
 
   test('strips newlines and tabs', () => {
