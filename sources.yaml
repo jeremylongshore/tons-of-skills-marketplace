@@ -1474,6 +1474,38 @@ sources:
       - '.git/**'
       - '*.log'
 
+  # ============================================================
+  # AI Model Watch (Mark Santos)
+  # https://github.com/markksantos/ai-model-watch
+  # ============================================================
+
+  - name: ai-model-watch
+    description: Check which AI models each provider's API serves (OpenRouter, OpenAI, Anthropic, Gemini, Mistral, xAI, DeepSeek) and which are new since the last check - a zero-dependency MCP server plus a skill that knows when to call it. OpenRouter works without a key.
+    repo: markksantos/ai-model-watch
+    source_path: .
+    target_path: plugins/ai-ml/ai-model-watch
+    author:
+      name: Mark Santos
+      github: markksantos
+      email: hello@markksantos.com
+    license: MIT
+    category: ai-ml
+    verified: false
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/README.md'
+      - '/LICENSE'
+      - '/skills/**'
+      - '/bin/**'
+      - '/index.js'
+      - '/mcp.js'
+      - '/package.json'
+      - '/docs/PRD.md'
+      - '/docs/ADR.md'
+    exclude:
+      - '/.git/**'
+      - '**/node_modules/**'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
