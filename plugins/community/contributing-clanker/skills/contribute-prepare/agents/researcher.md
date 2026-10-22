@@ -72,8 +72,8 @@ DOSSIER=$CONTRIBUTE_STATE_DIR/research/<owner>__<repo>.md
 [ -f "$DOSSIER" ] && echo "refresh" || echo "build"
 ```
 
-**Build path** is always safe — runs `researcher-build.sh` and writes the
-result. **Refresh path** must preserve the human-edited sections (Pet
+**Build path** runs `researcher-build.sh` and publishes a complete dossier.
+**Refresh path** must preserve the human-edited sections (Pet
 peeves, Failure log, Notes) — those are institutional knowledge and never
 overwritten.
 
@@ -82,12 +82,12 @@ overwritten.
 Run the builder:
 
 ```bash
-scripts/researcher-build.sh <owner>/<repo> > "$DOSSIER"
+scripts/researcher-build.sh <owner>/<repo>
 ```
 
 The script handles everything: fetches repo metadata, inventories policy
-files, fetches CONTRIBUTING.md, follows depth-1 links (skipping social
-URLs), samples review bots from a recent merged PR, detects conventions,
+files, fetches CONTRIBUTING.md, lists external references without fetching
+them, samples review bots from a recent merged PR, detects conventions,
 and emits the dossier with frontmatter + body sections.
 
 If the script exits non-zero, surface the error to the user. Do **not**
@@ -108,41 +108,38 @@ After write:
 
 ## Step 4 — Refresh (existing dossier)
 
-Refresh replaces auto-generated content but preserves the manual sections.
+Run the same builder command directly. It replaces auto-generated content
+and preserves the bodies of these exact manual headings:
 
-1. **Snapshot manual sections** from the existing dossier:
-   - `## Pet peeves & known triggers` (everything until the next `##` header)
-   - `## Failure log` (everything until next `##`)
-   - `## Notes` (everything until next `##` or EOF)
+- `## Pet peeves & known triggers`
+- `## Failure log`
+- `## Notes`
 
-2. **Run the builder** to a tempfile:
+A body ends at the next level-two heading outside a fenced block, or EOF.
+Subheadings, fenced examples, whitespace, and manual text remain intact.
+Do not redirect output over the dossier: shell redirection would truncate it
+before preservation can run. For a preview that leaves the dossier untouched:
 
-   ```bash
-   TMP="${DOSSIER}.tmp.$$"
-   scripts/researcher-build.sh <owner>/<repo> > "$TMP"
-   ```
+```bash
+scripts/researcher-build.sh <owner>/<repo> --stdout
+```
 
-3. **Splice the manual sections back** into the new file. The builder
-   emits empty placeholders for these three sections — replace those
-   placeholders with the snapshotted content.
+The builder stages a complete result and atomically publishes it after checking
+that the existing dossier has not changed. Missing or duplicate manual headings,
+unclosed fences, nonregular destinations, and I/O failures refuse publication.
+Surface the error and repair ambiguous boundaries before retrying; never fall
+back to overwriting the dossier. Coordinate simultaneous editors: an external
+writer can still race the final check-to-replace window. Atomic replacement
+preserves file permission bits, but does not preserve ownership or extended
+filesystem metadata.
 
-4. **Atomic rename** to commit the refresh:
+After a successful refresh, log the event:
 
-   ```bash
-   mv "$TMP" "$DOSSIER"
-   ```
-
-5. **Log the refresh**:
-
-   ```bash
-   jq -nc --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg repo "$REPO" --arg dossier "$DOSSIER" \
-     '{ts: $ts, event: "researcher_refresh", details: {repo: $repo, dossier: $dossier}}' \
-     >> $CONTRIBUTE_STATE_DIR/log.jsonl
-   ```
-
-If the existing dossier is malformed (no recognizable `## Pet peeves` /
-`## Failure log` / `## Notes` sections), surface a warning and ask whether
-to overwrite or abort.
+```bash
+jq -nc --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg repo "$REPO" --arg dossier "$DOSSIER" \
+  '{ts: $ts, event: "researcher_refresh", details: {repo: $repo, dossier: $dossier}}' \
+  >> $CONTRIBUTE_STATE_DIR/log.jsonl
+```
 
 ## Step 5 — Report
 
@@ -154,7 +151,7 @@ Output a one-paragraph summary for the user covering:
 - CLA / DCO / AI-disclosure flags (true/false)
 - External merge velocity (last 90 days)
 - Number of policy files found
-- Number of links followed (and a couple titles)
+- Number of external references listed (not fetched)
 - Whether `local_check_command` was auto-detected, and what it is
 
 Example:
@@ -164,14 +161,15 @@ Example:
 > TypeScript, default branch `main`. CLA: false. DCO: false. AI disclosure
 > required: false. 70 external PRs merged in the last 90 days. Found 11
 > policy files (CONTRIBUTING, CLA.md, DCO.md, AI_POLICY.md, CODEOWNERS,
-> SECURITY, PR_TEMPLATE, …). No links followed (CONTRIBUTING didn't have
-> any non-social outbound links). `local_check_command`: not detected —
+> SECURITY, PR_TEMPLATE, …). No external references listed.
+> `local_check_command`: not detected —
 > read CONTRIBUTING for the manual command.
 
 ## Pet peeves you should curate yourself
 
-After build/refresh, scan the followed links for repo-specific gotchas the
-auto-detection won't catch. Look for sentences like:
+After build/refresh, inspect the fetched repository policy text for specific
+gotchas the auto-detection will not catch. Review external reference URLs
+manually before opening them. Look for sentences like:
 
 - "Do not …"
 - "We don't …"

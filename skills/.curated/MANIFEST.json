@@ -9110,6 +9110,7 @@
         "scripts/gates/lib/preamble.sh",
         "scripts/lint-candidate.sh",
         "scripts/researcher-build.sh",
+        "scripts/researcher-refresh.py",
         "scripts/setup.sh",
         "scripts/test-known-traps.sh",
         "scripts/test-override-audit.sh",
