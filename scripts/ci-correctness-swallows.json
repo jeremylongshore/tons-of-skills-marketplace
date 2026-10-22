@@ -9,7 +9,7 @@
     },
     {
       "path": ".github/workflows/secret-scan.yml",
-      "sha256": "19c708a45d92eb061bd2a108e8f39e93ec429c6bbfc2eeee31c54c0f963a2dbb"
+      "sha256": "a70053ad581480b0abbda26c6ddb404919839e81619ffa806adddb633cf97ad9"
     },
     {
       "path": ".github/workflows/skill-conform.yml",
@@ -458,9 +458,9 @@
       "job": "trufflehog",
       "step": 2,
       "step_name": "Notify Slack on failure",
-      "job_sha256": "ead00f4444cc8f1a703174203b8ef58549305e2e71935f7d393ec41da445675e",
-      "step_sha256": "a3080ae5c9e7207e1bb8344132660fc1e5bde5b64dc2252bf01d8b9a24d8920b",
-      "run_sha256": "9f2ffd27294aacf8f560f3343fad7202459d2ec81bb3645f7c0b7a4d8b40a6a8",
+      "job_sha256": "06efbcb7cf1428e98941f773397a2d951a28f0b2085c4577634d0ed655dd1b7c",
+      "step_sha256": "cbe62ccfb1137d95583c0755f9fa5149fa556e8ea61df7e682a5b84df5e0f206",
+      "run_sha256": "85a46de61f91beacf66aba5fc19ca713bb281bb6f1752bbd2a8ae6a61befd446",
       "anchor": {
         "line": 3,
         "text": "  exit 0"
