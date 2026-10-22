@@ -1077,6 +1077,8 @@ function walk(absDir, relPrefix, acc) {
   }
 }
 
+class GitEnumerationError extends Error {}
+
 /** Files changed vs a base ref (committed diff + staged + untracked). */
 function changedFiles(base) {
   const run = (args) => {
@@ -1088,8 +1090,11 @@ function changedFiles(base) {
         .split('\n')
         .map((s) => s.trim())
         .filter(Boolean);
-    } catch {
-      return [];
+    } catch (error) {
+      const operation = args.includes('--cached') ? 'staged diff' : args[0];
+      throw new GitEnumerationError(
+        `Git enumeration failed (${operation}; ${error.code ?? error.status ?? 'unknown failure'})`,
+      );
     }
   };
   const set = new Set([
@@ -1399,7 +1404,13 @@ function main() {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
-  main();
+  try {
+    main();
+  } catch (error) {
+    if (!(error instanceof GitEnumerationError)) throw error;
+    console.error(`scan-synced-content: ${error.message}`);
+    process.exitCode = 1;
+  }
 }
 
 /*
