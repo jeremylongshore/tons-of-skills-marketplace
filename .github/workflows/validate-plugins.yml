@@ -280,7 +280,7 @@ jobs:
       # REPORT-ONLY-UNTIL: 2026-10-31 (agent corpus unbaselined; flip to blocking once curated)
       - name: Validate agent frontmatter (report-only)
         run: |
-          python3 -c "import yaml" 2>/dev/null || python3 -m pip install --quiet pyyaml || true
+          python3 -c "import yaml" 2>/dev/null || python3 -m pip install --quiet pyyaml
           python3 scripts/validate-skills-schema.py --agents-only || true
 
       # .mcp.json validation, two lanes (E4.8, blueprint 727):

@@ -3342,10 +3342,10 @@
         "repository_unbounded_total": null,
         "reviewed_unbounded_correctness_lower_bound": 0,
         "site_counts": {
-          "authorized_control_flow": 7,
+          "authorized_control_flow": 8,
           "informational": 1,
           "unbounded_correctness": 0,
-          "unresolved": 16
+          "unresolved": 15
         },
         "sites": [
           {
@@ -3511,8 +3511,19 @@
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
-            "authority": [],
-            "classification": "unresolved",
+            "authority": [
+              {
+                "line": 281,
+                "path": ".github/workflows/validate-plugins.yml",
+                "text": "      - name: Validate agent frontmatter (report-only)"
+              },
+              {
+                "line": 68,
+                "path": "tests/test_ci_agent_bootstrap.py",
+                "text": "    def test_failed_install_stops_before_validator(self):"
+              }
+            ],
+            "classification": "authorized_control_flow",
             "id": "agent-dependency-bootstrap",
             "job": "validate",
             "observed_deadline": {
@@ -3522,7 +3533,7 @@
             },
             "owner": null,
             "promotion": null,
-            "rationale": "Dependency bootstrap is swallowed; the date alone does not establish a current owner or promotion condition.",
+            "rationale": "A failed dependency import falls back to installation; installation failure remains blocking before the advisory validator. Extracted-step tests cover import success, successful and failed installs, and unchanged advisory validator errors.",
             "run_line": 1,
             "step": 29,
             "workflow": ".github/workflows/validate-plugins.yml"

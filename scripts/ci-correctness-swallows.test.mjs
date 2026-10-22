@@ -123,10 +123,10 @@ test('reviewed subset is reproducible without claiming repository totals or shel
   const result = inspect(f);
   assert.equal(result.valid, true);
   assert.deepEqual(result.values.site_counts, {
-    authorized_control_flow: 7,
+    authorized_control_flow: 8,
     informational: 1,
     unbounded_correctness: 0,
-    unresolved: 16,
+    unresolved: 15,
   });
   assert.deepEqual(result.values.coverage, {
     ...Object.fromEntries(
