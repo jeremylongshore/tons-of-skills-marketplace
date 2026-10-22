@@ -89,6 +89,34 @@ python3 freshie/scripts/promote-to-curated.py
 pnpm run generate:disposition-ledger
 ```
 
+The scanner and exporter check discovery lineage before changing SQLite or
+Dolt data. Existing committed discovery records must remain present with the
+same identities and totals; historical run IDs need not be contiguous. A new
+scan must exceed the known run-tag floor. Re-exporting the latest unchanged
+discovery run is supported, including a compliance update that creates a
+`run-N.1` revision and an unchanged retry of that revision.
+
+For a runtime stored outside the source checkout, pass `--db` and `--dolt-dir`
+explicitly to both tools. The scanner defaults its authority path to
+`<DB parent>/dolt/freshie`. A tracked grade receipt with no committed local
+authority is a refusal, not permission to start over at run 1. Restore verified
+history first. A new ephemeral repository with neither history nor a receipt
+can bootstrap offline. The optional inventory rebuild in a fresh CI checkout
+therefore requires restored authority; the usual curated-mirror job uses the
+tracked grade exports and does not rebuild inventory.
+
+Publishing also checks public discovery history, local ancestry, and exact
+tag-name/hash mappings before data writes, then checks tag mappings again
+before pushing any ref. An unavailable or malformed public response blocks
+publication. A local commit left by a failed push remains retryable when it
+descends from the public history. `--no-push` and `--dry-run` use the selected
+local authority without contacting DoltHub; this preserves isolated historical
+reproduction, but does not establish permission to publish that historical run.
+
+These guards prevent another bootstrap rollback; they do not repair the
+overwritten historical `run-1` tag tracked in `claude-5wmv`. Its restoration
+still requires verified retained evidence and a separately reviewed repair.
+
 ## The skills.sh curated mirror (`promote-to-curated.py`)
 
 skills.sh only crawls a repo's root `skills/` (+ `.curated/`, `.experimental/`, agent

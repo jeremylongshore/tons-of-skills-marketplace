@@ -59,7 +59,8 @@ What one sync does:
      grades regressed.
   9. Pushes main AND the tag (tags do not ride along on a branch push)
      — plus any older local tag a prior failed push stranded (reconciled
-     against the DoltHub API's dolt_tags, best-effort). Push failure with
+     against exact DoltHub tag targets, failing closed on disagreement).
+     Push failure with
      valid creds exits non-zero and loud — a silently unpushed Dolt repo is
      single-copy history on an OOM-prone box.
  10. Runs `dolt gc` under the same flock every GC_EVERY_N_SYNCS syncs or
@@ -123,6 +124,9 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import run_identity
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -1144,7 +1148,11 @@ def commit_and_tag(repo: Path, run_id: int, source_sha: str) -> tuple[bool, str 
             return committed, tag_base, after
         log(f"no data changes and HEAD is not run {run_id} — skipping tag")
         return committed, None, after
-    return committed, tag_base, after
+    # The base tag may identify an older compliance revision. A no-change
+    # retry must report a tag actually targeting HEAD, never the older base.
+    matching = sorted(name for name, target in existing.items()
+                      if target == after and (name == tag_base or name.startswith(tag_base + ".")))
+    return committed, matching[-1] if matching else None, after
 
 
 # ---------------------------------------------------------------------------
@@ -1256,26 +1264,11 @@ def check_repo_exists(org: str, repo_name: str) -> bool | None:
     return code == "200"
 
 
-def remote_tags(org: str, repo_name: str) -> set[str] | None:
-    """Best-effort DoltHub tag listing via the public SQL API.
-
-    Returns the set of tag names on the remote, or None when inconclusive
-    (network failure, unexpected payload). Used to reconcile local tags that a
-    prior failed push stranded — see push().
-    """
-    url = (f"https://www.dolthub.com/api/v1alpha1/{org}/{repo_name}/main"
-           f"?q=SELECT+tag_name+FROM+dolt_tags")
-    proc = run(["curl", "-s", "--max-time", "10", url], check=False)
-    if proc.returncode != 0 or not proc.stdout.strip():
-        return None
-    try:
-        payload = json.loads(proc.stdout)
-    except json.JSONDecodeError:
-        return None
-    rows = payload.get("rows")
-    if not isinstance(rows, list):
-        return None
-    return {r["tag_name"] for r in rows if isinstance(r, dict) and r.get("tag_name")}
+def remote_tags(org: str, repo_name: str) -> dict[str, str]:
+    """Fail-closed public tag targets, including names already present locally."""
+    return run_identity.tag_map(run_identity.remote_rows(
+        org, repo_name, "main", "SELECT tag_name,tag_hash FROM dolt_tags"
+    ))
 
 
 def push(repo: Path, org: str, repo_name: str, tag: str | None) -> None:
@@ -1295,7 +1288,7 @@ def push(repo: Path, org: str, repo_name: str, tag: str | None) -> None:
     if exists is False:
         raise PushError(f"DoltHub database {org}/{repo_name} does not exist — {create_help}")
     if exists is None:
-        log("DoltHub existence probe inconclusive (network) — attempting push anyway")
+        log("DoltHub existence probe inconclusive — exact public tag verification is still required")
 
     tags_to_push: list[str] = [tag] if tag else []
 
@@ -1304,19 +1297,21 @@ def push(repo: Path, org: str, repo_name: str, tag: str | None) -> None:
     # manual retry, that run's tag would otherwise be stranded forever — the
     # old code only ever pushed the CURRENT run's tag. Reconcile: push every
     # local tag the remote is missing, not just this run's.
-    remote = remote_tags(org, repo_name)
-    if remote is None:
-        log("DoltHub tag listing inconclusive (network) — pushing only the "
-            "current run's tag; a previously-stranded tag (if any) stays "
-            "local until a sync with network access to the DoltHub API")
-    else:
-        local = {r[0] for r in dolt_csv_query(repo, "SELECT tag_name FROM dolt_tags")}
-        stranded = sorted(local - remote - set(tags_to_push))
-        if stranded:
-            log(f"WARNING: {len(stranded)} local tag(s) never reached DoltHub "
-                f"(a prior sync's push failed and was not retried): {stranded} "
-                f"— pushing them now")
-            tags_to_push.extend(stranded)
+    try:
+        remote = remote_tags(org, repo_name)
+        local = run_identity.tag_map([
+            {"tag_name": row[0], "tag_hash": row[1]}
+            for row in dolt_csv_query(repo, "SELECT tag_name,tag_hash FROM dolt_tags")
+        ])
+        run_identity.require_tag_agreement(local, remote)
+    except run_identity.IdentityError as exc:
+        raise PushError(str(exc)) from exc
+    stranded = sorted(local.keys() - remote.keys() - set(tags_to_push))
+    if stranded:
+        log(f"WARNING: {len(stranded)} local tag(s) never reached DoltHub "
+            f"(a prior sync's push failed and was not retried): {stranded} "
+            "— pushing them now")
+        tags_to_push.extend(stranded)
 
     refs = ["main"]
     # Tags do NOT ride along on a branch push; use the explicit refspec
@@ -1460,6 +1455,20 @@ def main() -> int:
             lock_fd = acquire_lock(repo.parent / ".sync.lock")
             if (repo / ".dolt").is_dir():
                 refuse_if_server_running(repo)
+
+        # Read-only source/authority checks precede demotion, Dolt reset/init,
+        # DDL, imports, tracked exports, and commits. Keep the existing security
+        # and completeness diagnostics ahead of environment-dependent checks.
+        with sqlite3.connect(args.db.resolve().as_uri() + "?mode=ro", uri=True) as preflight_conn:
+            gate_export_allowlist(sorted(introspect_schema(preflight_conn)))
+            run_id = int(preflight_conn.execute("SELECT MAX(id) FROM discovery_runs").fetchone()[0] or 0)
+            gate_run_completeness(preflight_conn, run_id)
+        approved_history = run_identity.preflight(
+            args.db, repo, args.repo_root / "freshie" / "grade-histogram.json",
+            public=None if args.no_push or args.dry_run else (args.org, args.repo),
+        )
+
+        if not args.dry_run:
             # This is intentionally before VACUUM INTO: the snapshot is the
             # public-export input and must carry the demoted class, not merely
             # diagnose it after the fact.
@@ -1481,6 +1490,7 @@ def main() -> int:
         src = sqlite3.connect(f"file:{args.db}?mode=ro", uri=True)
         src.execute("VACUUM INTO ?", (str(snapshot),))
         src.close()
+        run_identity.verify_snapshot(snapshot, approved_history)
         conn = sqlite3.connect(f"file:{snapshot}?mode=ro", uri=True)
 
         schema = introspect_schema(conn)
@@ -1620,7 +1630,7 @@ def main() -> int:
     except PushError as exc:
         log(f"PUSH FAILED (history committed locally but NOT on DoltHub): {exc}")
         return 3
-    except SyncError as exc:
+    except (SyncError, run_identity.IdentityError) as exc:
         log(f"FAILED: {exc}")
         return 1
     except subprocess.CalledProcessError as exc:

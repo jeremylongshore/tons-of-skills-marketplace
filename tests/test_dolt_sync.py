@@ -6,11 +6,10 @@ current-run grades export).
 Run: python3 -m unittest tests.test_dolt_sync -v
 
 Coverage honesty: most tests are pure-function tests — no dolt binary,
-network, or repo state. The push recovery contract is mocked below; the
-commit/tag/gc state-machine branches (commit_and_tag's crash-retry,
-tag-suffix, and head-message branches; maybe_gc) still lack a dolt-backed
-round-trip test. Treat any change to those branches as untested until such a
-test exists.
+network, or repo state. The push recovery contract is mocked below.
+tests.test_freshie_run_identity covers real Dolt no-change, compliance-suffix,
+and suffix-retry branches; head-message recovery and GC still lack a
+Dolt-backed round-trip test.
 """
 
 import importlib.util
@@ -804,11 +803,11 @@ class PushRecoveryTests(unittest.TestCase):
             mock.patch.object(dolt_sync, "ensure_remote"),
             mock.patch.object(dolt_sync, "check_creds"),
             mock.patch.object(dolt_sync, "check_repo_exists", return_value=True),
-            mock.patch.object(dolt_sync, "remote_tags", return_value=set()),
+            mock.patch.object(dolt_sync, "remote_tags", return_value={}),
             mock.patch.object(
                 dolt_sync,
                 "dolt_csv_query",
-                return_value=[["run-41"], ["run-42"]],
+                return_value=[["run-41", "a" * 32], ["run-42", "b" * 32]],
             ),
             mock.patch.object(dolt_sync, "dolt", side_effect=fake_dolt),
         ):
@@ -830,11 +829,11 @@ class PushRecoveryTests(unittest.TestCase):
             mock.patch.object(dolt_sync, "ensure_remote"),
             mock.patch.object(dolt_sync, "check_creds"),
             mock.patch.object(dolt_sync, "check_repo_exists", return_value=True),
-            mock.patch.object(dolt_sync, "remote_tags", return_value={"run-41", "run-42"}),
+            mock.patch.object(dolt_sync, "remote_tags", return_value={"run-41": "a" * 32, "run-42": "b" * 32}),
             mock.patch.object(
                 dolt_sync,
                 "dolt_csv_query",
-                return_value=[["run-41"], ["run-42"], ["run-43"]],
+                return_value=[["run-41", "a" * 32], ["run-42", "b" * 32], ["run-43", "c" * 32]],
             ),
             mock.patch.object(dolt_sync, "dolt", side_effect=fake_dolt),
         ):

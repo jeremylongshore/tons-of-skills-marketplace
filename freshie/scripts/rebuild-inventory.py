@@ -2,8 +2,8 @@
 """
 rebuild-inventory.py — Versioned repository scanner for claude-code-plugins.
 
-Inserts a new discovery run (run_id=2 by default) into the freshie inventory
-SQLite database without touching or removing any prior run data.
+Inserts the next unpublished discovery run into the Freshie inventory SQLite
+database after checking its lineage against committed Dolt history.
 
 Usage:
     python3 rebuild-inventory.py [--dry-run] [--db PATH] [--run-id N]
@@ -12,7 +12,7 @@ Flags:
     --dry-run     Show what would be scanned; do not write to DB.
     --db PATH     Path to the inventory SQLite file.
                   Default: ./inventory.sqlite (relative to script location).
-    --run-id N    Force a specific run_id (default: auto-detect next).
+    --run-id N    Select an unpublished run_id (default: auto-detect next).
     --diff-only   Print run comparison and exit without scanning.
 """
 
@@ -21,14 +21,17 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import sqlite3
 import subprocess
+import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import run_identity
 
 
 # ---------------------------------------------------------------------------
@@ -1107,7 +1110,7 @@ def scan_skill_files(
     skill_mds: list[Path],
 ) -> None:
     """Populate skill_files, skill_structure_shapes, unique_*, content_signals, pack_aggregates."""
-    print(f"  Scanning skill file trees...")
+    print("  Scanning skill file trees...")
 
     # Collect all skill directories
     skill_dirs: set[Path] = set()
@@ -2411,6 +2414,14 @@ def run_scan(args: argparse.Namespace) -> None:
     db_path = Path(args.db)
     dry_run: bool = args.dry_run
 
+    # Check lineage before open_db enables WAL, schema creation, or a purge.
+    # Derive the default from the selected runtime DB, not the source checkout.
+    dolt_dir = args.dolt_dir or db_path.parent / "dolt" / "freshie"
+    run_identity.preflight(
+        db_path, dolt_dir, REPO_ROOT / "freshie" / "grade-histogram.json",
+        rebuild=True, requested_run=args.run_id,
+    )
+
     fresh_db = not db_path.exists()
     if fresh_db:
         # Bootstrap instead of exiting 1: inventory.sqlite is untracked, so any
@@ -2574,6 +2585,11 @@ def main() -> None:
         help="Path to the inventory SQLite database (default: freshie/inventory.sqlite)",
     )
     parser.add_argument(
+        "--dolt-dir",
+        type=Path,
+        help="committed discovery authority (default: DB parent/dolt/freshie); required when stored elsewhere",
+    )
+    parser.add_argument(
         "--repo-root",
         type=Path,
         default=REPO_ROOT,
@@ -2588,7 +2604,7 @@ def main() -> None:
         "--run-id",
         type=int,
         default=None,
-        help="Force a specific run_id (default: auto-detect next)",
+        help="Select an unpublished run_id; committed history cannot be replaced (default: next)",
     )
     parser.add_argument(
         "--diff-only",
@@ -2602,7 +2618,11 @@ def main() -> None:
         print_diff_report(Path(args.db))
         return
 
-    run_scan(args)
+    try:
+        run_scan(args)
+    except run_identity.IdentityError as exc:
+        print(f"Freshie run identity refused: {exc}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
