@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import unittest
@@ -92,9 +93,13 @@ class ContributingClankerPortabilityTests(unittest.TestCase):
 
     def test_versions_match_manifest(self) -> None:
         manifest = json.loads((PLUGIN / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
-        self.assertEqual(manifest["version"], "0.9.0")
+        display_version = manifest["version"]
+        # Display versions advance independently of package.json's npm patch.
+        self.assertRegex(display_version, r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
         for skill in SKILLS.glob("*/SKILL.md"):
-            self.assertIn('version: "0.9.0"', skill.read_text(encoding="utf-8"), str(skill))
+            frontmatter = skill.read_text(encoding="utf-8").split("---", 2)[1]
+            versions = re.findall(r"^version: [\"']?([^\"'\s]+)[\"']?[ \t]*$", frontmatter, re.MULTILINE)
+            self.assertEqual(versions, [display_version], str(skill))
 
     def test_setup_requires_explicit_safe_paths(self) -> None:
         setup = SKILLS / "contribute-prepare/scripts/setup.sh"

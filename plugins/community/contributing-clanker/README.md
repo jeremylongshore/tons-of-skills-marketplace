@@ -118,7 +118,8 @@ a separate explicit review and approval.
 - `git`
 - `jq`
 - GitHub CLI (`gh`) authenticated through the user's normal credential store
-- Bash for the optional deterministic preparation scripts
+- Bash and Python 3 (standard library only) for the optional deterministic
+  preparation scripts
 - the target repository's own build/test dependencies, only when preparation is
   explicitly requested
 
@@ -141,7 +142,17 @@ python3 scripts/validate-unicode-hygiene.py \
 ```
 
 The preparation runtime includes focused shell regression tests under
-`skills/contribute-prepare/scripts/test-*.sh`.
+`skills/contribute-prepare/scripts/test-*.sh`. Dossier preservation has an offline
+regression suite: `python3 -m unittest tests.test_researcher_refresh -v`.
+
+Dossier refresh preserves the exact `Pet peeves & known triggers`, `Failure log`,
+and `Notes` section bodies, including subheadings and fenced examples. Run the
+builder directly; use `--stdout` for a merged preview, never a redirect over the
+existing dossier. Ambiguous manual sections refuse refresh. Publication is
+atomic and retains existing permission bits; new dossiers start with mode 0600.
+Coordinate concurrent editors because the
+final change check and replacement are separate operations. Ownership and
+extended filesystem metadata are not retained by replacement.
 
 ## Compatibility
 

@@ -11,8 +11,8 @@
 # Override the output path via CONTRIBUTE_RESEARCH_DIR env var (the dossier
 # lands at $CONTRIBUTE_RESEARCH_DIR/<owner>__<repo>.md).
 #
-# Pass --stdout to write the dossier to stdout instead — useful for piping
-# (jq, less, diff against an existing dossier).
+# Refresh preserves the three manual section bodies. Pass --stdout for a
+# merged preview without writing; never redirect it over the existing dossier.
 #
 # What it pulls:
 #   - Repo metadata (stars, default branch, archived, push activity)
@@ -27,7 +27,8 @@
 # Design notes:
 #   - Read-only against GitHub. Never writes to upstream.
 #   - Uses temp dir for intermediate files; cleans up on exit.
-#   - GitHub read failures degrade gracefully — partial dossier > nothing.
+#   - Optional GitHub reads degrade gracefully; required metadata must succeed.
+#   - Ambiguous manual boundaries or publication failures refuse the refresh.
 
 set -uo pipefail
 
@@ -57,7 +58,7 @@ if ! gh auth status >/dev/null 2>&1; then
   exit 65
 fi
 
-TMPDIR=$(/usr/bin/mktemp -d)
+TMPDIR=$(/usr/bin/mktemp -d) || exit 73
 trap 'rm -rf "$TMPDIR"' EXIT
 NOW=$(/usr/bin/date -u +%Y-%m-%dT%H:%M:%SZ)
 NINETY_AGO=$(/usr/bin/date -u -d '90 days ago' +%s)
@@ -302,23 +303,15 @@ linked_sources_yaml() {
   fi
 }
 
-# Resolve the output path. Default: $CONTRIBUTE_STATE_DIR/research/<owner>__<repo>.md.
-# Override via CONTRIBUTE_RESEARCH_DIR. The path is stable per repo so refresh
-# overwrites the previous dossier — engineer-curated sections (## Pet peeves,
-# ## Failure log, ## Notes) survive because the agent layer copies them
-# forward; this script does not preserve them across refresh.
+# Resolve the stable destination, but never truncate it while generating.
 RESEARCH_DIR="${CONTRIBUTE_RESEARCH_DIR:-$CONTRIBUTE_STATE_DIR/research}"
 OUTPUT_FILE="$RESEARCH_DIR/$(/usr/bin/echo "$REPO" | /usr/bin/sed 's|/|__|').md"
+GENERATED="$TMPDIR/generated.md"
 
-# When not in --stdout mode, redirect all subsequent stdout to the dossier
-# file. The two heredocs (DOSSIER and TAIL) and the awk excerpt block in
-# between all write to stdout — `exec` here points stdout at the file once,
-# so every subsequent emission lands in the right place.
-if [[ "$TO_STDOUT" -eq 0 ]]; then
-  /usr/bin/mkdir -p "$RESEARCH_DIR"
-  exec > "$OUTPUT_FILE"
-fi
-
+# Only rendering is fail-fast. Optional GitHub discovery above retains its
+# existing fallback behavior. Check the complete render before publication.
+(
+set -e
 /usr/bin/cat <<DOSSIER
 ---
 repo: $REPO
@@ -384,8 +377,8 @@ if [[ -s "$CONTRIB_RAW" ]] ; then
   /usr/bin/awk '
     /^##+ / { keep = 0 }
     /^##+ .*([Cc]hecklist|[Pp]re-PR|[Bb]efore|[Tt]esting|[Tt]est|[Ww]orkflow|[Pp]ull [Rr]equest|[Bb]ranch|[Cc]ommit|[Ss]tyle|[Ff]ormat|[Aa]I|[Cc]ode [Qq]uality|[Cc]onvention|[Hh]ow to [Cc]ontribute|[Rr]eview|[Cc]ontribution [Ff]low|[Rr]ules)/ { keep = 1 }
-    keep { print }
-  ' "$CONTRIB_RAW" | /usr/bin/head -150
+    keep { print; if (++emitted >= 150) exit }
+  ' "$CONTRIB_RAW"
   /usr/bin/echo
   /usr/bin/echo "_(excerpt only — full file: https://github.com/$REPO/blob/$DEFAULT_BRANCH/$CONTRIB_PATH)_"
 else
@@ -430,9 +423,17 @@ _Free-form area for the human to leave per-repo intuition. Survives refresh._
 
 TAIL
 
-# Success message goes to stderr so it's visible when stdout was redirected
-# to the file. In --stdout mode, the user sees it inline before the dossier
-# content (no — actually after, since heredocs flush before the script exits).
+) > "$GENERATED"
+RENDER_RESULT=$?
+if [[ "$RENDER_RESULT" -ne 0 ]]; then
+  log "ERROR: dossier rendering failed; destination unchanged"
+  exit "$RENDER_RESULT"
+fi
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 73
+PUBLISH_ARGS=()
+[[ "$TO_STDOUT" -eq 1 ]] && PUBLISH_ARGS+=(--stdout)
+python3 "$SCRIPT_DIR/researcher-refresh.py" "$GENERATED" "$OUTPUT_FILE" "${PUBLISH_ARGS[@]}" || exit $?
 if [[ "$TO_STDOUT" -eq 0 ]]; then
   log "→ wrote dossier to $OUTPUT_FILE"
 fi
