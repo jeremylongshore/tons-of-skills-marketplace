@@ -59,6 +59,12 @@
   "devDependencies": {
     "@types/node": "^22.19.19",
     "typescript": "^5.9.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.12",
+    "vite": "8.2.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "hono@<4.13.11": "4.13.13"
+    }
   }
 }
