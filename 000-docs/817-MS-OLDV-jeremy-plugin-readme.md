@@ -1,3 +1,19 @@
+<!-- doc-class: record -->
+
+> **Historical record — archived 2026-10-22.** The original October 2025 Jeremy Longshore
+> plugin-suite identity and text are preserved below. Production readiness, security,
+> performance, and value claims are historical assertions, not current verification or
+> installation guidance. The installer overwrites `test-jeremy-plugins.py` and
+> `requirements-jeremy-plugins.txt` in its working directory and marks the generated
+> Python file executable. That generated code prints the first four characters of
+> `CLAUDE_API_KEY`; do not run it with credentials.
+>
+> Original paths map to these historical records:
+>
+> - `plugins/JEREMY_PLUGINS_SUMMARY.md` → [summary](816-MS-OLDV-jeremy-plugin-summary.md)
+> - `plugins/README_JEREMY_PLUGINS.md` → [README](817-MS-OLDV-jeremy-plugin-readme.md)
+> - `plugins/install-jeremy-plugins.sh` → [installer](818-MS-OLDV-jeremy-plugin-installer.sh)
+
 # Jeremy's Production AI Agent Development Plugins
 
 **Date:** 2025-10-27
