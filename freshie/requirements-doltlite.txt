@@ -1,7 +1,0 @@
-# Pinned because the Python loader controls the database storage engine and
-# DoltLite beta format/API behavior is part of Freshie's publication contract.
-doltlite==0.50.1 \
-    --hash=sha256:717ab78eb178b078c05582e729dd40c3d7a8f95ba17674e2554908112aa2d890 \
-    --hash=sha256:4022e35210582b9c6709065458a2b946750bdf1d54550de1967232895a408a0f \
-    --hash=sha256:1cd18e273d1d0769b503dc9bb974af306b45f1f18e87fd6a4a5f962a42fd82e3 \
-    --hash=sha256:b4c9e7a1fff5d0c3d301c4ae10101f4d3004ec2b15279415020b17d6d7b4ca9a

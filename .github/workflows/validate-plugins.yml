@@ -283,11 +283,8 @@ jobs:
       # ungated. safety-eval.yaml cites tests/test_sql_classifier.py as this gate.
       - name: Test in-repo Python suites (validators, exporters, skill scripts)
         run: |
-          python3 -m pip install --quiet -r freshie/requirements-doltlite.txt
-          python3 -c "import doltlite; assert doltlite.__version__ == '0.50.1'"
           python3 -m unittest tests.test_sql_classifier -v
           python3 -m unittest tests.test_dolt_sync -v
-          python3 -m unittest tests.test_doltlite_sync -v
           python3 -m unittest tests.test_promote_curated_workflow -v
           python3 -m unittest tests.test_run_delta -v
           python3 -m unittest tests.test_batch_remediate_compat -v
@@ -936,7 +933,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest pytest-cov pytest-asyncio
-          python -m pip install --require-hashes -r freshie/requirements-doltlite.txt
 
           # Install dependencies if requirements.txt exists
           if [ -f "requirements.txt" ]; then
@@ -1001,13 +997,6 @@ jobs:
           raise SystemExit(0 if valid else 1)
           PY
 
-      # DoltLite replaces SQLite for its host process. Keep its native tests in
-      # a fresh interpreter so pytest-cov and unrelated sqlite3 users retain
-      # the stock SQLite library for the repository-wide suite.
-      - name: Run native DoltLite tests in an isolated process
-        if: matrix.test-type == 'python-tests'
-        run: python -W error -m unittest tests.test_doltlite_sync -v
-
       - name: Run Python tests
         if: matrix.test-type == 'python-tests'
         run: |
@@ -1021,7 +1010,7 @@ jobs:
             echo "$TEST_FILES"
 
             # Run pytest with coverage
-            pytest -v --ignore=tests/test_doltlite_sync.py --cov=. --cov-report=term-missing --cov-report=xml || exit 1
+            pytest -v --cov=. --cov-report=term-missing --cov-report=xml || exit 1
             echo "✅ Python tests passed"
           else
             echo "⚠️  No Python test files found"
@@ -1562,7 +1551,7 @@ jobs:
       # ruff.toml at repo root governs rule selection.
       # No report-only crutch: external PRs that introduce ruff errors fail here.
       - name: Run ruff check
-        run: ruff check plugins/ scripts/ freshie/scripts/doltlite-sync.py tests/test_doltlite_sync.py
+        run: ruff check plugins/ scripts/
 
   ruff-format-check:
     runs-on: ubuntu-latest
@@ -1581,7 +1570,7 @@ jobs:
       # BLOCKING — 374 files formatted at PR #765 baseline.
       # Run `ruff format plugins/ scripts/` locally to fix before pushing.
       - name: Check ruff formatting
-        run: ruff format --check plugins/ scripts/ freshie/scripts/doltlite-sync.py tests/test_doltlite_sync.py
+        run: ruff format --check plugins/ scripts/
 
   markdownlint:
     runs-on: ubuntu-latest

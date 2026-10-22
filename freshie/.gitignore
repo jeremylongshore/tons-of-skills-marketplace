@@ -4,8 +4,8 @@
 __pycache__/
 *.pyc
 
-# Native DoltLite sidecar and graph-lock files. Public durability lives in the
-# separately typed DoltHub repository; tracked JSON receipts bind each push.
+# Retired DoltLite experiment: preserve any existing local sidecars privately.
+# Freshie's authoritative public history uses the full-Dolt exporter.
 doltlite/
 *.db.graphlock
 *.db-lock

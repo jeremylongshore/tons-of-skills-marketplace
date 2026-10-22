@@ -143,6 +143,8 @@ SQLite page layouts can differ in another logically identical reconstruction;
 the canonical no-diff export is the cross-engine proof. No database binary,
 credentials, or personal runtime state is committed with this evidence.
 
-DoltLite remains optional, non-production shadow work. This demonstration did
+At the time of this proof, DoltLite was an optional non-production experiment.
+That publisher is now [retired](../README.md#retired-shadow-experiment); the
+immutable JSON receipt retains its original historical wording. This demonstration did
 not create a DoltLite sidecar, register DoltLite credentials, or publish a
 DoltLite repository. Freshie's production full-Dolt history remains authoritative.
