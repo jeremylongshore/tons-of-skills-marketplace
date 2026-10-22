@@ -10182,7 +10182,7 @@
       "slug": "dolt-mcp-vcs",
       "name": "dolt-mcp-vcs",
       "description": "Universal Dolt version-control workflow. Step 0 auto-detects what kind of Dolt stack is present — every make and model (classic Dolt repo, live dolt sql-server on its ACTUAL bound port, bd embedded store, Doltgres, DoltLite single-file DB, DumboDB) — and emits a ready-to-use connection descriptor, then routes to work: DoltHub visibility diagnosis (no remote configured), the bd dolt remote add plus push fix, the JSONL throttle and rapid-write-race safe pattern, and expert agents for sync, epic-closure audits, dependency mapping, and recovery. Use when working with any Dolt database, detecting a Dolt flavor, connecting to a Dolt store, when beads are not showing in DoltHub, taming dolt server sprawl, auditing bead epics, or recovering from a bd or Dolt incident. Trigger with \"/dolt-mcp-vcs\", \"/beads-dolt\" (the former name, still accepted), \"what kind of dolt is this\", \"my beads aren't showing in DoltHub\", or \"audit my bead epics\".",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "category": "mcp",
       "parentPlugin": "dolt-mcp-vcs",
       "requires_env": [],

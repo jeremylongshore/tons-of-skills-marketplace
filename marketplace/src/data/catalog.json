@@ -11226,7 +11226,7 @@
       "name": "beads-dolt",
       "displayName": "beads dolt",
       "description": "⚠️ Renamed to dolt-mcp-vcs. Deprecated alias — kept so existing `beads-dolt` installs keep resolving; please install dolt-mcp-vcs instead. Same plugin: a Dolt/DoltHub version-control toolkit shipping the beads (bd) task-tracker adapter.",
-      "version": "0.1.0",
+      "version": "0.2.1",
       "category": "mcp",
       "keywords": [
         "beads",
@@ -11283,7 +11283,7 @@
       "name": "dolt-mcp-vcs",
       "displayName": "dolt mcp vcs",
       "description": "Dolt/DoltHub version-control toolkit for Claude Code, via the dolthub/dolt-mcp server — a VC-surface skill + expert agents over a Dolt backend, with a verb-class mutation gate that keeps destructive ops recommend-only. Ships the beads (bd) task-tracker as use-case adapter #1. Formerly beads-dolt.",
-      "version": "0.1.0",
+      "version": "0.2.1",
       "category": "mcp",
       "keywords": [
         "dolt-mcp-vcs",

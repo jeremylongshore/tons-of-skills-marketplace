@@ -14529,7 +14529,7 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "0.1.0",
+      "version": "0.2.1",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -14597,7 +14597,7 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "0.1.0",
+      "version": "0.2.1",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -34028,7 +34028,7 @@
         "Bash(python3 ${CLAUDE_PLUGIN_ROOT}/scripts/dolt-detect.py:*)"
       ],
       "compatibleWith": [],
-      "version": "0.2.0",
+      "version": "0.2.1",
       "parentPlugin": {
         "name": "dolt-mcp-vcs",
         "category": "mcp"
