@@ -889,8 +889,8 @@
     },
     "slack-channel": {
       "repo": "jeremylongshore/claude-code-slack-channel",
-      "resolved_ref": "940e2fce0041cff0ab86fafe92292aa1749b660b",
-      "locked_at": "2026-10-22T07:09:17.254Z",
+      "resolved_ref": "ef1367fd076d80e8d027b9162d59803aec6ea358",
+      "locked_at": "2026-10-22T13:26:01.381Z",
       "files": {
         ".audit-harness/LICENSE": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
         ".audit-harness/README.md": "sha256:8d373b106bfa58c0387abc89018a820f21a2b1c5db4752e552ddadd69f802e0b",
@@ -928,7 +928,7 @@
         "features/steps/tier-shadow.ts": "sha256:b8fd012d869949ba76e16d4fd03e2ace740328e709174a615344730d1cc5000e",
         "features/tier-shadow.feature": "sha256:34616840c857fcfd79b8d25cb80560ea49c27d8ca7027649697183d6085ca003",
         "journal.ts": "sha256:f1fffa9af297896a7454df02a5138ff86a2af209dac0b6cf3426822a55bdff45",
-        "lib.ts": "sha256:261f8b9788e2e5f218578441ab79b9d427f078bfa75d5187ee919f8ab941bb96",
+        "lib.ts": "sha256:1ccc55d116805747c6f7a200b18312a4655e8771c4d599f376ebeec2044fc60d",
         "manifest.ts": "sha256:b8201ba7587a938ff20d7b505640ad318615546ca2897772549f732163bc4eaf",
         "mute-store.ts": "sha256:3a6ac49a9bec51c07c7a116e555e8f2a827528b81844c1ebadb3d9ab22145d3a",
         "nonce-hitl.ts": "sha256:292d8e50c0a25d719703b986d864b0e6da0cdd859f420cc8b6107fa6bafc7747",
@@ -939,7 +939,7 @@
         "scripts/audit-key.ts": "sha256:45775f72921c87735aa6c3425d568d4306c0a3a681b812a6002ebf0c1f3ce87d",
         "scripts/crap-score.ts": "sha256:8ef7d004e7a34f2cf127cc32142b7027de463ab02cc5b4748e74654a78716fe4",
         "scripts/policy-validate.ts": "sha256:bb88951de3fcd90ded74f6c1c39fe5d7bdaac3613f939972d4c3c479b311dc08",
-        "server.test.ts": "sha256:f2ba7195176dba82b27631e2ce31a313e5755f1eae719e8849f7d122c176ffb1",
+        "server.test.ts": "sha256:ef5eb10b151c890be3f9e9988caa7a1f2011b0d556ccad6d1878c5e187763eaf",
         "server.ts": "sha256:b1913c895a597fbbea36809ffcaa0ab8de45acc0d59cbf45ff35c1e3cf135994",
         "skills/access/SKILL.md": "sha256:dfe34f56f6cc0d944f2c233db4ffec58ddfd8834342a39d09d46a8f3be9e6cd2",
         "skills/access/references/security-boundary.md": "sha256:22bf4b5645a594446976c35681dcadabd30daa85acf07d9fa0bac49451a58c85",
