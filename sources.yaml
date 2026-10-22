@@ -1445,6 +1445,39 @@ sources:
       - '.git/**'
       - '*.log'
 
+  - name: socialcue
+    description: Claude does your social media marketing - finds threads worth joining on Reddit, HN, X and Threads, drafts replies in your voice, schedules posts
+    repo: mrieck/socialcue-claude-plugin
+    source_path: .
+    target_path: plugins/business-tools/socialcue
+    author:
+      name: Mark Rieck
+      github: mrieck
+    license: PolyForm-Shield-1.0.0
+    category: business-tools
+    verified: false
+    include:
+      - '/.claude-plugin/**'
+      - '/.mcp.json'
+      - '/skills/**'
+      - '/commands/**'
+      - '/agents/**'
+      - '/mcp/**'
+      - '/lib/**'
+      - '/bridge/**'
+      - '/dashboard/**'
+      - '/vendor/**'
+      - '/scripts/**'
+      - '/package.json'
+      - '/package-lock.json'
+      - '/README.md'
+      - '/LICENSE.md'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - 'tests/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
