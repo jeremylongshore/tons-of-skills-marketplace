@@ -35,22 +35,35 @@ This plugin provides **7 MCP tools** for experiment management:
 
 ## Installation
 
-### 1. Install Dependencies
+### 1. Copy the Plugin
 
-```bash
-cd plugins/mcp/ai-experiment-logger
-pnpm install
-```
+The tracked plugin includes a self-contained `dist/index.js` stdio server.
+Copy the tracked plugin directory, and use
+Node.js **22.12 or newer**. No dependency installation or build is needed for
+this manual stdio launch. Keep `package.json` with the entrypoint; it declares
+ES modules.
 
-### 2. Build the Plugin
+### 2. Locate the Entrypoint
 
-```bash
-pnpm build
-```
+Use the absolute path to `dist/index.js` in your copied plugin directory in the
+manual MCP configuration below. Installation does not automatically register
+or start this server.
 
 ### 3. Configure MCP Server
 
-Add to your Claude Code MCP configuration file (`~/.claude/mcp_config.json`):
+For Claude Code, explicitly register the manual entry with the supported CLI
+(substitute the absolute path to your copied or installed plugin):
+
+```bash
+claude mcp add --transport stdio --scope user ai-experiment-logger -- node "/absolute/path/to/ai-experiment-logger/dist/index.js"
+```
+
+See the [Claude Code MCP setup reference](https://code.claude.com/docs/en/mcp#option-3-add-a-local-stdio-server)
+for scopes and configuration. The command above is a registration example; copying
+or installing the plugin alone does not run it.
+
+For another MCP host, use its documented configuration location with this generic
+stdio configuration:
 
 ```json
 {
@@ -246,12 +259,17 @@ Download CSV export
 
 ### Environment Variables
 
+The optional web UI is a separate developer workflow: it still requires
+dependencies and a build. The committed stdio bundle does not start an HTTP
+listener. This distribution fix does not validate web static-asset packaging.
+
 ```bash
 # Web server port (default: 3000)
 PORT=3000
 
 # Data storage directory (default: ~/.ai-experiment-logger)
-DATA_DIR=/custom/path/to/data
+# Storage is fixed at ~/.ai-experiment-logger/experiments.json.
+# DATA_DIR is not a supported override.
 ```
 
 ### Customization
@@ -267,8 +285,8 @@ You can modify the source code to:
 
 ### MCP Server Not Appearing
 
-1. Check the absolute path in `mcp_config.json` is correct
-2. Verify the build completed: `ls dist/index.js`
+1. Run `claude mcp get ai-experiment-logger` and check the configured absolute path
+2. Verify the copied entry exists: `ls dist/index.js`
 3. Check Claude Code logs for error messages
 4. Restart Claude Code completely
 
@@ -316,6 +334,9 @@ pnpm install
 
 # Build TypeScript
 pnpm build
+
+# Run isolated clean-copy stdio and storage probes (temporary home only)
+pnpm test
 
 # Watch mode (auto-rebuild on changes)
 pnpm dev
