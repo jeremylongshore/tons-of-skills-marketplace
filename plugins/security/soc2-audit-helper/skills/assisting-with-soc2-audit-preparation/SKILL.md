@@ -11,7 +11,7 @@ description: 'Execute automate SOC 2 audit preparation including evidence gather
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(audit-collect:*), Bash(compliance-check:*)
-version: 1.30.0
+version: 1.31.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

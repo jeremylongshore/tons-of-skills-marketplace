@@ -8,7 +8,7 @@ description: 'Execute proactive YAML intelligence: automatically activates when 
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(general:*), Bash(util:*)
-version: 2.21.0
+version: 2.22.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

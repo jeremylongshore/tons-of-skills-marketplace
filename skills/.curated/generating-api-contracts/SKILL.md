@@ -10,7 +10,7 @@ description: 'Generate API contracts and OpenAPI specifications from code or des
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:contract-*)
-version: 1.25.0
+version: 1.26.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

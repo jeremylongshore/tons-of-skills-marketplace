@@ -1,6 +1,6 @@
 {
   "name": "stored-procedure-generator",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "description": "Database plugin for stored-procedure-generator",
   "author": {
     "name": "Claude Code Plugins",

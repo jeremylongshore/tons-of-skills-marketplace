@@ -12,7 +12,7 @@ description: 'Analyze and guide security incident response, investigation, and r
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(log-analysis:*), Bash(forensics:*),
   Bash(network-trace:*)
-version: 1.32.0
+version: 1.33.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -1,6 +1,6 @@
 {
   "name": "api-mock-server",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Create mock API servers from OpenAPI specs for testing",
   "author": {
     "name": "Jeremy Longshore",

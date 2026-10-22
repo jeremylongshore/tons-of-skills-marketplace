@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/compliance-report-generator",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Generate compliance reports",
   "keywords": [
     "security",

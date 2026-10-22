@@ -11,7 +11,7 @@ description: 'Configure auto-configure Ollama when user needs local LLM deployme
 
   '
 allowed-tools: Read, Write, Bash(cmd:*)
-version: 1.18.0
+version: 1.19.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

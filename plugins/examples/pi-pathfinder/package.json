@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/pi-pathfinder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "PI Pathfinder - Finds the path through 229 plugins. Automatically picks the best plugin for your task, extracts its skills, and applies them. You don't pick plugins, PI does.",
   "keywords": [
     "agent-skills",

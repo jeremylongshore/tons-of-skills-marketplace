@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/crypto-news-aggregator",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Aggregate and analyze crypto news from multiple sources with sentiment analysis",
   "keywords": [
     "news",

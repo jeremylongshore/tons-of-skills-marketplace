@@ -7,7 +7,7 @@ description: 'Generate production-ready Google Cloud code examples from official
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(cmd:*)
-version: 2.25.0
+version: 2.26.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 effort: medium

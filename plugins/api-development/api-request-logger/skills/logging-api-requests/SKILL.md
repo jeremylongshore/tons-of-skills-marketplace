@@ -9,7 +9,7 @@ description: 'Monitor and log API requests with correlation IDs, performance met
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:log-*)
-version: 1.24.0
+version: 1.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

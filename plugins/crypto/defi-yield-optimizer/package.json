@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/defi-yield-optimizer",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Optimize DeFi yield farming strategies across protocols with APY tracking and risk assessment",
   "keywords": [
     "defi",

@@ -1,6 +1,6 @@
 {
   "name": "jeremy-vertex-terraform",
-  "version": "2.22.0",
+  "version": "2.23.0",
   "description": "Terraform configurations for Vertex AI platform and Agent Engine",
   "author": {
     "name": "Jeremy Longshore",

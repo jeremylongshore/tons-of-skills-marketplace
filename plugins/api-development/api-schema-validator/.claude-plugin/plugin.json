@@ -1,6 +1,6 @@
 {
   "name": "api-schema-validator",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Validate API schemas with JSON Schema, Joi, Yup, or Zod",
   "author": {
     "name": "Jeremy Longshore",

@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/database-backup-automator",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Automate database backups with scheduling, compression, encryption, and restore procedures",
   "keywords": [
     "database",

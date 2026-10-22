@@ -1,6 +1,6 @@
 {
   "name": "api-error-handler",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Implement standardized error handling with proper HTTP status codes",
   "author": {
     "name": "Jeremy Longshore",

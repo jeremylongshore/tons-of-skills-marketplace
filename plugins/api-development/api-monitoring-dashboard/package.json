@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-monitoring-dashboard",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Create monitoring dashboards for API health, metrics, and alerts",
   "keywords": [
     "monitoring",

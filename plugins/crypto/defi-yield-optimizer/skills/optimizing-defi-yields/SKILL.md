@@ -11,7 +11,7 @@ description: 'Find and compare DeFi yield opportunities across protocols with AP
 
   '
 allowed-tools: Read, Write, Bash(crypto:yield-*)
-version: 1.28.0
+version: 1.29.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

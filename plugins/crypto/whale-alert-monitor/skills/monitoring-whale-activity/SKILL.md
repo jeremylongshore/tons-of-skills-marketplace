@@ -10,7 +10,7 @@ description: 'Track large cryptocurrency transactions and whale wallet movements
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(python:*whale*)
-version: 1.26.0
+version: 1.27.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

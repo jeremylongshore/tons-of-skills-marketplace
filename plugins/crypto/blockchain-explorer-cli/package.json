@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/blockchain-explorer-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Command-line blockchain explorer for transactions, addresses, and contracts",
   "keywords": [
     "blockchain",

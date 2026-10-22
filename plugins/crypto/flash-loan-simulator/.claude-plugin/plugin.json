@@ -1,6 +1,6 @@
 {
   "name": "flash-loan-simulator",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "description": "Simulate and analyze flash loan strategies including arbitrage, liquidations, and collateral swaps",
   "author": {
     "name": "Intent Solutions IO",

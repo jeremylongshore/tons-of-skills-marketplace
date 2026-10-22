@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/002-jeremy-yaml-master-agent",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Intelligent YAML validation, generation, and transformation agent with schema inference, linting, and format conversion capabilities",
   "keywords": [
     "yaml",

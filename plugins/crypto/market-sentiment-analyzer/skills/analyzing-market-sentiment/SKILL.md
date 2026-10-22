@@ -11,7 +11,7 @@ description: 'Analyze cryptocurrency market sentiment using Fear & Greed Index, 
 
   '
 allowed-tools: Read, Bash(crypto:sentiment-*)
-version: 1.24.0
+version: 1.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

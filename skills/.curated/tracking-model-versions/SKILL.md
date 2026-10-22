@@ -8,7 +8,7 @@ description: 'Build this skill enables AI assistant to track and manage ai/ml mo
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(cmd:*)
-version: 1.24.0
+version: 1.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

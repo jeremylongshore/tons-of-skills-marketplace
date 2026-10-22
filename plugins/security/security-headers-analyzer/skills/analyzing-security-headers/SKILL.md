@@ -11,7 +11,7 @@ description: 'Analyze HTTP security headers of web domains to identify vulnerabi
 
   '
 allowed-tools: Read, WebFetch, WebSearch, Grep
-version: 1.28.0
+version: 1.29.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

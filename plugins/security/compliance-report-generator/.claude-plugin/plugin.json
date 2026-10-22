@@ -1,6 +1,6 @@
 {
   "name": "compliance-report-generator",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Generate compliance reports",
   "author": {
     "name": "Jeremy Longshore",

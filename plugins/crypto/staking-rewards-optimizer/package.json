@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/staking-rewards-optimizer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Optimize staking rewards across multiple protocols and chains",
   "keywords": [
     "crypto",

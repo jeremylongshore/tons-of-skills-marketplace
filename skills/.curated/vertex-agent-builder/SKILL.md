@@ -8,7 +8,7 @@ description: |
   Google Cloud. Trigger with "build a Vertex agent", "deploy to Agent Engine",
   or "wire up RAG on Vertex AI".
 allowed-tools: Read, Write, Edit, Grep, Bash(cmd:*)
-version: 2.2.0
+version: 2.3.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

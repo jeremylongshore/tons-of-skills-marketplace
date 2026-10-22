@@ -1,6 +1,6 @@
 {
   "name": "graphql-server-builder",
-  "version": "1.22.0",
+  "version": "1.23.0",
   "description": "Build GraphQL servers with schema-first design, resolvers, and subscriptions",
   "author": {
     "name": "Jeremy Longshore",

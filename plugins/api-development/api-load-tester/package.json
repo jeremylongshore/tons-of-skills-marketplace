@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-load-tester",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Load test APIs with k6, Gatling, or Artillery",
   "keywords": [
     "load-testing",

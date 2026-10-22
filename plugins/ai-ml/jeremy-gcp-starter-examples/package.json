@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/jeremy-gcp-starter-examples",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Google Cloud starter kits and example code aggregator with ADK samples",
   "keywords": [
     "google-cloud",

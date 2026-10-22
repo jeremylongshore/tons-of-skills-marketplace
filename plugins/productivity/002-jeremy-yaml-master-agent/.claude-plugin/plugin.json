@@ -1,6 +1,6 @@
 {
   "name": "002-jeremy-yaml-master-agent",
-  "version": "2.21.0",
+  "version": "2.22.0",
   "description": "Intelligent YAML validation, generation, and transformation agent with schema inference, linting, and format conversion capabilities",
   "author": {
     "name": "Jeremy Longshore",

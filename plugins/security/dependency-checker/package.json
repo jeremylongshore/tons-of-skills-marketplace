@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/dependency-checker",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Check dependencies for known vulnerabilities, outdated packages, and license compliance",
   "keywords": [
     "security",

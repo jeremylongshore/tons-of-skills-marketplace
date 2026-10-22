@@ -3,7 +3,7 @@ name: validating-authentication-implementations
 description: Validate authentication mechanisms for security weaknesses and compliance.
   Use when reviewing login systems or auth flows. Trigger with 'validate authentication',
   'check auth security', or 'review login'.
-version: 1.26.0
+version: 1.27.0
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(security:*), Bash(scan:*), Bash(audit:*)
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>

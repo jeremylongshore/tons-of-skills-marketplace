@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/csrf-protection-validator",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Validate CSRF protection",
   "keywords": [
     "security",

@@ -1,6 +1,6 @@
 {
   "name": "crypto-tax-calculator",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "description": "Calculate crypto taxes with FIFO/LIFO methods and generate tax reports",
   "author": {
     "name": "Intent Solutions IO",

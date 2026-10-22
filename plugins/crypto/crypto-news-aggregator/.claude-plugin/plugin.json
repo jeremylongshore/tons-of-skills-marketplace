@@ -1,6 +1,6 @@
 {
   "name": "crypto-news-aggregator",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Aggregate and analyze crypto news from multiple sources with sentiment analysis",
   "author": {
     "name": "Intent Solutions IO",

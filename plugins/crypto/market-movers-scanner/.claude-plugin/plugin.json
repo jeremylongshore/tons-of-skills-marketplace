@@ -1,6 +1,6 @@
 {
   "name": "market-movers-scanner",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "description": "Scan for top market movers - gainers, losers, volume spikes, and unusual activity",
   "author": {
     "name": "Intent Solutions IO",

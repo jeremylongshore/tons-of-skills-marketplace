@@ -10,7 +10,7 @@ description: 'Audit wallet security by analyzing token approvals, permissions, a
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:wallet-*)
-version: 1.17.0
+version: 1.18.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

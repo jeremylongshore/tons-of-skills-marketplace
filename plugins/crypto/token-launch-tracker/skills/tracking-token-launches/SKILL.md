@@ -11,7 +11,7 @@ description: 'Track new token launches across DEXes with risk analysis and contr
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(python:*launch_tracker*)
-version: 1.30.0
+version: 1.31.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

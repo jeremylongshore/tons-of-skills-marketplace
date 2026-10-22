@@ -1,6 +1,6 @@
 {
   "name": "load-balancer-configurator",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "description": "Configure load balancers (ALB, NLB, Nginx, HAProxy)",
   "author": {
     "name": "Claude Code Plugins",

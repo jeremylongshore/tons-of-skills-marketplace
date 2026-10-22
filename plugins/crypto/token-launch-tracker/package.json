@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/token-launch-tracker",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Track new token launches, detect rugpulls, and analyze contract security for early-stage crypto projects",
   "keywords": [
     "crypto",

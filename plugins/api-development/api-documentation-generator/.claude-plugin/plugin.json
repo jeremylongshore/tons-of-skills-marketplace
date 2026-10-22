@@ -1,6 +1,6 @@
 {
   "name": "api-documentation-generator",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "description": "Generate comprehensive API documentation from OpenAPI/Swagger specs",
   "author": {
     "name": "Jeremy Longshore",

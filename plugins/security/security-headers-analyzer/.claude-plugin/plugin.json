@@ -1,6 +1,6 @@
 {
   "name": "security-headers-analyzer",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "description": "Analyze HTTP security headers",
   "author": {
     "name": "Jeremy Longshore",

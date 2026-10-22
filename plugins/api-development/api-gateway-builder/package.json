@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-gateway-builder",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Build API gateway with routing, authentication, and rate limiting",
   "keywords": [
     "api-gateway",

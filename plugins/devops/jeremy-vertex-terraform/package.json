@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/jeremy-vertex-terraform",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Terraform configurations for Vertex AI platform and Agent Engine",
   "keywords": [
     "terraform",

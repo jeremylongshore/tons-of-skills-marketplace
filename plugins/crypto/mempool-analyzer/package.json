@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/mempool-analyzer",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Advanced mempool analysis for MEV opportunities, pending transaction monitoring, and gas price optimization",
   "keywords": [
     "crypto",

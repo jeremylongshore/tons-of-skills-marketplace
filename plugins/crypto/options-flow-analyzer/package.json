@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/options-flow-analyzer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Track institutional options flow, unusual activity, and smart money movements",
   "keywords": [
     "options",

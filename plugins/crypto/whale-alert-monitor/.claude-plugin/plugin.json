@@ -1,6 +1,6 @@
 {
   "name": "whale-alert-monitor",
-  "version": "1.26.0",
+  "version": "1.27.0",
   "description": "Monitor large crypto transactions and whale wallet movements in real-time",
   "author": {
     "name": "Intent Solutions IO",

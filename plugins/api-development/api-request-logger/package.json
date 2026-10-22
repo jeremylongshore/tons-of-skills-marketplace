@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-request-logger",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Log API requests with structured logging and correlation IDs",
   "keywords": [
     "logging",

@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/jeremy-adk-orchestrator",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "Production ADK orchestrator for A2A protocol and multi-agent coordination on Vertex AI",
   "keywords": [
     "vertex-ai",

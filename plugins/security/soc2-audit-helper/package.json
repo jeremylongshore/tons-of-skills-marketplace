@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/soc2-audit-helper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Assist with SOC2 audit preparation",
   "keywords": [
     "security",

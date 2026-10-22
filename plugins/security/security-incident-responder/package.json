@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/security-incident-responder",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Assist with security incident response",
   "keywords": [
     "security",

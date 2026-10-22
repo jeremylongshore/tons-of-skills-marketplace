@@ -1,6 +1,6 @@
 {
   "name": "jeremy-google-adk",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Google Agent Development Kit (ADK) SDK starter kit for building Claude-powered AI agents with React patterns, multi-agent orchestration, and tool integration",
   "author": {
     "name": "Jeremy Longshore",

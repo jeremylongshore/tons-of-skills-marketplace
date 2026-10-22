@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/crypto-portfolio-tracker",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Professional crypto portfolio tracking with real-time prices, PnL analysis, and risk metrics",
   "keywords": [
     "crypto",

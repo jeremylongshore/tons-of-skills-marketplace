@@ -11,7 +11,7 @@ description: 'Simulate flash loan strategies with profitability calculations and
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:flashloan-*)
-version: 1.30.0
+version: 1.31.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

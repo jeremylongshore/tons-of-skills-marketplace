@@ -1,6 +1,6 @@
 {
   "name": "blockchain-explorer-cli",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "description": "Command-line blockchain explorer for transactions, addresses, and contracts",
   "author": {
     "name": "Claude Code Plugins",

@@ -10,7 +10,7 @@ description: 'Monitor blockchain mempools for pending transactions, gas analysis
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(python:*mempool*)
-version: 1.32.0
+version: 1.33.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

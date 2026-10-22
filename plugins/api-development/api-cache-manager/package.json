@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-cache-manager",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Implement caching strategies with Redis, CDN, and HTTP headers",
   "keywords": [
     "caching",

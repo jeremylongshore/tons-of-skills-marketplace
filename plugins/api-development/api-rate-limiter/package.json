@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-rate-limiter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Implement rate limiting with token bucket, sliding window, and Redis",
   "keywords": [
     "rate-limiting",

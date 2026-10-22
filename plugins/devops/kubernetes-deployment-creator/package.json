@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/kubernetes-deployment-creator",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Create Kubernetes deployments, services, and configurations with best practices",
   "keywords": [
     "kubernetes",

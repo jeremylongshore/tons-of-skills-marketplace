@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/trading-strategy-backtester",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Backtest trading strategies with historical data, performance metrics, and risk analysis",
   "keywords": [
     "trading",

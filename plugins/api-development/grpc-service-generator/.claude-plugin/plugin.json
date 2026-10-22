@@ -1,6 +1,6 @@
 {
   "name": "grpc-service-generator",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "Generate gRPC services with Protocol Buffers and streaming support",
   "author": {
     "name": "Jeremy Longshore",

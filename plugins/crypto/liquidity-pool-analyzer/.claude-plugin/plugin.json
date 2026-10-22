@@ -1,6 +1,6 @@
 {
   "name": "liquidity-pool-analyzer",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "Analyze DeFi liquidity pools for impermanent loss, APY, and optimization opportunities",
   "author": {
     "name": "Intent Solutions IO",

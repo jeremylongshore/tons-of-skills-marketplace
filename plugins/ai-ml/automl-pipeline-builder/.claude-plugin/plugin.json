@@ -1,6 +1,6 @@
 {
   "name": "automl-pipeline-builder",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Build AutoML pipelines",
   "author": {
     "name": "Claude Code Plugins",

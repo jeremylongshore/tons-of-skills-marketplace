@@ -10,7 +10,7 @@ description: 'Process query and analyze blockchain data including blocks, transa
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:explorer-*)
-version: 1.30.0
+version: 1.31.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

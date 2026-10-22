@@ -9,7 +9,7 @@ description: 'Process perform on-chain analysis including whale tracking, token 
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:onchain-*)
-version: 1.28.0
+version: 1.29.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -9,7 +9,7 @@ description: 'Validate API schemas against OpenAPI, JSON Schema, and GraphQL spe
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:schema-*)
-version: 1.24.0
+version: 1.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

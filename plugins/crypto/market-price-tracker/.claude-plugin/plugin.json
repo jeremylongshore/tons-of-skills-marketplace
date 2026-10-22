@@ -1,6 +1,6 @@
 {
   "name": "market-price-tracker",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "description": "Real-time market price tracking with multi-exchange feeds and advanced alerts",
   "author": {
     "name": "Intent Solutions IO",

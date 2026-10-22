@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/market-sentiment-analyzer",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Analyze market sentiment from social media, news, and on-chain data",
   "keywords": [
     "sentiment",

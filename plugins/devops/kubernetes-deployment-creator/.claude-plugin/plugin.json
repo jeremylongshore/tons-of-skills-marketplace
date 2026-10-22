@@ -1,6 +1,6 @@
 {
   "name": "kubernetes-deployment-creator",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "description": "Create Kubernetes deployments, services, and configurations with best practices",
   "author": {
     "name": "Claude Code Plugins",

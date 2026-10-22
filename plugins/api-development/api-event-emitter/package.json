@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-event-emitter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Implement event-driven APIs with message queues and event streaming",
   "keywords": [
     "events",

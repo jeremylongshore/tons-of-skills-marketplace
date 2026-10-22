@@ -1,6 +1,6 @@
 {
   "name": "api-security-scanner",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Scan APIs for security vulnerabilities and OWASP API Top 10",
   "author": {
     "name": "Jeremy Longshore",

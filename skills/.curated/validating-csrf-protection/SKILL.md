@@ -3,7 +3,7 @@ name: validating-csrf-protection
 description: Validate CSRF protection implementations for security gaps. Use when
   reviewing form security or state-changing operations. Trigger with 'validate CSRF',
   'check CSRF protection', or 'review token security'.
-version: 1.26.0
+version: 1.27.0
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(security:*), Bash(scan:*), Bash(audit:*)
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>

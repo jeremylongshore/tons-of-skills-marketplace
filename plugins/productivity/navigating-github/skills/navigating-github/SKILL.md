@@ -10,7 +10,7 @@ description: "First-time GitHub setup and interactive git learning. Walks users 
   , \"teach me PRs\", or \"how do I use github\".\n"
 allowed-tools: Read, Write, Glob, Grep, Bash(git:*), Bash(gh:*), Bash(ssh:*), Bash(test:*),
   Bash(echo:*), AskUserQuestion
-version: 2.5.0
+version: 2.6.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -1,6 +1,6 @@
 {
   "name": "api-authentication-builder",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "Build authentication systems with JWT, OAuth2, and API keys",
   "author": {
     "name": "Jeremy Longshore",

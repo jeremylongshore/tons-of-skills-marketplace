@@ -8,7 +8,7 @@ description: 'Configure use when configuring load balancers including ALB, NLB, 
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(aws:*), Bash(gcloud:*), Bash(nginx:*)
-version: 1.28.0
+version: 1.29.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

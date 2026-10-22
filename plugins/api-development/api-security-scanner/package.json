@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-security-scanner",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Scan APIs for security vulnerabilities and OWASP API Top 10",
   "keywords": [
     "security",

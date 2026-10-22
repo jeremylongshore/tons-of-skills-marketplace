@@ -11,7 +11,7 @@ description: 'Track cryptocurrency portfolio with real-time valuations, allocati
 
   '
 allowed-tools: Read, Write, Bash(crypto:portfolio-*)
-version: 1.27.0
+version: 1.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

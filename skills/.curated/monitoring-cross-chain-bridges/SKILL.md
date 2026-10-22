@@ -12,7 +12,7 @@ description: 'Monitor cross-chain bridge TVL, volume, fees, and transaction stat
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(python:*bridge_monitor*)
-version: 1.27.0
+version: 1.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

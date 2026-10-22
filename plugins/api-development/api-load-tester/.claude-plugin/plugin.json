@@ -1,6 +1,6 @@
 {
   "name": "api-load-tester",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Load test APIs with k6, Gatling, or Artillery",
   "author": {
     "name": "Jeremy Longshore",

@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/jeremy-google-adk",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Google Agent Development Kit (ADK) SDK starter kit for building Claude-powered AI agents with React patterns, multi-agent orchestration, and tool integration",
   "keywords": [
     "google",

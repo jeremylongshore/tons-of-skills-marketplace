@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-schema-validator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Validate API schemas with JSON Schema, Joi, Yup, or Zod",
   "keywords": [
     "schema",

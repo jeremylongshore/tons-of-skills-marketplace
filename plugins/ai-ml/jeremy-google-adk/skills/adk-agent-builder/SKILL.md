@@ -8,7 +8,7 @@ description: |
   when wiring ADK tools and orchestration patterns. Trigger with "build an ADK
   agent", "scaffold an agent on ADK", or "deploy to Agent Engine".
 allowed-tools: Read, Write, Edit, Grep, Bash(cmd:*)
-version: 2.2.0
+version: 2.3.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

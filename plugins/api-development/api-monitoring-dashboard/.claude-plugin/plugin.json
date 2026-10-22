@@ -1,6 +1,6 @@
 {
   "name": "api-monitoring-dashboard",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Create monitoring dashboards for API health, metrics, and alerts",
   "author": {
     "name": "Jeremy Longshore",

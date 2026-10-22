@@ -1,6 +1,6 @@
 {
   "name": "jeremy-vertex-engine",
-  "version": "2.31.0",
+  "version": "2.32.0",
   "description": "Vertex AI Agent Engine deployment inspector and runtime validator",
   "author": {
     "name": "Jeremy Longshore",

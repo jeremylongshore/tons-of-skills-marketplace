@@ -3,7 +3,7 @@ name: overnight-development
 description: Automates software development overnight using git hooks to enforce test-driven
   Use when appropriate context detected. Trigger with relevant phrases based on skill
   purpose.
-version: 1.29.0
+version: 1.30.0
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(general:*), Bash(util:*)
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>

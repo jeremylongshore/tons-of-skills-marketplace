@@ -10,7 +10,7 @@ description: 'Generate complete REST API implementations from OpenAPI specificat
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:rest-*)
-version: 1.23.0
+version: 1.24.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

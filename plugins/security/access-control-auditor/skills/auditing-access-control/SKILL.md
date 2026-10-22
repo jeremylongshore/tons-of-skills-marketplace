@@ -3,7 +3,7 @@ name: auditing-access-control
 description: Audit access control implementations for security vulnerabilities and
   misconfigurations. Use when reviewing authentication and authorization. Trigger
   with 'audit access control', 'check permissions', or 'validate authorization'.
-version: 1.24.0
+version: 1.25.0
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(security:*), Bash(scan:*), Bash(audit:*)
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>

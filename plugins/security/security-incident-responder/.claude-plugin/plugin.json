@@ -1,6 +1,6 @@
 {
   "name": "security-incident-responder",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "description": "Assist with security incident response",
   "author": {
     "name": "Jeremy Longshore",

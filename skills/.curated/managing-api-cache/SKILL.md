@@ -10,7 +10,7 @@ description: 'Implement intelligent API response caching with Redis, Memcached, 
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:cache-*)
-version: 1.25.0
+version: 1.26.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

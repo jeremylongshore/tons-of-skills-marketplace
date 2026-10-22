@@ -1,6 +1,6 @@
 {
   "name": "api-throttling-manager",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Manage API throttling with dynamic rate limits and quota management",
   "author": {
     "name": "Jeremy Longshore",

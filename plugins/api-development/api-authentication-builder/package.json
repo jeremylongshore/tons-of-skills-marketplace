@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-authentication-builder",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Build authentication systems with JWT, OAuth2, and API keys",
   "keywords": [
     "authentication",

@@ -1,6 +1,6 @@
 {
   "name": "rest-api-generator",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "Generate RESTful APIs from schemas with proper routing, validation, and documentation",
   "author": {
     "name": "Jeremy Longshore",

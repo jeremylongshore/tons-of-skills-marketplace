@@ -1,6 +1,6 @@
 {
   "name": "model-versioning-tracker",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Track and manage model versions",
   "author": {
     "name": "Claude Code Plugins",

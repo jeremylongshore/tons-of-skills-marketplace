@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/jeremy-genkit-pro",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Firebase Genkit expert for production-ready AI workflows with RAG and tool calling",
   "keywords": [
     "firebase",

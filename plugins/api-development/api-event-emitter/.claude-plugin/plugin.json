@@ -1,6 +1,6 @@
 {
   "name": "api-event-emitter",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Implement event-driven APIs with message queues and event streaming",
   "author": {
     "name": "Jeremy Longshore",

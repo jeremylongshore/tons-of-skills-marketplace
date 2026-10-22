@@ -14,7 +14,7 @@ description: 'Track real-time cryptocurrency prices across exchanges with histor
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(python:*)
-version: 1.27.0
+version: 1.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

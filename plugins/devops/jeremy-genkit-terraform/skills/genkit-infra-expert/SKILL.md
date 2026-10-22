@@ -8,7 +8,7 @@ description: 'Execute use when deploying Genkit applications to production with 
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(terraform:*), Bash(gcloud:*)
-version: 2.21.0
+version: 2.22.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

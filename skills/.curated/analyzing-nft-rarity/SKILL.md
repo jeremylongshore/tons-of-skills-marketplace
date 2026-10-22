@@ -9,7 +9,7 @@ description: 'Calculate NFT rarity scores and rank tokens by trait uniqueness.
 
   '
 allowed-tools: Read, Bash(python3:*)
-version: 1.25.0
+version: 1.26.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

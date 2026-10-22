@@ -9,7 +9,7 @@ description: 'Optimize blockchain gas costs by analyzing prices, patterns, and t
 
   '
 allowed-tools: Read, Bash(python3:*)
-version: 1.27.0
+version: 1.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

@@ -12,7 +12,7 @@ description: 'Route trades across multiple DEXs to find optimal prices with mini
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:dex-*)
-version: 1.25.0
+version: 1.26.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

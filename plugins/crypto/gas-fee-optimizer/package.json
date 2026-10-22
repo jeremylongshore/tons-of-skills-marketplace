@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/gas-fee-optimizer",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Optimize transaction gas fees with timing and routing recommendations",
   "keywords": [
     "gas",

@@ -11,7 +11,7 @@ description: 'Compare and optimize staking rewards across validators, protocols,
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:staking-*)
-version: 1.26.0
+version: 1.27.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

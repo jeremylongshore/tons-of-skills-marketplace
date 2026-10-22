@@ -1,6 +1,6 @@
 {
   "name": "crypto-signal-generator",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "description": "Generate trading signals from technical indicators and market analysis",
   "author": {
     "name": "Claude Code Plugins",

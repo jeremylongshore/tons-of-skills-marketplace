@@ -1,6 +1,6 @@
 {
   "name": "mempool-analyzer",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "description": "Advanced mempool analysis for MEV opportunities, pending transaction monitoring, and gas price optimization",
   "author": {
     "name": "Intent Solutions IO",

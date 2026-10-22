@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/rest-api-generator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generate RESTful APIs from schemas with proper routing, validation, and documentation",
   "keywords": [
     "api",

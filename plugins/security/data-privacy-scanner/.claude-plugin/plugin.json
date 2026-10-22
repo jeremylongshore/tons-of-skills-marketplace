@@ -1,6 +1,6 @@
 {
   "name": "data-privacy-scanner",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "description": "Scan for data privacy issues",
   "author": {
     "name": "Jeremy Longshore",

@@ -1,6 +1,6 @@
 {
   "name": "jeremy-adk-terraform",
-  "version": "2.22.0",
+  "version": "2.23.0",
   "description": "Terraform infrastructure as code for ADK and Vertex AI Agent Engine deployments",
   "author": {
     "name": "Jeremy Longshore",

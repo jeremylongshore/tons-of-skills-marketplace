@@ -1,6 +1,6 @@
 {
   "name": "session-security-checker",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "description": "Check session security implementation",
   "author": {
     "name": "Jeremy Longshore",

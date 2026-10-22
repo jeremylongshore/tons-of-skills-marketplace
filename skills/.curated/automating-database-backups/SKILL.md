@@ -14,7 +14,7 @@ description: 'Automate database backup processes with scheduling, compression, a
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(pg_dump:*), Bash(mysqldump:*),
   Bash(mongodump:*), Bash(cron:*), Bash(gpg:*)
-version: 1.26.0
+version: 1.27.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

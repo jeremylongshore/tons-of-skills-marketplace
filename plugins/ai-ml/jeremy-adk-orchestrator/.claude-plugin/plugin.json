@@ -1,6 +1,6 @@
 {
   "name": "jeremy-adk-orchestrator",
-  "version": "2.29.0",
+  "version": "2.30.0",
   "description": "Production ADK orchestrator for A2A protocol and multi-agent coordination on Vertex AI",
   "author": {
     "name": "Jeremy Longshore",

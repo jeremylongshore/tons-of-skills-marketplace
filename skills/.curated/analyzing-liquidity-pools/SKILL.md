@@ -11,7 +11,7 @@ description: 'Analyze DEX liquidity pools for TVL, volume, fees, impermanent los
 
   '
 allowed-tools: Read, Write, Bash(crypto:liquidity-*)
-version: 1.23.0
+version: 1.24.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

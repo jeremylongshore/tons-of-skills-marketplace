@@ -11,7 +11,7 @@ description: 'Process identify anomalies and outliers in datasets using machine 
 
   '
 allowed-tools: Read, Bash(python:*), Grep, Glob
-version: 1.26.0
+version: 1.27.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

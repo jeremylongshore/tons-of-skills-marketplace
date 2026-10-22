@@ -1,6 +1,6 @@
 {
   "name": "api-sdk-generator",
-  "version": "1.22.0",
+  "version": "1.23.0",
   "description": "Generate client SDKs from OpenAPI specs for multiple languages",
   "author": {
     "name": "Jeremy Longshore",

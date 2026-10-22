@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/ollama-local-ai",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Run AI models locally with Ollama - free alternative to OpenAI, Anthropic, and other paid LLM APIs. Zero-cost, privacy-first AI infrastructure.",
   "keywords": [
     "ollama",

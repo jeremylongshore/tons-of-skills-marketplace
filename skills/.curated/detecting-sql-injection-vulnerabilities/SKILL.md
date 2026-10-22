@@ -11,7 +11,7 @@ description: 'Detect and analyze SQL injection vulnerabilities in application co
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(code-scan:*), Bash(security-test:*)
-version: 1.31.0
+version: 1.32.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

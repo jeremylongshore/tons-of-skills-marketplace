@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-throttling-manager",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Manage API throttling with dynamic rate limits and quota management",
   "keywords": [
     "throttling",

@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/jeremy-adk-terraform",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Terraform infrastructure as code for ADK and Vertex AI Agent Engine deployments",
   "keywords": [
     "terraform",

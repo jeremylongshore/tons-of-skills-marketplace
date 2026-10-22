@@ -1,6 +1,6 @@
 {
   "name": "api-migration-tool",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Migrate APIs between versions with backward compatibility",
   "author": {
     "name": "Jeremy Longshore",

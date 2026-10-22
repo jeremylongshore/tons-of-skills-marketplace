@@ -1,6 +1,6 @@
 {
   "name": "trading-strategy-backtester",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "description": "Backtest trading strategies with historical data, performance metrics, and risk analysis",
   "author": {
     "name": "Intent Solutions IO",

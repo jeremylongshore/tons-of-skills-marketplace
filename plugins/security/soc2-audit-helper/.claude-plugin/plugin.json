@@ -1,6 +1,6 @@
 {
   "name": "soc2-audit-helper",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "description": "Assist with SOC2 audit preparation",
   "author": {
     "name": "Jeremy Longshore",

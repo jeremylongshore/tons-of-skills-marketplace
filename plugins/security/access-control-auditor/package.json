@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/access-control-auditor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Audit access control implementations",
   "keywords": [
     "security",

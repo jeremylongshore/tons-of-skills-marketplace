@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-sdk-generator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generate client SDKs from OpenAPI specs for multiple languages",
   "keywords": [
     "sdk",

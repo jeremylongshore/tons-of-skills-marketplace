@@ -1,6 +1,6 @@
 {
   "name": "options-flow-analyzer",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "description": "Track institutional options flow, unusual activity, and smart money movements",
   "author": {
     "name": "Intent Solutions IO",

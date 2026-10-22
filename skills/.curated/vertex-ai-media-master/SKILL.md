@@ -6,7 +6,7 @@ description: 'Execute automatic activation for all google vertex ai multimodal o
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(general:*), Bash(util:*)
-version: 2.25.0
+version: 2.26.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

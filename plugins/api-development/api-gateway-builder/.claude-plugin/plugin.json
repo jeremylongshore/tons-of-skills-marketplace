@@ -1,6 +1,6 @@
 {
   "name": "api-gateway-builder",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Build API gateway with routing, authentication, and rate limiting",
   "author": {
     "name": "Jeremy Longshore",

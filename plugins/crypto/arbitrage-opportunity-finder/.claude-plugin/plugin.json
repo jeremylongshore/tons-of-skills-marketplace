@@ -1,6 +1,6 @@
 {
   "name": "arbitrage-opportunity-finder",
-  "version": "1.26.0",
+  "version": "1.27.0",
   "description": "Find and analyze arbitrage opportunities across exchanges and DeFi protocols",
   "author": {
     "name": "Intent Solutions IO",

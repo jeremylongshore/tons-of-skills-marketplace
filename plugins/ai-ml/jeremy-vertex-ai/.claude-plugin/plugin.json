@@ -1,6 +1,6 @@
 {
   "name": "jeremy-vertex-ai",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Comprehensive Vertex AI integration plugin for building generative AI agents with Gemini, Vertex AI Studio, and production deployment on Google Cloud",
   "author": {
     "name": "Jeremy Longshore",

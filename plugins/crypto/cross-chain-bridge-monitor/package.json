@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/cross-chain-bridge-monitor",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Monitor cross-chain bridge activity, track transfers, analyze security, and detect bridge exploits",
   "keywords": [
     "crypto",

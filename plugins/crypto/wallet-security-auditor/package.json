@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/wallet-security-auditor",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Crypto wallet security auditor for reviewing wallet implementations, key management, signing flows, and common vulnerability patterns.",
   "keywords": [
     "crypto",

@@ -10,7 +10,7 @@ description: 'Build event-driven APIs with webhooks, Server-Sent Events, and rea
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:events-*)
-version: 1.24.0
+version: 1.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

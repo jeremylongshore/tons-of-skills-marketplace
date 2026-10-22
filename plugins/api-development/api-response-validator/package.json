@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-response-validator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Validate API responses against schemas and contracts",
   "keywords": [
     "validation",

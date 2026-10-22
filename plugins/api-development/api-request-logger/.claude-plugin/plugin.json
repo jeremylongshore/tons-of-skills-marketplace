@@ -1,6 +1,6 @@
 {
   "name": "api-request-logger",
-  "version": "1.24.0",
+  "version": "1.25.0",
   "description": "Log API requests with structured logging and correlation IDs",
   "author": {
     "name": "Jeremy Longshore",

@@ -10,7 +10,7 @@ description: 'Validate API responses against schemas to ensure contract complian
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:validate-*)
-version: 1.24.0
+version: 1.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

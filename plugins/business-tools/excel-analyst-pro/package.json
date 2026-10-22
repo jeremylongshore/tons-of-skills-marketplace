@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/excel-analyst-pro",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Professional financial modeling toolkit for Claude Code with auto-invoked Skills and Excel MCP integration. Build DCF models, LBO analysis, variance reports, and pivot tables using natural language.",
   "keywords": [
     "excel",

@@ -10,7 +10,7 @@ description: 'Implement API migrations between versions, platforms, or framework
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:migrate-*)
-version: 1.25.0
+version: 1.26.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

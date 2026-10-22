@@ -1,6 +1,6 @@
 {
   "name": "jeremy-genkit-pro",
-  "version": "2.26.0",
+  "version": "2.27.0",
   "description": "Firebase Genkit expert for production-ready AI workflows with RAG and tool calling",
   "author": {
     "name": "Jeremy Longshore",

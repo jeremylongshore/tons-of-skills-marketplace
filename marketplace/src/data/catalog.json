@@ -69,7 +69,7 @@
       "name": "002-jeremy-yaml-master-agent",
       "displayName": "yaml master agent",
       "description": "Intelligent YAML validation, generation, and transformation agent with schema inference, linting, and format conversion capabilities",
-      "version": "2.21.0",
+      "version": "2.22.0",
       "category": "productivity",
       "keywords": [
         "yaml",
@@ -98,7 +98,7 @@
       "name": "003-jeremy-vertex-ai-media-master",
       "displayName": "vertex ai media master",
       "description": "Comprehensive Google Vertex AI multimodal mastery for Jeremy - video processing (6+ hours), audio generation, image creation with Gemini 2.0/2.5 and Imagen 4. Marketing campaign automation, content generation, and media asset production.",
-      "version": "2.25.0",
+      "version": "2.26.0",
       "category": "productivity",
       "keywords": [
         "vertex-ai",
@@ -165,7 +165,7 @@
       "name": "access-control-auditor",
       "displayName": "access control auditor",
       "description": "Audit access control implementations",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "security",
       "keywords": [
         "security",
@@ -377,7 +377,7 @@
       "name": "ai-sdk-agents",
       "displayName": "ai sdk agents",
       "description": "Multi-agent orchestration with AI SDK v5 - handoffs, routing, and coordination for any AI provider (OpenAI, Anthropic, Google)",
-      "version": "1.37.0",
+      "version": "1.38.0",
       "category": "ai-ml",
       "keywords": [
         "ai-sdk",
@@ -436,7 +436,7 @@
       "name": "anomaly-detection-system",
       "displayName": "anomaly detection system",
       "description": "Detect anomalies and outliers in data",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "ai-ml",
       "keywords": [
         "anomaly",
@@ -488,7 +488,7 @@
       "name": "api-authentication-builder",
       "displayName": "api authentication builder",
       "description": "Build authentication systems with JWT, OAuth2, and API keys",
-      "version": "1.23.0",
+      "version": "1.24.0",
       "category": "api-development",
       "keywords": [
         "authentication",
@@ -513,7 +513,7 @@
       "name": "api-batch-processor",
       "displayName": "api batch processor",
       "description": "Implement batch API operations with bulk processing and job queues",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "batch",
@@ -538,7 +538,7 @@
       "name": "api-cache-manager",
       "displayName": "api cache manager",
       "description": "Implement caching strategies with Redis, CDN, and HTTP headers",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "caching",
@@ -563,7 +563,7 @@
       "name": "api-contract-generator",
       "displayName": "api contract generator",
       "description": "Generate API contracts for consumer-driven contract testing",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "contract",
@@ -588,7 +588,7 @@
       "name": "api-documentation-generator",
       "displayName": "api documentation generator",
       "description": "Generate comprehensive API documentation from OpenAPI/Swagger specs",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "api-development",
       "keywords": [
         "api",
@@ -614,7 +614,7 @@
       "name": "api-error-handler",
       "displayName": "api error handler",
       "description": "Implement standardized error handling with proper HTTP status codes",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "error-handling",
@@ -639,7 +639,7 @@
       "name": "api-event-emitter",
       "displayName": "api event emitter",
       "description": "Implement event-driven APIs with message queues and event streaming",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "events",
@@ -692,7 +692,7 @@
       "name": "api-gateway-builder",
       "displayName": "api gateway builder",
       "description": "Build API gateway with routing, authentication, and rate limiting",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "api-gateway",
@@ -717,7 +717,7 @@
       "name": "api-load-tester",
       "displayName": "api load tester",
       "description": "Load test APIs with k6, Gatling, or Artillery",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "load-testing",
@@ -742,7 +742,7 @@
       "name": "api-migration-tool",
       "displayName": "api migration tool",
       "description": "Migrate APIs between versions with backward compatibility",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "migration",
@@ -767,7 +767,7 @@
       "name": "api-mock-server",
       "displayName": "api mock server",
       "description": "Create mock API servers from OpenAPI specs for testing",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "mock",
@@ -792,7 +792,7 @@
       "name": "api-monitoring-dashboard",
       "displayName": "api monitoring dashboard",
       "description": "Create monitoring dashboards for API health, metrics, and alerts",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "monitoring",
@@ -817,7 +817,7 @@
       "name": "api-rate-limiter",
       "displayName": "api rate limiter",
       "description": "Implement rate limiting with token bucket, sliding window, and Redis",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "rate-limiting",
@@ -842,7 +842,7 @@
       "name": "api-request-logger",
       "displayName": "api request logger",
       "description": "Log API requests with structured logging and correlation IDs",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "logging",
@@ -867,7 +867,7 @@
       "name": "api-response-validator",
       "displayName": "api response validator",
       "description": "Validate API responses against schemas and contracts",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "validation",
@@ -892,7 +892,7 @@
       "name": "api-schema-validator",
       "displayName": "api schema validator",
       "description": "Validate API schemas with JSON Schema, Joi, Yup, or Zod",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "api-development",
       "keywords": [
         "schema",
@@ -918,7 +918,7 @@
       "name": "api-sdk-generator",
       "displayName": "api sdk generator",
       "description": "Generate client SDKs from OpenAPI specs for multiple languages",
-      "version": "1.22.0",
+      "version": "1.23.0",
       "category": "api-development",
       "keywords": [
         "sdk",
@@ -943,7 +943,7 @@
       "name": "api-security-scanner",
       "displayName": "api security scanner",
       "description": "Scan APIs for security vulnerabilities and OWASP API Top 10",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "security",
@@ -995,7 +995,7 @@
       "name": "api-throttling-manager",
       "displayName": "api throttling manager",
       "description": "Manage API throttling with dynamic rate limits and quota management",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "throttling",
@@ -1020,7 +1020,7 @@
       "name": "api-versioning-manager",
       "displayName": "api versioning manager",
       "description": "Manage API versions with migration strategies and backward compatibility",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "api-development",
       "keywords": [
         "api",
@@ -1096,7 +1096,7 @@
       "name": "arbitrage-opportunity-finder",
       "displayName": "arbitrage opportunity finder",
       "description": "Find and analyze arbitrage opportunities across exchanges and DeFi protocols",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "crypto",
       "keywords": [
         "arbitrage",
@@ -1122,7 +1122,7 @@
       "name": "authentication-validator",
       "displayName": "authentication validator",
       "description": "Validate authentication implementations",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "security",
       "keywords": [
         "security",
@@ -1172,7 +1172,7 @@
       "name": "automl-pipeline-builder",
       "displayName": "automl pipeline builder",
       "description": "Build AutoML pipelines",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "ai-ml",
       "keywords": [
         "automl",
@@ -1223,7 +1223,7 @@
       "name": "blockchain-explorer-cli",
       "displayName": "blockchain explorer cli",
       "description": "Command-line blockchain explorer for transactions, addresses, and contracts",
-      "version": "1.30.0",
+      "version": "1.31.0",
       "category": "crypto",
       "keywords": [
         "blockchain",
@@ -1563,7 +1563,7 @@
       "name": "compliance-report-generator",
       "displayName": "compliance report generator",
       "description": "Generate compliance reports",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "security",
       "keywords": [
         "security",
@@ -1812,7 +1812,7 @@
       "name": "cross-chain-bridge-monitor",
       "displayName": "cross chain bridge monitor",
       "description": "Monitor cross-chain bridge activity, track transfers, analyze security, and detect bridge exploits",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -1841,7 +1841,7 @@
       "name": "crypto-derivatives-tracker",
       "displayName": "crypto derivatives tracker",
       "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -1870,7 +1870,7 @@
       "name": "crypto-news-aggregator",
       "displayName": "crypto news aggregator",
       "description": "Aggregate and analyze crypto news from multiple sources with sentiment analysis",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "crypto",
       "keywords": [
         "news",
@@ -1896,7 +1896,7 @@
       "name": "crypto-portfolio-tracker",
       "displayName": "crypto portfolio tracker",
       "description": "Professional crypto portfolio tracking with real-time prices, PnL analysis, and risk metrics",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -1924,7 +1924,7 @@
       "name": "crypto-signal-generator",
       "displayName": "crypto signal generator",
       "description": "Generate trading signals from technical indicators and market analysis",
-      "version": "1.30.0",
+      "version": "1.31.0",
       "category": "crypto",
       "keywords": [
         "trading",
@@ -1950,7 +1950,7 @@
       "name": "crypto-tax-calculator",
       "displayName": "crypto tax calculator",
       "description": "Calculate crypto taxes with FIFO/LIFO methods and generate tax reports",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -1977,7 +1977,7 @@
       "name": "csrf-protection-validator",
       "displayName": "csrf protection validator",
       "description": "Validate CSRF protection",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "security",
       "keywords": [
         "security",
@@ -2027,7 +2027,7 @@
       "name": "data-privacy-scanner",
       "displayName": "data privacy scanner",
       "description": "Scan for data privacy issues",
-      "version": "1.23.0",
+      "version": "1.24.0",
       "category": "security",
       "keywords": [
         "security",
@@ -2175,7 +2175,7 @@
       "name": "database-backup-automator",
       "displayName": "database backup automator",
       "description": "Automate database backups with scheduling, compression, encryption, and restore procedures",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "database",
       "keywords": [
         "database",
@@ -2676,7 +2676,7 @@
       "name": "defi-yield-optimizer",
       "displayName": "defi yield optimizer",
       "description": "Optimize DeFi yield farming strategies across protocols with APY tracking and risk assessment",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "crypto",
       "keywords": [
         "defi",
@@ -2704,7 +2704,7 @@
       "name": "dependency-checker",
       "displayName": "dependency checker",
       "description": "Check dependencies for known vulnerabilities, outdated packages, and license compliance",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "security",
       "keywords": [
         "security",
@@ -2842,7 +2842,7 @@
       "name": "dex-aggregator-router",
       "displayName": "dex aggregator router",
       "description": "Find optimal DEX routes for token swaps across multiple exchanges",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "crypto",
       "keywords": [
         "dex",
@@ -3162,7 +3162,7 @@
       "name": "excel-analyst-pro",
       "displayName": "excel analyst pro",
       "description": "Professional financial modeling toolkit for Claude Code with auto-invoked Skills and Excel MCP integration. Build DCF models, LBO analysis, variance reports, and pivot tables using natural language.",
-      "version": "1.21.0",
+      "version": "1.22.0",
       "category": "business-tools",
       "keywords": [
         "excel",
@@ -3381,7 +3381,7 @@
       "name": "flash-loan-simulator",
       "displayName": "flash loan simulator",
       "description": "Simulate and analyze flash loan strategies including arbitrage, liquidations, and collateral swaps",
-      "version": "1.30.0",
+      "version": "1.31.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -3410,7 +3410,7 @@
       "name": "formatter",
       "displayName": "formatter",
       "description": "Code formatting plugin using hooks to auto-format on save",
-      "version": "2.26.0",
+      "version": "2.27.0",
       "category": "examples",
       "keywords": [
         "formatting",
@@ -3492,7 +3492,7 @@
       "name": "gas-fee-optimizer",
       "displayName": "gas fee optimizer",
       "description": "Optimize transaction gas fees with timing and routing recommendations",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "crypto",
       "keywords": [
         "gas",
@@ -3597,7 +3597,7 @@
       "name": "graphql-server-builder",
       "displayName": "graphql server builder",
       "description": "Build GraphQL servers with schema-first design, resolvers, and subscriptions",
-      "version": "1.22.0",
+      "version": "1.23.0",
       "category": "api-development",
       "keywords": [
         "graphql",
@@ -3624,7 +3624,7 @@
       "name": "grpc-service-generator",
       "displayName": "grpc service generator",
       "description": "Generate gRPC services with Protocol Buffers and streaming support",
-      "version": "1.23.0",
+      "version": "1.24.0",
       "category": "api-development",
       "keywords": [
         "grpc",
@@ -3907,7 +3907,7 @@
       "name": "kubernetes-deployment-creator",
       "displayName": "kubernetes deployment creator",
       "description": "Create Kubernetes deployments, services, and configurations with best practices",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "devops",
       "keywords": [
         "kubernetes",
@@ -3933,7 +3933,7 @@
       "name": "liquidity-pool-analyzer",
       "displayName": "liquidity pool analyzer",
       "description": "Analyze DeFi liquidity pools for impermanent loss, APY, and optimization opportunities",
-      "version": "1.23.0",
+      "version": "1.24.0",
       "category": "crypto",
       "keywords": [
         "liquidity",
@@ -3960,7 +3960,7 @@
       "name": "load-balancer-configurator",
       "displayName": "load balancer configurator",
       "description": "Configure load balancers (ALB, NLB, Nginx, HAProxy)",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "devops",
       "keywords": [
         "load-balancer",
@@ -4116,7 +4116,7 @@
       "name": "market-movers-scanner",
       "displayName": "market movers scanner",
       "description": "Scan for top market movers - gainers, losers, volume spikes, and unusual activity",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "crypto",
       "keywords": [
         "market",
@@ -4144,7 +4144,7 @@
       "name": "market-price-tracker",
       "displayName": "market price tracker",
       "description": "Real-time market price tracking with multi-exchange feeds and advanced alerts",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "crypto",
       "keywords": [
         "market",
@@ -4172,7 +4172,7 @@
       "name": "market-sentiment-analyzer",
       "displayName": "market sentiment analyzer",
       "description": "Analyze market sentiment from social media, news, and on-chain data",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "crypto",
       "keywords": [
         "sentiment",
@@ -4224,7 +4224,7 @@
       "name": "mempool-analyzer",
       "displayName": "mempool analyzer",
       "description": "Advanced mempool analysis for MEV opportunities, pending transaction monitoring, and gas price optimization",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -4411,7 +4411,7 @@
       "name": "model-versioning-tracker",
       "displayName": "model versioning tracker",
       "description": "Track and manage model versions",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "ai-ml",
       "keywords": [
         "versioning",
@@ -4593,7 +4593,7 @@
       "name": "nft-rarity-analyzer",
       "displayName": "nft rarity analyzer",
       "description": "Analyze NFT rarity scores and valuations across collections",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "crypto",
       "keywords": [
         "nft",
@@ -4646,7 +4646,7 @@
       "name": "ollama-local-ai",
       "displayName": "ollama local ai",
       "description": "Run AI models locally with Ollama - free alternative to OpenAI, Anthropic, and other paid LLM APIs. Zero-cost, privacy-first AI infrastructure.",
-      "version": "1.18.0",
+      "version": "1.19.0",
       "category": "ai-ml",
       "keywords": [
         "ollama",
@@ -4700,7 +4700,7 @@
       "name": "on-chain-analytics",
       "displayName": "on chain analytics",
       "description": "Analyze on-chain metrics including whale movements, network activity, and holder distribution",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "crypto",
       "keywords": [
         "on-chain",
@@ -4762,7 +4762,7 @@
       "name": "options-flow-analyzer",
       "displayName": "options flow analyzer",
       "description": "Track institutional options flow, unusual activity, and smart money movements",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "crypto",
       "keywords": [
         "options",
@@ -4815,7 +4815,7 @@
       "name": "overnight-dev",
       "displayName": "overnight dev",
       "description": "Run Claude autonomously for 6-8 hours overnight using Git hooks that enforce TDD - wake up to fully tested features",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "productivity",
       "keywords": [
         "overnight",
@@ -5026,7 +5026,7 @@
       "name": "pi-pathfinder",
       "displayName": "pi pathfinder",
       "description": "PI Pathfinder - Finds the path through 229 plugins. Automatically picks the best plugin for your task, extracts its skills, and applies them. You don't pick plugins, PI does. Part of our initiative to update all plugins with appropriate skill sets.",
-      "version": "1.24.0",
+      "version": "1.25.0",
       "category": "examples",
       "keywords": [
         "agent-skills",
@@ -5319,7 +5319,7 @@
       "name": "rest-api-generator",
       "displayName": "rest api generator",
       "description": "Generate RESTful APIs from schemas with proper routing, validation, and documentation",
-      "version": "1.23.0",
+      "version": "1.24.0",
       "category": "api-development",
       "keywords": [
         "api",
@@ -5478,7 +5478,7 @@
       "name": "security-agent",
       "displayName": "security agent",
       "description": "Security review subagent for code analysis",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "examples",
       "keywords": [
         "security",
@@ -5501,7 +5501,7 @@
       "name": "security-audit-reporter",
       "displayName": "security audit reporter",
       "description": "Generate comprehensive security audit reports",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "security",
       "keywords": [
         "security",
@@ -5525,7 +5525,7 @@
       "name": "security-headers-analyzer",
       "displayName": "security headers analyzer",
       "description": "Analyze HTTP security headers",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "security",
       "keywords": [
         "security",
@@ -5549,7 +5549,7 @@
       "name": "security-incident-responder",
       "displayName": "security incident responder",
       "description": "Assist with security incident response",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "category": "security",
       "keywords": [
         "security",
@@ -5573,7 +5573,7 @@
       "name": "security-misconfiguration-finder",
       "displayName": "security misconfiguration finder",
       "description": "Find security misconfigurations",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "security",
       "keywords": [
         "security",
@@ -5706,7 +5706,7 @@
       "name": "session-security-checker",
       "displayName": "session security checker",
       "description": "Check session security implementation",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "security",
       "keywords": [
         "security",
@@ -5730,7 +5730,7 @@
       "name": "jeremy-plugin-tool",
       "displayName": "jeremy plugin tool",
       "description": "Production-grade plugin creator with marketplace-validated quality standards. 4 Agent Skills automate creating, validating, auditing, and versioning plugins in the claude-code-plugins marketplace",
-      "version": "2.20.0",
+      "version": "2.21.0",
       "category": "examples",
       "keywords": [
         "skills",
@@ -5839,7 +5839,7 @@
       "name": "soc2-audit-helper",
       "displayName": "soc2 audit helper",
       "description": "Assist with SOC2 audit preparation",
-      "version": "1.30.0",
+      "version": "1.31.0",
       "category": "security",
       "keywords": [
         "security",
@@ -5889,7 +5889,7 @@
       "name": "sql-injection-detector",
       "displayName": "sql injection detector",
       "description": "Detect SQL injection vulnerabilities",
-      "version": "1.31.0",
+      "version": "1.32.0",
       "category": "security",
       "keywords": [
         "security",
@@ -5963,7 +5963,7 @@
       "name": "staking-rewards-optimizer",
       "displayName": "staking rewards optimizer",
       "description": "Optimize staking rewards across multiple protocols and chains",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -5990,7 +5990,7 @@
       "name": "stored-procedure-generator",
       "displayName": "stored procedure generator",
       "description": "Database plugin for stored-procedure-generator",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "database",
       "keywords": [
         "database",
@@ -6348,7 +6348,7 @@
       "name": "token-launch-tracker",
       "displayName": "token launch tracker",
       "description": "Track new token launches, detect rugpulls, and analyze contract security for early-stage crypto projects",
-      "version": "1.30.0",
+      "version": "1.31.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -6377,7 +6377,7 @@
       "name": "trading-strategy-backtester",
       "displayName": "trading strategy backtester",
       "description": "Backtest trading strategies with historical data, performance metrics, and risk analysis",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "category": "crypto",
       "keywords": [
         "trading",
@@ -6601,7 +6601,7 @@
       "name": "webhook-handler-creator",
       "displayName": "webhook handler creator",
       "description": "Create secure webhook endpoints with signature verification and retry logic",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "category": "api-development",
       "keywords": [
         "webhook",
@@ -6626,7 +6626,7 @@
       "name": "websocket-server-builder",
       "displayName": "websocket server builder",
       "description": "Build WebSocket servers for real-time bidirectional communication",
-      "version": "1.25.0",
+      "version": "1.26.0",
       "category": "api-development",
       "keywords": [
         "websocket",
@@ -6651,7 +6651,7 @@
       "name": "whale-alert-monitor",
       "displayName": "whale alert monitor",
       "description": "Monitor large crypto transactions and whale wallet movements in real-time",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "category": "crypto",
       "keywords": [
         "whale",
@@ -6755,7 +6755,7 @@
       "name": "jeremy-genkit-pro",
       "displayName": "jeremy genkit pro",
       "description": "Firebase Genkit expert for production-ready AI workflows with RAG and tool calling",
-      "version": "2.26.0",
+      "version": "2.27.0",
       "category": "ai-ml",
       "keywords": [
         "firebase",
@@ -6783,7 +6783,7 @@
       "name": "jeremy-adk-orchestrator",
       "displayName": "jeremy adk orchestrator",
       "description": "Production ADK orchestrator for A2A protocol and multi-agent coordination on Vertex AI",
-      "version": "2.29.0",
+      "version": "2.30.0",
       "category": "ai-ml",
       "keywords": [
         "vertex-ai",
@@ -6836,7 +6836,7 @@
       "name": "jeremy-google-adk",
       "displayName": "jeremy google adk",
       "description": "Google Agent Development Kit (ADK) starter for building production AI agents — ReAct single-agent or multi-agent orchestration (Sequential/Parallel/Loop), tool wiring, evaluation harness, and optional Vertex AI Agent Engine deployment.",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "category": "ai-ml",
       "keywords": [
         "google",
@@ -6865,7 +6865,7 @@
       "name": "jeremy-vertex-ai",
       "displayName": "jeremy vertex ai",
       "description": "Build and deploy generative AI agents on Vertex AI: Gemini model selection, RAG with grounded retrieval, function calling, multimodal extraction, evaluation, and Agent Engine deployment with operational guardrails.",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "category": "ai-ml",
       "keywords": [
         "vertex-ai",
@@ -6894,7 +6894,7 @@
       "name": "jeremy-genkit-terraform",
       "displayName": "jeremy genkit terraform",
       "description": "Terraform modules for Firebase Genkit infrastructure and deployments",
-      "version": "2.21.0",
+      "version": "2.22.0",
       "category": "devops",
       "keywords": [
         "terraform",
@@ -6920,7 +6920,7 @@
       "name": "jeremy-adk-terraform",
       "displayName": "jeremy adk terraform",
       "description": "Terraform infrastructure as code for ADK and Vertex AI Agent Engine deployments",
-      "version": "2.22.0",
+      "version": "2.23.0",
       "category": "devops",
       "keywords": [
         "terraform",
@@ -6947,7 +6947,7 @@
       "name": "jeremy-vertex-terraform",
       "displayName": "jeremy vertex terraform",
       "description": "Terraform configurations for Vertex AI platform and Agent Engine",
-      "version": "2.22.0",
+      "version": "2.23.0",
       "category": "devops",
       "keywords": [
         "terraform",
@@ -6973,7 +6973,7 @@
       "name": "jeremy-vertex-engine",
       "displayName": "jeremy vertex engine",
       "description": "Vertex AI Agent Engine deployment inspector and runtime validator",
-      "version": "2.31.0",
+      "version": "2.32.0",
       "category": "ai-ml",
       "keywords": [
         "vertex-ai",
@@ -7000,7 +7000,7 @@
       "name": "jeremy-gcp-starter-examples",
       "displayName": "jeremy gcp starter examples",
       "description": "Google Cloud starter kits and example code aggregator with ADK samples",
-      "version": "2.25.0",
+      "version": "2.26.0",
       "category": "ai-ml",
       "keywords": [
         "google-cloud",
@@ -7029,7 +7029,7 @@
       "name": "jeremy-github-actions-gcp",
       "displayName": "jeremy github actions gcp",
       "description": "GitHub Actions CI/CD workflows for Google Cloud and Vertex AI deployments",
-      "version": "2.27.0",
+      "version": "2.28.0",
       "category": "devops",
       "keywords": [
         "github-actions",
@@ -7126,7 +7126,7 @@
       "name": "skill-creator",
       "displayName": "skill creator",
       "description": "Create and validate production-grade agent skills with 100-point marketplace grading. Supports creation workflows, eval-driven development, and auto-fix for spec compliance.",
-      "version": "5.23.0",
+      "version": "5.24.0",
       "category": "skill-enhancers",
       "keywords": [
         "skill-creation",
@@ -7366,7 +7366,7 @@
       "name": "wallet-security-auditor",
       "displayName": "wallet security auditor",
       "description": "Crypto wallet security auditor for reviewing wallet implementations, key management, signing flows, and common vulnerability patterns.",
-      "version": "1.17.0",
+      "version": "1.18.0",
       "category": "crypto",
       "keywords": [
         "crypto",
@@ -8759,7 +8759,7 @@
       "name": "navigating-github",
       "displayName": "navigating github",
       "description": "First-time GitHub setup and interactive git learning. Walks users from zero to a working GitHub repo, then teaches git through 9 hands-on lessons on their actual project. Adapts to any skill level automatically.",
-      "version": "2.5.0",
+      "version": "2.6.0",
       "category": "productivity",
       "keywords": [
         "github",

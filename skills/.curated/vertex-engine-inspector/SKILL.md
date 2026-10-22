@@ -9,7 +9,7 @@ description: 'Inspect and validate Vertex AI Agent Engine deployments including 
 
   '
 allowed-tools: Read, Grep, Glob, Bash(cmd:*)
-version: 2.31.0
+version: 2.32.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 argument-hint: <project-id> <agent-engine-id> [location]

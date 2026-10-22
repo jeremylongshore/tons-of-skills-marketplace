@@ -10,7 +10,7 @@ description: 'Create API gateways with routing, load balancing, rate limiting, a
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(api:gateway-*)
-version: 1.24.0
+version: 1.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

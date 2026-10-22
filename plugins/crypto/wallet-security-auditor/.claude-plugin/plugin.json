@@ -1,6 +1,6 @@
 {
   "name": "wallet-security-auditor",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "Crypto wallet security auditor for reviewing wallet implementations, key management, signing flows, and common vulnerability patterns.",
   "author": {
     "name": "Jeremy Longshore",

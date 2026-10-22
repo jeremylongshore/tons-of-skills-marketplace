@@ -3,7 +3,7 @@ name: analyzing-dependencies
 description: Analyze dependencies for known security vulnerabilities and outdated
   versions. Use when auditing third-party libraries. Trigger with 'check dependencies',
   'scan for vulnerabilities', or 'audit packages'.
-version: 1.27.0
+version: 1.28.0
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(security:*), Bash(scan:*), Bash(audit:*)
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>

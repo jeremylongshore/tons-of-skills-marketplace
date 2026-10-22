@@ -1,6 +1,6 @@
 {
   "name": "dex-aggregator-router",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Find optimal DEX routes for token swaps across multiple exchanges",
   "author": {
     "name": "Claude Code Plugins",

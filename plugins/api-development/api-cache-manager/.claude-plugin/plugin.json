@@ -1,6 +1,6 @@
 {
   "name": "api-cache-manager",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Implement caching strategies with Redis, CDN, and HTTP headers",
   "author": {
     "name": "Jeremy Longshore",

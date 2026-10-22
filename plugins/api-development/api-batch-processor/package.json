@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/api-batch-processor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Implement batch API operations with bulk processing and job queues",
   "keywords": [
     "batch",

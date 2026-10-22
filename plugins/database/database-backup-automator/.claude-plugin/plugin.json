@@ -1,6 +1,6 @@
 {
   "name": "database-backup-automator",
-  "version": "1.26.0",
+  "version": "1.27.0",
   "description": "Automate database backups with scheduling, compression, encryption, and restore procedures",
   "author": {
     "name": "Claude Code Plugins",
