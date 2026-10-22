@@ -7,6 +7,7 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -17,6 +18,7 @@ import {
   artifactMatches,
   assertMeasurementInputsIndexed,
   buildReport,
+  collectStructuralEvidence,
   matchesSignature,
   parseSkillRows,
   parseTerminalSummary,
@@ -42,8 +44,10 @@ function put(root, path, contents = '') {
 function evidence(rows = 2) {
   const skills = Array.from({ length: rows }, (_, index) => ({
     errors: index === 0 ? 1 : 0,
+    error_details:
+      index === 0 ? ["[frontmatter] Missing required field: 'tags' (marketplace)"] : [],
     grade: index === 0 ? 'A' : 'B',
-    path: index === 0 ? 'plugins/example/SKILL.md' : `skills/.curated/example-${index}/SKILL.md`,
+    path: index === 0 ? 'plugins/testing/example/SKILL.md' : `003-skills/example-${index}/SKILL.md`,
     warnings: 0,
   }));
   return {
@@ -100,7 +104,14 @@ def _is_binary(path: Path):
     'plugins/example/agents/a.md': '# agent\n',
     'plugins/example/assets/bad.png': 'plain text placeholder',
     'plugins/example/assets/good.png': Buffer.from('89504e470d0a1a0a00000000', 'hex'),
-    'plugins/example/SKILL.md': '# skill\n',
+    'plugins/testing/example/SKILL.md': '# skill\n',
+    '003-skills/example-1/SKILL.md': '# legacy graded skill\n',
+    'scripts/measure-structural-errors.py': readFileSync(
+      new URL('./measure-structural-errors.py', import.meta.url),
+    ),
+    'scripts/validate-skills-schema.py': readFileSync(
+      new URL('./validate-skills-schema.py', import.meta.url),
+    ),
     'scripts/generate-readme-toc.mjs':
       "const catalog = '.claude-plugin/marketplace.extended.json'; const skillCount = 1; const agentCount = 1; writeFileSync('README.md', String(catalog) + skillCount + agentCount);\n",
     'scripts/corpus-resolver.mjs': 'export function resolveCorpus() {}\n',
@@ -134,6 +145,11 @@ test('buildReport names cohorts and derives every governed row from tracked fixt
   assert.equal(report.rows[3].values.count, 0);
   assert.equal(report.rows[4].values.skill_rows.rows, 2);
   assert.equal(report.rows[5].values.rows, 2);
+  assert.equal(report.rows[7].values.structural_occurrences, 1);
+  assert.equal(report.rows[7].values.all_skill_error_occurrences, 1);
+  assert.equal(report.rows[7].target_status, 'fail');
+  assert.equal(report.rows[7].values.target, 0);
+  assert.equal(report.rows[7].values.target_met, false);
   assert.equal(report.rows[11].values.candidate_count, 2);
   assert.deepEqual(report.rows[11].values.mismatch_paths, ['plugins/example/assets/bad.png']);
   assert.equal(report.rows[12].values.detector, 'magic_bytes');
@@ -223,6 +239,230 @@ test('validator parsers fail closed on malformed evidence and missing summaries'
     () => parseTerminalSummary(`${warningOnly}\n${warningOnly}`, 'agents'),
     /exactly one Total files|exactly one terminal result/,
   );
+});
+
+test('structural mass preserves occurrences and discloses the canonical section identity alias', (t) => {
+  const root = fixture(t);
+  const rows = evidence().skills;
+  rows[0].error_details.push(
+    "[body] Required section missing: '## Overview' (marketplace tier)",
+    "[body] Required section missing: '## Examples' (marketplace tier)",
+    "[body] Required section missing: '## Examples' (marketplace tier)",
+    "[frontmatter] Missing conditional field: 'agent' (relevant for this skill's configuration)",
+    '[body] Line 12: uses backslashes instead of forward slashes',
+    "[body] Required section 'Examples' is a stub",
+  );
+  rows[0].errors = rows[0].error_details.length;
+  const value = collectStructuralEvidence(root, rows, trackedPaths(root));
+  assert.equal(value.measurement_schema_version, 1);
+  assert.equal(value.missing_required_field_occurrences, 1);
+  assert.equal(value.missing_required_section_occurrences, 3);
+  assert.equal(value.structural_occurrences, 4);
+  assert.equal(value.unique_structural_triples, 2);
+  assert.equal(value.unique_triples_by_rule['E-MISSING-REQUIRED-SECTION'], 1);
+  assert.equal(value.all_skill_error_occurrences, 7);
+  assert.equal(value.other_skill_error_occurrences, 3);
+  assert.equal(value.affected_skills, 1);
+  assert.equal(value.structural_share_of_skill_errors_pct, 57.1429);
+  assert.match(value.validator_sha256, /^[a-f0-9]{64}$/);
+});
+
+for (const [name, change, message] of [
+  [
+    'missing details',
+    (rows) => {
+      delete rows[0].error_details;
+    },
+    /diagnostic count\/type mismatch/,
+  ],
+  [
+    'count mismatch',
+    (rows) => {
+      rows[0].errors += 1;
+    },
+    /diagnostic count\/type mismatch/,
+  ],
+  [
+    'non-string diagnostic',
+    (rows) => {
+      rows[0].error_details = [42];
+    },
+    /diagnostic count\/type mismatch/,
+  ],
+  [
+    'boolean count',
+    (rows) => {
+      rows[0].errors = true;
+    },
+    /diagnostic count\/type mismatch/,
+  ],
+  [
+    'fatal row',
+    (rows) => {
+      rows[0].fatal = 'invalid YAML';
+    },
+    /fatal or malformed/,
+  ],
+  [
+    'missing row',
+    (rows) => {
+      rows.pop();
+    },
+    /graded path coverage mismatch/,
+  ],
+  [
+    'equal-count substitution',
+    (rows) => {
+      rows[1].path = 'skills/.curated/example-1/SKILL.md';
+    },
+    /graded path coverage mismatch/,
+  ],
+  [
+    'duplicate path',
+    (rows) => {
+      rows[1] = { ...rows[0] };
+    },
+    /duplicate validator path/,
+  ],
+  [
+    'path traversal',
+    (rows) => {
+      rows[0].path = '../escape/SKILL.md';
+    },
+    /traversal/,
+  ],
+  [
+    'foreign absolute path',
+    (rows) => {
+      rows[0].path = '/foreign/SKILL.md';
+    },
+    /not in the subpath/,
+  ],
+  [
+    'non-skill row',
+    (rows) => {
+      rows.push({ unexpected: true });
+    },
+    /invalid skill path/,
+  ],
+]) {
+  test(`structural adapter refuses ${name}`, (t) => {
+    const root = fixture(t);
+    const rows = evidence().skills;
+    change(rows);
+    assert.throws(() => collectStructuralEvidence(root, rows, trackedPaths(root)), message);
+  });
+}
+
+test('structural adapter refuses symlink paths and a symlink classifier', (t) => {
+  const root = fixture(t);
+  const rows = evidence().skills;
+  const target = join(root, rows[0].path);
+  rmSync(target);
+  symlinkSync(join(root, rows[1].path), target);
+  assert.throws(
+    () => collectStructuralEvidence(root, rows, trackedPaths(root)),
+    /symlink|symbolic link/i,
+  );
+  rmSync(target);
+  put(root, rows[0].path, '# skill\n');
+  const classifier = join(root, 'scripts/validate-skills-schema.py');
+  rmSync(classifier);
+  symlinkSync(new URL('./validate-skills-schema.py', import.meta.url), classifier);
+  assert.throws(
+    () => collectStructuralEvidence(root, rows, trackedPaths(root)),
+    /symlink|symbolic link/i,
+  );
+});
+
+test('structural counts use one cohort and are independent of terminal/agent counts', (t) => {
+  const root = fixture(t);
+  const value = evidence();
+  const before = buildReport(root, value).rows[7];
+  value.marketplace = value.marketplace.replace('with 1 errors', 'with 999 errors');
+  value.agents = value.agents.replace(
+    '✅ All skills fully compliant! (standard tier)',
+    'Validation FAILED with 456 errors (standard tier)',
+  );
+  assert.deepEqual(buildReport(root, value).rows[7], before);
+});
+
+test('structural adapter is root-independent and uses the indexed classifier, not its working copy', (t) => {
+  const root = fixture(t);
+  const rows = evidence().skills;
+  const expected = collectStructuralEvidence(root, rows, trackedPaths(root));
+  const classifier = 'scripts/validate-skills-schema.py';
+  put(
+    root,
+    classifier,
+    readFileSync(join(root, classifier), 'utf8').replace(
+      'return artifact_path, rule_id, field',
+      'return artifact_path, "E-FIXTURE-DYNAMIC", field',
+    ),
+  );
+  // Catch-all IDs may be dynamically emitted by the canonical classifier. They
+  // remain "other"; the measurement must not add a second rule-inventory gate.
+  assert.equal(
+    collectStructuralEvidence(root, rows, trackedPaths(root)).other_skill_error_occurrences,
+    1,
+  );
+  withIndexSnapshot(root, ({ root: snapshot, paths }) => {
+    const absoluteRows = rows.map((row) => ({ ...row, path: join(snapshot, row.path) }));
+    assert.deepEqual(collectStructuralEvidence(snapshot, absoluteRows, paths), expected);
+  });
+});
+
+test('structural adapter refuses missing declared IDs and malformed canonical results', (t) => {
+  const root = fixture(t);
+  const classifier = 'scripts/validate-skills-schema.py';
+  const original = readFileSync(join(root, classifier), 'utf8');
+  put(root, classifier, `${original}\nDECLARED_MARKETPLACE_RULE_INVENTORY = frozenset()\n`);
+  assert.throws(
+    () => collectStructuralEvidence(root, evidence().skills, trackedPaths(root)),
+    /no longer declares/,
+  );
+  put(
+    root,
+    classifier,
+    original.replace('return artifact_path, rule_id, field', 'return artifact_path, rule_id'),
+  );
+  assert.throws(
+    () => collectStructuralEvidence(root, evidence().skills, trackedPaths(root)),
+    /malformed canonical classifier/,
+  );
+});
+
+test('only complete zero-error evidence produces measured zero, without a misleading percentage', (t) => {
+  const root = fixture(t);
+  const rows = evidence().skills.map((row) => ({ ...row, errors: 0, error_details: [] }));
+  const result = collectStructuralEvidence(root, rows, trackedPaths(root));
+  assert.equal(result.structural_occurrences, 0);
+  assert.equal(result.unique_structural_triples, 0);
+  assert.equal(result.structural_share_of_skill_errors_pct, null);
+  assert.equal(
+    buildReport(root, { ...evidence(), skills: rows }).rows[7].target_status,
+    'target_met',
+  );
+  assert.equal(buildReport(root, { ...evidence(), skills: rows }).rows[7].values.target_met, true);
+  assert.throws(() => collectStructuralEvidence(root, [], trackedPaths(root)), /must be nonempty/);
+});
+
+test('skill JSON requires exactly the known trailing advisory record', () => {
+  const rows = evidence().skills;
+  const advisory = { kernel_shadow: { mode: 'shadow-advisory' } };
+  assert.doesNotThrow(() => parseSkillRows([...rows, advisory], { requireKernelShadow: true }));
+  for (const bad of [
+    rows,
+    [advisory, ...rows],
+    [...rows, advisory, advisory],
+    [...rows, { ...advisory, unexpected: true }],
+    [...rows, { kernel_shadow: [] }],
+    [...rows, { unknown: {} }],
+  ])
+    assert.throws(
+      () => parseSkillRows(bad, { requireKernelShadow: true }),
+      /exactly one kernel_shadow/,
+    );
 });
 
 test('Git-index snapshots exclude untracked and unstaged working-tree contamination', (t) => {

@@ -29,6 +29,8 @@ import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node
 import { fileURLToPath } from 'node:url';
 
 import { buildExtendedScorecardRows } from './measure-epic-1-scorecard.mjs';
+import { resolveCorpus } from './corpus-resolver.mjs';
+import { safeReadFile } from './safe-fs.mjs';
 
 export const ARTIFACT_PATH = '000-docs/742-RA-DATA-epic-1-scorecard.json';
 export const REQUIRED_README_METRIC_WRITER = 'scripts/generate-readme-toc.mjs';
@@ -36,6 +38,7 @@ const SCRIPT_PATH = 'scripts/measure-epic-1.mjs';
 export const MEASUREMENT_INPUT_PATHS = [
   SCRIPT_PATH,
   'scripts/measure-epic-1-scorecard.mjs',
+  'scripts/measure-structural-errors.py',
   'scripts/dead-domain-policy.mjs',
   'scripts/generated-artifact-registry.mjs',
   'scripts/corpus-resolver.mjs',
@@ -427,7 +430,10 @@ export function parseSkillRows(value, options = {}) {
     if (
       advisories.length !== 1 ||
       !advisories[0]?.kernel_shadow ||
-      typeof advisories[0].kernel_shadow !== 'object'
+      typeof advisories[0].kernel_shadow !== 'object' ||
+      Array.isArray(advisories[0].kernel_shadow) ||
+      value.at(-1) !== advisories[0] ||
+      Object.keys(advisories[0]).length !== 1
     ) {
       fail('validator JSON must end with exactly one kernel_shadow advisory');
     }
@@ -595,6 +601,56 @@ function validatorEvidence(root) {
     }
   }
   return evidence;
+}
+
+// Classify the JSON already collected above; never run another validator pass.
+// The Python adapter imports the indexed canonical rule function, not a JS copy
+// of its diagnostic patterns. The resolver owns the exact expected path set.
+export function collectStructuralEvidence(root, skillRows, paths) {
+  for (const path of [
+    'scripts/measure-structural-errors.py',
+    'scripts/validate-skills-schema.py',
+  ]) {
+    safeReadFile(root, path);
+  }
+  const expected = resolveCorpus('graded', { root, paths });
+  const result = spawnSync('python3', ['-B', 'scripts/measure-structural-errors.py'], {
+    cwd: root,
+    encoding: 'utf8',
+    input: JSON.stringify({ rows: skillRows, expected_paths: expected }),
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  if (result.error || result.status !== 0 || result.stderr) {
+    fail(`structural adapter failed: ${result.error?.message ?? result.stderr ?? result.status}`);
+  }
+  let measured;
+  try {
+    measured = JSON.parse(result.stdout);
+  } catch {
+    fail('structural adapter emitted malformed JSON');
+  }
+  const counts = [
+    'skill_rows',
+    'missing_required_field_occurrences',
+    'missing_required_section_occurrences',
+    'structural_occurrences',
+    'all_skill_error_occurrences',
+    'other_skill_error_occurrences',
+    'affected_skills',
+    'unique_structural_triples',
+  ];
+  if (
+    measured?.measurement_schema_version !== 1 ||
+    counts.some((key) => !Number.isSafeInteger(measured[key]) || measured[key] < 0) ||
+    measured.skill_rows !== expected.length ||
+    measured.all_skill_error_occurrences !== skillRows.reduce((sum, row) => sum + row.errors, 0) ||
+    measured.structural_occurrences !==
+      measured.missing_required_field_occurrences + measured.missing_required_section_occurrences ||
+    measured.all_skill_error_occurrences !==
+      measured.structural_occurrences + measured.other_skill_error_occurrences
+  )
+    fail('structural adapter emitted contradictory counts');
+  return measured;
 }
 
 export function withIndexSnapshot(root, callback) {
@@ -824,6 +880,8 @@ export function buildReport(root, suppliedEvidence, suppliedPaths) {
   if (marketplace.terminal_denominator.skills !== skills.rows) {
     fail('marketplace and SKILL-row counts disagree');
   }
+  const skillRows = evidence.skills.filter((entry) => entry && typeof entry.path === 'string');
+  const structuralEvidence = collectStructuralEvidence(repository, skillRows, paths);
   marketplace.validated_plugin_manifests = paths.filter((path) =>
     /\/\.claude-plugin\/plugin\.json$/.test(path),
   ).length;
@@ -846,7 +904,8 @@ export function buildReport(root, suppliedEvidence, suppliedPaths) {
     paths,
     root: repository,
     hermeticTestContract,
-    skillRows: evidence.skills.filter((entry) => entry && typeof entry.path === 'string'),
+    skillRows,
+    structuralEvidence,
     skillSummary: skills,
   });
   assertReadmeMetricWriterContract(extendedRows[25]);

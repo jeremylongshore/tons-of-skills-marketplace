@@ -41,9 +41,9 @@ const UNRESOLVED_ROWS = new Map([
   [
     7,
     {
-      reason_code: 'MISSING_STABLE_DIAGNOSTIC_CLASS_IDS',
+      reason_code: 'MISSING_CANONICAL_STRUCTURAL_MEASUREMENT',
       required_inputs: [
-        'validator JSON records with stable body-section and frontmatter diagnostic IDs',
+        'complete graded skill JSON classified by the indexed canonical baseline_finding_triple function',
       ],
     },
   ],
@@ -1476,6 +1476,7 @@ export function buildExtendedScorecardRows({
   paths,
   skillRows,
   skillSummary,
+  structuralEvidence,
   marketplaceSummary,
   agentSummary,
 }) {
@@ -1521,7 +1522,32 @@ export function buildExtendedScorecardRows({
       skill_summary_rows: finiteCount(skillSummary?.rows),
     },
   );
-  output[7] = unresolved(7, 'canonical validator diagnostics');
+  output[7] = structuralEvidence
+    ? baseRow(
+        7,
+        'measured',
+        'raw missing-required-field and missing-required-section error occurrences across the complete canonical graded SKILL.md cohort',
+        [
+          'scripts/validate-skills-schema.py',
+          'scripts/corpus-resolver.mjs',
+          'scripts/measure-structural-errors.py',
+        ],
+        {
+          ...structuralEvidence,
+          target: 0,
+          target_met: structuralEvidence.structural_occurrences === 0,
+        },
+        {
+          target_status: structuralEvidence.structural_occurrences === 0 ? 'target_met' : 'fail',
+          limitations: [
+            'Occurrence counts preserve diagnostic multiplicity; unique triples are a separate identity count, not structural mass.',
+            'The canonical classifier currently aliases section labels such as ## Overview and ## Examples to the field ## (claude-nfzl.24); this measurement preserves that behavior.',
+            'The percentage uses only SKILL.md error occurrences, unlike the historical 88.9% with its mixed terminal denominator.',
+            'Current counts do not establish historical remediation, ownership, substantive sections, behavioral quality, or Epic 8 completion.',
+          ],
+        },
+      )
+    : unresolved(7, 'canonical validator diagnostics');
   output[8] = unresolved(8, 'canonical validator diagnostics');
   output[9] = unresolved(9, 'canonical validator diagnostics');
   output[10] = baseRow(

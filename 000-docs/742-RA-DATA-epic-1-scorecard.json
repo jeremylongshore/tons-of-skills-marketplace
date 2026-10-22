@@ -165,16 +165,42 @@
       }
     },
     "7": {
-      "cohort": "canonical validator diagnostics",
+      "cohort": "raw missing-required-field and missing-required-section error occurrences across the complete canonical graded SKILL.md cohort",
       "dimension": "Structural error classes",
-      "reason_code": "MISSING_STABLE_DIAGNOSTIC_CLASS_IDS",
-      "reproduce": "pnpm run measure:e1 --row=7 --stdout",
-      "required_inputs": [
-        "validator JSON records with stable body-section and frontmatter diagnostic IDs"
+      "limitations": [
+        "Occurrence counts preserve diagnostic multiplicity; unique triples are a separate identity count, not structural mass.",
+        "The canonical classifier currently aliases section labels such as ## Overview and ## Examples to the field ## (claude-nfzl.24); this measurement preserves that behavior.",
+        "The percentage uses only SKILL.md error occurrences, unlike the historical 88.9% with its mixed terminal denominator.",
+        "Current counts do not establish historical remediation, ownership, substantive sections, behavioral quality, or Epic 8 completion."
       ],
-      "source": [],
-      "status": "not_reproducible",
-      "values": null
+      "reproduce": "pnpm run measure:e1 --row=7 --stdout",
+      "source": [
+        "scripts/corpus-resolver.mjs",
+        "scripts/measure-structural-errors.py",
+        "scripts/validate-skills-schema.py"
+      ],
+      "status": "measured",
+      "target_status": "fail",
+      "values": {
+        "affected_skills": 274,
+        "all_skill_error_occurrences": 2798,
+        "measurement_schema_version": 1,
+        "missing_required_field_occurrences": 580,
+        "missing_required_section_occurrences": 1641,
+        "other_skill_error_occurrences": 577,
+        "skill_rows": 3493,
+        "structural_occurrences": 2221,
+        "structural_share_of_skill_errors_pct": 79.3781,
+        "target": 0,
+        "target_met": false,
+        "unique_structural_triples": 847,
+        "unique_triples_by_rule": {
+          "E-MISSING-REQUIRED-FIELD": 580,
+          "E-MISSING-REQUIRED-SECTION": 267
+        },
+        "validator_schema_version": "4.1.0",
+        "validator_sha256": "2b0cb1d864108d593b6207c04fbc60ee856f8c54cb2e916542b5db837ab2e4d4"
+      }
     },
     "8": {
       "cohort": "canonical validator diagnostics",
