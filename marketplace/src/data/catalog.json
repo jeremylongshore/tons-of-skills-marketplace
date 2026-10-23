@@ -8618,7 +8618,7 @@
       "name": "contributing-clanker",
       "displayName": "contributing clanker",
       "description": "Portable OSS contribution workflow with separate read-only audit, explicitly scoped local preparation, and human-approved publishing skills.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "category": "community",
       "keywords": [
         "oss",

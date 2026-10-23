@@ -131,9 +131,7 @@ From the marketplace repository:
 
 ```bash
 python3 scripts/validate-skills-schema.py --marketplace \
-  plugins/community/contributing-clanker/skills/contribute/SKILL.md \
-  plugins/community/contributing-clanker/skills/contribute-prepare/SKILL.md \
-  plugins/community/contributing-clanker/skills/contribute-publish/SKILL.md
+  plugins/community/contributing-clanker
 
 python3 scripts/validate-unicode-hygiene.py \
   plugins/community/contributing-clanker/skills/contribute/SKILL.md \

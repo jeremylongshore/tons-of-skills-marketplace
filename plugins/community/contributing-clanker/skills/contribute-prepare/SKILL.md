@@ -23,7 +23,7 @@ allowed-tools:
   - Bash(python:*)
   - Bash(python3:*)
   - Bash(cargo:*)
-version: "0.10.0"
+version: "0.11.0"
 author: "Jeremy Longshore <jeremy@intentsolutions.io>"
 license: "MIT"
 compatibility: "Model-agnostic; requires explicit state/workspace paths, git, jq, Bash, and an authenticated GitHub CLI"

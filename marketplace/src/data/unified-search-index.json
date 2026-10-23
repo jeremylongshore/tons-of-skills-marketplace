@@ -11547,7 +11547,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -29903,7 +29903,7 @@
         "Bash(jq:*)"
       ],
       "compatibleWith": [],
-      "version": "0.10.0",
+      "version": "0.11.0",
       "parentPlugin": {
         "name": "contributing-clanker",
         "category": "community"
@@ -29935,7 +29935,7 @@
         "Bash(cargo:*)"
       ],
       "compatibleWith": [],
-      "version": "0.10.0",
+      "version": "0.11.0",
       "parentPlugin": {
         "name": "contributing-clanker",
         "category": "community"
@@ -29955,7 +29955,7 @@
         "Bash(git:*)"
       ],
       "compatibleWith": [],
-      "version": "0.10.0",
+      "version": "0.11.0",
       "parentPlugin": {
         "name": "contributing-clanker",
         "category": "community"
