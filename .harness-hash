@@ -15,6 +15,7 @@ c72067388b9fb1a5b391b307f26ce8000423d406e80590f2d966df57d972b445  .github/workfl
 e8ca0f3e656044735ea8704d72393c2d31f0d96d31641905537b4afd2e762189  .github/workflows/emit-evidence.yml
 9da68a22b5ea5cfb42299c055d71e56255478bcd94171f4d536d1d0d66e48f2d  .github/workflows/emit-publication-evidence.yml
 f985aca3b5eaa07a7a07189c58a7ad8e0977c4255194d2367c99b30c9ab46417  .github/workflows/external-sync-fs-contract.yml
+6536ab1af54cec6795dbf21c952daa2a092f96e8fe58e70cb3a1e62eb1993fbd  .github/workflows/forge-api-drift.yml
 06194920669d68ba6eef664ea4c4fd8d9bf44a92d09e4d10cf7eb2b5d437f476  .github/workflows/jrig-proofs-test.yml
 02685f38c556bfb9ce8b60a21335ef0243f4af0a9fe339d44ec7f789c150c5e3  .github/workflows/kernel-shadow-validation.yml
 687df783d462365671b5e3027053c39459e2bc909e82162e4c1bcbc86b1bf7d7  .github/workflows/kernel-vendor-hash.yml

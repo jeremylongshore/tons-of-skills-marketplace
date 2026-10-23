@@ -5,7 +5,7 @@
 > **Generated — do not edit.** Stage newly filed documents, then run
 > `node scripts/generate-docs-index.mjs`.
 
-Covers the **tracked** documentation estate (264 files). Local-only working
+Covers the **tracked** documentation estate (266 files). Local-only working
 documents are counted in doc 720 but deliberately not listed here. The inventory excludes only this
 index and `000-docs/.gitignore`.
 
@@ -246,6 +246,8 @@ index and `000-docs/.gitignore`.
 - [821-RL-RSRC-claude-mods-impact.md](821-RL-RSRC-claude-mods-impact.md)
 - [822-RL-PROP-risk-tiered-ci-cadence.md](822-RL-PROP-risk-tiered-ci-cadence.md)
 - [823-RA-DATA-ci-cadence-evidence.json](823-RA-DATA-ci-cadence-evidence.json)
+- [824-DR-GUID-forge-api-surface-watch.md](824-DR-GUID-forge-api-surface-watch.md)
+- [825-RA-DATA-forge-api-surface-probe.json](825-RA-DATA-forge-api-surface-probe.json)
 - [20260131-RL-REPT-claude-code-plugins-v4.14.0.md](20260131-RL-REPT-claude-code-plugins-v4.14.0.md)
 - [6767-a-SPEC-DR-STND-claude-code-plugins-standard.md](6767-a-SPEC-DR-STND-claude-code-plugins-standard.md)
 - [6767-b-SPEC-DR-STND-claude-skills-standard.md](6767-b-SPEC-DR-STND-claude-skills-standard.md)
