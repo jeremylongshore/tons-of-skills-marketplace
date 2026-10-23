@@ -449,14 +449,14 @@
         },
         {
           "path": "marketplace/src/pages/learn/index.astro",
-          "expression": "tierInfo.skillCount",
+          "expression": "tierCounts.label",
           "classification": "vendor-pack-local",
           "owner": "E1.6 follow-up",
           "reason": "Each tier summary reports the skills per vendor-specific pack.",
           "label": "vendor-pack-local skills per pack",
           "provenance": "data-count-provenance=\"vendor-pack-local\"",
           "command": "node scripts/check-published-count-cohorts.mjs --json",
-          "contract": "data-count-provenance=\"vendor-pack-local\">{tierInfo.skillCount} vendor-pack-local skills per pack",
+          "contract": "data-count-provenance=\"vendor-pack-local\">{tierCounts.label} vendor-pack-local skills per pack",
           "sink": "rendered",
           "function": "Astro",
           "call": "Astro"
