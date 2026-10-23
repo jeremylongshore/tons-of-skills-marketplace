@@ -3222,10 +3222,10 @@
       ],
       "status": "measured",
       "values": {
-        "index_entries": 261,
+        "index_entries": 262,
         "missing_from_index": [],
         "target_equal": true,
-        "tracked_documents": 261,
+        "tracked_documents": 262,
         "untracked_index_entries": []
       }
     },
