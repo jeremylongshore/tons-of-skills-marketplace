@@ -624,12 +624,12 @@
     },
     "nitrogen": {
       "repo": "mksd0398/nitrogen",
-      "resolved_ref": "ca4eb15fe70f2b127d41aa6e7f9a43e0880d8c59",
-      "locked_at": "2026-10-23T16:38:13.263Z",
+      "resolved_ref": "6ee2fedaff07712d251a373d11c533aa9026835e",
+      "locked_at": "2026-10-23T17:02:28.629Z",
       "files": {
         "LICENSE": "sha256:92d1159a35acbcbe555b16554ef029ca3a75ea23b239afbb5428fb3e0f949e8d",
         "SKILL.md": "sha256:d42cb7a473c61a0c832706114fc5bf491ded4996c6cbca2b4cdc8b0fa615a228",
-        "references/app-bridge.md": "sha256:e1a0b61ce02569f5ef9e1d4d5d63620a4b07962a4620ec2614e5d137640aa675",
+        "references/app-bridge.md": "sha256:b227609b2b26c93d0f5fcd5e5fbb884cada81f26b30c715bc009c71b92a77f9e",
         "references/app-guide.md": "sha256:ec95ddffdb0fd7982e146b6e6fbb54193bc7bbf7c9aa8a98119c970a8f7cb94d",
         "references/polaris.md": "sha256:773b4c0e903cfa86fd6485a59a03032278b3bdeaad204f964d0370d7b29955f6"
       }
