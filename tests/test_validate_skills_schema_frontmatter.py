@@ -788,6 +788,16 @@ def test_body_check_surfaces_shell_execution_as_a_warning_not_an_error():
     )
     assert any("LOAD time" in w for w in warnings), warnings
     assert not any("LOAD time" in e for e in errors), errors
+    shell_warnings = [w for w in warnings if "shell substitution" in w]
+    assert len(shell_warnings) == 1
+    warning = shell_warnings[0]
+    assert "Bash/PowerShell permission checks" in warning
+    assert "including allowed-tools" in warning
+    assert "auto mode can block or defer execution" in warning
+    assert "inserted output is not re-scanned" in warning
+    assert "disableSkillShellExecution" in warning
+    assert "not a tool call" not in warning
+    assert "allowed-tools does not" not in warning
 
 
 def test_disallowed_tools_entries_are_validated():

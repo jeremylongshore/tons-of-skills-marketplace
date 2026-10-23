@@ -3141,16 +3141,19 @@ def validate_body(
     lines = body.splitlines()
 
     # === LOAD-TIME SHELL EXECUTION (schema 3.16.1) — advisory only ===
-    # Preprocessing, not a tool call; allowed-tools does not gate it.
+    # Current Claude Code applies shell-tool permission checks to injected commands.
+    # https://code.claude.com/docs/en/skills#permission-checks-on-injected-commands
     shell_hits = _load_time_shell_hits(body, line_offset)
     if shell_hits:
         where = ", ".join(shell_hits[:3]) + (f" (+{len(shell_hits) - 3} more)" if len(shell_hits) > 3 else "")
         target = fm.get("shell")
-        target_note = f"; `shell: {target}` selects the interpreter" if target else ""
+        target_note = f"; `shell: {target}` declares the interpreter preference" if target else ""
         warnings.append(
-            f"[security] SKILL.md runs {len(shell_hits)} shell substitution(s) at LOAD time, before Claude "
-            f"reads the body: {where}. This is preprocessing — it is not a tool call, allowed-tools does not "
-            f"gate it, and the output is not re-scanned{target_note}. Review it as executable code. The "
+            f"[security] SKILL.md declares {len(shell_hits)} shell substitution(s) for LOAD time "
+            f"preprocessing: {where}. Current Claude Code applies Bash/PowerShell permission checks, "
+            f"including allowed-tools; permission rules and auto mode can block or defer execution. "
+            f"Commands may run before Claude receives the body; inserted output is not re-scanned"
+            f"{target_note}. Review it as executable code. The "
             f"documented kill switch is the `disableSkillShellExecution` setting."
         )
 
