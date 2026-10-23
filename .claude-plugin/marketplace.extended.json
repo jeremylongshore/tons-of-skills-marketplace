@@ -10469,7 +10469,7 @@
       "source": "./plugins/productivity/plane",
       "description": "Plane is a team behavior observatory — synthesizes Plane API data into observations about how teams actually behave under pressure (cycle velocity vs. plan, ownership churn, reviewer gate strength, priority drift, cross-project load). Reads from the live mcp__plane MCP server.",
       "tagline": "Team behavior observatory for Plane workspaces",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "productivity",
       "keywords": [
         "plane",

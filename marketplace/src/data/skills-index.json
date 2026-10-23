@@ -25722,7 +25722,7 @@
       "slug": "plane",
       "name": "plane",
       "description": "Plane is a team behavior observatory — synthesize Plane API data into observations about how teams actually behave under pressure, not just ticket state. Five compound commands surface cycle velocity vs. plan, stale-ticket ownership churn, reviewer gate strength, stated-vs-actual priority drift, and cross-project workload concentration. Reads from the live mcp__plane MCP server when present; documentation-only otherwise. Use when investigating \"why is this team's plan diverging from reality\", auditing cycle health, finding orphan tickets, identifying review bottlenecks, or onboarding to a new project. Trigger with \"/plane-cycle-velocity\", \"/plane-stale-tickets\", \"/plane-reviewer-gate-strength\", \"/plane-priority-drift\", \"/plane-cross-project-load\", \"audit Plane cycle\", \"team behavior plane\", \"how is my team behaving\".",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "productivity",
       "parentPlugin": "plane",
       "requires_env": [],
