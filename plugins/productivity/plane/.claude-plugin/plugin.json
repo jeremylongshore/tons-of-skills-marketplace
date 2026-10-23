@@ -1,6 +1,6 @@
 {
   "name": "plane",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Plane is a team behavior observatory — synthesize Plane API data into observations about how teams actually behave under pressure (cycle velocity vs. plan, ownership churn, reviewer gate strength, priority drift, cross-project load). Reads from the live mcp__plane MCP server.",
   "author": {
     "name": "Jeremy Longshore",
