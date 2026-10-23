@@ -267,6 +267,7 @@ sources:
       - '/.mcp.json'
       - '/skills/**'
       - '/plugin-runtime/**'
+      - '/gsb.lock.json'
       # Root-anchored: the unanchored form auto-prefixes '**/' and admitted
       # onboarding/README.md (internal team doc carrying a tailnet IP) into
       # the public mirror — caught by the official-links gate on PR #1048.
