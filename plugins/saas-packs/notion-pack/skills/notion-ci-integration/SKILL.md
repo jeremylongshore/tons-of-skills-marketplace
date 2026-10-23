@@ -4,7 +4,7 @@ description: >-
   Build CI checks for Notion integration contracts without exposing tokens or mutating production content. Use when gating SDK, schema, fixture, or migration changes. Trigger with "test Notion in CI", "gate Notion schema drift", or "add Notion contract checks".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<repository> <test-scope> <environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, ci]

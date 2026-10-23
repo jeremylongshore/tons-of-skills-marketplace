@@ -4,7 +4,7 @@ description: >-
   Upgrade a Notion integration across SDK or API contracts with inventory, compatibility tests, staged rollout, and rollback. Use when adopting current data-source, block, trash, or SDK behavior. Trigger with "upgrade Notion API", "migrate Notion SDK", or "update Notion version".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<current-contract> <target-contract> <repository>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, upgrade]

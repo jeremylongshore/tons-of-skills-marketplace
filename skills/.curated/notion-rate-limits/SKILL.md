@@ -4,7 +4,7 @@ description: >-
   Implement adaptive Notion request throttling and bounded retry behavior from observed responses. Use when handling 429s, queue pressure, or bursty workloads. Trigger with "handle Notion rate limits", "throttle Notion requests", or "fix Notion 429".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workload> <queue> <service-objective>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, retries]

@@ -4,7 +4,7 @@ description: >-
   Audit a Notion integration for recurring identity, access, version, pagination, webhook, and mutation mistakes. Use when reviewing a release or investigating confusing failures. Trigger with "review Notion pitfalls", "find Notion integration mistakes", or "check Notion assumptions".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<repository-or-design> <environment> <risk-focus>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, review]

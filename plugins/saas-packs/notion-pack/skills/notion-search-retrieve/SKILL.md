@@ -4,7 +4,7 @@ description: >-
   Analyze search intent and retrieve explicitly shared Notion pages or data sources while respecting search limitations and object identity. Use when locating content before a scoped read. Trigger with "search Notion", "find Notion page", or "retrieve Notion content".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<query> <object-type> <retrieval-depth>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, search]

@@ -4,7 +4,7 @@ description: >-
   Prove a Notion connection, API version, and shared-content boundary with a minimal read-only check. Use when onboarding or diagnosing initial access. Trigger with "test Notion connection", "Notion hello world", or "verify Notion token".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<connection-alias> <fixture-page-or-data-source> <environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, onboarding]

@@ -4,7 +4,7 @@ description: >-
   Reduce Notion integration waste across requests, workers, storage, and downstream processing without inventing API pricing. Use when a workload is noisy, slow, or infrastructure-heavy. Trigger with "reduce Notion cost", "audit Notion request waste", or "tune Notion polling".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workload> <measurement-window> <objective>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, cost]

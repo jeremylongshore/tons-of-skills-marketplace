@@ -4,7 +4,7 @@ description: >-
   Prepare and verify a Notion integration deployment with environment isolation, secret provenance, staged rollout, and rollback. Use when promoting an integration runtime. Trigger with "deploy Notion integration", "promote Notion worker", or "review Notion release".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<artifact> <target-environment> <release-id>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, deployment]

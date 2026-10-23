@@ -4,7 +4,7 @@ description: >-
   Plan and verify safe Notion page, block, markdown, and file-content changes with previews and rollback evidence. Use when creating, updating, moving, or trashing workspace content. Trigger with "edit Notion content", "publish Notion page", or "manage Notion blocks".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<content-scope> <change-intent> <environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, content]

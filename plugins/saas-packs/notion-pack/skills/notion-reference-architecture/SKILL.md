@@ -4,7 +4,7 @@ description: >-
   Define a production reference architecture for Notion access, operations, queues, reconciliation, and evidence. Use when standardizing multiple integration workloads. Trigger with "build Notion reference architecture", "standardize Notion services", or "review Notion platform design".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<tenant-model> <workloads> <recovery-objectives>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, reference-architecture]

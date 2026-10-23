@@ -4,7 +4,7 @@ description: >-
   Plan and test Notion workload capacity within observed limits without evading per-connection controls. Use when scaling exports, syncs, workers, or high-volume reads. Trigger with "scale Notion integration", "capacity plan Notion", or "load test Notion safely".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workload> <target-volume> <test-environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, capacity]

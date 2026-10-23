@@ -4,7 +4,7 @@ description: >-
   Analyze and coordinate a Notion integration incident with bounded mitigation, evidence custody, communications, and recovery verification. Use when availability, correctness, privacy, or credential safety is at risk. Trigger with "run Notion incident", "triage Notion outage", or "contain Notion sync failure".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<severity> <environment> <incident-window>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, incident]

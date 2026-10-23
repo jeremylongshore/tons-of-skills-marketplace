@@ -4,7 +4,7 @@ description: >-
   Turn Notion security, privacy, access, version, and mutation rules into enforceable repository and runtime gates. Use when defining policy-as-code for integrations. Trigger with "add Notion guardrails", "enforce Notion policy", or "review Notion controls".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<repository-or-service> <policy-scope> <environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, policy]

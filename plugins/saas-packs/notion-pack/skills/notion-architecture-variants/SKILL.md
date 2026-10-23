@@ -4,7 +4,7 @@ description: >-
   Choose a Notion integration architecture from explicit consistency, latency, security, and recovery requirements. Use when comparing synchronous, queued, scheduled, or webhook-driven designs. Trigger with "design Notion architecture", "choose Notion sync pattern", or "review Notion topology".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workload> <consistency-objective> <environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, architecture]

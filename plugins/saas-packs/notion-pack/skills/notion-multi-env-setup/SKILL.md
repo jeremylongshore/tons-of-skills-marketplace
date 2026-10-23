@@ -4,7 +4,7 @@ description: >-
   Define isolated development, staging, and production Notion connections, secrets, content roots, and promotion rules. Use when an integration spans multiple environments. Trigger with "separate Notion environments", "configure Notion staging", or "audit Notion env isolation".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<environments> <connection-model> <promotion-policy>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, environments]

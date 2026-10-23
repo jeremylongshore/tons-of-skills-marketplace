@@ -4,7 +4,7 @@ description: >-
   Decide whether a Notion integration is ready for production from evidence across access, contracts, correctness, safety, and operations. Use when reviewing a launch or material change. Trigger with "review Notion production readiness", "Notion go-live checklist", or "approve Notion launch".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<release-id> <production-scope> <owner>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, production]

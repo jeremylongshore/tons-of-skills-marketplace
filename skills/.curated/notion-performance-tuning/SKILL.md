@@ -4,7 +4,7 @@ description: >-
   Improve Notion integration latency and throughput while preserving completeness, fairness, and limit compliance. Use when measured operations miss performance objectives. Trigger with "tune Notion performance", "reduce Notion latency", or "optimize Notion pagination".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<operation> <measurement-window> <objective>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, performance]

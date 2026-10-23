@@ -4,7 +4,7 @@ description: >-
   Analyze and query a Notion data source with version-correct filters, pagination, and completeness evidence. Use when retrieving structured workspace records. Trigger with "query Notion data source", "filter Notion records", or "paginate Notion data".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<data-source-id> <filter-intent> <output-scope>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, query]

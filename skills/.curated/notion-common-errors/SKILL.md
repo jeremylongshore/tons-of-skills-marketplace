@@ -4,7 +4,7 @@ description: >-
   Classify Notion API failures and choose a bounded recovery path from the observed status and error code. Use when handling authentication, permission, validation, conflict, limit, or service errors. Trigger with "fix Notion error", "classify Notion 403", or "handle Notion 429".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<status-or-code> <operation> <environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, errors]

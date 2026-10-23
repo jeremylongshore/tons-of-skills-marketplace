@@ -4,7 +4,7 @@ description: >-
   Establish a least-privilege Notion connection and tested API contract without leaking credentials. Use when onboarding an internal connection, public OAuth connection, or personal access token. Trigger with "set up Notion auth", "create Notion connection", or "review Notion credentials".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<connection-type> <workspace> <environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, access]
