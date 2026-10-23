@@ -622,6 +622,18 @@
         "README.md": "sha256:6f9eafa932e8e668dff7b2cbe507e97c5c6d784190b094cc7c40f43b001b53a9"
       }
     },
+    "nitrogen": {
+      "repo": "mksd0398/nitrogen",
+      "resolved_ref": "ca4eb15fe70f2b127d41aa6e7f9a43e0880d8c59",
+      "locked_at": "2026-10-23T16:38:13.263Z",
+      "files": {
+        "LICENSE": "sha256:92d1159a35acbcbe555b16554ef029ca3a75ea23b239afbb5428fb3e0f949e8d",
+        "SKILL.md": "sha256:d42cb7a473c61a0c832706114fc5bf491ded4996c6cbca2b4cdc8b0fa615a228",
+        "references/app-bridge.md": "sha256:e1a0b61ce02569f5ef9e1d4d5d63620a4b07962a4620ec2614e5d137640aa675",
+        "references/app-guide.md": "sha256:ec95ddffdb0fd7982e146b6e6fbb54193bc7bbf7c9aa8a98119c970a8f7cb94d",
+        "references/polaris.md": "sha256:773b4c0e903cfa86fd6485a59a03032278b3bdeaad204f964d0370d7b29955f6"
+      }
+    },
     "obsidian-project-documentation": {
       "repo": "ali5ter/obsidian-project-assistant",
       "resolved_ref": "9237d1d45e8e8ed85d5d79d777f47657019f8209",
