@@ -18,7 +18,5 @@
     "agent-skills",
     "forge-generated"
   ],
-  "skills": "./skills",
-  "generated": true,
-  "author_type": "forge"
+  "skills": "./skills"
 }

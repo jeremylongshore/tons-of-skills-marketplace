@@ -22,7 +22,7 @@ model: inherit
 
 # Plane — Team Behavior Observatory
 
-A behavioral observation layer on top of Plane's project-tracking API. This skill **does not** wrap Plane CRUD — `mcp__plane` already does that ; ticket entry and status changes belong to a separately authorized CRUD workflow.
+A behavioral observation layer on top of Plane's project-tracking API. This skill **does not** wrap Plane CRUD — `mcp__plane` already does that; ticket entry and status changes belong to a separately authorized CRUD workflow.
 
 Instead, this skill answers behavioral questions about how a team is actually performing under pressure: cycle velocity vs. plan, ownership churn, reviewer gate strength, priority drift, and cross-project load. Each question is answered by a compound command that synthesizes data across multiple Plane endpoints — observations no single endpoint exposes.
 

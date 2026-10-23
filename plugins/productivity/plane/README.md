@@ -52,7 +52,7 @@ run for the 2026-10-23 source review.
 
 This plugin was produced by `/skill-creator --forge plane` on 2026-05-07. The forge run's audit trail lives in [`.forge/`](.forge/) — research notes, ecosystem analysis, validation evidence — visible to anyone reviewing how the plugin came to exist.
 
-`plugin.json` carries `"generated": true` and `"author_type": "forge"` so the marketplace surfaces a "Forge-generated" provenance pill on the detail page.
+The [editable marketplace catalog](../../../.claude-plugin/marketplace.extended.json) retains `"generated": true` and `"author_type": "forge"` as provenance metadata. These are not executable plugin-manifest fields or runtime verification evidence; no verification badge is established by this record.
 
 ## License
 

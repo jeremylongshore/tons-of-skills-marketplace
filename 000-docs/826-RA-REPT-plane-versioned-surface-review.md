@@ -54,3 +54,11 @@ The complete mapping is reproduced in the linked versioned reference. No upstrea
 source was imported or executed. No authenticated workspace, provider behavior,
 deployment or server configuration was exercised. Static grading and generated
 projection checks cannot establish runtime compatibility.
+
+## Manifest prescreen correction
+
+The initial PR prescreen correctly reported the existing executable manifest's
+`generated` and `author_type` keys as unrecognized fields. Remove those duplicate
+keys from the manifest and retain their existing values in the editable marketplace
+catalog, where provenance metadata belongs. The README now identifies that source.
+No validator rule, schema, waiver or provenance capture changes for this repair.
