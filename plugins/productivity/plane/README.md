@@ -34,17 +34,19 @@ Each command's exact endpoint sequence, scoring formula, and output table format
 
 ## Prerequisites
 
-- `mcp__plane` MCP server installed and configured (env vars `PLANE_API_KEY`, `PLANE_WORKSPACE_SLUG`, `PLANE_API_HOST_URL`). Without it, the skill returns documentation-only output + an install hint.
+- A separately configured Plane MCP server with host-permitted read tools. This plugin installs or pins no server. Inspect its implementation/version and schemas; see the versioned mapping in `skills/plane/references/api-surface.md`. Without permitted tools, output is documentation-only.
+- Historical plan, assignment-change, and reviewer-delay metrics require corresponding snapshots/events. Current ticket data alone cannot establish them.
 - A Plane workspace with at least one project, cycle, and active issues — empty workspaces return informative empty states.
 
 ## How it works
 
-The orchestrator skill (`skills/plane/SKILL.md`) routes user intent to one of two agents:
-
-- `plane-expert` — answers "how do I query X in Plane" without firing live API calls
-- `plane-analyst` — orchestrates the compound commands, calling `mcp__plane__*` tools in the documented sequence and synthesizing the result
-
-Both agents read from the references in `skills/plane/references/` as their ground truth — `noi.md` is the design anchor; `api-surface.md` is the documented endpoint subset; `compound-commands.md` is the per-command playbook.
+The skill reads the nested `plane-expert` and `plane-analyst` files as reference
+checklists within the current session. They are not registered plugin agents and
+grant no MCP permissions. API-help mode uses pinned references; analysis mode
+selects verified read capabilities and computes only metrics supported by actual
+data. Missing history stays unavailable. Mutation exclusions are prose guidance,
+not a runtime MCP filter. No authenticated workspace or behavioral evaluation was
+run for the 2026-10-23 source review.
 
 ## Provenance
 

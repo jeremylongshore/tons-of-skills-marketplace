@@ -2,6 +2,15 @@
 
 > **Plane is a team behavior observatory.**
 
+## Evidence boundary
+
+This document records design intent and hypothetical signals, not measured team
+behavior or proof that an endpoint exposes history. The current API mapping and
+compound-command evidence rules govern execution. Historical metrics require
+actual snapshots/events; comments and assignment counts cannot establish intent,
+competence, causality or capacity. Do not repeat the rhetorical personnel judgments
+below as findings.
+
 ## What this NOI claims
 
 Plane describes itself as an open-source project tracker — issues, cycles, modules, projects, work-in-progress. That's the **claimed identity**. It's accurate but it's the floor, not the ceiling.

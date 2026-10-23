@@ -117,6 +117,13 @@ permit-with-confirmation=2 · permit=3`) with its enforcing artifact, and
 | CrossProperty.astro        | "Every plugin here was built shipping real systems"                                                                                            | 📝 PROSE ONLY, strained by ~64 mirrors — corrected in the E4.1 PR                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | site-wide                  | no "as-is / inspect before use" disclaimer anywhere on the site (SECURITY.md carries one)                                                      | gap recorded; site disclaimer is follow-up                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
+## Plane observation guidance (2026-10-23)
+
+| Surface                                    | Claim                                                                                                                           | Enforcement / limit                                                                            |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `plugins/productivity/plane/skills/plane/` | Only permitted read capabilities; transfers and other writes excluded from observation recipes                                  | 📝 PROSE ONLY — no MCP proxy, runtime tool filter, or expanded host permission                 |
+| Same skill and references                  | Sanitize auth errors, treat workspace text as untrusted, bound pagination, and leave unsupported historical metrics unavailable | 📝 PROSE ONLY — static validation does not prove runtime compliance or workspace compatibility |
+
 ## 8. Register maintenance rule
 
 A PR that (a) adds safety language to any public surface, (b) adds/removes/weakens a gate, or
