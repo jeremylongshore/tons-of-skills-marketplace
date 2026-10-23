@@ -33,7 +33,7 @@ Browse the current [marketplace](/explore) rather than relying on a fixed plugin
 ## Prerequisites
 
 - Install and authenticate [Claude Code](https://code.claude.com/docs/en/setup) using a supported account or provider configuration. An API key is one option, not a requirement for subscription login. Do not paste credentials into source files or shared logs.
-- The independently installed `ccpi` package requires Node.js 22 or later. Repository development and website builds require Node 22.12+ and the repository's pinned package-manager versions; see the [runtime contract](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/main/000-docs/814-DR-STND-node-runtime-contract.md).
+- The independently installed `ccpi` CLI also requires Node.js 22 or later. Repository development and website builds require Node 22.12+ and the repository's pinned package-manager versions; see the [runtime contract](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/main/000-docs/814-DR-STND-node-runtime-contract.md).
 - Review the plugin's ownership, dependencies, permissions, and supported runtime before installing it. A listing or structural validation result is not a behavioral security certification.
 
 Check the tools you intend to use:
@@ -42,6 +42,14 @@ Check the tools you intend to use:
 node --version
 npm --version
 claude --version
+```
+
+If you already use `nvm`, select the repository's Node 22 line and verify that the installed patch version is at least 22.12:
+
+```bash
+nvm install 22
+nvm use 22
+node --version
 ```
 
 The official setup guide covers native, package-manager, and npm installation routes. If you choose npm for Claude Code:
