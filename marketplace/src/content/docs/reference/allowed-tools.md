@@ -4,19 +4,17 @@ description: 'Complete reference for all valid tools in the Claude Code plugin s
 section: 'reference'
 order: 4
 keywords:
-  [
-    'allowed-tools',
-    'tools',
-    'permissions',
-    'Bash',
-    'Read',
-    'Write',
-    'Edit',
-    'Glob',
-    'Grep',
-    'security',
-    'least privilege',
-  ]
+  - "allowed-tools"
+  - "tools"
+  - "permissions"
+  - "Bash"
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Glob"
+  - "Grep"
+  - "security"
+  - "least privilege"
 officialLinks:
   - title: 'Claude Code Skills Documentation'
     url: 'https://code.claude.com/docs/en/skills'

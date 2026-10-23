@@ -4,14 +4,12 @@ description: 'Complete installation guide for Claude Code plugins. Set up the cc
 section: 'getting-started'
 order: 1
 keywords:
-  [
-    'install Claude Code plugins',
-    'ccpi CLI',
-    'Claude Code setup',
-    'Tons of Skills marketplace',
-    'plugin installation',
-    'Claude Code extensions',
-  ]
+  - "install Claude Code plugins"
+  - "ccpi CLI"
+  - "Claude Code setup"
+  - "Tons of Skills marketplace"
+  - "plugin installation"
+  - "Claude Code extensions"
 officialLinks:
   - title: 'Claude Code Overview'
     url: 'https://code.claude.com/docs/en/overview'

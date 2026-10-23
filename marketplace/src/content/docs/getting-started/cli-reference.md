@@ -4,15 +4,13 @@ description: 'The delivered ccpi command surface, portable skill commands, plugi
 section: 'getting-started'
 order: 4
 keywords:
-  [
-    'ccpi CLI',
-    'ccpi commands',
-    'Claude Code CLI',
-    'plugin management CLI',
-    'ccpi install',
-    'ccpi validate',
-    'ccpi doctor',
-  ]
+  - "ccpi CLI"
+  - "ccpi commands"
+  - "Claude Code CLI"
+  - "plugin management CLI"
+  - "ccpi install"
+  - "ccpi validate"
+  - "ccpi doctor"
 officialLinks:
   - title: 'ccpi on npm'
     url: 'https://www.npmjs.com/package/@intentsolutionsio/ccpi'

@@ -4,15 +4,13 @@ description: 'Create a local review skill with all eight marketplace fields, an 
 section: 'getting-started'
 order: 3
 keywords:
-  [
-    'Claude Code skills',
-    'SKILL.md',
-    'agent skills',
-    'write a skill',
-    'Claude Code skill tutorial',
-    'skill frontmatter',
-    'auto-activating skills',
-  ]
+  - "Claude Code skills"
+  - "SKILL.md"
+  - "agent skills"
+  - "write a skill"
+  - "Claude Code skill tutorial"
+  - "skill frontmatter"
+  - "auto-activating skills"
 officialLinks:
   - title: 'Claude Code Skills Documentation'
     url: 'https://code.claude.com/docs/en/skills'

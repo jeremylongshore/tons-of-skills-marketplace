@@ -4,17 +4,15 @@ description: 'Complete command reference for the ccpi CLI tool, including syntax
 section: 'reference'
 order: 5
 keywords:
-  [
-    'ccpi',
-    'CLI',
-    'command line',
-    'install',
-    'search',
-    'validate',
-    'update',
-    'remove',
-    'marketplace',
-  ]
+  - "ccpi"
+  - "CLI"
+  - "command line"
+  - "install"
+  - "search"
+  - "validate"
+  - "update"
+  - "remove"
+  - "marketplace"
 officialLinks:
   - title: 'ccpi on npm'
     url: 'https://www.npmjs.com/package/@intentsolutionsio/ccpi'

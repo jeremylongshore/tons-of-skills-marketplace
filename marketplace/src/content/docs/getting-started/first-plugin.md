@@ -4,14 +4,12 @@ description: 'Step-by-step guide to browsing the Tons of Skills marketplace, ins
 section: 'getting-started'
 order: 2
 keywords:
-  [
-    'install Claude Code plugin',
-    'Claude Code marketplace',
-    'browse plugins',
-    'ccpi install',
-    'plugin commands',
-    'uninstall plugin',
-  ]
+  - "install Claude Code plugin"
+  - "Claude Code marketplace"
+  - "browse plugins"
+  - "ccpi install"
+  - "plugin commands"
+  - "uninstall plugin"
 officialLinks:
   - title: 'Claude Code Plugins Documentation'
     url: 'https://code.claude.com/docs/en/plugins'

@@ -4,7 +4,13 @@ description: 'Complete reference of all allowed plugin categories in the Tons of
 section: 'reference'
 order: 3
 keywords:
-  ['categories', 'tags', 'marketplace', 'discovery', 'filtering', 'plugin categories', 'keywords']
+  - "categories"
+  - "tags"
+  - "marketplace"
+  - "discovery"
+  - "filtering"
+  - "plugin categories"
+  - "keywords"
 officialLinks:
   - title: 'Claude Code Plugins Documentation'
     url: 'https://code.claude.com/docs/en/plugins'

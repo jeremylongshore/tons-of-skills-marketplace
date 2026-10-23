@@ -4,16 +4,14 @@ description: 'Frequently asked questions about Claude Code plugins, the Tons of 
 section: 'ecosystem'
 order: 4
 keywords:
-  [
-    'Claude Code FAQ',
-    'plugin FAQ',
-    'skills FAQ',
-    'Claude Code troubleshooting',
-    'plugin installation help',
-    'SKILL.md help',
-    'ccpi FAQ',
-    'Claude Code marketplace FAQ',
-  ]
+  - "Claude Code FAQ"
+  - "plugin FAQ"
+  - "skills FAQ"
+  - "Claude Code troubleshooting"
+  - "plugin installation help"
+  - "SKILL.md help"
+  - "ccpi FAQ"
+  - "Claude Code marketplace FAQ"
 officialLinks:
   - title: 'Claude Code Overview'
     url: 'https://code.claude.com/docs/en/overview'

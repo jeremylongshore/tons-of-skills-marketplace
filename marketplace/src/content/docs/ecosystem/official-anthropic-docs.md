@@ -4,16 +4,14 @@ description: 'Organized directory of official Anthropic documentation for Claude
 section: 'ecosystem'
 order: 2
 keywords:
-  [
-    'Anthropic documentation',
-    'Claude Code docs',
-    'official docs',
-    'Claude Code reference',
-    'skills documentation',
-    'plugins documentation',
-    'MCP documentation',
-    'Claude Code CLI',
-  ]
+  - "Anthropic documentation"
+  - "Claude Code docs"
+  - "official docs"
+  - "Claude Code reference"
+  - "skills documentation"
+  - "plugins documentation"
+  - "MCP documentation"
+  - "Claude Code CLI"
 officialLinks:
   - title: 'Claude Code Overview'
     url: 'https://code.claude.com/docs/en/overview'

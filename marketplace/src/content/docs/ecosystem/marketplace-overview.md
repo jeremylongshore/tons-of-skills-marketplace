@@ -4,16 +4,14 @@ description: 'Browse the generated public catalog, understand installation and s
 section: 'ecosystem'
 order: 1
 keywords:
-  [
-    'Tons of Skills marketplace',
-    'Claude Code plugins marketplace',
-    'browse plugins',
-    'plugin categories',
-    'Cowork downloads',
-    'plugin verification',
-    'skill browsing',
-    'plugin comparison',
-  ]
+  - "Tons of Skills marketplace"
+  - "Claude Code plugins marketplace"
+  - "browse plugins"
+  - "plugin categories"
+  - "Cowork downloads"
+  - "plugin verification"
+  - "skill browsing"
+  - "plugin comparison"
 officialLinks:
   - title: 'Claude Code Plugins'
     url: 'https://code.claude.com/docs/en/plugins'

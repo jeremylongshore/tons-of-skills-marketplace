@@ -4,16 +4,14 @@ description: 'Connect with the Claude Code community. Contribute plugins to the 
 section: 'ecosystem'
 order: 3
 keywords:
-  [
-    'Claude Code community',
-    'contribute plugins',
-    'open source',
-    'GitHub',
-    'Discord',
-    'Claude Code learning',
-    'plugin development',
-    'Claude Code ecosystem tools',
-  ]
+  - "Claude Code community"
+  - "contribute plugins"
+  - "open source"
+  - "GitHub"
+  - "Discord"
+  - "Claude Code learning"
+  - "plugin development"
+  - "Claude Code ecosystem tools"
 officialLinks:
   - title: 'Claude Code Overview'
     url: 'https://code.claude.com/docs/en/overview'

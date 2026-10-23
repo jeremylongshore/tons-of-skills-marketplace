@@ -80168,9 +80168,18 @@
       "name": "Claude Code Community and Resources",
       "description": "Connect with the Claude Code community. Contribute plugins to the Tons of Skills marketplace, file issues, join discussions, and explore learning resources across the ecosystem.",
       "category": "ecosystem",
-      "keywords": [],
+      "keywords": [
+        "Claude Code community",
+        "contribute plugins",
+        "open source",
+        "GitHub",
+        "Discord",
+        "Claude Code learning",
+        "plugin development",
+        "Claude Code ecosystem tools"
+      ],
       "url": "/docs/ecosystem/community-resources/",
-      "searchText": "claude code community and resources connect with the claude code community. contribute plugins to the tons of skills marketplace, file issues, join discussions, and explore learning resources across the ecosystem. ecosystem "
+      "searchText": "claude code community and resources connect with the claude code community. contribute plugins to the tons of skills marketplace, file issues, join discussions, and explore learning resources across the ecosystem. ecosystem claude code community contribute plugins open source github discord claude code learning plugin development claude code ecosystem tools"
     },
     {
       "type": "docs",
@@ -80179,9 +80188,18 @@
       "name": "Claude Code Plugins FAQ",
       "description": "Frequently asked questions about Claude Code plugins, the Tons of Skills marketplace, skills, agents, MCP servers, installation, troubleshooting, and publishing. Clear answers with links to detailed docs.",
       "category": "ecosystem",
-      "keywords": [],
+      "keywords": [
+        "Claude Code FAQ",
+        "plugin FAQ",
+        "skills FAQ",
+        "Claude Code troubleshooting",
+        "plugin installation help",
+        "SKILL.md help",
+        "ccpi FAQ",
+        "Claude Code marketplace FAQ"
+      ],
       "url": "/docs/ecosystem/faq/",
-      "searchText": "claude code plugins faq frequently asked questions about claude code plugins, the tons of skills marketplace, skills, agents, mcp servers, installation, troubleshooting, and publishing. clear answers with links to detailed docs. ecosystem "
+      "searchText": "claude code plugins faq frequently asked questions about claude code plugins, the tons of skills marketplace, skills, agents, mcp servers, installation, troubleshooting, and publishing. clear answers with links to detailed docs. ecosystem claude code faq plugin faq skills faq claude code troubleshooting plugin installation help skill.md help ccpi faq claude code marketplace faq"
     },
     {
       "type": "docs",
@@ -80190,9 +80208,18 @@
       "name": "Tons of Skills Marketplace Guide",
       "description": "Browse the generated public catalog, understand installation and static quality projections, and follow the marketplace source and build boundaries.",
       "category": "ecosystem",
-      "keywords": [],
+      "keywords": [
+        "Tons of Skills marketplace",
+        "Claude Code plugins marketplace",
+        "browse plugins",
+        "plugin categories",
+        "Cowork downloads",
+        "plugin verification",
+        "skill browsing",
+        "plugin comparison"
+      ],
       "url": "/docs/ecosystem/marketplace-overview/",
-      "searchText": "tons of skills marketplace guide browse the generated public catalog, understand installation and static quality projections, and follow the marketplace source and build boundaries. ecosystem "
+      "searchText": "tons of skills marketplace guide browse the generated public catalog, understand installation and static quality projections, and follow the marketplace source and build boundaries. ecosystem tons of skills marketplace claude code plugins marketplace browse plugins plugin categories cowork downloads plugin verification skill browsing plugin comparison"
     },
     {
       "type": "docs",
@@ -80201,9 +80228,18 @@
       "name": "Official Anthropic Documentation Links",
       "description": "Organized directory of official Anthropic documentation for Claude Code. Find the right reference for skills, plugins, agents, hooks, MCP, CLI usage, and best practices.",
       "category": "ecosystem",
-      "keywords": [],
+      "keywords": [
+        "Anthropic documentation",
+        "Claude Code docs",
+        "official docs",
+        "Claude Code reference",
+        "skills documentation",
+        "plugins documentation",
+        "MCP documentation",
+        "Claude Code CLI"
+      ],
       "url": "/docs/ecosystem/official-anthropic-docs/",
-      "searchText": "official anthropic documentation links organized directory of official anthropic documentation for claude code. find the right reference for skills, plugins, agents, hooks, mcp, cli usage, and best practices. ecosystem "
+      "searchText": "official anthropic documentation links organized directory of official anthropic documentation for claude code. find the right reference for skills, plugins, agents, hooks, mcp, cli usage, and best practices. ecosystem anthropic documentation claude code docs official docs claude code reference skills documentation plugins documentation mcp documentation claude code cli"
     },
     {
       "type": "docs",
@@ -80212,9 +80248,17 @@
       "name": "ccpi CLI Quick Reference",
       "description": "The delivered ccpi command surface, portable skill commands, plugin guidance, placeholders, and current JSON and scope limitations.",
       "category": "getting-started",
-      "keywords": [],
+      "keywords": [
+        "ccpi CLI",
+        "ccpi commands",
+        "Claude Code CLI",
+        "plugin management CLI",
+        "ccpi install",
+        "ccpi validate",
+        "ccpi doctor"
+      ],
       "url": "/docs/getting-started/cli-reference/",
-      "searchText": "ccpi cli quick reference the delivered ccpi command surface, portable skill commands, plugin guidance, placeholders, and current json and scope limitations. getting-started "
+      "searchText": "ccpi cli quick reference the delivered ccpi command surface, portable skill commands, plugin guidance, placeholders, and current json and scope limitations. getting-started ccpi cli ccpi commands claude code cli plugin management cli ccpi install ccpi validate ccpi doctor"
     },
     {
       "type": "docs",
@@ -80223,9 +80267,16 @@
       "name": "Install Your First Plugin",
       "description": "Step-by-step guide to browsing the Tons of Skills marketplace, installing a Claude Code plugin, using its skills and commands, and removing plugins you no longer need.",
       "category": "getting-started",
-      "keywords": [],
+      "keywords": [
+        "install Claude Code plugin",
+        "Claude Code marketplace",
+        "browse plugins",
+        "ccpi install",
+        "plugin commands",
+        "uninstall plugin"
+      ],
       "url": "/docs/getting-started/first-plugin/",
-      "searchText": "install your first plugin step-by-step guide to browsing the tons of skills marketplace, installing a claude code plugin, using its skills and commands, and removing plugins you no longer need. getting-started "
+      "searchText": "install your first plugin step-by-step guide to browsing the tons of skills marketplace, installing a claude code plugin, using its skills and commands, and removing plugins you no longer need. getting-started install claude code plugin claude code marketplace browse plugins ccpi install plugin commands uninstall plugin"
     },
     {
       "type": "docs",
@@ -80234,9 +80285,17 @@
       "name": "Your First Agent Skill",
       "description": "Create a local review skill with all eight marketplace fields, an actual linked reference, explicit validation, and local plugin loading.",
       "category": "getting-started",
-      "keywords": [],
+      "keywords": [
+        "Claude Code skills",
+        "SKILL.md",
+        "agent skills",
+        "write a skill",
+        "Claude Code skill tutorial",
+        "skill frontmatter",
+        "auto-activating skills"
+      ],
       "url": "/docs/getting-started/first-skill/",
-      "searchText": "your first agent skill create a local review skill with all eight marketplace fields, an actual linked reference, explicit validation, and local plugin loading. getting-started "
+      "searchText": "your first agent skill create a local review skill with all eight marketplace fields, an actual linked reference, explicit validation, and local plugin loading. getting-started claude code skills skill.md agent skills write a skill claude code skill tutorial skill frontmatter auto-activating skills"
     },
     {
       "type": "docs",
@@ -80245,9 +80304,16 @@
       "name": "Install Claude Code Plugins",
       "description": "Complete installation guide for Claude Code plugins. Set up the ccpi CLI, connect to the Tons of Skills marketplace, and start extending Claude Code with 2,800+ agent skills.",
       "category": "getting-started",
-      "keywords": [],
+      "keywords": [
+        "install Claude Code plugins",
+        "ccpi CLI",
+        "Claude Code setup",
+        "Tons of Skills marketplace",
+        "plugin installation",
+        "Claude Code extensions"
+      ],
       "url": "/docs/getting-started/installation/",
-      "searchText": "install claude code plugins complete installation guide for claude code plugins. set up the ccpi cli, connect to the tons of skills marketplace, and start extending claude code with 2,800+ agent skills. getting-started "
+      "searchText": "install claude code plugins complete installation guide for claude code plugins. set up the ccpi cli, connect to the tons of skills marketplace, and start extending claude code with 2,800+ agent skills. getting-started install claude code plugins ccpi cli claude code setup tons of skills marketplace plugin installation claude code extensions"
     },
     {
       "type": "docs",
@@ -80379,9 +80445,21 @@
       "name": "Allowed Tools Reference",
       "description": "Complete reference for all valid tools in the Claude Code plugin system, including tool descriptions, scoped Bash patterns, least-privilege principles, and recommended tool combinations for common skill types.",
       "category": "reference",
-      "keywords": [],
+      "keywords": [
+        "allowed-tools",
+        "tools",
+        "permissions",
+        "Bash",
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "security",
+        "least privilege"
+      ],
       "url": "/docs/reference/allowed-tools/",
-      "searchText": "allowed tools reference complete reference for all valid tools in the claude code plugin system, including tool descriptions, scoped bash patterns, least-privilege principles, and recommended tool combinations for common skill types. reference "
+      "searchText": "allowed tools reference complete reference for all valid tools in the claude code plugin system, including tool descriptions, scoped bash patterns, least-privilege principles, and recommended tool combinations for common skill types. reference allowed-tools tools permissions bash read write edit glob grep security least privilege"
     },
     {
       "type": "docs",
@@ -80390,9 +80468,19 @@
       "name": "ccpi CLI Command Reference",
       "description": "Complete command reference for the ccpi CLI tool, including syntax, options, examples, and common workflows for installing, managing, and validating Claude Code plugins.",
       "category": "reference",
-      "keywords": [],
+      "keywords": [
+        "ccpi",
+        "CLI",
+        "command line",
+        "install",
+        "search",
+        "validate",
+        "update",
+        "remove",
+        "marketplace"
+      ],
       "url": "/docs/reference/cli-commands/",
-      "searchText": "ccpi cli command reference complete command reference for the ccpi cli tool, including syntax, options, examples, and common workflows for installing, managing, and validating claude code plugins. reference "
+      "searchText": "ccpi cli command reference complete command reference for the ccpi cli tool, including syntax, options, examples, and common workflows for installing, managing, and validating claude code plugins. reference ccpi cli command line install search validate update remove marketplace"
     },
     {
       "type": "docs",
@@ -80401,9 +80489,17 @@
       "name": "Plugin Categories and Tags",
       "description": "Complete reference of all allowed plugin categories in the Tons of Skills marketplace, with descriptions, selection guidance, and tagging best practices for maximum discoverability.",
       "category": "reference",
-      "keywords": [],
+      "keywords": [
+        "categories",
+        "tags",
+        "marketplace",
+        "discovery",
+        "filtering",
+        "plugin categories",
+        "keywords"
+      ],
       "url": "/docs/reference/plugin-categories/",
-      "searchText": "plugin categories and tags complete reference of all allowed plugin categories in the tons of skills marketplace, with descriptions, selection guidance, and tagging best practices for maximum discoverability. reference "
+      "searchText": "plugin categories and tags complete reference of all allowed plugin categories in the tons of skills marketplace, with descriptions, selection guidance, and tagging best practices for maximum discoverability. reference categories tags marketplace discovery filtering plugin categories keywords"
     },
     {
       "type": "docs",
@@ -80431,9 +80527,19 @@
       "name": "SKILL.md Frontmatter Reference",
       "description": "Complete field-by-field reference for SKILL.md frontmatter, path variables, string substitutions, and dynamic context injection (DCI) syntax used in Claude Code plugin skills.",
       "category": "reference",
-      "keywords": [],
+      "keywords": [
+        "SKILL.md",
+        "frontmatter",
+        "yaml",
+        "schema",
+        "skills",
+        "allowed-tools",
+        "DCI",
+        "path variables",
+        "string substitutions"
+      ],
       "url": "/docs/reference/skill-frontmatter/",
-      "searchText": "skill.md frontmatter reference complete field-by-field reference for skill.md frontmatter, path variables, string substitutions, and dynamic context injection (dci) syntax used in claude code plugin skills. reference "
+      "searchText": "skill.md frontmatter reference complete field-by-field reference for skill.md frontmatter, path variables, string substitutions, and dynamic context injection (dci) syntax used in claude code plugin skills. reference skill.md frontmatter yaml schema skills allowed-tools dci path variables string substitutions"
     }
   ]
 }

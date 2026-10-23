@@ -4,17 +4,15 @@ description: 'Complete field-by-field reference for SKILL.md frontmatter, path v
 section: 'reference'
 order: 1
 keywords:
-  [
-    'SKILL.md',
-    'frontmatter',
-    'yaml',
-    'schema',
-    'skills',
-    'allowed-tools',
-    'DCI',
-    'path variables',
-    'string substitutions',
-  ]
+  - "SKILL.md"
+  - "frontmatter"
+  - "yaml"
+  - "schema"
+  - "skills"
+  - "allowed-tools"
+  - "DCI"
+  - "path variables"
+  - "string substitutions"
 officialLinks:
   - title: 'Claude Code Skills Documentation'
     url: 'https://code.claude.com/docs/en/skills'
