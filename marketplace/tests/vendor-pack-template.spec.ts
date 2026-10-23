@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
 const { vendors }: typeof import('../src/data/vendor-packs.json') = JSON.parse(
@@ -6,6 +6,61 @@ const { vendors }: typeof import('../src/data/vendor-packs.json') = JSON.parse(
 );
 const countOnly = new Set(['cursor', 'klingai', 'openrouter', 'sentry', 'supabase', 'vercel']);
 const normalize = (text: string) => text.replace(/\s+/g, ' ').trim();
+
+test('vendor curricula and install commands resolve to the published local packs', () => {
+  const { plugins } = JSON.parse(
+    readFileSync(
+      new URL('../../.claude-plugin/marketplace.extended.json', import.meta.url),
+      'utf8',
+    ),
+  );
+  for (const vendor of vendors) {
+    const install = /^\/plugin install ([a-z0-9-]+)@claude-code-plugins-plus$/.exec(
+      vendor.installCommand,
+    );
+    expect(install, vendor.id).not.toBeNull();
+    const plugin = plugins.find((entry: { name: string }) => entry.name === install![1]);
+    expect(plugin, `${vendor.id}: registered install identity`).toBeDefined();
+    const root = new URL(`../../${plugin.source.replace(/^\.\//, '')}/skills/`, import.meta.url);
+    const actual = readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && existsSync(new URL(`${entry.name}/SKILL.md`, root)))
+      .map((entry) => entry.name)
+      .sort();
+    const listed = vendor.categories.flatMap((category) => category.skills).sort();
+    expect(listed, vendor.id).toEqual(actual);
+    expect(new Set(listed).size, `${vendor.id}: no repeated skills`).toBe(listed.length);
+    expect(vendor.skillCount, vendor.id).toBe(actual.length);
+  }
+});
+
+test('the hub reports actual per-pack ranges and Sentry uses the shared theme', async ({
+  page,
+}) => {
+  await page.goto('/learn/');
+  const tiers = await page.locator('.tier-section').allTextContents();
+  for (const [index, tier] of ['flagship+', 'flagship', 'pro', 'standard']
+    .filter((name) => vendors.some((vendor) => vendor.tier === name))
+    .entries()) {
+    const counts = vendors
+      .filter((vendor) => vendor.tier === tier)
+      .map((vendor) => vendor.skillCount);
+    const low = Math.min(...counts);
+    const high = Math.max(...counts);
+    const label = low === high ? `${low}` : `${low}–${high}`;
+    expect(normalize(tiers[index])).toContain(`${label} vendor-pack-local skills per pack`);
+  }
+  await test.info().attach('learning-hub-counts', {
+    body: await page.screenshot({ fullPage: false }),
+    contentType: 'image/png',
+  });
+  await page.goto('/learn/sentry/');
+  await expect(page.locator('.pack-hero')).toHaveClass(/vendor-default/);
+  await expect(page.locator('.vendor-purple')).toHaveCount(0);
+  await test.info().attach('sentry-shared-theme', {
+    body: await page.screenshot({ fullPage: false }),
+    contentType: 'image/png',
+  });
+});
 
 test('every vendor route retains its own content and local count provenance', async ({ page }) => {
   test.setTimeout(120_000);
@@ -45,6 +100,9 @@ test('every vendor route retains its own content and local count provenance', as
       );
       const links = page.locator('.links-section a');
       await expect(links).toHaveCount(2);
+      await expect(links.nth(1).locator('.link-title')).toHaveText(
+        vendor.dashboardLabel ?? 'Dashboard',
+      );
       for (const [index, url] of [vendor.docsUrl, vendor.dashboardUrl].entries()) {
         await expect(links.nth(index)).toHaveAttribute('href', url);
         await expect(links.nth(index)).toHaveAttribute('target', '_blank');
@@ -53,6 +111,12 @@ test('every vendor route retains its own content and local count provenance', as
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         page.viewportSize()!.width,
       );
+      if (vendor.id === 'langchain') {
+        await test.info().attach('langchain-python-curriculum', {
+          body: await page.screenshot({ fullPage: false }),
+          contentType: 'image/png',
+        });
+      }
     });
   }
   expect(pageErrors).toEqual([]);

@@ -313,7 +313,7 @@ const tierBadgeClass = badgeMode === 'count-only' ? 'tier-badge' :
         <div class="link-url">{vendor.docsUrl}</div>
       </a>
       <a href={vendor.dashboardUrl} target="_blank" rel="noopener" class="link-card">
-        <div class="link-title">Dashboard</div>
+        <div class="link-title">{vendor.dashboardLabel ?? 'Dashboard'}</div>
         <div class="link-url">{vendor.dashboardUrl}</div>
       </a>
     </div>

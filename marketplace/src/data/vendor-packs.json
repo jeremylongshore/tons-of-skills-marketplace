@@ -66,7 +66,7 @@
         }
       ],
       "docsUrl": "https://vercel.com/docs",
-      "dashboardUrl": "https://vercel.com/dashboard"
+      "dashboardUrl": "https://vercel.com/login"
     },
     {
       "id": "sentry",
@@ -201,7 +201,7 @@
           "skills": ["klingai-image-to-video", "klingai-video-extension", "klingai-camera-control", "klingai-style-transfer", "klingai-performance-tuning", "klingai-known-pitfalls"]
         }
       ],
-      "docsUrl": "https://docs.klingai.com",
+      "docsUrl": "https://kling.ai/document-api/apiReference",
       "dashboardUrl": "https://klingai.com/dashboard"
     },
     {
@@ -259,7 +259,7 @@
         { "name": "Advanced Patterns", "skills": ["firecrawl-advanced-troubleshooting", "firecrawl-load-scale", "firecrawl-reliability-patterns", "firecrawl-policy-guardrails", "firecrawl-architecture-variants", "firecrawl-known-pitfalls"] }
       ],
       "docsUrl": "https://docs.firecrawl.dev",
-      "dashboardUrl": "https://firecrawl.dev/dashboard"
+      "dashboardUrl": "https://www.firecrawl.dev/signin"
     },
     {
       "id": "clay",
@@ -440,7 +440,7 @@
         { "name": "CI/CD & Deployment", "skills": ["apollo-ci-integration", "apollo-deploy-integration", "apollo-webhooks-events", "apollo-performance-tuning", "apollo-cost-tuning", "apollo-reference-architecture"] },
         { "name": "Enterprise & Compliance", "skills": ["apollo-multi-env-setup", "apollo-observability", "apollo-incident-runbook", "apollo-data-handling", "apollo-enterprise-rbac", "apollo-migration-deep-dive"] }
       ],
-      "docsUrl": "https://apolloplatform.readme.io",
+      "docsUrl": "https://docs.apollo.io",
       "dashboardUrl": "https://app.apollo.io"
     },
     {
@@ -499,18 +499,77 @@
     },
     {
       "id": "langchain",
-      "name": "LangChain",
+      "name": "LangChain Python",
       "tier": "flagship",
-      "skillCount": 24,
-      "description": "LLM application framework for chains, agents, and RAG pipelines",
+      "skillCount": 33,
+      "description": "Python workflows for LangChain, LangGraph, agents, and RAG pipelines",
       "icon": "link",
       "color": "#1C3C3C",
-      "installCommand": "/plugin install langchain-pack@claude-code-plugins-plus",
+      "installCommand": "/plugin install langchain-py-pack@claude-code-plugins-plus",
       "categories": [
-        { "name": "Onboarding & Foundations", "skills": ["langchain-install-auth", "langchain-hello-world", "langchain-local-dev-loop", "langchain-sdk-patterns", "langchain-core-workflow-a", "langchain-core-workflow-b"] },
-        { "name": "Operations & Debugging", "skills": ["langchain-common-errors", "langchain-debug-bundle", "langchain-rate-limits", "langchain-security-basics", "langchain-prod-checklist", "langchain-upgrade-migration"] },
-        { "name": "CI/CD & Deployment", "skills": ["langchain-ci-integration", "langchain-deploy-integration", "langchain-webhooks-events", "langchain-performance-tuning", "langchain-cost-tuning", "langchain-reference-architecture"] },
-        { "name": "Enterprise & Compliance", "skills": ["langchain-multi-env-setup", "langchain-observability", "langchain-incident-runbook", "langchain-data-handling", "langchain-enterprise-rbac", "langchain-migration-deep-dive"] }
+        {
+          "name": "Foundations & Model Workflows",
+          "skills": [
+            "langchain-local-dev-loop",
+            "langchain-sdk-patterns",
+            "langchain-core-workflow",
+            "langchain-model-inference",
+            "langchain-embeddings-search",
+            "langchain-prompt-engineering",
+            "langchain-content-blocks"
+          ]
+        },
+        {
+          "name": "Operations & Debugging",
+          "skills": [
+            "langchain-common-errors",
+            "langchain-debug-bundle",
+            "langchain-rate-limits",
+            "langchain-security-basics",
+            "langchain-upgrade-migration",
+            "langchain-incident-runbook"
+          ]
+        },
+        {
+          "name": "CI/CD & Deployment",
+          "skills": [
+            "langchain-ci-integration",
+            "langchain-deploy-integration",
+            "langchain-webhooks-events",
+            "langchain-performance-tuning",
+            "langchain-cost-tuning",
+            "langchain-reference-architecture",
+            "langchain-eval-harness"
+          ]
+        },
+        {
+          "name": "Enterprise & Observability",
+          "skills": [
+            "langchain-multi-env-setup",
+            "langchain-observability",
+            "langchain-data-handling",
+            "langchain-enterprise-rbac",
+            "langchain-otel-observability"
+          ]
+        },
+        {
+          "name": "LangGraph Workflows",
+          "skills": [
+            "langchain-langgraph-basics",
+            "langchain-langgraph-agents",
+            "langchain-langgraph-checkpointing",
+            "langchain-langgraph-human-in-loop",
+            "langchain-langgraph-streaming",
+            "langchain-langgraph-subgraphs"
+          ]
+        },
+        {
+          "name": "Advanced Agent Patterns",
+          "skills": [
+            "langchain-middleware-patterns",
+            "langchain-deep-agents"
+          ]
+        }
       ],
       "docsUrl": "https://python.langchain.com/docs",
       "dashboardUrl": "https://smith.langchain.com"
@@ -531,7 +590,7 @@
         { "name": "Enterprise & Compliance", "skills": ["lindy-multi-env-setup", "lindy-observability", "lindy-incident-runbook", "lindy-data-handling", "lindy-enterprise-rbac", "lindy-migration-deep-dive"] }
       ],
       "docsUrl": "https://docs.lindy.ai",
-      "dashboardUrl": "https://app.lindy.ai"
+      "dashboardUrl": "https://chat.lindy.ai/login"
     },
     {
       "id": "granola",
@@ -548,8 +607,9 @@
         { "name": "CI/CD & Deployment", "skills": ["granola-ci-integration", "granola-deploy-integration", "granola-webhooks-events", "granola-performance-tuning", "granola-cost-tuning", "granola-reference-architecture"] },
         { "name": "Enterprise & Compliance", "skills": ["granola-multi-env-setup", "granola-observability", "granola-incident-runbook", "granola-data-handling", "granola-enterprise-rbac", "granola-migration-deep-dive"] }
       ],
-      "docsUrl": "https://granola.ai/help",
-      "dashboardUrl": "https://app.granola.ai"
+      "docsUrl": "https://docs.granola.ai/help-center",
+      "dashboardUrl": "https://notes.granola.ai/download",
+      "dashboardLabel": "Get Granola"
     },
     {
       "id": "gamma",
@@ -585,7 +645,7 @@
         { "name": "Enterprise & Compliance", "skills": ["clerk-multi-env-setup", "clerk-observability", "clerk-incident-runbook", "clerk-data-handling", "clerk-enterprise-rbac", "clerk-migration-deep-dive"] }
       ],
       "docsUrl": "https://clerk.com/docs",
-      "dashboardUrl": "https://dashboard.clerk.com"
+      "dashboardUrl": "https://dashboard.clerk.com/sign-in"
     },
     {
       "id": "linear",
