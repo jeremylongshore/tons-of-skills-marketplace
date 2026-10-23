@@ -5,6 +5,8 @@ import re
 import unittest
 from pathlib import Path
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PACK = ROOT / "plugins" / "saas-packs" / "notion-pack"
@@ -59,7 +61,9 @@ class NotionPackContractTest(unittest.TestCase):
             with self.subTest(skill=skill_file.parent.name):
                 body = skill_file.read_text(encoding="utf-8")
                 normalized = re.sub(r"\s+", " ", body)
-                self.assertIn("version: 1.40.0", body)
+                self.assertTrue(body.startswith("---\n"))
+                frontmatter = yaml.safe_load(body.split("---", 2)[1])
+                self.assertEqual(self.manifest["version"], frontmatter["version"])
                 self.assertIn("argument-hint:", body)
                 self.assertIn("Use when", normalized)
                 self.assertIn("Trigger with", normalized)
@@ -100,14 +104,19 @@ class NotionPackContractTest(unittest.TestCase):
         self.assertEqual(32, len(descriptions))
 
     def test_pack_metadata_is_aligned(self) -> None:
-        self.assertEqual("1.40.0", self.manifest["version"])
-        self.assertEqual("1.40.0", self.package["version"])
+        self.assertRegex(self.manifest["version"], r"^\d+\.\d+\.\d+$")
+        # Blueprint 727 V1 / E7.6: display MINOR and npm PATCH are separate namespaces.
+        self.assertRegex(self.package["version"], r"^\d+\.\d+\.\d+$")
+        self.assertEqual("@intentsolutionsio/notion-pack", self.package["name"])
+        self.assertEqual("https://tonsofskills.com/plugins/notion-pack/", self.manifest["homepage"])
+        self.assertEqual(self.manifest["homepage"], self.package["homepage"])
+        self.assertEqual([], self.manifest["commands"])
         self.assertEqual(32, len(self.skill_files))
         self.assertIn("Operator-grade Notion", self.manifest["description"])
 
         marketplace = json.loads((ROOT / ".claude-plugin" / "marketplace.extended.json").read_text())
         entry = next(item for item in marketplace["plugins"] if item["name"] == "notion-pack")
-        self.assertEqual("1.40.0", entry["version"])
+        self.assertEqual(self.manifest["version"], entry["version"])
         self.assertEqual(self.manifest["description"], entry["description"])
         self.assertEqual(32, entry["components"]["skills"])
         self.assertGreaterEqual(entry["verification"]["score"], 90)

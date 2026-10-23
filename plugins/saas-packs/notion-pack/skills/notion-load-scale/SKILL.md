@@ -28,6 +28,8 @@ Plan and test Notion workload capacity within observed limits without evading pe
 
 Notion documents an average request rate and payload limits but may change quotas. Capacity planning must honor Retry-After, response latency, page size, pagination depth, downstream pressure, and tenant fairness. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
+Opaque cursors are only for the next `start_cursor` request; never parse them or retain them as durable checkpoints or incident evidence.
+
 ## Authentication
 
 Use synthetic non-production content and one approved test connection. Additional tokens are not a sharding mechanism for bypassing limits.
@@ -53,7 +55,7 @@ Require platform and workspace-owner approval for load tests; never run them aga
 
 - Stop when error, latency, queue age, or Retry-After exceeds the stage threshold.
 - Do not treat burst success as sustained capacity.
-- Preserve unacknowledged cursors when downstream systems fail.
+- Preserve acknowledged record progress and destination receipts when downstream systems fail; restart with a fresh query and deduplication.
 
 ## Output
 
@@ -73,9 +75,10 @@ Exercise and record these paths with expected and observed results:
 - 429 recovery
 - downstream stall
 - tenant fairness
-- checkpoint restart
+- acknowledged-progress restart with a fresh query
 
 ## Resources
 
 - [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- [Cursor lifetime and versioning](https://developers.notion.com/reference/versioning).
 - Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.
