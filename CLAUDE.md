@@ -38,7 +38,7 @@ pnpm lint
 pnpm run verify                   # Rewrite recorded plugin verification results (score/grade/badge)
 node scripts/run-verification-pipeline.mjs --check   # What CI's `verify` job runs: fails on drift, writes nothing
 
-# Validator (schema 4.1.0 — see 000-docs/SCHEMA_CHANGELOG.md)
+# Validator (schema 4.2.0 — see 000-docs/SCHEMA_CHANGELOG.md)
 python3 scripts/validate-skills-schema.py --verbose
 python3 scripts/validate-skills-schema.py --marketplace --verbose
 python3 scripts/validate-skills-schema.py --marketplace --populate-db freshie/inventory.sqlite
@@ -178,11 +178,27 @@ Beyond the 8 required fields, schema 3.5.0+ adds optional visibility-gating fiel
 
 `compatible-with` is deprecated. Migrate with: `python3 scripts/batch-remediate.py --migrate-compatible-with`
 
-**Agents use `disallowedTools` (camelCase denylist).** Skills use `allowed-tools` (allowlist) AND optionally `disallowed-tools` (kebab-case denylist, schema 3.7.0+). The two field names are intentionally different — do NOT use camelCase on skills or kebab-case on agents; the validator rejects either mismatch. Agent-only fields: `effort`, `maxTurns`.
+**Agents use `disallowedTools` (camelCase denylist).** Skills use `allowed-tools` (allowlist) AND optionally `disallowed-tools` (kebab-case denylist, schema 3.7.0+). The two field names are intentionally different — do NOT use camelCase on skills or kebab-case on agents; the validator rejects either mismatch. `effort` is optional on both skills and agents; `maxTurns` is agent-only.
 
 **Agent gate is kernel-strict (schema 3.10.0, NOT tier-gated).** Every authored agent must carry the kernel-floor 8 (`name, description, tools, model, color, version, author, tags`) plus the enterprise live set (`disallowedTools`, `skills`, `background`; + `hooks`, `mcpServers`, `permissionMode` on standalone agents) — all **errors** at every tier. Banned fields (`capabilities`, `expertise_level`, `activation_priority`, `type`, `category`, `compatible-with`, `when_to_use`) are errors; `fable` is an accepted model. **Corpus status (measured 2026-08-11, doc 721):** the advisory `--agents-only` lane recorded a baseline of **253 errors** across the agent corpus — the earlier "all agents A-grade" claim is retired until the lane is re-baselined clean; treat A-grade as the bar, not the current state. **Schema 3.11.0** added a body-vs-allowlist check: an agent whose body invokes `mcp__server__tool` not in its `tools` allowlist is an error (it would runtime-block). Validate with `--agents-only`.
 
-### Optional frontmatter (schema 3.5.0 / 3.6.0 / 3.7.0 — all default to off)
+### Optional frontmatter
+
+Optional Claude Code fields are validated only when present; none expands the eight required fields. See the [primary frontmatter reference](https://code.claude.com/docs/en/skills#frontmatter-reference) and master spec `000-docs/6767-b-SPEC-DR-STND-claude-skills-standard.md`.
+
+- `when_to_use`: additional trigger text; combined with `description` for the 1,536-character listing limit.
+- `paths`: comma-separated string or YAML list of glob strings, relative to the current working directory; controls automatic activation.
+- `context: fork` / `agent`: forked execution and subagent choice; omitted agent defaults to `general-purpose`.
+- `hooks`: skill hook configuration mapping; hook rules belong to the canonical hook reference.
+- `arguments`: space-separated string or YAML list of named positional arguments.
+- `disable-model-invocation`: boolean controlling Claude invocation; defaults to `false`.
+- `user-invocable`: boolean controlling explicit user invocation; defaults to `true`. The pair `disable-model-invocation: true` and `user-invocable: false` produces an advisory warning, not an invalidity error.
+- `model`: per-skill model override or `inherit`.
+- `effort`: `low`, `medium`, `high`, `xhigh`, or `max`; availability depends on the model. Invalid values are advisory.
+- `shell`: `bash` or `powershell`; PowerShell requires the platform/session's PowerShell tool to be enabled.
+- `argument-hint`: autocomplete guidance.
+
+Command files remain supported with the same skill frontmatter except `name` and `paths`; prefer `skills/` for new work and supporting files. Non-string `arguments`/`paths` list members are advisory; existing malformed outer-type errors remain unchanged. No glob execution or body-placeholder requirement is added. Existing `--fail-on-warn` also applies to these new warnings; the exit-code policy is unchanged, but invocations using that option may now fail.
 
 - **Visibility gating (3.5.0):** `requires_env` / `requires_tools` / `fallback_for_env` / `fallback_for_tools` — list-of-strings. Skill hidden unless deps met; fallback form is the inverse. Cross-field overlap (`requires_X` + `fallback_for_X` of same value) is an ERROR.
 - **Self-declared config (3.6.0):** `required_environment_variables` (top-level list, each entry needs `name` + `prompt`) and `metadata.intent-solutions.config` (nested list, each entry needs `key` + `description` + `default`). Full reference: `000-docs/264-DR-GUID-skill-config-pattern.md`.

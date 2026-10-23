@@ -150,6 +150,18 @@ compliance are welcome; structural changes to the IS rubric are not.
 
 ---
 
+## [4.2.0] — 2026-10-22 — Advisory optional-field coverage
+
+Implements the remaining public validator diagnostics from `claude-41c2.8`, following the May 28 plugin-dev differential and [681](681-AT-ADEC-claude-code-platform-changelog-impact.md). All eleven optional field groups were already recognized; this release does not introduce those fields or change the existing five-value effort enum.
+
+- Warn for invalid skill `effort` values and non-string YAML list members in `arguments` / `paths`. Existing outer-type errors remain unchanged; empty lists and accepted string forms remain accepted without coercion or new glob/body requirements.
+- Warn when `disable-model-invocation` is strictly `true` and `user-invocable` strictly `false`: both invocation routes are restricted, so authors should confirm intentional disabling. This is not a formal-invalidity error. Omitted fork agents still default to `general-purpose` without a missing-agent warning.
+- Explain that command files remain supported, with the same frontmatter except `name` / `paths`; prefer skills for new work. Document optional fields in CLAUDE.md and correct the agent-only effort statement.
+
+MINOR reflects additive advisory diagnostics, rather than the PATCH category's no-output-change contract. No new ERROR diagnostics, required-field set, tier boundary, security rule, or baseline changes. The existing `--fail-on-warn` policy also applies to newly diagnosed warnings, so invocations using it may now fail; the exit-code policy itself is unchanged. The kernel schemas and promotion status are unchanged; these Claude-specific optional extensions are not newly encoded into a kernel contract. Primary authority: [Claude Code skills frontmatter reference](https://code.claude.com/docs/en/skills#frontmatter-reference), accessed 2026-10-22; technical correctness under NON-NEGOTIABLE #6, preserving #1–#7.
+
+---
+
 ## [4.1.0] — 2026-09-09 compatibility amendment
 
 ### Added

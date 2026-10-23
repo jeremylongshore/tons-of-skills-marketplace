@@ -22,7 +22,7 @@
     "authority": [
       {
         "path": "CLAUDE.md",
-        "line": 192,
+        "line": 208,
         "text": "## CI gate architecture — three required checks (rebuilt 2026-07; skill-conform added 2026-07-23)"
       },
       {

@@ -198,8 +198,8 @@
           "E-MISSING-REQUIRED-FIELD": 580,
           "E-MISSING-REQUIRED-SECTION": 267
         },
-        "validator_schema_version": "4.1.0",
-        "validator_sha256": "2b0cb1d864108d593b6207c04fbc60ee856f8c54cb2e916542b5db837ab2e4d4"
+        "validator_schema_version": "4.2.0",
+        "validator_sha256": "8966adc36354e4e2c89fb5c2ea7601dbd0d1caee84e1b944c6fcaf408e7f4fc9"
       }
     },
     "8": {
@@ -3152,14 +3152,14 @@
         "documented": [
           {
             "path": "CLAUDE.md",
-            "version": "4.1.0"
+            "version": "4.2.0"
           },
           {
             "path": "000-docs/6767-b-SPEC-DR-STND-claude-skills-standard.md",
-            "version": "4.1.0"
+            "version": "4.2.0"
           }
         ],
-        "runtime": "4.1.0"
+        "runtime": "4.2.0"
       }
     },
     "43": {

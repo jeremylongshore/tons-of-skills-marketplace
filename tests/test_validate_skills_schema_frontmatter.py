@@ -44,13 +44,14 @@ def _frontmatter(fm: dict, tier: str):
 
 
 def test_schema_version_records_current_agent_contract():
+    # 4.2.0: optional effort, list-member, and restrictive invocation-pair diagnostics are advisory.
     # 4.1.0: E4.3/E4.4 added the --safety-metrics ratchet feed (bare-Bash /
     # tier-2 tool-safety / shell-substitution sets, mirrors excluded).
     # 4.0.2: E4.12 corrected the compliance-rate denominator to include the
     # plugin-manifest lane (impossible 224.1% rates); 4.0.1 added the portable
     # ${SKILL_DIR}/${PLUGIN_ROOT} spellings. The fail-closed allowed-tools
     # semantics this test pins are unchanged from 4.0.0.
-    assert validator.SCHEMA_VERSION == "4.1.0"
+    assert validator.SCHEMA_VERSION == "4.2.0"
 
 
 def test_current_skill_model_and_background_fields_are_accepted():
@@ -837,3 +838,88 @@ def test_compliance_rate_invariants():
         validator.compute_compliance_rate(11, 10)  # the 224.1% class
     with pytest.raises(ValueError):
         validator.compute_compliance_rate(-1, 10)
+
+
+# claude-41c2.8: optional diagnostics remain advisory at both tiers.
+@pytest.mark.parametrize("tier", [validator.TIER_STANDARD, validator.TIER_MARKETPLACE])
+def test_optional_fields_preserve_accepted_forms_and_effort_levels(tier):
+    baseline = {"name": "my-skill", "description": GOOD_DESC}
+    expected_errors = _frontmatter(baseline, tier)[0]
+    for effort in ("low", "medium", "high", "xhigh", "max"):
+        for arguments, paths in (
+            ("issue branch", "src/**, tests/**"),
+            (["issue", "branch"], ["src/**"]),
+            ([], []),
+            ("", ""),
+        ):
+            fm = dict(baseline, effort=effort, arguments=arguments, paths=paths)
+            errors, warnings, _ = _frontmatter(fm, tier)
+            assert errors == expected_errors
+            assert not any(
+                any(field in warning for field in ("'effort'", "'arguments'", "'paths'")) for warning in warnings
+            )
+            assert fm["arguments"] is arguments and fm["paths"] is paths
+    assert not any("'effort'" in warning for warning in _frontmatter(baseline, tier)[1])
+
+
+@pytest.mark.parametrize("tier", [validator.TIER_STANDARD, validator.TIER_MARKETPLACE])
+@pytest.mark.parametrize("effort", ["extreme", None, 1, False, [], {}])
+def test_invalid_skill_effort_is_advisory_only(tier, effort):
+    baseline = {"name": "my-skill", "description": GOOD_DESC}
+    errors, warnings, _ = _frontmatter(dict(baseline, effort=effort), tier)
+    assert errors == _frontmatter(baseline, tier)[0]
+    assert any("'effort'" in warning and "not standard" in warning for warning in warnings)
+
+
+@pytest.mark.parametrize("tier", [validator.TIER_STANDARD, validator.TIER_MARKETPLACE])
+@pytest.mark.parametrize("field", ["arguments", "paths"])
+def test_optional_list_members_warn_without_coercion_or_new_errors(tier, field):
+    baseline = {"name": "my-skill", "description": GOOD_DESC}
+    values = ["valid", 3, None, {"nested": "value"}, ["nested"], False]
+    before = json.dumps(values)
+    errors, warnings, _ = _frontmatter(dict(baseline, **{field: values}), tier)
+    assert errors == _frontmatter(baseline, tier)[0]
+    for index in range(2, 7):
+        assert any(f"'{field}' YAML list item {index} must be a string" in warning for warning in warnings)
+    assert not any(f"'{field}' YAML list item 1 " in warning for warning in warnings)
+    assert json.dumps(values) == before
+
+
+@pytest.mark.parametrize("field", ["arguments", "paths"])
+def test_optional_outer_type_error_remains_unchanged(field):
+    errors, _, _ = _frontmatter({"name": "my-skill", "description": GOOD_DESC, field: 3}, validator.TIER_STANDARD)
+    form = "space-separated string or YAML list" if field == "arguments" else "comma-separated string or YAML list"
+    assert f"[frontmatter] '{field}' must be a {form}, got: int" in errors
+
+
+@pytest.mark.parametrize("tier", [validator.TIER_STANDARD, validator.TIER_MARKETPLACE])
+def test_restrictive_invocation_pair_warns_only_for_strict_booleans(tier):
+    baseline = {"name": "my-skill", "description": GOOD_DESC}
+    for dmi, ui, expected in (
+        (True, False, True),
+        (True, True, False),
+        (False, False, False),
+        (1, 0, False),
+        ("true", "false", False),
+    ):
+        fm = dict(baseline, **{"disable-model-invocation": dmi, "user-invocable": ui})
+        errors, warnings, _ = _frontmatter(fm, tier)
+        assert any("Both invocation routes are restricted." in warning for warning in warnings) is expected
+        assert not any("invocation routes" in error for error in errors)
+    errors, warnings, _ = _frontmatter(dict(baseline, context="fork"), tier)
+    assert errors == _frontmatter(baseline, tier)[0]
+    assert not any("'agent'" in warning for warning in warnings)
+
+
+def test_command_directory_info_preserves_supported_format(tmp_path):
+    (tmp_path / "commands").mkdir()
+    (tmp_path / "commands" / "example.md").write_text(
+        "---\ndescription: Example supported command.\n---\nExplain the command.\n"
+    )
+    result = validator.validate_plugin(tmp_path)
+    messages = [message for message in result["infos"] if "commands/ directory" in message]
+    assert len(messages) == 1
+    assert "command files remain supported" in messages[0]
+    assert "except name and paths" in messages[0]
+    assert "prefer skills/ for new work" in messages[0]
+    assert "deprecat" not in messages[0] and "migrat" not in messages[0]

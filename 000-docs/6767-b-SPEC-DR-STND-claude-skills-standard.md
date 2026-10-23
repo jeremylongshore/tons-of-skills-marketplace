@@ -2,7 +2,7 @@
 
 # Global Master Standard – Claude Skills Specification
 
-> ⚠️ **CURRENT SCHEMA: 4.1.0** (`scripts/validate-skills-schema.py` `SCHEMA_VERSION`). This document is the
+> ⚠️ **CURRENT SCHEMA: 4.2.0** (`scripts/validate-skills-schema.py` `SCHEMA_VERSION`). This document is the
 > **v3.6.0 baseline** of the standard — the 8-field required set, tier model, and 100-point rubric below are
 > still authoritative and unchanged, but subsequent schema releases add enforced rules that postdate it
 > (3.7.0 `disallowed-tools` + overlap ERROR, 3.10.0/3.11.0 kernel-strict agent gates, 3.12.0/3.13.0

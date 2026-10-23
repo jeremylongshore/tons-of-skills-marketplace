@@ -214,7 +214,7 @@ except ImportError:
 #                       Claude model IDs. Required fields and tier semantics are
 #                       unchanged. Source: code.claude.com/docs/en/sub-agents.
 # See 000-docs/SCHEMA_CHANGELOG.md.
-SCHEMA_VERSION = "4.1.0"
+SCHEMA_VERSION = "4.2.0"
 
 # Rule IDs are part of the compliance-baseline contract, not a census of the
 # errors that happen to exist today. Keep the declared inventory stable when
@@ -2753,6 +2753,12 @@ def validate_frontmatter(path: Path, fm: dict, tier: str = TIER_STANDARD) -> Tup
                 "(use: inherit, sonnet, haiku, opus, fable, or a full Claude model ID)"
             )
 
+    if "effort" in fm and fm["effort"] not in SKILL_FIELDS["effort"]["valid"]:
+        warnings.append(
+            f"[frontmatter] 'effort' value {fm['effort']!r} not standard "
+            "(use: low, medium, high, xhigh, or max; availability depends on the model)"
+        )
+
     if "background" in fm and not isinstance(fm["background"], bool):
         errors.append(f"[frontmatter] 'background' must be boolean, got: {type(fm['background']).__name__}")
 
@@ -2836,6 +2842,11 @@ def validate_frontmatter(path: Path, fm: dict, tier: str = TIER_STANDARD) -> Tup
         if not isinstance(ui, bool):
             errors.append(f"[frontmatter] 'user-invocable' must be boolean, got: {type(ui).__name__}")
 
+    if fm.get("disable-model-invocation") is True and fm.get("user-invocable") is False:
+        warnings.append(
+            "[frontmatter] Both invocation routes are restricted. Confirm this skill is intentionally disabled."
+        )
+
     # argument-hint field (string autocomplete hint)
     if "argument-hint" in fm:
         hint = str(fm["argument-hint"]).strip()
@@ -2853,6 +2864,13 @@ def validate_frontmatter(path: Path, fm: dict, tier: str = TIER_STANDARD) -> Tup
                 f"list, got: {type(args_val).__name__}"
             )
 
+    if isinstance(fm.get("arguments"), list):
+        for index, item in enumerate(fm["arguments"], start=1):
+            if not isinstance(item, str):
+                warnings.append(
+                    f"[frontmatter] 'arguments' YAML list item {index} must be a string, got: {type(item).__name__}"
+                )
+
     # paths field — glob patterns limiting when the skill auto-activates
     # (code.claude.com/docs/en/skills "Frontmatter reference"). Accepts CSV
     # string or YAML list.
@@ -2862,6 +2880,13 @@ def validate_frontmatter(path: Path, fm: dict, tier: str = TIER_STANDARD) -> Tup
             errors.append(
                 f"[frontmatter] 'paths' must be a comma-separated string or YAML list, got: {type(paths_val).__name__}"
             )
+
+    if isinstance(fm.get("paths"), list):
+        for index, item in enumerate(fm["paths"], start=1):
+            if not isinstance(item, str):
+                warnings.append(
+                    f"[frontmatter] 'paths' YAML list item {index} must be a string, got: {type(item).__name__}"
+                )
 
     # shell field — bash (default) or powershell (code.claude.com/docs/en/skills)
     if "shell" in fm:
@@ -4736,12 +4761,16 @@ def validate_plugin(plugin_dir: Path, tier: str = TIER_STANDARD, strict: bool = 
             result = validate_agent(agent_md)
             agent_results.append((agent_md, result))
 
-    # 4. Validate commands (legacy — warn to migrate)
+    # 4. Validate commands (supported format; prefer skills for new work)
     commands_dir = plugin_dir / "commands"
     if commands_dir.exists():
         cmd_files = list(commands_dir.glob("*.md"))
         if cmd_files:
-            infos.append(f"[plugin] commands/ directory has {len(cmd_files)} files — consider migrating to skills/")
+            infos.append(
+                f"[plugin] commands/ directory has {len(cmd_files)} files — command files remain supported "
+                "with the same skill frontmatter except name and paths; prefer skills/ for new work "
+                "and supporting files"
+            )
         for cmd_md in cmd_files:
             result = validate_command(cmd_md)
             if result.get("errors"):
