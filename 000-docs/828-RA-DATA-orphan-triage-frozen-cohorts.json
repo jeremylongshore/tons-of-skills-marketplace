@@ -407,7 +407,12 @@
       "source_repository": "Mohammed-Abdelhady/hyperflow",
       "source_record": "plugins/ai-agency/hyperflow/.source.json",
       "explicit_source_file": true,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "disposition": "obsolete-orphan-label",
+      "expected_post_state": "Retain existing parent, source blob and quarantined publication.",
+      "residual_work": "claude-juoz.14",
+      "validation": "Explicit source-file membership, catalog parent and quarantine verified; frozen blob unchanged."
     },
     {
       "cohort": "E2",
@@ -422,7 +427,12 @@
       "source_repository": "Mohammed-Abdelhady/hyperflow",
       "source_record": "plugins/ai-agency/hyperflow/.source.json",
       "explicit_source_file": true,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "disposition": "obsolete-orphan-label",
+      "expected_post_state": "Retain existing parent, source blob and quarantined publication.",
+      "residual_work": "claude-juoz.14",
+      "validation": "Explicit source-file membership, catalog parent and quarantine verified; frozen blob unchanged."
     },
     {
       "cohort": "E2",
@@ -437,7 +447,12 @@
       "source_repository": "Mohammed-Abdelhady/hyperflow",
       "source_record": "plugins/ai-agency/hyperflow/.source.json",
       "explicit_source_file": true,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "disposition": "obsolete-orphan-label",
+      "expected_post_state": "Retain existing parent, source blob and quarantined publication.",
+      "residual_work": "claude-juoz.14",
+      "validation": "Explicit source-file membership, catalog parent and quarantine verified; frozen blob unchanged."
     },
     {
       "cohort": "E2",
@@ -452,7 +467,12 @@
       "source_repository": "Mohammed-Abdelhady/hyperflow",
       "source_record": "plugins/ai-agency/hyperflow/.source.json",
       "explicit_source_file": true,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "disposition": "obsolete-orphan-label",
+      "expected_post_state": "Retain existing parent, source blob and quarantined publication.",
+      "residual_work": "claude-juoz.14",
+      "validation": "Explicit source-file membership, catalog parent and quarantine verified; frozen blob unchanged."
     },
     {
       "cohort": "E2",
@@ -467,7 +487,12 @@
       "source_repository": "Mohammed-Abdelhady/hyperflow",
       "source_record": "plugins/ai-agency/hyperflow/.source.json",
       "explicit_source_file": true,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "disposition": "obsolete-orphan-label",
+      "expected_post_state": "Retain existing parent, source blob and quarantined publication.",
+      "residual_work": "claude-juoz.14",
+      "validation": "Explicit source-file membership, catalog parent and quarantine verified; frozen blob unchanged."
     },
     {
       "cohort": "E2",
@@ -482,7 +507,12 @@
       "source_repository": "Mohammed-Abdelhady/hyperflow",
       "source_record": "plugins/ai-agency/hyperflow/.source.json",
       "explicit_source_file": true,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "disposition": "obsolete-orphan-label",
+      "expected_post_state": "Retain existing parent, source blob and quarantined publication.",
+      "residual_work": "claude-juoz.14",
+      "validation": "Explicit source-file membership, catalog parent and quarantine verified; frozen blob unchanged."
     },
     {
       "cohort": "E2",
@@ -497,7 +527,12 @@
       "source_repository": "Mohammed-Abdelhady/hyperflow",
       "source_record": "plugins/ai-agency/hyperflow/.source.json",
       "explicit_source_file": true,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "disposition": "obsolete-orphan-label",
+      "expected_post_state": "Retain existing parent, source blob and quarantined publication.",
+      "residual_work": "claude-juoz.14",
+      "validation": "Explicit source-file membership, catalog parent and quarantine verified; frozen blob unchanged."
     },
     {
       "cohort": "E2",
@@ -512,7 +547,12 @@
       "source_repository": "Mohammed-Abdelhady/hyperflow",
       "source_record": "plugins/ai-agency/hyperflow/.source.json",
       "explicit_source_file": true,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "disposition": "obsolete-orphan-label",
+      "expected_post_state": "Retain existing parent, source blob and quarantined publication.",
+      "residual_work": "claude-juoz.14",
+      "validation": "Explicit source-file membership, catalog parent and quarantine verified; frozen blob unchanged."
     },
     {
       "cohort": "E2",
@@ -527,7 +567,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -542,7 +595,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -557,7 +623,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -572,7 +651,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -587,7 +679,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -602,7 +707,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -617,7 +735,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/pitch-copy/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -632,7 +762,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/pitch-landing/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -647,7 +789,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/pitch-launch/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -662,7 +816,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/pitch-message/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -677,7 +843,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/pitch-position/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -692,7 +870,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "marketing-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/pitch-recon/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -707,7 +897,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -722,7 +925,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -737,7 +953,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -752,7 +981,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -767,7 +1009,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -782,7 +1037,20 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": null,
+      "root_counterpart_byte_identical": null,
+      "disposition": "deferred-to-structural-parent",
+      "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
+      "residual_work": "claude-rx0s.1",
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
     },
     {
       "cohort": "E2",
@@ -797,7 +1065,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/surge-activation/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -812,7 +1092,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/surge-experiment/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -827,7 +1119,19 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/surge-landing/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     },
     {
       "cohort": "E2",
@@ -842,7 +1146,28 @@
       "source_repository": "tonone-ai/tonone",
       "source_record": "plugins/ai-agency/tonone/.source.json",
       "explicit_source_file": null,
-      "marketplace_visible": false
+      "marketplace_visible": false,
+      "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+      "nearest_manifest": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+      "nearest_plugin_name": "revenue-team",
+      "nearest_plugin_version": "1.9.1",
+      "registered_locally": false,
+      "registered_in_vendored_upstream_catalog": false,
+      "manifest_sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49",
+      "root_same_named_counterpart": "plugins/ai-agency/tonone/skills/surge-plg/SKILL.md",
+      "root_counterpart_byte_identical": true,
+      "disposition": "duplicate-of-visible-root-instruction",
+      "expected_post_state": "Retain both copies; the byte-identical root instruction remains visible and the bundle copy stays unregistered.",
+      "validation": "Complete SKILL.md bytes match the named root counterpart, which is in the marketplace-visible cohort. No runtime/package equivalence claim."
     }
-  ]
+  ],
+  "E2_review": {
+    "analysis_head": "43b692cf84d414faa2a2ebb9941cbf57d931dedb",
+    "issue": "claude-xx4k.4.2",
+    "resolved_classifications": 18,
+    "deferred_cases": 12,
+    "structural_parent": "claude-rx0s.1",
+    "program_complete": false,
+    "scope": "Triage evidence only; all frozen identities and source blobs preserved. E1 fields unchanged."
+  }
 }
