@@ -1154,10 +1154,7 @@ test('all 28 vendor routes select their own canonical data and consume the share
       /if\s*\(!vendor\)\s*\{\s*return\s+Astro\.redirect\(['"]\/learn\/['"]\);?\s*\}/,
       `${id}: missing data redirects before render`,
     );
-    const markup = source
-      .slice(source.indexOf('---', 3) + 3)
-      .replace(/<!--[\s\S]*?-->/g, '')
-      .trim();
+    const markup = source.slice(source.indexOf('---', 3) + 3).trim();
     match(
       markup,
       /^<VendorPackTemplate\s[^>]*\bvendor=\{vendor\}[^>]*\/?>$/,
