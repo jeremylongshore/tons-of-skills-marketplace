@@ -1,0 +1,352 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import vendorPacks from '../data/vendor-packs.json';
+
+type Vendor = (typeof vendorPacks.vendors)[number];
+type Variant = 'default' | 'purple' | 'klingai' | 'openrouter' | 'vercel';
+interface Props {
+  vendor: Vendor;
+  variant: Variant;
+  badgeMode: 'count-only' | 'tier-and-count';
+}
+
+const { vendor, variant, badgeMode } = Astro.props;
+const pageTitle = `${vendor.name} Skill Pack`;
+const pageDescription = `Complete ${vendor.name} integration covering ${vendor.description.toLowerCase()}.`;
+const tierBadgeClass = badgeMode === 'count-only' ? 'tier-badge' :
+  vendor.tier === 'flagship+' ? 'tier-badge flagship-plus' :
+  vendor.tier === 'flagship' ? 'tier-badge flagship' :
+  vendor.tier === 'pro' ? 'tier-badge pro' : 'tier-badge standard';
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <style>
+    .pack-hero {
+      background: var(--bg); border-bottom: 1px solid var(--rule);
+      color: var(--ink);
+      padding: 4rem 2rem 3rem;
+    }
+
+    .hero-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .breadcrumb {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-bottom: 1rem;
+    }
+
+    .breadcrumb a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .pack-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pack-title {
+      font-size: clamp(2rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .pack-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-top: 0.5rem;
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--rule);
+      color: var(--ink-2);
+      font-size: 11px;
+      font-weight: 500;
+      font-family: var(--font-mono);
+      margin-top: 0.5rem;
+    }
+
+    .install-section {
+      background: var(--panel); border: 1px solid var(--rule);
+      border-radius: 0;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .install-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 0.5rem;
+    }
+
+    .install-command {
+      font-family: monospace;
+      font-size: 1rem;
+      background: var(--bg); border: 1px solid var(--rule);
+      padding: 0.75rem 1rem;
+      border-radius: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .copy-btn {
+      background: var(--primary);
+      color: var(--brand-dark);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .copy-btn:hover {
+      background: #34b87a;
+    }
+
+    .skills-section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .category-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .category-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--brand-dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .category-badge {
+      border: 1px solid var(--rule);
+      color: var(--brand-mid-gray);
+      font-size: 11px;
+      font-family: var(--font-mono);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .skill-card {
+      background: var(--card);
+      border: 1px solid var(--brand-light-gray);
+      border-radius: 0;
+      padding: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .skill-card:hover {
+      border-color: var(--primary);
+      
+    }
+
+    .skill-name {
+      font-weight: 600;
+      color: var(--brand-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .skill-slot {
+      font-size: 0.75rem;
+      color: var(--brand-mid-gray);
+      font-family: monospace;
+    }
+
+    .links-section {
+      background: var(--brand-light-gray);
+      padding: 2rem;
+    }
+
+    .links-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .link-card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 0;
+      flex: 1;
+      min-width: 250px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .link-card:hover {
+      
+    }
+
+    .link-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .link-url {
+      font-size: 0.85rem;
+      color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+      .pack-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Preserve the five incumbent treatments; this extraction does not redesign them. */
+    .vendor-purple .copy-btn,
+    .vendor-openrouter .copy-btn {
+      background: #8b5cf6;
+      color: var(--ink);
+    }
+    .vendor-purple .copy-btn:hover,
+    .vendor-openrouter .copy-btn:hover {
+      background: #7c3aed;
+    }
+    .vendor-purple .skill-card:hover { border-color: #8b5cf6; }
+    .vendor-purple .link-url { color: #8b5cf6; }
+    .vendor-openrouter .skill-card:hover { border-color: #6366f1; }
+    .vendor-openrouter .link-url { color: #6366f1; }
+    .vendor-klingai .copy-btn {
+      background: #FF6B35;
+      color: var(--ink);
+    }
+    .vendor-klingai .copy-btn:hover { background: #e55a2b; }
+    .vendor-klingai .skill-card:hover { border-color: #FF6B35; }
+    .vendor-klingai .link-url { color: #FF6B35; }
+    .vendor-vercel .copy-btn {
+      background: var(--card);
+      color: black;
+    }
+    .vendor-vercel .copy-btn:hover { background: #e0e0e0; }
+    .vendor-vercel .skill-card:hover { border-color: black; }
+    .vendor-vercel .link-url { color: black; }
+    .vendor-purple .skill-name,
+    .vendor-klingai .skill-name,
+    .vendor-openrouter .skill-name,
+    .vendor-vercel .skill-name {
+      text-transform: capitalize;
+    }
+  </style>
+
+  <section class:list={["pack-hero", `vendor-${variant}`]}>
+    <div class="hero-content">
+      <div class="breadcrumb">
+        <a href="/learn/">SaaS Packs</a> / {vendor.name}
+      </div>
+
+      <div class="pack-header">
+        <div>
+          <h1 class="pack-title">{vendor.name} Pack</h1>
+          <p class="pack-subtitle">{vendor.description}</p>
+          <span class={tierBadgeClass} data-count-provenance="vendor-pack-local">{badgeMode === "tier-and-count" && `${vendor.tier} - `}{vendor.skillCount} vendor-pack-local skills</span>
+        </div>
+      </div>
+
+      <div class="install-section">
+        <div class="install-label">Install this pack:</div>
+        <div class="install-command">
+          <code id="install-cmd">{vendor.installCommand}</code>
+          <button type="button" class="copy-btn" data-copy-target="install-cmd" aria-live="polite">
+            Copy
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class:list={["skills-section", `vendor-${variant}`]}>
+    {vendor.categories.map((category) => (
+      <div class="category-section">
+        <h2 class="category-title">
+          {category.name}
+          <span class="category-badge" data-count-provenance="vendor-pack-local">{category.skills.length} vendor-pack-local skills</span>
+        </h2>
+        <div class="skills-grid">
+          {category.skills.map((skill) => (
+            <div class="skill-card">
+              <div class="skill-name">{skill.replace(`${vendor.id}-`, '').replace(/-/g, ' ')}</div>
+              <div class="skill-slot">{skill}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </section>
+
+  <section class:list={["links-section", `vendor-${variant}`]}>
+    <div class="links-content">
+      <a href={vendor.docsUrl} target="_blank" rel="noopener" class="link-card">
+        <div class="link-title">Official Documentation</div>
+        <div class="link-url">{vendor.docsUrl}</div>
+      </a>
+      <a href={vendor.dashboardUrl} target="_blank" rel="noopener" class="link-card">
+        <div class="link-title">Dashboard</div>
+        <div class="link-url">{vendor.dashboardUrl}</div>
+      </a>
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const copyBtn = document.querySelector<HTMLButtonElement>('.copy-btn[data-copy-target]');
+      if (!copyBtn) return;
+      const originalText = copyBtn.textContent;
+      const originalLabel = copyBtn.getAttribute('aria-label');
+      let restoreTimer: ReturnType<typeof setTimeout> | undefined;
+
+      copyBtn.addEventListener('click', async () => {
+        const targetId = copyBtn.getAttribute('data-copy-target');
+        const target = targetId ? document.getElementById(targetId) : null;
+        if (!target) return;
+        try {
+          await navigator.clipboard.writeText(target.textContent || '');
+          if (originalLabel === null) copyBtn.removeAttribute('aria-label');
+          else copyBtn.setAttribute('aria-label', originalLabel);
+          copyBtn.textContent = 'Copied!';
+        } catch {
+          copyBtn.textContent = 'Copy failed';
+          copyBtn.setAttribute('aria-label', 'Copy failed. Select the install command and copy it manually.');
+        }
+        clearTimeout(restoreTimer);
+        restoreTimer = setTimeout(() => {
+          copyBtn.textContent = originalText;
+          if (originalLabel === null) copyBtn.removeAttribute('aria-label');
+          else copyBtn.setAttribute('aria-label', originalLabel);
+        }, 2000);
+      });
+    });
+  </script>
+</BaseLayout>
