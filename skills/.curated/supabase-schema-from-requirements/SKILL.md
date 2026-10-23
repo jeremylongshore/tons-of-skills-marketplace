@@ -13,7 +13,7 @@ description: 'Design Supabase Postgres schema from business requirements with mi
 
   '
 allowed-tools: Read, Write, Bash(supabase:*), Bash(npx:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -34,7 +34,7 @@ Translate business requirements into a production-ready Postgres schema inside S
 
 ## Prerequisites
 
-- Supabase CLI installed (`npm install -g supabase`) and project linked (`supabase link`)
+- Supabase CLI installed (`npm install --save-dev supabase`) and project linked (`supabase link`)
 - `@supabase/supabase-js` v2+ installed in the project
 - Business requirements, PRD, or specification document identifying entities and access rules
 - Local Supabase running (`supabase start`) or a linked remote project

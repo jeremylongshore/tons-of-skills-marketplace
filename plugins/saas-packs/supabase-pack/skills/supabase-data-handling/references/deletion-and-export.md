@@ -1,180 +1,152 @@
-# User Deletion and Data Export
+# Authorized Inventory, Export, and Erasure
 
-Implement GDPR Article 17 (right to erasure) with `auth.admin.deleteUser()` and Article 15 (right of access) with SQL-based data export.
+This is a bounded application-data inventory, not an implementation or certification
+of legal compliance or complete erasure. Before any export or deletion, verify the
+requester's identity with the request-scoped user client's `auth.getUser()`, derive
+the subject from that identity (not a posted user ID), and separately authorize
+eligibility, retention/legal holds, shared ownership, and delivery. Admin-assisted
+requests need their own reviewed authorization route; do not pass arbitrary IDs to
+a service-role helper.
 
-## Right to deletion — complete user erasure
+## Read-Only, Paginated Partial Inventory
 
-```typescript
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
-
-interface DeletionResult {
-  userId: string;
-  tablesProcessed: string[];
-  storageFilesDeleted: number;
-  authDeleted: boolean;
-  auditLogId: string;
-  completedAt: string;
-}
-
-async function deleteUserData(userId: string): Promise<DeletionResult> {
-  const tablesProcessed: string[] = [];
-  let storageFilesDeleted = 0;
-
-  // 1. Delete user data from application tables (cascade order)
-  const tablesToPurge = ['comments', 'orders', 'documents', 'profiles'];
-
-  for (const table of tablesToPurge) {
-    const { error } = await supabase
-      .from(table)
-      .delete()
-      .eq('user_id', userId);
-
-    if (error && !error.message.includes('does not exist')) {
-      console.error(`Failed to delete from ${table}:`, error.message);
-    } else {
-      tablesProcessed.push(table);
-    }
-  }
-
-  // 2. Delete user files from storage
-  const { data: buckets } = await supabase.storage.listBuckets();
-  for (const bucket of buckets ?? []) {
-    const { data: files } = await supabase.storage
-      .from(bucket.name)
-      .list(`users/${userId}`);
-
-    if (files && files.length > 0) {
-      const paths = files.map((f) => `users/${userId}/${f.name}`);
-      const { error } = await supabase.storage
-        .from(bucket.name)
-        .remove(paths);
-
-      if (!error) storageFilesDeleted += paths.length;
-    }
-  }
-
-  // 3. Delete the auth user (removes from auth.users)
-  const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-  const authDeleted = !authError;
-
-  if (authError) {
-    console.error('Auth deletion failed:', authError.message);
-  }
-
-  // 4. Create audit log entry (required — must survive deletion)
-  const { data: auditEntry } = await supabase
-    .from('gdpr_audit_log')
-    .insert({
-      action: 'USER_DELETION',
-      subject_id: userId,
-      tables_purged: tablesProcessed,
-      storage_files_deleted: storageFilesDeleted,
-      auth_deleted: authDeleted,
-      performed_by: 'system',
-      legal_basis: 'GDPR Article 17 — Right to Erasure',
-    })
-    .select('id')
-    .single();
-
-  return {
-    userId,
-    tablesProcessed,
-    storageFilesDeleted,
-    authDeleted,
-    auditLogId: auditEntry?.id ?? 'unknown',
-    completedAt: new Date().toISOString(),
-  };
-}
-
-// GDPR audit log table (create this migration)
-// CREATE TABLE gdpr_audit_log (
-//   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-//   action text NOT NULL,
-//   subject_id uuid NOT NULL,
-//   tables_purged text[] DEFAULT '{}',
-//   storage_files_deleted int DEFAULT 0,
-//   auth_deleted boolean DEFAULT false,
-//   performed_by text NOT NULL,
-//   legal_basis text,
-//   created_at timestamptz DEFAULT now()
-// );
-// -- Audit logs must NEVER be deleted (compliance requirement)
-// ALTER TABLE gdpr_audit_log ENABLE ROW LEVEL SECURITY;
-// CREATE POLICY "admin_only" ON gdpr_audit_log FOR ALL USING (false);
-```
-
-## Data subject access request (DSAR) — export all user data
+The following example assumes approved application tables `profiles` and `documents`
+with unique sortable `id`, `user_id`, and the selected columns; it does not discover
+all personal data. The approved private bucket is `user-files`, with ownership
+convention `users/<verified user UUID>/`. Its policies must enforce that boundary.
+Use the request-scoped user client, never an admin client supplied by a caller.
+The per-table/per-folder limits are application budgets, not Supabase quotas.
 
 ```typescript
-import { createClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
-
-interface DataExport {
-  exportedAt: string;
-  subjectId: string;
-  legalBasis: string;
-  data: Record<string, unknown[]>;
-  storageFiles: string[];
-}
-
-async function exportUserData(userId: string): Promise<DataExport> {
-  const exportData: Record<string, unknown[]> = {};
-
-  // Export from each table containing user data
-  const tables = ['profiles', 'orders', 'documents', 'comments'];
-
-  for (const table of tables) {
-    const { data, error } = await supabase
-      .from(table)
-      .select('*')
-      .eq('user_id', userId);
-
-    if (!error && data) {
-      exportData[table] = data;
-    }
+export async function inventoryOwnData(client: SupabaseClient) {
+  const {
+    data: { user },
+    error: authError,
+  } = await client.auth.getUser();
+  if (authError || !user || !/^[0-9a-f-]{36}$/i.test(user.id)) {
+    throw new Error('Verified subject required');
   }
-
-  // List user files in storage
-  const storageFiles: string[] = [];
-  const { data: buckets } = await supabase.storage.listBuckets();
-  for (const bucket of buckets ?? []) {
-    const { data: files } = await supabase.storage
-      .from(bucket.name)
-      .list(`users/${userId}`);
-
-    for (const file of files ?? []) {
-      storageFiles.push(`${bucket.name}/users/${userId}/${file.name}`);
-    }
-  }
-
-  // Log the export for compliance
-  await supabase.from('gdpr_audit_log').insert({
-    action: 'DATA_EXPORT',
-    subject_id: userId,
-    performed_by: 'system',
-    legal_basis: 'GDPR Article 15 — Right of Access',
-  });
-
-  return {
-    exportedAt: new Date().toISOString(),
-    subjectId: userId,
-    legalBasis: 'GDPR Article 15 — Right of Access',
-    data: exportData,
-    storageFiles,
+  const receipt = {
+    subjectId: user.id,
+    scope: 'profiles, documents; user-files/users/<subject>; inventory only',
+    enumerationFinished: false,
+    completeErasure: false,
+    authDeleted: false,
+    rows: {} as Record<string, unknown[]>,
+    objects: [] as string[],
+    failures: [] as string[],
   };
+  const pageSize = 100;
+  try {
+    for (const [table, columns] of [
+      ['profiles', 'id, user_id, display_name'],
+      ['documents', 'id, user_id, title'],
+    ]) {
+      receipt.rows[table] = [];
+      let ended = false;
+      for (let page = 0; page < 100; page++) {
+        const { data, error } = await client
+          .from(table)
+          .select(columns)
+          .eq('user_id', user.id)
+          .order('id')
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+        if (error || !Array.isArray(data)) throw new Error(`Table inventory failed: ${table}`);
+        receipt.rows[table].push(...data);
+        if (data.length < pageSize) {
+          ended = true;
+          break;
+        }
+      }
+      if (!ended) throw new Error(`Table page budget exhausted: ${table}`);
+    }
+    const root = `users/${user.id}`;
+    const folders = [root];
+    const visited = new Set<string>();
+    let calls = 0;
+    while (folders.length) {
+      const folder = folders.shift()!;
+      if (visited.has(folder)) throw new Error('Repeated folder');
+      visited.add(folder);
+      let ended = false;
+      for (let offset = 0; offset < 10_000; offset += pageSize) {
+        if (++calls > 200) throw new Error('Storage call budget exhausted');
+        const { data, error } = await client.storage.from('user-files').list(folder, {
+          limit: pageSize,
+          offset,
+          sortBy: { column: 'name', order: 'asc' },
+        });
+        if (error || !Array.isArray(data)) throw new Error('Storage inventory failed');
+        for (const item of data) {
+          if (
+            typeof item.name !== 'string' ||
+            !item.name ||
+            item.name === '.' ||
+            item.name === '..' ||
+            /[\\/\0]/.test(item.name)
+          ) {
+            throw new Error('Invalid storage entry');
+          }
+          const path = `${folder}/${item.name}`;
+          if (item.id === null) {
+            if (visited.size + folders.length >= 100) throw new Error('Folder budget exhausted');
+            folders.push(path);
+          } else if (typeof item.id === 'string') {
+            receipt.objects.push(path);
+          } else throw new Error('Invalid storage entry type');
+        }
+        if (data.length < pageSize) {
+          ended = true;
+          break;
+        }
+      }
+      if (!ended) throw new Error('Storage page budget exhausted');
+    }
+    receipt.enumerationFinished = true;
+  } catch (error) {
+    receipt.failures.push(error instanceof Error ? error.message : 'Inventory failed');
+  }
+  return receipt;
 }
 ```
 
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+A failure or exhausted budget returns `enumerationFinished: false` with only the
+already-read subset. A successful enumeration is still not a consistent snapshot:
+concurrent writes/deletes, RLS visibility, unlisted tables/buckets, external copies,
+Auth records, object bytes, backups, and third-party systems remain outside scope.
+Do not call it a complete DSAR export. For an approved export, establish a snapshot
+or reconciliation cutoff, download every approved object with checked errors, and
+verify counts/checksums in a protected delivery receipt. Never log or publicly serve
+the returned rows/paths; authorized delivery needs a short-lived private channel.
+
+## Separately Authorized Erasure Procedure
+
+1. Record approved subject, actor, eligibility, retention exceptions, resource scope,
+   and immutable operation ID in protected evidence. Quiesce relevant writes or
+   design reconciliation; obtain the inventory before deleting while paginating.
+2. Delete only approved table rows in reviewed foreign-key order. Check every
+   returned error and record each resource's outcome. Do not treat missing tables,
+   denied policies, timeouts, or zero visible rows as proof of erasure.
+3. Remove enumerated objects in bounded batches through Storage `remove()`, checking
+   all results; do not delete Storage metadata directly. Re-enumerate to detect
+   concurrent additions and distinguish a budget stop from empty completion.
+4. Stop or record explicit partial state on any failure. Do not automatically call
+   `auth.admin.deleteUser()` after partial cleanup. Auth deletion is a separate
+   server-only, freshly authorized finalization after eligibility and all approved
+   dependencies are reconciled, including Storage ownership constraints.
+5. Persist a checked, minimal receipt with unresolved systems/retention exceptions,
+   not an unconditional `completedAt`/`success: true`. An audit-write failure also
+   prevents a success receipt. Auth deletion is not proof of immediate invalidation
+   of every issued JWT, nor of removal from backups or downstream systems.
+
+No destructive helper or admin finalization is executed by this reference. Do not
+replace the review requirements with a fabricated `getUserData()` / `deleteUser()`
+SDK method. Determine legal retention and audit access with the accountable owner;
+there is no universal seven-year or never-delete rule supplied here.
+
+[Storage listing](https://supabase.com/docs/reference/javascript/storage-from-list)
+[Storage removal](https://supabase.com/docs/reference/javascript/storage-from-remove)
+[Admin user deletion](https://supabase.com/docs/reference/javascript/auth-admin-deleteuser)
+[User management](https://supabase.com/docs/guides/auth/managing-user-data)

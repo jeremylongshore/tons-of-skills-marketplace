@@ -7,7 +7,7 @@ description: "Upgrade Supabase SDK and CLI versions with breaking-change detecti
   , \"migrate supabase v2\", \"update supabase SDK\".\n"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Bash(pip:*), Bash(supabase:*),
   Bash(git:*), Grep, Glob
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -24,18 +24,22 @@ compatibility: Designed for Claude Code
 
 Upgrade `@supabase/supabase-js` and the Supabase CLI with breaking-change detection, automated code migration, and rollback planning. Covers the v1-to-v2 migration path (auth method renames, `data`/`error` destructuring, realtime API overhaul), minor version bumps, `@supabase/ssr` adoption, and Python SDK upgrades via `pip install --upgrade supabase`.
 
-## Current State
+## Manual Version Diagnostics
 
-!`npm list @supabase/supabase-js 2>/dev/null | grep supabase || echo 'supabase-js not installed'`
-!`supabase --version 2>/dev/null || echo 'CLI not installed'`
-!`pip show supabase 2>/dev/null | grep Version || echo 'Python SDK not installed'`
+Inspect the installed versions only when requested; this skill does not run these commands on load.
+
+```text
+npm list @supabase/supabase-js
+npx supabase --version
+pip show supabase
+```
 
 ## Prerequisites
 
 - `@supabase/supabase-js` or the Python `supabase` package installed in the project
 - Git with a clean working tree (no uncommitted changes)
 - Test suite available for post-upgrade verification
-- Node.js >= 18 (for supabase-js v2) or Python >= 3.8 (for Python SDK)
+- Node.js 22+ for current JS SDK releases, or Python 3.9+ for the Python SDK
 
 ## Instructions
 
@@ -110,7 +114,7 @@ npm install @supabase/supabase-js@latest
 npm install @supabase/ssr@latest
 
 # Upgrade CLI
-npm install -g supabase@latest
+npm install --save-dev supabase@latest
 
 # Upgrade Python SDK
 pip install --upgrade supabase
@@ -141,17 +145,19 @@ const { data: { subscription } } = supabase.auth.onAuthStateChange(callback)
 Apply error handling migration:
 
 ```typescript
-// BEFORE (v1 — string matching)
-if (error.message.includes('not found')) { ... }
-
-// AFTER (v2 — structured error codes)
-if (error.code === 'PGRST116') { ... }  // "not found" → PGRST116
+// Classify the actual returned error; do not translate "not found" text blindly.
+if (error?.code === 'PGRST116') {
+  throw new Error('Expected exactly one visible row; review query cardinality')
+}
 ```
 
 ### Step 3: Verify, Test, and Prepare Rollback
 
 ```bash
-# Type check (catches 90% of migration issues)
+# Run in Bash; any failed check stops this verification sequence.
+set -euo pipefail
+
+# Type check the configured project; not proof of complete migration correctness.
 npx tsc --noEmit
 
 # Run test suite
@@ -200,8 +206,8 @@ git stash && git checkout main
 | `supabase.auth.api` is undefined | `.api` namespace removed in v2 | Call methods directly on `supabase.auth.*` |
 | `TypeError: supabase.from(...).on is not a function` | Realtime API replaced in v2 | Use `supabase.channel().on('postgres_changes', ...)` |
 | Type errors after `gen types` | Database schema changed between versions | Update application code to match new generated types |
-| `PGRST116` error on `.single()` | Zero rows returned (v2 throws) | Use `.maybeSingle()` for optional lookups |
-| `ERR_REQUIRE_ESM` after upgrade | v2 is ESM-only in some bundlers | Update `tsconfig.json` to `"module": "esnext"` or use dynamic `import()` |
+| `PGRST116` from `.single()` | Singular response requested but zero or multiple rows returned; inspect the returned `error` | Use `.maybeSingle()` only for intended zero-or-one results; duplicates still return an error |
+| `ERR_REQUIRE_ESM` after upgrade | Installed dependency/runtime/bundler ESM–CommonJS resolution mismatch | Inspect the exact installed dependency exports and runtime/bundler configuration; the published Supabase SDK supports both import and require, so do not apply a blanket module-setting fix |
 | `AuthSessionMissingError` | `getSession()` called before auth initialized | Wrap in `onAuthStateChange` listener or check `session !== null` |
 
 ## Examples

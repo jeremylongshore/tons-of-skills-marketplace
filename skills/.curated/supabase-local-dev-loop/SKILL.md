@@ -14,7 +14,7 @@ description: 'Configure Supabase local development with the CLI, Docker, and mig
   '
 allowed-tools: Read, Write, Edit, Bash(npx:*), Bash(supabase:*), Bash(docker:*), Bash(curl:*),
   Grep
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -34,8 +34,8 @@ Run the full Supabase stack locally — Postgres, Auth, Storage, Realtime, Edge 
 ## Prerequisites
 
 - Docker Desktop installed and running (required for all local services)
-- Node.js 18+ (for `npx supabase` commands)
-- No global install needed — all commands use `npx supabase`
+- Node.js 20+ for the npm CLI; Node.js 22+ for current SDK application examples
+- Project CLI dependency installed with `npm install --save-dev supabase`; commands use `npx supabase`
 
 ## Instructions
 

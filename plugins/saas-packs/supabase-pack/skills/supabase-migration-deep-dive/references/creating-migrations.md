@@ -12,9 +12,11 @@ npx supabase migration new add_profiles_table
 # List all migrations and their status
 npx supabase migration list
 
-# Check which migrations have been applied locally
-npx supabase db reset --dry-run
+# Inspect local migration history without resetting data
+npx supabase migration list --local
 ```
+
+`db reset` is destructive and has no dry-run option. Review migration files and history first; test a reset only against an approved disposable local database. `db diff` compares schemas and is not a reset preview.
 
 **Write the migration SQL:**
 

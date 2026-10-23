@@ -10,7 +10,7 @@ description: >-
   pooling", "supabase compute upgrade", "supabase CDN storage", "supabase edge
   function regions", "supabase partitioning", "supavisor", "supabase pool mode".
 allowed-tools: Read, Write, Edit, Bash(supabase:*), Bash(psql:*), Bash(curl:*), Grep
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -71,17 +71,16 @@ services, and a pool-usage monitoring query:
 
 ### Step 2 — Compute Upgrades, CDN for Storage, and Edge Function Regions
 
-Match compute tier to traffic (Micro 60 connections → 4XL 480), serve public
+Match the current project compute configuration to measured traffic, serve public
 Storage buckets through the CDN with long `cacheControl` headers plus
 content-addressed paths for cache busting, and deploy Edge Functions to the
-region closest to users:
+appropriate execution region:
 
-```bash
-supabase projects update --experimental --compute-size large   # scale compute
-supabase functions deploy my-function --region eu-west-1        # deploy near users
-```
+1. Review and change database compute in the project Dashboard, including cost and connection limits.
+2. Deploy with the documented `supabase functions deploy my-function` workflow.
+3. Choose execution routing at invocation time where appropriate; deploying does not accept a region-selection flag. See [regional invocations](https://supabase.com/docs/guides/functions/regional-invocation).
 
-Full compute selection table, CDN upload/transform patterns, versioned-asset
+Compute selection workflow, CDN upload/transform patterns, versioned-asset
 cache busting, and the regional geo-router Edge Function:
 [compute, CDN, and edge regions](references/cdn-and-edge.md).
 
@@ -99,7 +98,7 @@ patterns with partition-key filters, and partition drop for data retention.
 - Connection pooling mode selected (transaction vs session) with correct port
 - Compute tier matched to traffic requirements
 - Storage uploads optimized with CDN cache headers and image transforms
-- Edge Functions deployed to the region closest to users
+- Edge Function invocation routing reviewed for application and database latency
 - Large tables partitioned by date range with automated partition management
 - Data retention policy via partition drops
 

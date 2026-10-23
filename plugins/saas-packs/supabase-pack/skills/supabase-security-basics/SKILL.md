@@ -16,7 +16,7 @@ description: 'Apply Supabase security best practices: anon vs service_role key s
 
   '
 allowed-tools: Read, Write, Edit, Grep, Bash(supabase:*), Bash(npx supabase:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -32,7 +32,7 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Supabase exposes a Postgres database directly to the internet via PostgREST. Every table without Row Level Security enabled is fully readable and writable by anyone with your project URL and anon key — both of which are public. This skill covers the three pillars of Supabase security: key separation (anon vs service_role), RLS policy enforcement, and API surface hardening.
+The Data API exposes configured schemas through PostgREST. Access depends on schema exposure, the requesting role’s object grants, and RLS policies; a non-RLS table is not automatically readable and writable without grants. This skill covers the three pillars of Supabase security: key separation (anon vs service_role), RLS policy enforcement, and API surface hardening.
 
 ## Prerequisites
 
@@ -45,14 +45,14 @@ Supabase exposes a Postgres database directly to the internet via PostgREST. Eve
 
 ### Step 1 — Understand the Two API Keys
 
-Supabase issues two keys per project. Confusing them is the most common security mistake:
+Distinguish public and privileged keys. The table below describes legacy JWT-based keys; current projects also support publishable and secret keys, with different rotation and verification behavior:
 
 | Key | Environment Variable | Exposed to Client? | RLS Behavior |
 |-----|---------------------|-------------------|--------------|
 | **Anon key** | `SUPABASE_ANON_KEY` | Yes — browser-safe | Respects all RLS policies |
 | **Service role key** | `SUPABASE_SERVICE_ROLE_KEY` | **NEVER** expose | Bypasses ALL RLS |
 
-The anon key is a JWT that PostgREST uses to determine which RLS policies apply. It is safe to include in client-side bundles — it can only access data that RLS policies explicitly allow. The service role key bypasses every RLS policy and should only ever exist in server-side code (API routes, Edge Functions, cron jobs, migration scripts).
+The anon key is a JWT that PostgREST uses to determine which RLS policies apply. It may be included in client-side bundles; the effective role still needs appropriate grants and RLS on exposed tables. A public key does not identify a signed-in user. The service role key bypasses every RLS policy and should only ever exist in server-side code (API routes, Edge Functions, cron jobs, migration scripts).
 
 ```typescript
 // CORRECT: anon key on the client
@@ -82,11 +82,11 @@ const supabaseAdmin = createClient(
 const supabase = createClient(url, process.env.NEXT_PUBLIC_SERVICE_ROLE_KEY!)  // NEVER DO THIS
 ```
 
-**Key rotation:** Regenerate keys in Dashboard > Settings > API. After rotation, update every environment variable and redeploy all services. Old keys are invalidated immediately — there is no grace period.
+**Key rotation:** Inventory legacy JWT keys, publishable/secret API keys, and Auth signing keys separately. Follow the current [API-key migration](https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys) and signing-key procedures for the actual key type. Stage and verify consumer cutover, then explicitly revoke/deactivate the retired credential as supported. Coexistence, caching, signing-key grace periods, and already-issued JWT lifetime differ; do not promise universal immediate invalidation or zero grace. Never print keys during verification.
 
 ### Step 2 — Enforce Row Level Security on Every Table
 
-Without RLS, any table in the `public` schema is fully accessible via the REST API to anyone holding the anon key. RLS is not optional — it is the primary access control layer.
+Audit configured exposed schemas and grants as well as RLS. Non-RLS tables can expose rows to roles granted access; enabling RLS constrains ordinary roles but does not constrain a superuser, BYPASSRLS role, or normally the table owner. Test the actual request role and identity.
 
 ```sql
 -- Audit: find tables missing RLS
@@ -100,11 +100,14 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.todos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- CRITICAL: enabling RLS with NO policies blocks ALL access via the API.
--- You MUST add at least one policy per table per operation (SELECT, INSERT, UPDATE, DELETE).
+-- With no applicable policies, ordinary RLS-constrained roles are denied.
+-- Grant and add policies ONLY for reviewed required operations. SELECT-only
+-- access does not require INSERT/UPDATE/DELETE policies; keep writes denied.
 ```
 
-**Policy pattern — users read/write their own rows:**
+**Policy patterns — independently reviewed operations:**
+
+The following policies are alternatives to adopt only for required operations, not a mandate to enable every write. Review existing permissive policies and grants first; a policy alone does not grant table privileges.
 
 ```sql
 -- SELECT: user can only read their own rows
@@ -201,7 +204,7 @@ const { data } = await supabase
 
 **Network restrictions:** Restrict direct database connections to known IP ranges in Dashboard > Settings > Database > Network Restrictions. This does not affect the REST API (which goes through PostgREST) but protects direct Postgres connections.
 
-**CORS configuration:** Configure allowed origins per project in Dashboard > Settings > API > CORS. Default allows all origins (`*`) — restrict to your domains in production.
+**CORS boundary:** For browser calls to an Edge Function, implement the documented [function CORS/preflight handling](https://supabase.com/docs/guides/functions/cors) and the application’s reviewed origin policy. This is not a universal Data API Dashboard CORS setting. Auth redirect allowlists are a separate control. Origins and preflight responses are not authentication or row authorization; retain verified identity, grants, and RLS.
 
 **Disable unused auth providers:** Dashboard > Authentication > Providers. Disable any provider you are not actively using (email, phone, Google, GitHub, etc.) to reduce attack surface.
 

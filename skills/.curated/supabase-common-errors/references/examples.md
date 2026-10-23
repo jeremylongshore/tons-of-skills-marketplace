@@ -1,138 +1,91 @@
-# Supabase Common Errors — Worked Examples
+# Common Errors: Worked Examples
 
-Full copy-paste examples for the most common Supabase failure modes. SKILL.md
-carries the first example inline; all four are reproduced here.
+These application helpers assume an existing schema with the stated columns and
+RLS/grants for the authenticated user. Pass a request-scoped user client; do not
+share sessions across users or pass a service-role client to this request code.
+Construction alone is not a database connection or authorization test.
 
-## Example 1 — Handling `.single()` on optional data (PGRST116)
+## Optional Profile: Check Error Before Null
 
 ```typescript
-// BAD — crashes when user has no profile
-const { data: profile } = await supabase
-  .from('profiles')
-  .select('*')
-  .eq('user_id', userId)
-  .single()  // throws PGRST116 if no row exists
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-// GOOD — returns null instead of erroring
-const { data: profile, error } = await supabase
-  .from('profiles')
-  .select('*')
-  .eq('user_id', userId)
-  .maybeSingle()
-
-if (!profile) {
-  // Create a default profile
-  const { data: newProfile } = await supabase
+export async function ownProfile(client: SupabaseClient) {
+  const {
+    data: { user },
+    error: authError,
+  } = await client.auth.getUser();
+  if (authError || !user) throw new Error('Verified user required');
+  const { data, error } = await client
     .from('profiles')
-    .insert({ user_id: userId, display_name: 'New User' })
-    .select()
-    .single()
+    .select('id, display_name')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (error) throw error; // multiple rows and other failures remain errors
+  return data; // null is a successful zero-row result, not permission to insert
 }
 ```
 
-## Example 2 — Upsert to avoid unique constraint (23505)
+`.single()` reports zero OR multiple rows through an error result; it does not
+normally throw that result as an exception. `.maybeSingle()` permits zero rows only.
+
+## Deliberate Upsert, Not a Universal Duplicate Fix
 
 ```typescript
-// BAD — fails if row already exists
-const { error } = await supabase
-  .from('user_settings')
-  .insert({ user_id: userId, theme: 'dark' })
-// error.code === '23505' — unique constraint on user_id
-
-// GOOD — inserts or updates based on conflict column
-const { data, error } = await supabase
-  .from('user_settings')
-  .upsert(
-    { user_id: userId, theme: 'dark' },
-    { onConflict: 'user_id' }
-  )
-  .select()
-  .single()
-```
-
-## Example 3 — Realtime subscription with error handling
-
-```typescript
-const channel = supabase
-  .channel('todos-changes')
-  .on(
-    'postgres_changes',
-    { event: '*', schema: 'public', table: 'todos' },
-    (payload) => {
-      console.log('Change received:', payload.eventType, payload.new)
-    }
-  )
-  .subscribe((status, err) => {
-    switch (status) {
-      case 'SUBSCRIBED':
-        console.log('Realtime connected')
-        break
-      case 'CHANNEL_ERROR':
-        console.error('Realtime error — is the table in the publication?', err)
-        // Fix: ALTER PUBLICATION supabase_realtime ADD TABLE todos;
-        break
-      case 'TIMED_OUT':
-        console.error('Realtime timed out — check network')
-        break
-      case 'CLOSED':
-        console.log('Channel closed')
-        break
-    }
-  })
-
-// Always clean up on unmount / exit
-process.on('SIGINT', async () => {
-  await supabase.removeChannel(channel)
-  process.exit(0)
-})
-```
-
-## Example 4 — Connection pool exhaustion (PGRST000) in serverless
-
-```typescript
-// BAD — creates a new client per request in serverless (Lambda, Edge Functions)
-export async function handler(req: Request) {
-  const supabase = createClient(url, key)  // new connection every invocation
-  const { data } = await supabase.from('todos').select('*')
-  return Response.json(data)
-}
-
-// GOOD — reuse client across warm invocations
-const supabase = createClient(url, key, {
-  auth: { autoRefreshToken: false, persistSession: false }
-})
-
-export async function handler(req: Request) {
-  const { data, error } = await supabase.from('todos').select('*')
-  if (error) {
-    if (error.code === 'PGRST000') {
-      // Pool exhausted — return 503 so the caller retries
-      return new Response('Service temporarily unavailable', { status: 503 })
-    }
-    return Response.json({ error: error.message }, { status: 400 })
-  }
-  return Response.json(data)
+export async function setOwnTheme(client: SupabaseClient, theme: 'dark' | 'light') {
+  const {
+    data: { user },
+    error: authError,
+  } = await client.auth.getUser();
+  if (authError || !user) throw new Error('Verified user required');
+  const { error } = await client
+    .from('user_settings')
+    .upsert({ user_id: user.id, theme }, { onConflict: 'user_id' });
+  if (error) throw error;
 }
 ```
 
-## Quick Diagnostic Commands
+This requires a unique `user_id` and reviewed insert/update policies. Upsert can
+overwrite an existing value; never use it to suppress an unexplained uniqueness
+violation or to merge data across identities. A timed-out write needs reconciliation
+before a retry decision.
 
-```bash
-# Check Supabase status
-curl -s https://status.supabase.com
+## Realtime Status and Cleanup
 
-# Verify API connectivity
-curl -I https://api.supabase.com
-
-# Check local configuration
-env | grep SUPABASE
+```typescript
+export function watchTodos(client: SupabaseClient, onStatus: (status: string) => void) {
+  const channel = client
+    .channel('own-todos')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'todos' }, () =>
+      onStatus('change-notification'),
+    )
+    .subscribe((status) => onStatus(status));
+  return () => client.removeChannel(channel);
+}
 ```
 
-### Escalation Path
+Subscribe only under the correct user identity and database/publication policies.
+The callback intentionally does not log changed rows. CHANNEL_ERROR does not prove
+one specific configuration defect; investigate the actual service response. On
+reconnect, reconcile data rather than assuming all missed events will be replayed.
+Call the returned cleanup function when the view/request lifecycle ends.
 
-1. Collect evidence with `supabase-debug-bundle`
-2. Check Supabase status page
-3. Contact support with request ID
+## Data API Versus Direct SQL Pools
 
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+The HTTP SDK is not a direct Postgres client pool. A request-scoped SSR client does
+not imply a new SQL connection for each invocation. PGRST000 concerns unavailable
+or misconfigured database connectivity; PGRST003 is the pool acquisition timeout.
+Inspect server workload and capacity before changing pool settings. Direct `pg`
+clients and Supavisor session/transaction modes have separate connection contracts.
+Do not fix a user-session problem by caching a mutable authenticated singleton.
+
+## Bounded Escalation Evidence
+
+Record the service, safe error code, approximate time, operation class, locked
+version and protected request ID. Use the actual project URL and an approved table
+for any separately authorized probe, not Management API availability as a proxy.
+Never run `env | grep SUPABASE` in a shared report: it can expose credentials.
+
+[Error reference](error-reference.md)
+[Diagnostic walkthrough](implementation.md)
+[Database connections](https://supabase.com/docs/guides/database/connecting-to-postgres)

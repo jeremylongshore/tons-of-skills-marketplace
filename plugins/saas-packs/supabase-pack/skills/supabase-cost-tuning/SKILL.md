@@ -15,15 +15,16 @@ description: 'Optimize Supabase costs through plan selection, database tuning, s
 
   '
 allowed-tools: Read, Write, Edit, Grep, Bash(supabase:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- supabase
-- cost-optimization
+  - saas
+  - supabase
+  - cost-optimization
 compatibility: Designed for Claude Code
 ---
+
 # Supabase Cost Tuning
 
 ## Overview
@@ -41,27 +42,19 @@ Work the three steps below in order — audit first to find where the money goes
 
 ## Pricing Reference
 
-| Resource | Free Tier | Pro ($25/mo) | Team ($599/mo) |
-| ---------- | ----------- | -------------- | ---------------- |
-| Database | 500 MB | 8 GB included, $0.125/GB extra | 8 GB included |
-| Storage | 1 GB | 100 GB included, $0.021/GB extra | 100 GB included |
-| Bandwidth | 5 GB | 250 GB included, $0.09/GB extra | 250 GB included |
-| Edge Functions | 500K invocations | 2M invocations, $2/million extra | 2M invocations |
-| Realtime | 200 concurrent | 500 concurrent | 500 concurrent |
-| Auth MAU | 50,000 | 100,000 | 100,000 |
+Reviewed 2026-10-22: use [current pricing](https://supabase.com/pricing) and the
+project's actual billing dashboard rather than a universal hard-coded plan table.
+Compute is billed hourly; paid organizations receive $10 of compute credits per
+month, shared across projects, not a free compute instance for every project.
+The [compute usage reference](https://supabase.com/docs/guides/platform/manage-your-usage/compute)
+lists Small at $0.0206/hour (about $15 for 730 hours), Medium at $0.0822/hour
+(about $60), and Large at $0.1517/hour (about $111), before plan fees, credits and
+other usage. These dated estimates are not a billing quote or fixed monthly cap.
 
-**Compute add-ons** (Pro and above):
-
-| Instance | vCPUs | RAM | Price |
-| ---------- | ------- | ----- | ------- |
-| Micro | 2 | 1 GB | Included with Pro |
-| Small | 2 | 2 GB | $25/mo |
-| Medium | 2 | 4 GB | $50/mo |
-| Large | 4 | 8 GB | $100/mo |
-| XL | 8 | 16 GB | $200/mo |
-| 2XL | 16 | 32 GB | $400/mo |
-
-**Decision framework:** Read replicas ($25/mo each) beat scaling up when reads dominate and geographic distribution is needed. Connection pooling (Supavisor, free) reduces compute pressure from idle connections.
+Read replicas have their own compute and usage costs, not a universal $25/month
+price. Model the selected size, active hours, disk, egress, region and current plan
+allowances before changing topology. Pooling can reduce connection overhead but
+does not guarantee that a smaller compute size will satisfy the workload.
 
 ## Instructions
 
@@ -77,7 +70,7 @@ Then audit storage per bucket with a service-role client, and read current spend
 
 ### Step 2: Optimize database, storage, and bandwidth
 
-Attack the biggest offenders from Step 1. Archive old rows before deleting, then VACUUM ANALYZE to reclaim space and refresh planner stats:
+Attack the biggest offenders from Step 1. Archive old rows before deleting, then VACUUM ANALYZE to make dead-tuple space reusable and refresh planner stats; ordinary VACUUM does not generally shrink the on-disk allocation:
 
 ```sql
 vacuum (verbose, analyze) public.events;
@@ -85,24 +78,33 @@ vacuum (verbose, analyze) public.events;
 
 For storage, compress images client-side before upload and schedule an orphan-cleanup job. For bandwidth, replace `select('*')` with explicit column lists, use `head: true` count queries for totals, and paginate with `.range()`. See [full optimization code](references/optimization.md) for the archival + VACUUM SQL, the compress/clean-orphans scripts, and the bandwidth-reduction patterns.
 
-### Step 3: Right-size compute and reduce Edge Function costs
+### Step 3: Right-size compute and distinguish invocation cost from latency
 
-Prefer pooling and code fixes over a compute upgrade. Route direct `pg` connections (migrations, ORMs) through the Supavisor pooler URL instead of scaling the instance:
+Prefer pooling and code fixes over a compute upgrade. Choose the appropriate direct or Supavisor session/transaction connection mode for the client. Migrations may require direct/session semantics; do not send every workflow to transaction pooling:
 
 ```typescript
-// Direct endpoint: db.xxx.supabase.co on port 5432
-// Pooled endpoint: db.xxx.supabase.co on port 6543
+// Copy the actual direct/session/transaction connection string from Dashboard.
+// Do not derive the pooler hostname by changing only the port.
+// Transaction pooling constraints (including prepared statements) need review.
 ```
 
-Cut Edge Function cost by keeping imports lightweight (dynamic-import heavy libraries only on the paths that need them) and caching expensive results across warm invocations. Add a lightweight usage-tracking table plus a daily materialized-view summary for spend visibility. See [full compute and Edge Function code](references/optimization.md) for the pooling config, cold-start patterns, and usage-monitoring schema (Step 3 section).
+Smaller imports and warm-instance caching can improve latency/resource use, but do
+not themselves reduce hosted Edge Function invocation charges. Current
+[invocation billing](https://supabase.com/docs/guides/platform/manage-your-usage/edge-function-invocations)
+is based on invocation count (excluding preflight OPTIONS), with package rounding
+for billable overage. Avoid unnecessary invocations and retry storms within the
+application's correctness requirements; do not skip required work to reduce counts.
+Treat historical optimization examples as resource/latency patterns, not evidence
+of invocation savings. Use actual billing usage rather than a custom event table
+as invoice authority.
 
 ## Output
 
 After completing all three steps, the project has:
 
 - Database size audit with table-level breakdown and dead tuple analysis
-- Unused indexes identified and dropped to reclaim storage
-- Old data archived and vacuumed to free database space
+- Candidate unused indexes reviewed against representative workloads before any approved drop
+- Approved archival and vacuum outcomes measured without promising physical disk shrinkage
 - Storage orphans cleaned and upload compression implemented
 - Bandwidth reduced through column selection and pagination
 - Connection pooling configured to avoid unnecessary compute upgrades
@@ -111,23 +113,23 @@ After completing all three steps, the project has:
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-| ------- | ------- | ---------- |
-| Database approaching 500 MB (Free) or 8 GB (Pro) | Data growth without archival | Archive old records, VACUUM, drop unused indexes |
-| Storage costs climbing monthly | Orphaned uploads accumulating | Schedule cleanup job for files not linked to records |
-| Unexpected bandwidth spike | `select('*')` on large tables | Use specific column lists; add `.range()` pagination |
-| Edge Function billing spike | Retry loops or heavy imports | Add circuit breaker with max 3 retries; dynamic imports |
-| Connection limit errors | Too many direct connections | Switch to pooler URL (port 6543); reduce client pool size |
-| Spend cap reached | Usage exceeded Pro included resources | Enable spend cap in Dashboard > Settings > Billing to prevent overage |
-| VACUUM not reclaiming space | Long-running transactions holding locks | Check `pg_stat_activity` for idle-in-transaction; terminate stale sessions |
+| Issue                                            | Cause                                        | Solution                                                                                                       |
+| ------------------------------------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Database approaching 500 MB (Free) or 8 GB (Pro) | Data growth without archival                 | Archive old records, VACUUM, drop unused indexes                                                               |
+| Storage costs climbing monthly                   | Orphaned uploads accumulating                | Schedule cleanup job for files not linked to records                                                           |
+| Unexpected bandwidth spike                       | `select('*')` on large tables                | Use specific column lists; add `.range()` pagination                                                           |
+| Edge Function billing spike                      | Excess invocations or retry loops            | Inspect invocation counts and correctness-preserving admission/retry budgets; import size is a latency concern |
+| Connection limit errors                          | Too many direct connections                  | Switch to pooler URL (port 6543); reduce client pool size                                                      |
+| Spend cap reached                                | A capped usage surface reached its allowance | Review the current spend-cap coverage and response; it does not cap every charge                               |
+| VACUUM not reclaiming space                      | Long-running transactions holding locks      | Check `pg_stat_activity` for idle-in-transaction; terminate stale sessions                                     |
 
 ## Examples
 
-**Quick cost check** — read database size and bucket count with a service-role client to see how close a growing project sits to its plan limits.
+**Quick cost check** — inspect actual billing usage and an authorized database-size query; bucket count is not stored bytes.
 
-**Monthly cost estimation** — feed measured usage (DB GB, storage GB, bandwidth GB, Edge Function invocations, MAU) into a Pro-tier overage calculator that prints a line-item breakdown and total.
+**Cost estimation** — supply reviewed quantities, units, current rates, eligible credits and source/date to an explicitly scoped calculator. No universal Pro-tier total is supplied.
 
-See [full example scripts](references/examples.md) for the runnable quick-check and the `estimateMonthlyCost` calculator with a worked $31.05/mo case.
+The [explicit-input examples](references/examples.md) validate arithmetic without embedding provider rates. Reconcile every included allowance, package/tier rounding, compute hour, credit and excluded charge against the current billing surface before using an estimate for a decision.
 
 ## Resources
 

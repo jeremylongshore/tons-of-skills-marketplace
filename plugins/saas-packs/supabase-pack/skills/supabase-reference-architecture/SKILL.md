@@ -10,7 +10,7 @@ description: "Implement enterprise Supabase reference architectures \u2014 monor
   , \"supabase reference design\",\n\"how to organize supabase at scale\".\n"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Bash(supabase:*), Grep,
   Glob
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -33,19 +33,19 @@ For the full monorepo directory layout and microservices cross-project access, s
 ## Prerequisites
 
 - `@supabase/supabase-js` v2+ installed (`npm install @supabase/supabase-js`)
-- Supabase CLI installed (`npm install -g supabase`)
+- Supabase CLI installed (`npm install --save-dev supabase`)
 - A Supabase project at [supabase.com/dashboard](https://supabase.com/dashboard)
 - Familiarity with `supabase-install-auth` (project URL, anon key, service role key)
 - PostgreSQL basics (RLS policies, triggers, functions)
 
 ## Instructions
 
-### Step 1: Client Singleton — The Foundation
+### Step 1: Browser Client and Isolated Admin Client
 
-Every app in the monorepo imports from a shared package instead of creating its own client. This guarantees a single source of truth for the URL, keys, and type definitions.
+Share configuration and generated types, not request-bound server sessions. The singleton below is for standalone browser apps without SSR; SSR-backed browser components use the cookie-aware factory in Step 3. Create each SSR user client inside its request. Never cache authenticated responses or share a server user client across requests.
 
 ```typescript
-// packages/supabase/src/client.ts
+// packages/supabase/src/client.ts — browser-only; never use as an SSR singleton
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
 
@@ -70,7 +70,8 @@ export function resetClient(): void {
 ```
 
 ```typescript
-// packages/supabase/src/admin.ts — Server-side only, never bundle in client code
+// packages/supabase/src/admin.ts — isolated privileged module for Next.js
+import 'server-only'
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
 
@@ -86,11 +87,11 @@ export function getSupabaseAdmin() {
 }
 ```
 
-Key detail: The admin client sets `autoRefreshToken: false` and `persistSession: false` because server-side code should never store user sessions.
+The admin client bypasses RLS. Never attach user cookies or a user session to it; invoke it only after application-owned authorization for a specific privileged operation. Keep it out of shared client exports. Other server runtimes need an equivalent build/import boundary.
 
-### Step 2: Multi-Tenant RLS via JWT Claims
+### Step 2: Read-Only Multi-Tenant Membership Policies
 
-The most scalable Supabase multi-tenant pattern uses a custom JWT claim (`org_id`) combined with RLS policies. Every table includes an `org_id` column, and RLS extracts the tenant from the user's JWT — no application-level filtering needed.
+This example authorizes reads through trusted membership rows, not user-editable metadata or a fabricated JWT claim. Only a separately authorized administrative process may provision tenants, memberships, or projects; no user write policies are supplied.
 
 ```sql
 -- Migration: 20260101000000_create_tenants.sql
@@ -121,104 +122,105 @@ create table public.projects (
   created_at timestamptz default now()
 );
 
--- Enable RLS on all tenant-scoped tables
+-- Enable RLS on every exposed table, including the authorization table.
+alter table public.tenants enable row level security;
+alter table public.tenant_members enable row level security;
 alter table public.projects enable row level security;
 
--- RLS policy: users can only see rows belonging to their tenant
--- The org_id is extracted from the JWT claims set during authentication
-create policy "Tenant isolation" on public.projects
-  for all
-  using (
-    org_id = (auth.jwt() ->> 'org_id')::uuid
-  );
+-- Read-only application surface: remove existing direct role grants first.
+revoke all privileges on public.tenants, public.tenant_members, public.projects
+  from public, anon, authenticated;
+grant select on public.tenants, public.tenant_members, public.projects
+  to authenticated;
+
+-- This policy reads only the current row; it does not query itself recursively.
+create policy "Read own memberships" on public.tenant_members
+  for select to authenticated
+  using (user_id = (select auth.uid()));
+
+create policy "Read member tenants" on public.tenants
+  for select to authenticated
+  using (exists (
+    select 1 from public.tenant_members as membership
+    where membership.tenant_id = tenants.id
+      and membership.user_id = (select auth.uid())
+  ));
+
+create policy "Read member projects" on public.projects
+  for select to authenticated
+  using (exists (
+    select 1 from public.tenant_members as membership
+    where membership.tenant_id = projects.org_id
+      and membership.user_id = (select auth.uid())
+  ));
 ```
 
-The tenant-switching function verifies membership before updating the JWT claim:
-
-```sql
--- Helper function to set org_id in JWT claims after login
-create or replace function public.set_tenant_claim(tenant_id uuid)
-returns void as $$
-begin
-  -- Verify user is a member of this tenant
-  if not exists (
-    select 1 from public.tenant_members
-    where tenant_members.tenant_id = set_tenant_claim.tenant_id
-      and tenant_members.user_id = auth.uid()
-  ) then
-    raise exception 'Not a member of tenant %', tenant_id;
-  end if;
-
-  -- Set the custom claim
-  perform auth.update_user_metadata(
-    auth.uid(),
-    jsonb_build_object('org_id', tenant_id)
-  );
-end;
-$$ language plpgsql security definer;
-```
-
-Key details for multi-tenant RLS:
-
-- `auth.jwt() ->> 'org_id'` reads a custom claim from the user's JWT — zero application code needed
-- Every tenant-scoped table must have an `org_id` column and RLS enabled
-- Tenant switching requires updating the JWT claim and re-authenticating
-- For row-level tenant + role permissions, combine `org_id` with a role lookup
+This is a new-table migration example. On existing tables, review other policies and inherited grants; a permissive policy can widen access. The table-local revocations above also remove grants inherited through `PUBLIC`, including configured defaults; they do not alter schema-wide defaults or privileges on other tables. Test as ordinary authenticated users, not the table owner or an RLS-bypassing admin. A query's tenant filter narrows results but never grants membership. Writes require a separate reviewed authorization design; do not add a blanket `for all` policy.
 
 ### Step 3: Framework Integration (Next.js)
 
-Server components use the `service_role` key for direct database access. Client components use the `anon` key with RLS protection.
+User-facing SSR uses a request-scoped `@supabase/ssr` client with a publishable key (or legacy anon key) and cookie adapters. A plain `Cookie` header on a privileged client is not a user authorization boundary.
 
 ```typescript
-// app/lib/supabase-server.ts — Next.js App Router (server components)
-import { createClient } from '@supabase/supabase-js'
+// app/lib/supabase-server.ts — cookie-writable Route Handlers / Server Actions
+import 'server-only'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@my-platform/supabase'
 
 export async function getSupabaseServer() {
   const cookieStore = await cookies()
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!key) throw new Error('Missing Supabase publishable or anon key')
 
-  return createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: { autoRefreshToken: false, persistSession: false },
-      global: {
-        headers: {
-          // Forward the user's auth cookie for RLS context
-          cookie: cookieStore.toString()
+  return createServerClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: (updates) => {
+        for (const { name, value, options } of updates) {
+          cookieStore.set(name, value, options)
         }
       }
     }
-  )
+  })
 }
 
-// app/projects/page.tsx — Server component with direct DB access
-export default async function ProjectsPage() {
-  const supabase = await getSupabaseServer()
-  const { data: projects } = await supabase
-    .from('projects')
-    .select('id, name, created_at')
-    .order('created_at', { ascending: false })
-    .limit(50)
+// app/api/projects/route.ts — read-only, user-authenticated request
+import { getSupabaseServer } from '@/app/lib/supabase-server'
 
-  return <ProjectList projects={projects ?? []} />
+export async function GET() {
+  const supabase = await getSupabaseServer()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return Response.json({ error: 'Unauthorized' }, {
+    status: 401, headers: { 'Cache-Control': 'private, no-store' }
+  })
+
+  const { data, error } = await supabase.from('projects')
+    .select('id, name, created_at').order('created_at', { ascending: false }).limit(50)
+  if (error) return Response.json({ error: 'Project query failed' }, {
+    status: 500, headers: { 'Cache-Control': 'private, no-store' }
+  })
+  return Response.json(data, { headers: { 'Cache-Control': 'private, no-store' } })
 }
 ```
 
+Server Components cannot persist refreshed cookies. Configure the framework's Proxy/session-refresh route and its request/response cookie propagation before rendering; do not reuse the writable helper above in a read-only context or silently discard refresh writes. See the [SSR client guide](https://supabase.com/docs/guides/auth/server-side/creating-a-client?queryGroups=framework&framework=nextjs) for the framework-specific adapter. Never cache a response carrying another user's session.
+
 ```typescript
-// app/lib/supabase-browser.ts — Client components use the anon key
+// app/lib/supabase-browser.ts — same cookie session as the SSR client
 'use client'
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import type { Database } from '@my-platform/supabase'
 
-let browserClient: ReturnType<typeof createClient<Database>> | null = null
+let browserClient: ReturnType<typeof createBrowserClient<Database>> | null = null
 
 export function getSupabaseBrowser() {
   if (!browserClient) {
-    browserClient = createClient<Database>(
+    browserClient = createBrowserClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)!
     )
   }
   return browserClient
@@ -232,7 +234,7 @@ For SvelteKit integration and additional framework patterns, see [Examples](refe
 After applying these patterns you will have:
 
 - Monorepo with shared Supabase client, typed database access, and centralized migrations
-- Multi-tenant RLS isolation using `auth.jwt() ->> 'org_id'` — zero application-level filtering
+- Read-only tenant membership policies, with tenant filters used only for query scope
 - Framework-specific integration for Next.js (server/client split) and SvelteKit (hooks)
 - Edge Functions, caching layer, job queue, and audit trail (see [Operational Patterns](references/key-components.md))
 
@@ -241,8 +243,8 @@ After applying these patterns you will have:
 | Error | Cause | Solution |
 |-------|-------|----------|
 | `Missing SUPABASE_URL or SUPABASE_ANON_KEY` | Environment variables not set | Check `.env` file and ensure variables are loaded |
-| `new row violates row-level security policy` | RLS blocks the operation | Verify `org_id` JWT claim matches the row's `org_id` |
-| `Not a member of tenant` | User tried switching to unauthorized tenant | Check `tenant_members` table for the user-tenant pair |
+| `new row violates row-level security policy` | RLS blocks the operation | Check verified user identity, role grants, and the trusted membership row |
+| Empty tenant result | No readable membership or no matching rows | Check the requested tenant and trusted membership; never bypass RLS |
 | `TypeError: Cannot read properties of null` | Client singleton not initialized | Ensure env vars are available before first `getSupabaseClient()` call |
 | `cron.schedule: permission denied` | `pg_cron` extension not enabled | Enable via dashboard: Database > Extensions > pg_cron |
 
@@ -253,37 +255,21 @@ For the full error reference including RLS debugging and cross-project troublesh
 ### Multi-Tenant Query Flow (TypeScript)
 
 ```typescript
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from './database.types'
+// Use the current request's authenticated, non-admin client.
+import { getSupabaseServer } from './supabase-server'
 
-const supabase = createClient<Database>(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-)
+export async function readTenantProjects(tenantId: string) {
+  const supabase = await getSupabaseServer()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error('Authentication required')
 
-// 1. Sign in
-const { data: { session } } = await supabase.auth.signInWithPassword({
-  email: 'user@example.com',
-  password: 'secure-password'
-})
-
-// 2. Switch tenant context
-const { error: claimError } = await supabase.rpc('set_tenant_claim', {
-  tenant_id: 'tenant-uuid-here'
-})
-if (claimError) throw claimError
-
-// 3. Refresh session to pick up new JWT claims
-await supabase.auth.refreshSession()
-
-// 4. All subsequent queries are automatically scoped to this tenant
-const { data: projects } = await supabase
-  .from('projects')
-  .select('id, name, created_at')
-  .order('created_at', { ascending: false })
-
-console.log('Tenant projects:', projects)
-// Only returns projects where org_id matches the JWT claim
+  const { data, error } = await supabase.from('projects')
+    .select('id, name, created_at')
+    .eq('org_id', tenantId) // Query scope only; membership RLS authorizes access.
+    .order('created_at', { ascending: false })
+  if (error) throw new Error('Project query failed')
+  return data
+}
 ```
 
 For the job queue consumer example and SvelteKit integration, see [Examples](references/examples.md).
@@ -292,7 +278,7 @@ For the job queue consumer example and SvelteKit integration, see [Examples](ref
 
 - [Supabase Architecture](https://supabase.com/docs/guides/getting-started/architecture)
 - [Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
-- [Multi-Tenant RLS](https://supabase.com/docs/guides/auth/row-level-security#multi-tenant-applications)
+- [SSR Client Authentication](https://supabase.com/docs/guides/auth/server-side/creating-a-client?queryGroups=framework&framework=nextjs)
 - [Edge Functions](https://supabase.com/docs/guides/functions)
 - [TypeScript Support](https://supabase.com/docs/reference/javascript/typescript-support)
 - [Generating Types](https://supabase.com/docs/guides/api/rest/generating-types)

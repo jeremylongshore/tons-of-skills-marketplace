@@ -144,8 +144,8 @@ async function profileEdgeFunction(
 ```
 
 ```bash
-# Check Edge Function logs for cold start indicators
-npx supabase functions logs my-function --project-ref <ref> 2>&1 | head -50
+# Inspect the selected function in the project Dashboard: Logs and Invocations.
+# Match timestamps and execution metadata to the approved test invocation.
 
 # Look for patterns:
 # - First invocation after deploy: high latency

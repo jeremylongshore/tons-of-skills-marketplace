@@ -1,6 +1,6 @@
 # Supabase Skill Pack
 
-> 30 production-grade Claude Code skills for Supabase: real `@supabase/supabase-js` v2 client methods, real PostgreSQL RLS policies, real Edge Functions, real Supabase CLI workflows.
+> 30 Claude Code skills covering Supabase SDKs, PostgreSQL RLS, Edge Functions, and documented operator workflows.
 
 ## Installation
 
@@ -10,7 +10,7 @@
 
 ## What Makes This Different
 
-Every skill contains real, copy-paste-ready code. No placeholder `// Step 1 implementation` stubs. Real `createClient()` initialization, real `supabase.from().select().eq()` queries, real `supabase.auth.signUp()` calls, real `alter table enable row level security` policies, real `supabase functions deploy` workflows.
+The pack includes worked SDK and SQL examples plus manual Dashboard procedures. Adapt application types, tables, and authorization before use; skill invocation does not authorize provider access, deployments, destructive actions, or secret handling.
 
 ## Skills (30)
 
@@ -79,6 +79,12 @@ Every skill contains real, copy-paste-ready code. No placeholder `// Step 1 impl
 - **Edge Functions**: Deno runtime, `supabase functions deploy`, local serve with hot reload
 - **CLI**: `supabase start`, `supabase db push`, `supabase db diff`, `supabase gen types`, `supabase migration new`
 - **Deployment**: Vercel, Fly.io, Cloud Run, Supavisor connection pooling
+
+## Runtime and CLI Setup
+
+Current JavaScript SDK releases require Node.js 22+ ([SDK support policy](https://github.com/supabase/supabase-js#nodejs)); the Python SDK requires Python 3.9+ ([package metadata](https://pypi.org/project/supabase/)). The npm CLI has its own Node.js 20+ floor: install it as a project dev dependency (`npm install --save-dev supabase`) and run `npx supabase`. Homebrew or Scoop provide supported global installations. See the [official CLI setup](https://supabase.com/docs/guides/local-development/cli/getting-started).
+
+Pack homepage: https://tonsofskills.com/learn/supabase/
 
 ## Usage
 

@@ -6,7 +6,7 @@ description: "Run your first Supabase query \u2014 insert a row and read it back
   \ phrases like \"supabase hello world\", \"first supabase query\",\n\"supabase quick\
   \ start\", \"test supabase connection\", \"supabase insert and select\".\n"
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Bash(supabase:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

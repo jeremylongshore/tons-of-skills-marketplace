@@ -9,7 +9,7 @@ description: >-
   outage", "supabase down", "supabase on-call", "supabase emergency", "supabase
   broken", or "supabase connection issues".
 allowed-tools: Read, Grep, Bash(npx supabase:*), Bash(supabase:*), Bash(curl:*), Bash(psql:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -40,7 +40,7 @@ copy-paste blocks for every step live in
 
 - Supabase project with dashboard access at [supabase.com/dashboard](https://supabase.com/dashboard)
 - `@supabase/supabase-js` v2+ installed in your project
-- Supabase CLI installed for Edge Function log access
+- Supabase Dashboard access for remote Edge Function logs; an installed CLI for local diagnostics
 - Direct database connection string (for `psql` diagnostics)
 - Access to [status.supabase.com](https://status.supabase.com) for platform health
 
@@ -88,16 +88,13 @@ Debug silent data filtering from Row Level Security, inspect Edge Function execu
 
 ```sql
 -- List every RLS policy on the affected table
-SELECT policyname, cmd, permissive,
-       pg_get_expr(qual, polrelid) AS using_expression
-FROM pg_policy
-JOIN pg_class ON pg_class.oid = polrelid
-WHERE relname = 'your_table_name';
+SELECT policyname, cmd, permissive, roles, qual AS using_expression
+FROM pg_policies
+WHERE schemaname = 'public' AND tablename = 'your_table_name';
 ```
 
 Continue with JWT-claim simulation in the SQL Editor, the anon-vs-service-role
-SDK diff (`debugRLS`), Edge Function log tailing (`npx supabase functions
-logs`), cold-start detection, and a storage bucket upload/download check — full
+SDK diff (`debugRLS`), remote Edge Function log inspection in the Dashboard, cold-start detection, and a storage bucket upload/download check — full
 blocks in
 [references/diagnostics.md](references/diagnostics.md).
 
@@ -121,7 +118,7 @@ After running this incident runbook, you will have:
 | `FetchError: request failed` | Supabase API unreachable | Check status.supabase.com; verify network/DNS |
 | `connection refused` on port 5432 | Direct DB access blocked or wrong credentials | Use pooler URL (port 6543) or check dashboard connection strings |
 | `too many clients already` | Connection pool exhausted | Kill idle-in-transaction connections; enable Supavisor pooling |
-| `permission denied for table` | RLS blocking or wrong role | Check policies with `pg_policy`; verify JWT claims |
+| `permission denied for table` | RLS blocking or wrong role | Check policies with `pg_policies`; verify JWT claims |
 | `WORKER_LIMIT` in Edge Function | Memory/CPU exceeded | Reduce function payload size; optimize imports |
 | `JWT expired` | Token not refreshing | Verify `autoRefreshToken: true` in `createClient` options |
 | `storage/object-not-found` | File deleted or wrong path | Check bucket policies; verify path with service role client |

@@ -8,18 +8,18 @@
     "run_id": 138,
     "total": 3493,
     "grades": {
-      "A": 2881,
-      "B": 322,
+      "A": 2880,
+      "B": 323,
       "C": 132,
       "D": 154,
       "F": 4
     },
-    "grades_csv_sha256": "f92394a2dfdf1fc09337598a0e5c3563e2a9ad5288ce04e7e0b80e79401710cd"
+    "grades_csv_sha256": "e5225298e333318dae1e51ae8d7d7e3e8fe7f3265934a1415f94e5898e8684e5"
   },
   "selection": {
     "resolver": "graded∩first-party",
     "count": 2628,
-    "sha256": "0c8266ad4ff2f35198d467aaa7c3b27789176c57fabb5f54ac6992b74860a7d2"
+    "sha256": "0d77a24ad0769bfb9ee4ccf60a1e5d439ededb7e2e17675ad1dfd0b3d49a0fb8"
   },
   "count": 2628,
   "skills": [
@@ -25732,7 +25732,7 @@
       "category": "saas-packs",
       "plugin": "notion-pack",
       "recorded_grade": "A",
-      "recorded_score": "96",
+      "recorded_score": "97",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [
@@ -35049,7 +35049,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "94",
+      "recorded_score": "95",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [
@@ -35181,9 +35181,9 @@
       "source_path": "plugins/saas-packs/supabase-pack/skills/supabase-debug-bundle",
       "category": "saas-packs",
       "plugin": "supabase-pack",
-      "recorded_grade": "A",
-      "recorded_score": "90",
-      "fresh_grade": "A",
+      "recorded_grade": "B",
+      "recorded_score": "89",
+      "fresh_grade": "B",
       "run_id": 138,
       "files": [
         "SKILL.md",
@@ -35198,7 +35198,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "93",
+      "recorded_score": "94",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [
@@ -35298,7 +35298,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "93",
+      "recorded_score": "96",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [
@@ -35461,7 +35461,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "90",
+      "recorded_score": "92",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [
@@ -35478,7 +35478,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "93",
+      "recorded_score": "91",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [
@@ -35513,7 +35513,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "95",
+      "recorded_score": "96",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [
@@ -35548,7 +35548,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "92",
+      "recorded_score": "91",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [
@@ -35564,7 +35564,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "94",
+      "recorded_score": "93",
       "fresh_grade": "A",
       "run_id": 138,
       "files": [

@@ -1,56 +1,33 @@
-# Supabase Rate Limits & Quotas by Tier and Surface
+# Rate Limits and Quotas by Surface
 
-Every Supabase project has per-surface limits that differ by plan. Know these numbers before you architect.
+Reviewed 2026-10-22 against the linked hosted-platform documentation. Limits are
+surface-specific, mutable, and may depend on project settings or contract. There
+is no supported universal Free/Pro Data API RPM/RPD table here, and Enterprise is
+not an unconditional promise of unlimited requests.
 
-**API Request Limits**
+| Surface                   | Check before sizing                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------- |
+| Auth                      | Endpoint-specific limits, IP/user/project basis, email-provider limits, and project Auth settings |
+| Database API              | Query cost, timeouts, connection/compute capacity, and application admission limits               |
+| Storage                   | Bucket upload limit, plan storage/egress allowances, and upload transport                         |
+| Realtime                  | Project connection/message/join limits and configured allowances                                  |
+| Edge Functions            | CPU, worker duration, request timeout, memory, and invocation allowances separately               |
+| Direct Postgres/Supavisor | Compute-specific connection and pool limits, mode, and application pool budget                    |
 
-| Metric | Free | Pro | Enterprise |
-|--------|------|-----|------------|
-| Requests per minute (RPM) | 500 | 5,000 | Unlimited (custom) |
-| Requests per day (RPD) | 50,000 | 1,000,000 | Unlimited (custom) |
+The current [hosted Edge Functions limits](https://supabase.com/docs/guides/functions/limits)
+list 2 seconds of CPU per request and worker wall-clock duration of 150 seconds
+on Free or 400 seconds on paid plans. Waiting on I/O is not CPU time; a worker's
+lifetime is not an individual request's guaranteed completion budget. The request
+idle timeout is separately documented. Recheck before deployment, and set a lower
+application deadline appropriate to the operation.
 
-**Auth Rate Limits**
+Use measured load and an explicit application budget; do not derive a global API
+rate from plan included billing quantities. Handle an actual 429 according to the
+surface's documented response, with bounded backoff and a deadline. Do not retry
+non-idempotent mutations merely because a response was throttled or lost.
 
-| Endpoint | Free | Pro |
-| ---------- | ------ | ----- |
-| Signup | 30/hour per IP | Higher (configurable) |
-| Sign-in (password) | 30/hour per IP | Higher (configurable) |
-| Magic link / OTP | 4/hour per user | Configurable |
-| Token refresh | 360/hour | 360/hour |
-
-Auth limits are per-IP and per-user. Configure custom limits in Dashboard > Authentication > Rate Limits.
-
-**Storage Bandwidth**
-
-| Metric | Free | Pro |
-| -------- | ------ | ----- |
-| Storage size | 1 GB | 100 GB |
-| Bandwidth | 2 GB/month | 250 GB/month |
-| Max file size | 50 MB | 5 GB |
-| Upload rate | Shared with API RPM | Shared with API RPM |
-
-**Realtime Connections**
-
-| Metric | Free | Pro |
-| -------- | ------ | ----- |
-| Concurrent connections | 200 | 500 |
-| Messages per second | 100 | 500 |
-| Channel joins | Shared with connection limit | Shared |
-
-**Edge Functions**
-
-| Metric | Free | Pro |
-| -------- | ------ | ----- |
-| Invocations/month | 500,000 | 2,000,000 |
-| Execution time | 150s wall / 50ms CPU | 150s wall / 2s CPU |
-| Memory | 256 MB | 256 MB |
-
-**Database Connections**
-
-| Mode | Free | Pro |
-|------|------|-----|
-| Direct connections | 60 | 100+ |
-| Pooled connections (Supavisor) | 200 | 1,500+ |
-
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+[Auth limits](https://supabase.com/docs/guides/auth/rate-limits)
+[Realtime limits](https://supabase.com/docs/guides/realtime/limits)
+[Storage upload limits](https://supabase.com/docs/guides/storage/uploads/file-limits)
+[Database connections](https://supabase.com/docs/guides/database/connecting-to-postgres)
+[Pricing](https://supabase.com/pricing)

@@ -1,139 +1,66 @@
-# Supabase Common Errors — Full Diagnostic Walkthrough
+# Common Errors: Diagnostic Walkthrough
 
-The complete three-step workflow for capturing, classifying, and fixing Supabase
-errors. SKILL.md carries the high-level version; this file has every code block.
+## 1. Capture the Correct Contract Without Leaking Data
 
-## Step 1 — Capture the Error Object
-
-Every Supabase SDK call returns a `{ data, error }` tuple. Never assume `data` exists — always check `error` first.
+Database queries return `{ data, error }`; check the error before using data. Do
+not infer the SDK version from one missing property, or assume subscription callbacks
+and Python clients return the same shape. Use the locked version's documentation.
+The example receives a client already scoped to the intended user/public operation.
+The existing `todos` table needs appropriate grants/RLS; this is not an admin probe.
 
 ```typescript
-import { createClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-)
-
-// WRONG — data is null when error exists
-const { data } = await supabase.from('todos').select('*')
-console.log(data.length) // TypeError: Cannot read property 'length' of null
-
-// CORRECT — always check error first
-const { data, error } = await supabase.from('todos').select('*')
-if (error) {
-  console.error(`[${error.code}] ${error.message}`)
-  console.error('Details:', error.details)
-  console.error('Hint:', error.hint)
-  // error.code tells you the layer:
-  //   PGRST* = PostgREST (API gateway)
-  //   5-digit numeric = PostgreSQL (database)
-  //   AuthApiError = Auth service
-  //   StorageApiError = Storage service
-  return
+export async function probeTodos(client: SupabaseClient) {
+  const { data, error } = await client.from('todos').select('id').limit(1);
+  if (error) return { available: false, code: safeDatabaseCode(error) };
+  return { available: true, visibleSampleRows: data.length };
 }
-// Safe to use data here
-console.log(`Found ${data.length} rows`)
-```
 
-**Troubleshooting:** If `error` is undefined (not null), you may be using an older SDK version. Upgrade to `@supabase/supabase-js@2.x` or later.
-
-## Step 2 — Identify the Error Layer and Code
-
-Match the error code prefix to the correct subsystem, then look up the specific code in the tables below.
-
-**PostgREST errors** start with `PGRST` and correspond to API-layer issues (JWT, query parsing, schema).
-**PostgreSQL errors** are 5-character codes (e.g., `42501`, `23505`) from the database engine.
-**Auth errors** come as `AuthApiError` with a human-readable message.
-**Storage errors** come as `StorageApiError` with an HTTP status.
-
-```typescript
-// Diagnostic helper — paste into your codebase to classify errors automatically
-function diagnoseSupabaseError(error: { code?: string; message: string; status?: number }) {
-  if (!error) return 'No error'
-
-  if (error.code?.startsWith('PGRST')) {
-    return `PostgREST error ${error.code}: ${error.message}\n` +
-      'Check: JWT validity, column/table names, query syntax'
-  }
-  if (error.code && /^\d{5}$/.test(error.code)) {
-    return `PostgreSQL error ${error.code}: ${error.message}\n` +
-      'Check: RLS policies, constraints, schema migrations'
-  }
-  if (error.message?.includes('AuthApiError')) {
-    return `Auth error: ${error.message}\n` +
-      'Check: credentials, email confirmation, token expiry'
-  }
-  if (error.message?.includes('StorageApiError')) {
-    return `Storage error: ${error.message}\n` +
-      'Check: bucket exists, RLS on storage.objects, file size limits'
-  }
-  return `Unknown error: ${JSON.stringify(error)}`
+export function safeDatabaseCode(error: unknown): string | null {
+  if (!error || typeof error !== 'object') return null;
+  const code = (error as { code?: unknown }).code;
+  return typeof code === 'string' && /^(?:PGRST[0-9A-Z]{3}|[0-9A-Z]{5})$/.test(code) ? code : null;
 }
 ```
 
-**Troubleshooting:** If the error code is empty or missing, check the HTTP status code on the response. A `401` without a code usually means `SUPABASE_ANON_KEY` is wrong or missing. A `500` without a code usually means a database function threw an unhandled exception.
+No rows is a successful empty visible sample, not proof that the table is empty or
+that its RLS is correct. Do not log raw error objects, hints, tokens, user rows or
+environment values to stdout. Keep request IDs and bounded diagnostic summaries in
+an access-controlled channel.
 
-## Step 3 — Apply the Fix and Verify
-
-Once you have identified the error code, apply the corresponding fix from the Error Handling table. Then verify the fix by re-running the original operation.
+## 2. Use Service Context, Not Message Guessing
 
 ```typescript
-// Example: Fix PGRST301 (JWT expired)
-// Before: stale session causes 401
-const { data, error } = await supabase.from('todos').select('*')
-// error.code === 'PGRST301'
-
-// Fix: refresh the session, then retry
-const { error: refreshError } = await supabase.auth.refreshSession()
-if (refreshError) {
-  // Token is fully invalid — force re-login
-  await supabase.auth.signOut()
-  console.error('Session expired. Please sign in again.')
-  return
-}
-
-// Retry the original query
-const { data: retryData, error: retryError } = await supabase.from('todos').select('*')
-if (retryError) {
-  console.error('Still failing after refresh:', retryError.code, retryError.message)
-} else {
-  console.log('Fixed! Retrieved', retryData.length, 'rows')
+export function classifyDatabaseFailure(error: unknown): string {
+  const code = safeDatabaseCode(error);
+  if (code?.startsWith('PGRST')) return 'postgrest';
+  if (code) return 'postgresql';
+  return 'unclassified';
 }
 ```
 
-```typescript
-// Example: Fix 42501 (RLS policy violation)
-// Step A: Confirm RLS is the problem using service role client
-const adminClient = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,  // bypasses RLS
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
-const { data: adminData } = await adminClient.from('todos').select('*')
-console.log('Admin sees', adminData?.length, 'rows')  // If this works, RLS is blocking
+This helper is only for an error already known to come from a database query. It
+does not automatically identify Auth/Storage by searching error-message text. Their
+service-specific contracts and Realtime callback statuses need separate handling.
+HTTP status alone does not prove a wrong project key or a failing database function.
 
-// Step B: Check which user the JWT resolves to
-const { data: { user } } = await supabase.auth.getUser()
-console.log('Current auth.uid() =', user?.id)
+## 3. Correct the Actual Failure and Verify Under the Same Identity
 
-// Step C: Fix the RLS policy in SQL Editor or migration
-/*
-  CREATE POLICY "Users can read own todos"
-    ON todos FOR SELECT
-    USING (auth.uid() = user_id);
+- PGRST301 means an undecodable/invalid JWT, not a transient connection error or
+  universal expiry signal. Check project and session configuration. Recover the
+  session only through the appropriate Auth workflow; do not repeatedly refresh,
+  sign users out, or retry writes based on this code alone.
+- 42501 means insufficient privilege. Verify the caller using fresh `getUser()`,
+  then inspect table grants and policies in a separately authorized catalog session.
+  A service-role success does not establish which grant/policy failed. Never inject
+  that privileged client into the user's request as a fix.
+- For schema-cache issues, verify the actual migration/schema first. An authorized
+  SQL session can issue `NOTIFY pgrst, 'reload schema';` when appropriate. Do not
+  deploy migrations or change policies merely because a diagnostic helper ran.
+- Re-run the original bounded operation under the original intended identity.
+  Check every returned error. Do not print user identifiers/rows in the evidence.
 
-  -- Verify with:
-  SET request.jwt.claim.sub = '<user-id>';
-  SELECT * FROM todos;
-*/
-
-// Step D: Retry original query
-const { data: fixedData, error: fixedError } = await supabase.from('todos').select('*')
-console.log(fixedError ? `Still blocked: ${fixedError.code}` : `Success: ${fixedData.length} rows`)
-```
-
-**Troubleshooting:** After applying a migration, you may need to reload the PostgREST schema cache. In the Supabase Dashboard, go to Settings > API and click "Reload schema cache", or call `NOTIFY pgrst, 'reload schema'` in SQL.
-
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+[Selected error reference](error-reference.md)
+[PostgREST errors](https://docs.postgrest.org/en/stable/references/errors.html)
+[RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)

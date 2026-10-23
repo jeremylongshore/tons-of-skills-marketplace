@@ -8,7 +8,7 @@ description: |
   Trigger with "supabase rate limit", "supabase 429", "supabase throttle",
   "supabase quota", "supabase connection pool", "supabase too many requests".
 allowed-tools: Read, Write, Edit, Bash(supabase:*), Bash(node:*), Bash(npx:*), Grep
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,27 +23,20 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Supabase enforces rate limits and quotas across every API surface — PostgREST, Auth, Storage, Realtime, and Edge Functions — and the numbers scale by plan tier. This skill gives you the exact per-tier limits, connection pooling via Supavisor, retry/backoff and pagination patterns, and dashboard monitoring so you stay within quota and handle 429 errors gracefully.
+Supabase limits differ across PostgREST, Auth, Storage, Realtime, and Edge Functions. Use the current surface-specific documentation and project configuration rather than a universal requests-per-minute or requests-per-day table. Review pooling, bounded retries, pagination, and monitoring for the actual workload.
 
 ## Prerequisites
 
 - Active Supabase project (any tier)
 - `@supabase/supabase-js` v2+ installed
 - Project URL and anon/service-role key available
-- Node.js 18+ or equivalent runtime
+- Node.js 22+ for current SDK releases, or another supported SDK runtime
 
 ## Instructions
 
 ### Step 1 — Know your tier limits
 
-Rate limits differ per surface and per plan. The headline API limits:
-
-| Metric | Free | Pro | Enterprise |
-|--------|------|-----|------------|
-| Requests per minute (RPM) | 500 | 5,000 | Unlimited (custom) |
-| Requests per day (RPD) | 50,000 | 1,000,000 | Unlimited (custom) |
-
-Auth, Storage, Realtime, Edge Functions, and Database connections each carry their own quotas. See the full per-surface breakdown in [rate-limit-tiers.md](references/rate-limit-tiers.md) before you architect.
+Record the relevant endpoint, project configuration, plan, observation date, and current provider documentation. Auth, Storage, Realtime, Edge Functions, and database connections have different controls; a plan name alone does not establish one universal API request budget. See [rate-limit-tiers.md](references/rate-limit-tiers.md) for the per-surface review.
 
 ### Step 2 — Pool connections with Supavisor
 
@@ -72,13 +65,13 @@ const users = await withRetry(() =>
 )
 ```
 
-Then cut request volume two ways: paginate large reads with `.range(from, to)` so responses stay small and avoid timeouts, and collapse N writes into one batch `upsert` (max ~1000 rows/request, chunk larger sets). The full `withRetry`, `fetchPaginated`, and batch/`chunk` helpers — plus dashboard monitoring steps — are in [implementation.md](references/implementation.md).
+Then cut request volume two ways: paginate large reads with `.range(from, to)` so responses stay small and avoid timeouts, and combine compatible writes using bounded batch `upsert` requests (choose chunk sizes for the actual payload and API behavior). The full `withRetry`, `fetchPaginated`, and batch/`chunk` helpers — plus dashboard monitoring steps — are in [implementation.md](references/implementation.md).
 
 ## Output
 
 After applying this skill you will have:
 
-- Clear understanding of rate limits per tier (Free: 500 RPM / 50K RPD, Pro: 5K RPM / 1M RPD)
+- Dated, per-surface limit evidence and project-specific operating budgets
 - Connection pooling configured via Supavisor (port 6543 transaction mode for serverless)
 - Retry wrapper with exponential backoff handling 429 errors
 - Paginated queries using `.range(0, 99)` to reduce payload size
@@ -89,15 +82,15 @@ After applying this skill you will have:
 
 | Error | Cause | Solution |
 | ------- | ------- | ---------- |
-| `429 Too Many Requests` | Exceeded RPM or RPD limit | Apply `withRetry` backoff; reduce concurrency; upgrade tier |
+| `429 Too Many Requests` | Endpoint-specific rate control or workload saturation | Apply `withRetry` backoff; reduce concurrency; upgrade tier |
 | `PGRST000: could not connect` | Connection pool exhausted | Switch to Supavisor transaction mode (port 6543); reduce concurrent queries |
 | Auth `over_request_rate_limit` | Too many signups/logins from one IP | Add CAPTCHA; configure custom auth rate limits in Dashboard |
 | Storage `413 Payload Too Large` | File exceeds tier limit | Use TUS resumable upload; check tier file size limit |
-| Realtime `too_many_connections` | Concurrent connection limit reached | Unsubscribe unused channels; upgrade to Pro for 500 connections |
+| Realtime `too_many_connections` | Concurrent connection limit reached | Unsubscribe unused channels; review the current project connection allowance |
 | Edge Function `BOOT_ERROR` | Cold start timeout or memory exceeded | Reduce bundle size; avoid large imports at top level |
 | `pgbouncer=true` errors with Prisma | Missing connection string parameter | Append `?pgbouncer=true` to pooler connection string on port 6543 |
 
-Rate-limit response headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`) and how to act on each are in [errors.md](references/errors.md).
+Use response headers only where the endpoint documents them; honor `Retry-After` when supplied. Endpoint-specific error handling is in [errors.md](references/errors.md).
 
 ## Examples
 

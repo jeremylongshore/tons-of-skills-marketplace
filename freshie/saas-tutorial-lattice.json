@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "bf764eceb1e5efb4b18b927c1591779afb87b3e14c3220c858a357e8e333a3e2",
+    "catalog_sha256": "fe040628f484d616dae3874b3b9229c32650fd10ffeda6b3bb9470394f1f6a7e",
     "curated_manifest": "skills/.curated/MANIFEST.json",
-    "curated_manifest_sha256": "882b3c3a584acaf38c88a972d9dd6b769eb8d6a4c7bd3fd122c12b6dc51b3675",
-    "tracked_inventory_sha256": "6eaecd63a44f9e4b329d09e7d6f60f163c4e5092139cb48a780cff0ed11f40dc"
+    "curated_manifest_sha256": "0cda81d05c1c2e4756907d71a81c3690525873aed778f56d111a8706048fa69a",
+    "tracked_inventory_sha256": "71ddc7cc8b756a1252f6ad73916eb2473ccf25a985322ceeeee5d7dd3d8fad86"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -1134,8 +1134,8 @@
       "candidate_basis_points": 9375,
       "verification_grade": "A",
       "verification_score": 98,
-      "pack_inventory_sha256": "2a033620469b70eb0f9d9a47f04da433d625b218d16023db303be395763c6732",
-      "candidate_set_sha256": "3e344074aaec4937d118d9cbd2e8774b29d18278f6e4c98ae7312415442d2e89",
+      "pack_inventory_sha256": "2915520cf56e397857c0814d7ef6a2b6a904456391b03de0db66201448ab45b6",
+      "candidate_set_sha256": "ed3e3eb9f56c50acaaa8779f8c0e828c1b734c8da40fcc12eb40dd19cde6a4bf",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
@@ -1158,8 +1158,8 @@
       "candidate_basis_points": 9333,
       "verification_grade": "A",
       "verification_score": 94,
-      "pack_inventory_sha256": "cf734490f5ce150c6dfc8625e5de733f2daf55fb079e95349164ba7f467ebebe",
-      "candidate_set_sha256": "55c99c7d38c34c2ec64e10e4749dbb16ed7d27e052b301d91a29e4b7e77f37b8",
+      "pack_inventory_sha256": "ac007a37b4c1bb9fe48d1135834c07264f2d50f16cee08cfca3450f454d0b03d",
+      "candidate_set_sha256": "f88ac800da152cc1889a151aea8c79447db04e3a97623c1947bb730a0fd4d519",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
@@ -25853,8 +25853,8 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "2a033620469b70eb0f9d9a47f04da433d625b218d16023db303be395763c6732",
-      "candidate_set_sha256": "3e344074aaec4937d118d9cbd2e8774b29d18278f6e4c98ae7312415442d2e89",
+      "pack_inventory_sha256": "2915520cf56e397857c0814d7ef6a2b6a904456391b03de0db66201448ab45b6",
+      "candidate_set_sha256": "ed3e3eb9f56c50acaaa8779f8c0e828c1b734c8da40fcc12eb40dd19cde6a4bf",
       "skill_count": 32,
       "catalog_declared_skill_count": 32,
       "tutorial_lattice_count": 30,
@@ -34056,14 +34056,14 @@
     {
       "name": "supabase-pack",
       "source": "plugins/saas-packs/supabase-pack",
-      "version": "1.54.0",
+      "version": "1.55.0",
       "verification": {
         "grade": "A",
         "score": 94
       },
       "npm_candidate": {
         "name": "@intentsolutionsio/supabase-pack",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "private": false,
         "files_include_skills": true,
         "live_registry_check": "REQUIRED_BEFORE_MUTATION"
@@ -34072,8 +34072,8 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "cf734490f5ce150c6dfc8625e5de733f2daf55fb079e95349164ba7f467ebebe",
-      "candidate_set_sha256": "55c99c7d38c34c2ec64e10e4749dbb16ed7d27e052b301d91a29e4b7e77f37b8",
+      "pack_inventory_sha256": "ac007a37b4c1bb9fe48d1135834c07264f2d50f16cee08cfca3450f454d0b03d",
+      "candidate_set_sha256": "f88ac800da152cc1889a151aea8c79447db04e3a97623c1947bb730a0fd4d519",
       "skill_count": 30,
       "catalog_declared_skill_count": 30,
       "tutorial_lattice_count": 28,

@@ -10,7 +10,7 @@ description: |
   "supabase JWT claims", "supabase organization access", "supabase custom roles",
   "supabase app_metadata".
 allowed-tools: Read, Write, Edit, Bash(npx supabase:*), Bash(supabase:*), Bash(psql:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
