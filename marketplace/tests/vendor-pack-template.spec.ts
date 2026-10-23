@@ -37,6 +37,31 @@ test('the hub reports actual per-pack ranges and Sentry uses the shared theme', 
   page,
 }) => {
   await page.goto('/learn/');
+  const heroContrast = await page.locator('.learn-hero').evaluate((element) => {
+    const style = getComputedStyle(element);
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 1;
+    const context = canvas.getContext('2d')!;
+    const luminance = (color: string) => {
+      // Normalize computed OKLCH and RGB colors to sRGB before WCAG arithmetic.
+      context.fillStyle = color;
+      context.fillRect(0, 0, 1, 1);
+      const channels = Array.from(context.getImageData(0, 0, 1, 1).data)
+        .slice(0, 3)
+        .map((channel) => {
+          const value = channel / 255;
+          return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+        });
+      return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+    };
+    const foreground = luminance(style.color);
+    const background = luminance(style.backgroundColor);
+    return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+  });
+  expect(
+    heroContrast,
+    'learning hub text must remain readable against its surface',
+  ).toBeGreaterThanOrEqual(4.5);
   const tiers = await page.locator('.tier-section').allTextContents();
   for (const [index, tier] of ['flagship+', 'flagship', 'pro', 'standard']
     .filter((name) => vendors.some((vendor) => vendor.tier === name))
@@ -49,17 +74,9 @@ test('the hub reports actual per-pack ranges and Sentry uses the shared theme', 
     const label = low === high ? `${low}` : `${low}–${high}`;
     expect(normalize(tiers[index])).toContain(`${label} vendor-pack-local skills per pack`);
   }
-  await test.info().attach('learning-hub-counts', {
-    body: await page.screenshot({ fullPage: false }),
-    contentType: 'image/png',
-  });
   await page.goto('/learn/sentry/');
   await expect(page.locator('.pack-hero')).toHaveClass(/vendor-default/);
   await expect(page.locator('.vendor-purple')).toHaveCount(0);
-  await test.info().attach('sentry-shared-theme', {
-    body: await page.screenshot({ fullPage: false }),
-    contentType: 'image/png',
-  });
 });
 
 test('every vendor route retains its own content and local count provenance', async ({ page }) => {
@@ -111,12 +128,6 @@ test('every vendor route retains its own content and local count provenance', as
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         page.viewportSize()!.width,
       );
-      if (vendor.id === 'langchain') {
-        await test.info().attach('langchain-python-curriculum', {
-          body: await page.screenshot({ fullPage: false }),
-          contentType: 'image/png',
-        });
-      }
     });
   }
   expect(pageErrors).toEqual([]);
@@ -179,3 +190,15 @@ test('clipboard rejection reports failure and restores an actionable copy contro
   await expect(copy).toHaveText('Copy');
   expect(pageErrors).toEqual([]);
 });
+
+// Review artifacts have their own per-page budget; functional loops retain their deadlines.
+for (const route of ['hub', 'sentry', 'langchain']) {
+  test(`${route}: capture the learning-page review image`, async ({ page }) => {
+    await page.goto(route === 'hub' ? '/learn/' : `/learn/${route}/`);
+    await expect(page.locator('h1')).toBeVisible();
+    await test.info().attach(`learning-${route}`, {
+      body: await page.screenshot({ fullPage: false }),
+      contentType: 'image/png',
+    });
+  });
+}
