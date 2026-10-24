@@ -67,7 +67,7 @@ class CollectionTests(unittest.TestCase):
             import google.analytics.data_v1beta as sdk
             from google.analytics.data_v1beta.types import RunRealtimeReportResponse
         except ImportError:
-            self.skipTest("optional actual-SDK wire proof requires google-analytics-data")
+            raise unittest.SkipTest("optional actual-SDK wire proof requires google-analytics-data") from None
         response = RunRealtimeReportResponse(
             dimension_headers=[{"name": "eventName"}],
             metric_headers=[{"name": "eventCount", "type_": "TYPE_INTEGER"}],

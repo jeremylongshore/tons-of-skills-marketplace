@@ -101,7 +101,7 @@ class CollectionTests(unittest.TestCase):
         try:
             from google.analytics.data_v1beta.types import RunReportRequest
         except ImportError:
-            self.skipTest("optional wire proof requires google-analytics-data")
+            raise unittest.SkipTest("optional wire proof requires google-analytics-data") from None
         _, request = ENGINE.prepare(plan())
         wire = RunReportRequest.from_json(json.dumps(request))
         self.assertEqual(wire.property, "properties/123456789")
@@ -113,7 +113,7 @@ class CollectionTests(unittest.TestCase):
             import google.analytics.data_v1beta as sdk
             from google.analytics.data_v1beta.types import RunReportResponse
         except ImportError:
-            self.skipTest("optional wire proof requires google-analytics-data")
+            raise unittest.SkipTest("optional wire proof requires google-analytics-data") from None
         response = RunReportResponse(
             dimension_headers=[{"name": "country"}],
             metric_headers=[{"name": "activeUsers", "type_": "TYPE_INTEGER"}],

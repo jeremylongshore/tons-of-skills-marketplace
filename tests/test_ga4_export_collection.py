@@ -103,7 +103,7 @@ class CollectionTests(unittest.TestCase):
             import google.auth
             from google.cloud import bigquery
         except ImportError:
-            self.skipTest("optional actual-SDK proof requires google-cloud-bigquery")
+            raise unittest.SkipTest("optional actual-SDK proof requires google-cloud-bigquery") from None
         source = {**plan(), "sql": "SELECT 1", "maximum_bytes_billed": 10000000}
         job = bigquery.QueryJob.from_api_repr(
             {
