@@ -7,7 +7,7 @@
     "catalog_sha256": "bd780b87a44286247395719fd68cb589e44457189c3a88fda881c3b9cfaea31a",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "79d1ed78c5210a8a8be911cd4a462b91bb1e9888d77a65d2286979d093beeeff",
-    "tracked_inventory_sha256": "12be5a970674b7b0cd7fc67db55d6300181ede803565a800b3547d21d861dcad"
+    "tracked_inventory_sha256": "30be87691cff482c8678ec79d8dd5fa000713d6b188ddcad7582f8c35b4107c7"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -186,7 +186,7 @@
       "candidate_basis_points": 10000,
       "verification_grade": "B",
       "verification_score": 87,
-      "pack_inventory_sha256": "3e706b19100685a492a75d6521f83715b759f7f05c415282b3e60b6dd9842290",
+      "pack_inventory_sha256": "4dedd9bf01db3bcaa5d770856db1efc435b862ae40e358d855a1f4156ec7a96e",
       "candidate_set_sha256": "0b9dcdacb0990e4f2a20a9a54337c8453147f75b7995b95269f99309fcb4671a",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
@@ -21718,7 +21718,7 @@
       "ownership": {
         "status": "first-party"
       },
-      "pack_inventory_sha256": "3e706b19100685a492a75d6521f83715b759f7f05c415282b3e60b6dd9842290",
+      "pack_inventory_sha256": "4dedd9bf01db3bcaa5d770856db1efc435b862ae40e358d855a1f4156ec7a96e",
       "candidate_set_sha256": "0b9dcdacb0990e4f2a20a9a54337c8453147f75b7995b95269f99309fcb4671a",
       "skill_count": 24,
       "catalog_declared_skill_count": 24,
