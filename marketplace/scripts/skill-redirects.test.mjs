@@ -18,10 +18,12 @@ test('skill tombstones are unique permanent redirects to live skills', () => {
   const live = new Set(catalog.skills.map((skill) => skill.slug));
   const seen = new Set();
 
-  assert.equal(redirects.length, 35);
+  assert.equal(redirects.length, 59);
   assert.equal(redirects.filter((redirect) => redirect.from.startsWith('snowflake-')).length, 30);
   assert.deepEqual(
-    redirects.filter((redirect) => redirect.from.startsWith('ga4-')).map(({ from, to }) => ({ from, to })),
+    redirects
+      .filter((redirect) => redirect.from.startsWith('ga4-'))
+      .map(({ from, to }) => ({ from, to })),
     [
       { from: 'ga4-auth-setup', to: 'ga4-report-forensics' },
       { from: 'ga4-data-api-query', to: 'ga4-report-forensics' },
@@ -30,6 +32,15 @@ test('skill tombstones are unique permanent redirects to live skills', () => {
       { from: 'ga4-bigquery-export', to: 'ga4-export-guardian' },
     ],
   );
+  const langfuse = redirects.filter((redirect) => redirect.from.startsWith('langfuse-'));
+  assert.equal(langfuse.length, 24);
+  assert.deepEqual([...new Set(langfuse.map((redirect) => redirect.to))].sort(), [
+    'langfuse-cost-forensics',
+    'langfuse-data-boundary-auditor',
+    'langfuse-experiment-guardian',
+    'langfuse-prompt-release-guardian',
+    'langfuse-trace-ingestion-medic',
+  ]);
   for (const redirect of redirects) {
     assert.match(redirect.from, /^[a-z0-9][a-z0-9-]+$/);
     assert.match(redirect.to, /^[a-z0-9][a-z0-9-]+$/);
@@ -44,8 +55,8 @@ test('skill tombstones are unique permanent redirects to live skills', () => {
 
 test('Caddy fragment is the exact generated ingress projection', () => {
   assert.equal(caddyFragment, renderSkillRedirects(redirects));
-  assert.equal((caddyFragment.match(/^@redir\d+ path /gm) || []).length, 35);
-  assert.equal((caddyFragment.match(/ permanent$/gm) || []).length, 35);
+  assert.equal((caddyFragment.match(/^@redir\d+ path /gm) || []).length, 59);
+  assert.equal((caddyFragment.match(/ permanent$/gm) || []).length, 59);
 });
 
 test('retired slugs are not emitted as Astro static routes', () => {

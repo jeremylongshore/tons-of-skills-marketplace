@@ -11,6 +11,7 @@ import csv
 # reappear through an old release command.
 RETIRED_SKILL_DATABASES = {
     "snowflake": "Snowflake v2 uses the curated snowflake-pack operator skills",
+    "langfuse": "Langfuse v2 uses the five evidence-driven langfuse-pack operator skills",
 }
 
 # Skill templates for flagship tier (24 skills)

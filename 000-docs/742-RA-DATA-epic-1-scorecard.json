@@ -22,13 +22,13 @@
       "error_files": 278,
       "error_total": 2798,
       "grade_distribution": {
-        "A": 2884,
-        "B": 319,
-        "C": 130,
+        "A": 2879,
+        "B": 308,
+        "C": 127,
         "D": 154,
         "F": 4
       },
-      "rows": 3491
+      "rows": 3472
     }
   },
   "rows": {
@@ -42,7 +42,7 @@
       "unpersisted_values": ["tracked_files"],
       "values": {
         "plugin_agent_files": 352,
-        "raw_tracked_plugin_skill_files": 2991
+        "raw_tracked_plugin_skill_files": 2972
       }
     },
     "2": {
@@ -95,13 +95,13 @@
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
-            "files": 4813,
+            "files": 4794,
             "label": "skills_plus_commands_plus_agents_plus_plugin_manifests",
             "plugin_manifests": 589,
-            "skills": 3491
+            "skills": 3472
           },
           "validated_plugin_manifests": 596,
-          "validator_reported_mixed_denominator_percent": 43.4
+          "validator_reported_mixed_denominator_percent": 43.6
         },
         "skill_rows": {
           "a_error_total": 23,
@@ -112,13 +112,13 @@
           "error_files": 278,
           "error_total": 2798,
           "grade_distribution": {
-            "A": 2884,
-            "B": 319,
-            "C": 130,
+            "A": 2879,
+            "B": 308,
+            "C": 127,
             "D": 154,
             "F": 4
           },
-          "rows": 3491
+          "rows": 3472
         }
       }
     },
@@ -131,20 +131,20 @@
       "values": {
         "average_score": 91.8,
         "grade_distribution": {
-          "A": 2884,
-          "B": 319,
-          "C": 130,
+          "A": 2879,
+          "B": 308,
+          "C": 127,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 82.6,
-          "B": 9.1,
+          "A": 82.9,
+          "B": 8.9,
           "C": 3.7,
           "D": 4.4,
           "F": 0.1
         },
-        "rows": 3491
+        "rows": 3472
       }
     },
     "6": {
@@ -161,7 +161,7 @@
         "b_error_total": 147,
         "b_failing": 14,
         "certified_target": 0,
-        "skill_summary_rows": 3491
+        "skill_summary_rows": 3472
       }
     },
     "7": {
@@ -188,7 +188,7 @@
         "missing_required_field_occurrences": 580,
         "missing_required_section_occurrences": 1641,
         "other_skill_error_occurrences": 577,
-        "skill_rows": 3491,
+        "skill_rows": 3472,
         "structural_occurrences": 2221,
         "structural_share_of_skill_errors_pct": 79.3781,
         "target": 0,
@@ -296,12 +296,12 @@
       ],
       "status": "partial",
       "values": {
-        "declared": 3480,
+        "declared": 3461,
         "folded_scalar": 5,
         "malformed_frontmatter": 0,
         "malformed_shape": 0,
         "missing": 11,
-        "rows": 3491,
+        "rows": 3472,
         "target_malformed": 0
       }
     },
@@ -312,7 +312,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 451,
+        "distinct_values": 456,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -417,7 +417,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2225,
+            "count": 2201,
             "value": "Designed for Claude Code"
           },
           {
@@ -1387,6 +1387,26 @@
           {
             "count": 1,
             "value": "Python 3.10+ for supplied receipts; optional live collection requires google-analytics-data and existing approved ADC."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; SDK result projection is an optional local JavaScript module for the documented Langfuse client 6.0.2 result shape."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; supplied OTLP JSON and Langfuse Observations API v2 evidence. No SDK or credentials needed for offline analysis."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; supplied native Observations API v2 pages. No credentials, price lookup or provider calls are required."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; supplied native project and observation JSON evidence. No credentials, networking, masking or deletion is performed."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; supplied native prompt API snapshots. Optional webhook verification uses an existing approved secret through a named environment variable."
           },
           {
             "count": 1,
@@ -2456,7 +2476,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2628
+            "value": 2607
           },
           {
             "cohort": "curriculum",
@@ -2464,15 +2484,15 @@
           },
           {
             "cohort": "first-party",
-            "value": 2644
+            "value": 2625
           },
           {
             "cohort": "graded",
-            "value": 3491
+            "value": 3472
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2900
+            "value": 2881
           }
         ],
         "distinct_numeric_answers": 5,
@@ -3953,6 +3973,11 @@
         "plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/eval-spec.yaml",
         "plugins/saas-packs/grammarly-pack/skills/grammarly-license-governor/eval-spec.yaml",
         "plugins/saas-packs/hubspot-pack/skills/hubspot-warehouse-sync/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-cost-forensics/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-data-boundary-auditor/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-experiment-guardian/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-prompt-release-guardian/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-trace-ingestion-medic/eval-spec.yaml",
         "plugins/saas-packs/sentry-pack/skills/sentry-data-handling/eval-spec.yaml",
         "plugins/saas-packs/snowflake-pack/skills/snowflake-access-guardian/eval-spec.yaml",
         "plugins/saas-packs/snowflake-pack/skills/snowflake-cost-leak-hunter/eval-spec.yaml",
@@ -4007,11 +4032,11 @@
       ],
       "status": "measured",
       "values": {
-        "adoption_percent": 1.17,
+        "adoption_percent": 1.35,
         "curated_copies": 35,
-        "plugin_skill_rows": 2991,
-        "source_eval_specs": 35,
-        "tracked_eval_specs": 70
+        "plugin_skill_rows": 2972,
+        "source_eval_specs": 40,
+        "tracked_eval_specs": 75
       }
     },
     "58": {

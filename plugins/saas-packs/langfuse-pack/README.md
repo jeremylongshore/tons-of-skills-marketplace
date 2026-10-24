@@ -1,100 +1,72 @@
-# Langfuse Skill Pack
+# Langfuse pack
 
-> Claude Code skill pack for [Langfuse](https://langfuse.com) LLM observability -- 24 skills covering tracing, evaluation, prompt management, and production operations.
+Five evidence-driven operators replace the 24-slot tutorial taxonomy while retaining the `langfuse-pack` install and npm identities.
 
-## What is Langfuse?
+**Install:** `/plugin install langfuse-pack@claude-code-plugins-plus`
 
-Langfuse is an open-source LLM engineering platform providing:
+| Operator                                                                    | Concrete output                                                                                                  |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| [Trace Ingestion Medic](skills/langfuse-trace-ingestion-medic/SKILL.md)     | Captured OTLP batch/readback correspondence, lifecycle/context findings and coverage gaps.                       |
+| [Experiment Guardian](skills/langfuse-experiment-guardian/SKILL.md)         | Case-level baseline/candidate policy result with missing evidence and critical regressions preserved.            |
+| [Prompt Release Guardian](skills/langfuse-prompt-release-guardian/SKILL.md) | Explicit version/label proposal, runtime-name compatibility findings and optional supplied-webhook verification. |
+| [Cost Forensics](skills/langfuse-cost-forensics/SKILL.md)                   | Recorded-cost/usage coverage, known-row subtotals and reasons to withhold complete-set totals.                   |
+| [Data Boundary Auditor](skills/langfuse-data-boundary-auditor/SKILL.md)     | Reviewed field-policy correspondence, native project retention evidence and separate coverage gaps.              |
 
-- **Tracing**: End-to-end observability for LLM calls, chains, and agents (OpenTelemetry-based in SDK v4+)
-- **Evaluation**: Score outputs with user feedback, automated evals, LLM-as-a-Judge, and dataset experiments
-- **Prompt Management**: Version, deploy, and A/B test prompts with labels and variables
-- **Analytics**: Monitor costs, latency, and token usage with built-in and custom dashboards
-- **Datasets**: Create test sets, run experiments, and track quality regressions
-- **Self-hosted or Cloud**: Deploy anywhere or use managed cloud at [cloud.langfuse.com](https://cloud.langfuse.com)
+Each operator includes deterministic tooling, private receipt contracts, primary references and an evaluation specification. Python 3.10+ standard-library analysis works without credentials or networking. SDK mapping/type checks use the actual 6.0.2 client contract; offline synthetic compile fixtures do not prove production behavior. Optional experiment-result projection is a local JavaScript module, not an experiment runner. Webhook verification reads an already approved signing secret through a named environment variable and does not create a receiver or durable deduplication store.
 
-## Installation
+The tools never rerun business operations, execute models, collect live telemetry, create credentials, mutate permissions, promote prompt labels, change retention or delete records. Missing evidence stays missing. Supplied receipts and review references are not independently authenticated. Keep raw prompts, outputs, IDs, configuration and logs private; reports containing hashes remain operational evidence, not automatically public material.
 
-```bash
-/plugin install langfuse-pack@claude-code-plugins-plus
+## Value decision and validation status
+
+The baseline reviewed all 24 entrypoints and all 11 supporting implementation references at Git `280c69f94a7a06f3247c74f6f93daf5cd68644ac`, pack tree `6d23ee7fffa6c6bd845b1e03a4930e59082fa8aa`. Immutable Freshie run 139 graded that historical 24-skill portfolio at mean 86.7, with 14 below A. That result is historical and does not grade or certify this replacement.
+
+Keep the Langfuse capability and consolidate around distinct operator decisions. The old slots repeated setup/tutorial/checklist material and contained unsupported current SDK calls, incomplete exports presented as complete, a business-callback retry fallback, partial secret redaction, unsafe cost totals and an incorrect webhook envelope/signature recipe. No adoption or market-demand study is claimed. Five follows the different evidence/decision contracts; it is not a target to be padded back to 24.
+
+Static schema/rubric validation, deterministic fixture tests, SDK contract checks and Freshie inventory grading are different evidence planes. Evaluation specs describe proposed behavioral cases; their presence does not mean paid/live evaluation ran. No helper result certifies live service health, model quality, billing, anonymization, deletion, security or DoD compliance. The source-stable replacement needs its own immutable Freshie cohort before release review; never overwrite run 139 or hand-edit grade exports.
+
+## Migration from v1
+
+The table chooses one primary public redirect target for every retired name. Experiment/prompt work formerly bundled in core workflow B now has separate operators; debug/migration/privacy work also uses the data-boundary contract. Setup, access, runtime compatibility and lifecycle diagnostics are supporting material in [runtime diagnostics](skills/langfuse-trace-ingestion-medic/references/runtime-diagnostics.md), not extra standalone filler slots. Useful retention, masking and access boundaries live with the [data review contract](skills/langfuse-data-boundary-auditor/references/receipt-contract.md).
+
+| Retired skill                     | Primary successor                                                                      |
+| --------------------------------- | -------------------------------------------------------------------------------------- |
+| `langfuse-ci-integration`         | [`langfuse-experiment-guardian`](skills/langfuse-experiment-guardian/SKILL.md)         |
+| `langfuse-common-errors`          | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-core-workflow-a`        | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-core-workflow-b`        | [`langfuse-experiment-guardian`](skills/langfuse-experiment-guardian/SKILL.md)         |
+| `langfuse-cost-tuning`            | [`langfuse-cost-forensics`](skills/langfuse-cost-forensics/SKILL.md)                   |
+| `langfuse-data-handling`          | [`langfuse-data-boundary-auditor`](skills/langfuse-data-boundary-auditor/SKILL.md)     |
+| `langfuse-debug-bundle`           | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-deploy-integration`     | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-enterprise-rbac`        | [`langfuse-data-boundary-auditor`](skills/langfuse-data-boundary-auditor/SKILL.md)     |
+| `langfuse-hello-world`            | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-incident-runbook`       | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-install-auth`           | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-local-dev-loop`         | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-migration-deep-dive`    | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-multi-env-setup`        | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-observability`          | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-performance-tuning`     | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-prod-checklist`         | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-rate-limits`            | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-reference-architecture` | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-sdk-patterns`           | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-security-basics`        | [`langfuse-data-boundary-auditor`](skills/langfuse-data-boundary-auditor/SKILL.md)     |
+| `langfuse-upgrade-migration`      | [`langfuse-trace-ingestion-medic`](skills/langfuse-trace-ingestion-medic/SKILL.md)     |
+| `langfuse-webhooks-events`        | [`langfuse-prompt-release-guardian`](skills/langfuse-prompt-release-guardian/SKILL.md) |
+
+The obsolete passive scaffolds and CSV under `plugins/saas-packs/skill-databases/langfuse/` are also retired. Their 19 files remain recoverable at the baseline Git commit; the shared scaffold generator now refuses Langfuse so it cannot recreate the tutorial taxonomy. They were not executable operator definitions or a frozen Freshie grade export.
+
+All 24 retired public skill names have 301 mappings in the canonical redirect registry. Generated ingress configuration must follow normal reviewed deployment; source configuration alone does not prove production activation. Existing unrelated redirect entries remain intact.
+
+## Exact restoration and distribution boundary
+
+The full pre-rebuild source remains recoverable from Git `280c69f94a7a06f3247c74f6f93daf5cd68644ac`, path `plugins/saas-packs/langfuse-pack/`. For offline inspection:
+
+```sh
+git archive --format=tar --output=langfuse-pre-v2.tar 280c69f94a7a06f3247c74f6f93daf5cd68644ac plugins/saas-packs/langfuse-pack
 ```
 
-## SDK Coverage
+A rollback is a normal reviewed restoration of that exact source, reversal of only this migration's 24 redirect entries, restoration of pack metadata, and canonical regeneration of catalog/package/curated/evaluation projections. Preserve unrelated work and history; do not force-push or restore old grade claims as if they applied to new source.
 
-All skills cover both SDK versions:
-
-| SDK | Packages | Status |
-|-----|----------|--------|
-| v3 (legacy) | `langfuse` | Maintenance mode |
-| v4+/v5 (current) | `@langfuse/client`, `@langfuse/tracing`, `@langfuse/otel`, `@langfuse/openai` | Recommended |
-
-## Skills (24)
-
-### Getting Started (S01-S04)
-
-| Skill | What It Does |
-|-------|-------------|
-| `langfuse-install-auth` | Install SDK (v3 or v4+), configure API keys, verify connection |
-| `langfuse-hello-world` | First trace with `startActiveObservation`, `observe` wrapper, and v3 legacy |
-| `langfuse-local-dev-loop` | Hot reload dev workflow, immediate trace flush, optional self-hosted Docker |
-| `langfuse-sdk-patterns` | Singleton client, `observe` wrapper, `startActiveObservation`, error-safe tracing |
-
-### Core Workflows (S05-S06)
-
-| Skill | What It Does |
-|-------|-------------|
-| `langfuse-core-workflow-a` | Trace LLM calls: OpenAI drop-in wrapper, RAG pipelines, streaming, Anthropic, LangChain |
-| `langfuse-core-workflow-b` | Evaluation: scores (numeric/categorical/boolean), prompt management, datasets, experiment runner, LLM-as-a-Judge |
-
-### Troubleshooting (S07-S10)
-
-| Skill | What It Does |
-|-------|-------------|
-| `langfuse-common-errors` | Top 10 errors (401, missing traces, 429, import errors) with tested solutions |
-| `langfuse-debug-bundle` | Collect diagnostic bundle (env, SDK version, connectivity, redacted logs) |
-| `langfuse-rate-limits` | Batching optimization, exponential backoff, p-queue concurrency, sampling |
-| `langfuse-security-basics` | Credential validation, PII scrubbing, self-hosted hardening, secret scanning |
-
-### Production (S11-S12)
-
-| Skill | What It Does |
-|-------|-------------|
-| `langfuse-prod-checklist` | Production config, shutdown handlers, pre-deploy verification script, full checklist |
-| `langfuse-upgrade-migration` | v3 to v4 migration: import changes, tracing API, env vars, prompt API, codemods |
-
-### Pro Skills (P13-P18)
-
-| Skill | What It Does |
-|-------|-------------|
-| `langfuse-ci-integration` | GitHub Actions, prompt regression tests, experiment quality gates, prompt deployment |
-| `langfuse-deploy-integration` | Deploy with Vercel/Lambda/Cloud Run/Docker, self-hosted server, health checks |
-| `langfuse-webhooks-events` | Prompt change webhooks (HMAC verified), Slack alerts, CI/CD triggers |
-| `langfuse-performance-tuning` | Benchmarking, batch tuning, payload truncation, sampling, memory management |
-| `langfuse-cost-tuning` | Token/cost tracking, Metrics API queries, smart model routing, budget alerts |
-| `langfuse-reference-architecture` | Singleton + OTel, context propagation, cross-service tracing, multi-env, circuit breaker |
-
-### Flagship Skills (F19-F24)
-
-| Skill | What It Does |
-|-------|-------------|
-| `langfuse-multi-env-setup` | Dev/staging/prod config, secret management (AWS/GCP/Vault), CI/CD integration, Zod validation |
-| `langfuse-observability` | Prometheus metrics, Grafana dashboards, alert rules, Langfuse Metrics API |
-| `langfuse-incident-runbook` | Triage script, severity classification, fallback mode, resolution procedures, post-mortem |
-| `langfuse-data-handling` | Data export (traces/scores/datasets), GDPR requests, anonymization, retention policies |
-| `langfuse-enterprise-rbac` | Roles/permissions, scoped API keys, SSO/SAML, self-hosted hardening, audit logging |
-| `langfuse-migration-deep-dive` | Cross-instance migration, data export/import, dual-write zero-downtime, validation |
-
-## Usage
-
-Skills trigger automatically when you discuss Langfuse topics:
-
-- "Help me set up Langfuse" -> `langfuse-install-auth`
-- "Add tracing to my OpenAI calls" -> `langfuse-core-workflow-a`
-- "Set up evaluation for my LLM app" -> `langfuse-core-workflow-b`
-- "Debug this Langfuse error" -> `langfuse-common-errors`
-- "Track LLM costs with Langfuse" -> `langfuse-cost-tuning`
-- "Migrate from langfuse v3 to v4" -> `langfuse-upgrade-migration`
-
-## License
-
-MIT
+At assessment, Git plugin/catalog version was 1.17.0, tracked generated npm manifest was 1.0.6, and the registry's latest published `@intentsolutionsio/langfuse-pack` artifact was 1.0.1 (24 skills, published 2026-06-08). Its registry SHA-512 was verified independently; archive SHA-256 was `9e49929e39113d0bfacf451ec030b1f18c4b64eaf43822033df3d872b2773b04`. Do not imply 1.17.0 was published. Version 2.0.0 here is the prepared source migration; publication is a separate release state, with no manual npm publish or unpublish performed by this rebuild.

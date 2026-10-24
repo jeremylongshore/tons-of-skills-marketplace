@@ -1,19 +1,12 @@
 {
   "name": "langfuse-pack",
-  "version": "1.17.0",
-  "description": "Claude Code skill pack for Langfuse LLM observability (24 skills)",
+  "version": "2.0.0",
+  "description": "Five evidence-driven Langfuse operators for tracing, experiments, prompt releases, recorded cost and data boundaries",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
-  "repository": "https://github.com/jeremylongshore/claude-code-plugins",
-  "keywords": [
-    "langfuse",
-    "llm",
-    "observability",
-    "tracing",
-    "monitoring",
-    "evaluation"
-  ]
+  "repository": "https://github.com/jeremylongshore/tons-of-skills-marketplace",
+  "keywords": ["langfuse", "llm", "observability", "tracing", "monitoring", "evaluation"]
 }

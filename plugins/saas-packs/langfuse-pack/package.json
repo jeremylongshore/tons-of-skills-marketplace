@@ -1,36 +1,39 @@
 {
   "name": "@intentsolutionsio/langfuse-pack",
-  "version": "1.0.6",
-  "description": "Claude Code skill pack for Langfuse - 24 skills covering LLM observability, prompt management, and evaluation",
-  "main": "README.md",
-  "type": "module",
-  "files": [
-    "README.md",
-    ".claude-plugin/",
-    "skills/"
-  ],
+  "version": "2.0.0",
+  "description": "Five evidence-driven Langfuse operators for tracing, experiments, prompt releases, recorded cost and data boundaries",
   "keywords": [
-    "claude-code",
-    "claude-code-plugin",
     "langfuse",
-    "llm-observability",
-    "prompt-management",
+    "llm",
+    "observability",
+    "tracing",
+    "monitoring",
     "evaluation",
-    "ai-skills",
-    "saas-pack"
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
   ],
-  "author": {
-    "name": "Jeremy Longshore",
-    "email": "jeremy@intentsolutions.io"
-  },
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/saas-packs/langfuse-pack"
   },
-  "homepage": "https://tonsofskills.com/learn/langfuse/",
+  "homepage": "https://tonsofskills.com/plugins/langfuse-pack",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Jeremy Longshore",
+    "email": "jeremy@intentsolutions.io"
+  },
   "publishConfig": {
     "access": "public"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin",
+    "skills"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install langfuse-pack\\\\n  or /plugin install langfuse-pack@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
   }
 }

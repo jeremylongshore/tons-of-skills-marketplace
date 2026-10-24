@@ -6,9 +6,9 @@
   },
   "stats": {
     "totalPlugins": 435,
-    "totalSkills": 2900,
+    "totalSkills": 2881,
     "totalDocs": 24,
-    "totalItems": 3359,
+    "totalItems": 3340,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -11202,7 +11202,7 @@
       "slug": "langfuse-pack",
       "name": "langfuse-pack",
       "displayName": "langfuse pack",
-      "description": "Complete Langfuse integration skill pack with 24 skills covering LLM observability, tracing, prompt management, and evaluation. Flagship tier vendor pack.",
+      "description": "Five executable Langfuse operator workflows for trace ingestion, experiment regressions, prompt release review, recorded cost and data-boundary evidence. Offline receipt analysis without provider calls.",
       "category": "saas-packs",
       "keywords": [
         "langfuse",
@@ -11219,15 +11219,15 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.17.0",
+      "version": "2.0.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
-      "skillCount": 24,
-      "verificationScore": 87,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "langfuse pack complete langfuse integration skill pack with 24 skills covering llm observability, tracing, prompt management, and evaluation. flagship tier vendor pack. saas-packs langfuse observability tracing prompts evaluation llm-ops monitoring"
+      "skillCount": 5,
+      "verificationScore": 93,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "langfuse pack five executable langfuse operator workflows for trace ingestion, experiment regressions, prompt release review, recorded cost and data-boundary evidence. offline receipt analysis without provider calls. saas-packs langfuse observability tracing prompts evaluation llm-ops monitoring"
     },
     {
       "type": "plugin",
@@ -50845,509 +50845,98 @@
     },
     {
       "type": "skill",
-      "id": "langfuse-ci-integration",
-      "slug": "langfuse-ci-integration",
-      "name": "langfuse-ci-integration",
-      "description": "Configure Langfuse CI/CD integration with GitHub Actions and automated testing. Use when setting up automated testing, configuring CI pipelines, or integrating Langfuse tests into your build process. Trigger with phrases like \"langfuse CI\", \"langfuse GitHub Actions\", \"langfuse automated tests\", \"CI langfuse\", \"langfuse pipeline\".",
+      "id": "langfuse-cost-forensics",
+      "slug": "langfuse-cost-forensics",
+      "name": "langfuse-cost-forensics",
+      "description": "Audit Langfuse recorded-cost observations for missing usage, unavailable cost, cursor gaps and scope mismatches. Separate explicit zero from unknown and partial subtotals from complete retrieved sets. Use when reviewing this evidence. Trigger with \"Langfuse spend looks wrong\", \"missing generation cost\" or \"does this first page prove our total?\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(gh:*)"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.17.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "langfuse-pack",
         "category": "saas-packs"
       },
-      "searchText": "langfuse-ci-integration configure langfuse ci/cd integration with github actions and automated testing. use when setting up automated testing, configuring ci pipelines, or integrating langfuse tests into your build process. trigger with phrases like \"langfuse ci\", \"langfuse github actions\", \"langfuse automated tests\", \"ci langfuse\", \"langfuse pipeline\". saas-packs read write edit bash(gh:*) "
+      "searchText": "langfuse-cost-forensics audit langfuse recorded-cost observations for missing usage, unavailable cost, cursor gaps and scope mismatches. separate explicit zero from unknown and partial subtotals from complete retrieved sets. use when reviewing this evidence. trigger with \"langfuse spend looks wrong\", \"missing generation cost\" or \"does this first page prove our total?\". saas-packs read bash(python3:*) "
     },
     {
       "type": "skill",
-      "id": "langfuse-common-errors",
-      "slug": "langfuse-common-errors",
-      "name": "langfuse-common-errors",
-      "description": "Diagnose and fix common Langfuse errors and exceptions. Use when encountering Langfuse errors, debugging missing traces, or troubleshooting integration issues. Trigger with phrases like \"langfuse error\", \"fix langfuse\", \"langfuse not working\", \"debug langfuse\", \"traces not appearing\".",
+      "id": "langfuse-data-boundary-auditor",
+      "slug": "langfuse-data-boundary-auditor",
+      "name": "langfuse-data-boundary-auditor",
+      "description": "Audit supplied Langfuse observation payloads for unapproved fields, incomplete cursor coverage and retention evidence gaps. Separate project retention from Cloud access windows and dataset/audit/external-copy scope. Use when reviewing this evidence. Trigger with \"review a Langfuse debug export\", \"did anonymization leave metadata?\" or \"does retention cover all these Langfuse records?\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Grep",
-        "Bash(curl:*)"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.17.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "langfuse-pack",
         "category": "saas-packs"
       },
-      "searchText": "langfuse-common-errors diagnose and fix common langfuse errors and exceptions. use when encountering langfuse errors, debugging missing traces, or troubleshooting integration issues. trigger with phrases like \"langfuse error\", \"fix langfuse\", \"langfuse not working\", \"debug langfuse\", \"traces not appearing\". saas-packs read grep bash(curl:*) "
+      "searchText": "langfuse-data-boundary-auditor audit supplied langfuse observation payloads for unapproved fields, incomplete cursor coverage and retention evidence gaps. separate project retention from cloud access windows and dataset/audit/external-copy scope. use when reviewing this evidence. trigger with \"review a langfuse debug export\", \"did anonymization leave metadata?\" or \"does retention cover all these langfuse records?\". saas-packs read bash(python3:*) "
     },
     {
       "type": "skill",
-      "id": "langfuse-core-workflow-a",
-      "slug": "langfuse-core-workflow-a",
-      "name": "langfuse-core-workflow-a",
-      "description": "Execute Langfuse primary workflow: Tracing LLM calls and spans. Use when implementing LLM tracing, building traced AI features, or adding observability to existing LLM applications. Trigger with phrases like \"langfuse tracing\", \"trace LLM calls\", \"add langfuse to openai\", \"langfuse spans\", \"track llm requests\".",
+      "id": "langfuse-experiment-guardian",
+      "slug": "langfuse-experiment-guardian",
+      "name": "langfuse-experiment-guardian",
+      "description": "Compare Langfuse experiment baseline and candidate results at case level using reviewed dataset, content and evaluator identities. Detect missing cases, evaluator errors and critical regressions before proposing a release. Use when reviewing these cases. Trigger with \"Langfuse experiment passed on average\", \"candidate lost evaluation cases\" or \"can this experiment replace our reviewed baseline?\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.17.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "langfuse-pack",
         "category": "saas-packs"
       },
-      "searchText": "langfuse-core-workflow-a execute langfuse primary workflow: tracing llm calls and spans. use when implementing llm tracing, building traced ai features, or adding observability to existing llm applications. trigger with phrases like \"langfuse tracing\", \"trace llm calls\", \"add langfuse to openai\", \"langfuse spans\", \"track llm requests\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "langfuse-experiment-guardian compare langfuse experiment baseline and candidate results at case level using reviewed dataset, content and evaluator identities. detect missing cases, evaluator errors and critical regressions before proposing a release. use when reviewing these cases. trigger with \"langfuse experiment passed on average\", \"candidate lost evaluation cases\" or \"can this experiment replace our reviewed baseline?\". saas-packs read bash(python3:*) "
     },
     {
       "type": "skill",
-      "id": "langfuse-core-workflow-b",
-      "slug": "langfuse-core-workflow-b",
-      "name": "langfuse-core-workflow-b",
-      "description": "Execute Langfuse secondary workflow: Evaluation, scoring, and datasets. Use when implementing LLM evaluation, adding user feedback, or setting up automated quality scoring and experiment datasets. Trigger with phrases like \"langfuse evaluation\", \"langfuse scoring\", \"rate llm outputs\", \"langfuse feedback\", \"langfuse datasets\", \"langfuse experiments\".",
+      "id": "langfuse-prompt-release-guardian",
+      "slug": "langfuse-prompt-release-guardian",
+      "name": "langfuse-prompt-release-guardian",
+      "description": "Review Langfuse prompt promotions or rollbacks using explicit versions, fresh label snapshots, reviewed content hashes and runtime variable contracts. Verify supplied prompt webhooks without treating signatures as release approval. Use when reviewing this evidence. Trigger with \"promote this Langfuse prompt\", \"check a prompt rollback\" or \"is this signed prompt update enough to deploy?\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.17.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "langfuse-pack",
         "category": "saas-packs"
       },
-      "searchText": "langfuse-core-workflow-b execute langfuse secondary workflow: evaluation, scoring, and datasets. use when implementing llm evaluation, adding user feedback, or setting up automated quality scoring and experiment datasets. trigger with phrases like \"langfuse evaluation\", \"langfuse scoring\", \"rate llm outputs\", \"langfuse feedback\", \"langfuse datasets\", \"langfuse experiments\". saas-packs read write edit bash(npm:*) grep "
+      "searchText": "langfuse-prompt-release-guardian review langfuse prompt promotions or rollbacks using explicit versions, fresh label snapshots, reviewed content hashes and runtime variable contracts. verify supplied prompt webhooks without treating signatures as release approval. use when reviewing this evidence. trigger with \"promote this langfuse prompt\", \"check a prompt rollback\" or \"is this signed prompt update enough to deploy?\". saas-packs read bash(python3:*) "
     },
     {
       "type": "skill",
-      "id": "langfuse-cost-tuning",
-      "slug": "langfuse-cost-tuning",
-      "name": "langfuse-cost-tuning",
-      "description": "Monitor and optimize LLM costs using Langfuse analytics and dashboards. Use when tracking LLM spending, identifying cost anomalies, or implementing cost controls for AI applications. Trigger with phrases like \"langfuse costs\", \"LLM spending\", \"track AI costs\", \"langfuse token usage\", \"optimize LLM budget\".",
+      "id": "langfuse-trace-ingestion-medic",
+      "slug": "langfuse-trace-ingestion-medic",
+      "name": "langfuse-trace-ingestion-medic",
+      "description": "Investigate missing, partial or incorrectly nested Langfuse observations by reconciling a captured OTLP batch with Observations API v2 readbacks. Use when traces disappear after a serverless exit, exported spans are absent, or parent context differs. Trigger with \"Langfuse spans missing\", \"flush succeeded but no observations\" or \"why is this Langfuse child at the root?\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.17.0",
+      "version": "2.0.0",
       "parentPlugin": {
         "name": "langfuse-pack",
         "category": "saas-packs"
       },
-      "searchText": "langfuse-cost-tuning monitor and optimize llm costs using langfuse analytics and dashboards. use when tracking llm spending, identifying cost anomalies, or implementing cost controls for ai applications. trigger with phrases like \"langfuse costs\", \"llm spending\", \"track ai costs\", \"langfuse token usage\", \"optimize llm budget\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-data-handling",
-      "slug": "langfuse-data-handling",
-      "name": "langfuse-data-handling",
-      "description": "Manage Langfuse data export, retention, and compliance requirements. Use when exporting trace data, configuring retention policies, or implementing data compliance for LLM observability. Trigger with phrases like \"langfuse data export\", \"langfuse retention\", \"langfuse GDPR\", \"langfuse compliance\", \"export langfuse traces\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-data-handling manage langfuse data export, retention, and compliance requirements. use when exporting trace data, configuring retention policies, or implementing data compliance for llm observability. trigger with phrases like \"langfuse data export\", \"langfuse retention\", \"langfuse gdpr\", \"langfuse compliance\", \"export langfuse traces\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-debug-bundle",
-      "slug": "langfuse-debug-bundle",
-      "name": "langfuse-debug-bundle",
-      "description": "Collect Langfuse debug evidence for support tickets and troubleshooting. Use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for Langfuse problems. Trigger with phrases like \"langfuse debug\", \"langfuse support bundle\", \"collect langfuse logs\", \"langfuse diagnostic\", \"langfuse troubleshoot\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Bash(grep:*)",
-        "Bash(curl:*)",
-        "Bash(tar:*)",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-debug-bundle collect langfuse debug evidence for support tickets and troubleshooting. use when encountering persistent issues, preparing support tickets, or collecting diagnostic information for langfuse problems. trigger with phrases like \"langfuse debug\", \"langfuse support bundle\", \"collect langfuse logs\", \"langfuse diagnostic\", \"langfuse troubleshoot\". saas-packs read bash(grep:*) bash(curl:*) bash(tar:*) grep "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-deploy-integration",
-      "slug": "langfuse-deploy-integration",
-      "name": "langfuse-deploy-integration",
-      "description": "Deploy Langfuse with your application across different platforms. Use when deploying Langfuse to Vercel, AWS, GCP, or Docker, or integrating Langfuse into your deployment pipeline. Trigger with phrases like \"deploy langfuse\", \"langfuse Vercel\", \"langfuse AWS\", \"langfuse Docker\", \"langfuse production deploy\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(docker:*)",
-        "Bash(vercel:*)",
-        "Bash(gcloud:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-deploy-integration deploy langfuse with your application across different platforms. use when deploying langfuse to vercel, aws, gcp, or docker, or integrating langfuse into your deployment pipeline. trigger with phrases like \"deploy langfuse\", \"langfuse vercel\", \"langfuse aws\", \"langfuse docker\", \"langfuse production deploy\". saas-packs read write edit bash(docker:*) bash(vercel:*) bash(gcloud:*) "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-enterprise-rbac",
-      "slug": "langfuse-enterprise-rbac",
-      "name": "langfuse-enterprise-rbac",
-      "description": "Configure Langfuse enterprise organization management and access control. Use when implementing team access controls, configuring organization settings, or setting up role-based permissions for Langfuse projects. Trigger with phrases like \"langfuse RBAC\", \"langfuse teams\", \"langfuse organization\", \"langfuse access control\", \"langfuse permissions\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-enterprise-rbac configure langfuse enterprise organization management and access control. use when implementing team access controls, configuring organization settings, or setting up role-based permissions for langfuse projects. trigger with phrases like \"langfuse rbac\", \"langfuse teams\", \"langfuse organization\", \"langfuse access control\", \"langfuse permissions\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-hello-world",
-      "slug": "langfuse-hello-world",
-      "name": "langfuse-hello-world",
-      "description": "Create a minimal working Langfuse trace example. Use when starting a new Langfuse integration, testing your setup, or learning basic Langfuse tracing patterns. Trigger with phrases like \"langfuse hello world\", \"langfuse example\", \"langfuse quick start\", \"first langfuse trace\", \"simple langfuse code\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-hello-world create a minimal working langfuse trace example. use when starting a new langfuse integration, testing your setup, or learning basic langfuse tracing patterns. trigger with phrases like \"langfuse hello world\", \"langfuse example\", \"langfuse quick start\", \"first langfuse trace\", \"simple langfuse code\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-incident-runbook",
-      "slug": "langfuse-incident-runbook",
-      "name": "langfuse-incident-runbook",
-      "description": "Troubleshoot and respond to Langfuse-related incidents and outages. Use when experiencing Langfuse outages, debugging production issues, or responding to LLM observability incidents. Trigger with phrases like \"langfuse incident\", \"langfuse outage\", \"langfuse down\", \"langfuse production issue\", \"langfuse troubleshoot\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-incident-runbook troubleshoot and respond to langfuse-related incidents and outages. use when experiencing langfuse outages, debugging production issues, or responding to llm observability incidents. trigger with phrases like \"langfuse incident\", \"langfuse outage\", \"langfuse down\", \"langfuse production issue\", \"langfuse troubleshoot\". saas-packs read write edit bash(curl:*) "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-install-auth",
-      "slug": "langfuse-install-auth",
-      "name": "langfuse-install-auth",
-      "description": "Install and configure Langfuse SDK authentication for LLM observability. Use when setting up a new Langfuse integration, configuring API keys, or initializing Langfuse tracing in your project. Trigger with phrases like \"install langfuse\", \"setup langfuse\", \"langfuse auth\", \"configure langfuse API key\", \"langfuse tracing setup\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Bash(pnpm:*)",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-install-auth install and configure langfuse sdk authentication for llm observability. use when setting up a new langfuse integration, configuring api keys, or initializing langfuse tracing in your project. trigger with phrases like \"install langfuse\", \"setup langfuse\", \"langfuse auth\", \"configure langfuse api key\", \"langfuse tracing setup\". saas-packs read write edit bash(npm:*) bash(pip:*) bash(pnpm:*) grep "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-local-dev-loop",
-      "slug": "langfuse-local-dev-loop",
-      "name": "langfuse-local-dev-loop",
-      "description": "Set up Langfuse local development workflow with hot reload and debugging. Use when developing LLM applications locally, debugging traces, or setting up a fast iteration loop with Langfuse. Trigger with phrases like \"langfuse local dev\", \"langfuse development\", \"debug langfuse traces\", \"langfuse hot reload\", \"langfuse dev workflow\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(docker:*)",
-        "Bash(pnpm:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-local-dev-loop set up langfuse local development workflow with hot reload and debugging. use when developing llm applications locally, debugging traces, or setting up a fast iteration loop with langfuse. trigger with phrases like \"langfuse local dev\", \"langfuse development\", \"debug langfuse traces\", \"langfuse hot reload\", \"langfuse dev workflow\". saas-packs read write edit bash(npm:*) bash(docker:*) bash(pnpm:*) "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-migration-deep-dive",
-      "slug": "langfuse-migration-deep-dive",
-      "name": "langfuse-migration-deep-dive",
-      "description": "Execute complex Langfuse migrations including data migration and platform changes. Use when migrating from other observability platforms, moving between Langfuse instances, or performing major infrastructure migrations. Trigger with phrases like \"langfuse migration\", \"migrate to langfuse\", \"langfuse data migration\", \"langfuse platform migration\", \"switch to langfuse\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-migration-deep-dive execute complex langfuse migrations including data migration and platform changes. use when migrating from other observability platforms, moving between langfuse instances, or performing major infrastructure migrations. trigger with phrases like \"langfuse migration\", \"migrate to langfuse\", \"langfuse data migration\", \"langfuse platform migration\", \"switch to langfuse\". saas-packs read write edit bash(npm:*) "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-multi-env-setup",
-      "slug": "langfuse-multi-env-setup",
-      "name": "langfuse-multi-env-setup",
-      "description": "Configure Langfuse across development, staging, and production environments. Use when setting up multi-environment deployments, configuring per-environment keys, or implementing environment-specific Langfuse configurations. Trigger with phrases like \"langfuse environments\", \"langfuse staging\", \"langfuse dev prod\", \"langfuse environment setup\", \"langfuse config by env\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-multi-env-setup configure langfuse across development, staging, and production environments. use when setting up multi-environment deployments, configuring per-environment keys, or implementing environment-specific langfuse configurations. trigger with phrases like \"langfuse environments\", \"langfuse staging\", \"langfuse dev prod\", \"langfuse environment setup\", \"langfuse config by env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-observability",
-      "slug": "langfuse-observability",
-      "name": "langfuse-observability",
-      "description": "Set up comprehensive observability for Langfuse with metrics, dashboards, and alerts. Use when implementing monitoring for LLM operations, setting up dashboards, or configuring alerting for Langfuse integration health. Trigger with phrases like \"langfuse monitoring\", \"langfuse metrics\", \"langfuse observability\", \"monitor langfuse\", \"langfuse alerts\", \"langfuse dashboard\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-observability set up comprehensive observability for langfuse with metrics, dashboards, and alerts. use when implementing monitoring for llm operations, setting up dashboards, or configuring alerting for langfuse integration health. trigger with phrases like \"langfuse monitoring\", \"langfuse metrics\", \"langfuse observability\", \"monitor langfuse\", \"langfuse alerts\", \"langfuse dashboard\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-performance-tuning",
-      "slug": "langfuse-performance-tuning",
-      "name": "langfuse-performance-tuning",
-      "description": "Optimize Langfuse tracing performance for high-throughput applications. Use when experiencing latency issues, optimizing trace overhead, or scaling Langfuse for production workloads. Trigger with phrases like \"langfuse performance\", \"optimize langfuse\", \"langfuse latency\", \"langfuse overhead\", \"langfuse slow\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-performance-tuning optimize langfuse tracing performance for high-throughput applications. use when experiencing latency issues, optimizing trace overhead, or scaling langfuse for production workloads. trigger with phrases like \"langfuse performance\", \"optimize langfuse\", \"langfuse latency\", \"langfuse overhead\", \"langfuse slow\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-prod-checklist",
-      "slug": "langfuse-prod-checklist",
-      "name": "langfuse-prod-checklist",
-      "description": "Langfuse production readiness checklist and verification. Use when preparing to deploy Langfuse to production, validating production configuration, or auditing existing setup. Trigger with phrases like \"langfuse production\", \"langfuse prod ready\", \"deploy langfuse\", \"langfuse checklist\", \"langfuse go live\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-prod-checklist langfuse production readiness checklist and verification. use when preparing to deploy langfuse to production, validating production configuration, or auditing existing setup. trigger with phrases like \"langfuse production\", \"langfuse prod ready\", \"deploy langfuse\", \"langfuse checklist\", \"langfuse go live\". saas-packs read write edit bash(npm:*) grep "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-rate-limits",
-      "slug": "langfuse-rate-limits",
-      "name": "langfuse-rate-limits",
-      "description": "Implement Langfuse rate limiting, batching, and backoff patterns. Use when handling rate limit errors, optimizing trace ingestion, or managing high-volume LLM observability workloads. Trigger with phrases like \"langfuse rate limit\", \"langfuse throttling\", \"langfuse 429\", \"langfuse batching\", \"langfuse high volume\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-rate-limits implement langfuse rate limiting, batching, and backoff patterns. use when handling rate limit errors, optimizing trace ingestion, or managing high-volume llm observability workloads. trigger with phrases like \"langfuse rate limit\", \"langfuse throttling\", \"langfuse 429\", \"langfuse batching\", \"langfuse high volume\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-reference-architecture",
-      "slug": "langfuse-reference-architecture",
-      "name": "langfuse-reference-architecture",
-      "description": "Production-grade Langfuse architecture patterns and best practices. Use when designing LLM observability infrastructure, planning Langfuse deployment, or implementing enterprise-grade tracing architecture. Trigger with phrases like \"langfuse architecture\", \"langfuse design\", \"langfuse infrastructure\", \"langfuse enterprise\", \"langfuse at scale\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-reference-architecture production-grade langfuse architecture patterns and best practices. use when designing llm observability infrastructure, planning langfuse deployment, or implementing enterprise-grade tracing architecture. trigger with phrases like \"langfuse architecture\", \"langfuse design\", \"langfuse infrastructure\", \"langfuse enterprise\", \"langfuse at scale\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-sdk-patterns",
-      "slug": "langfuse-sdk-patterns",
-      "name": "langfuse-sdk-patterns",
-      "description": "Langfuse SDK best practices, patterns, and idiomatic usage. Use when learning Langfuse SDK patterns, implementing proper tracing, or following best practices for LLM observability. Trigger with phrases like \"langfuse patterns\", \"langfuse best practices\", \"langfuse SDK guide\", \"how to use langfuse\", \"langfuse idioms\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-sdk-patterns langfuse sdk best practices, patterns, and idiomatic usage. use when learning langfuse sdk patterns, implementing proper tracing, or following best practices for llm observability. trigger with phrases like \"langfuse patterns\", \"langfuse best practices\", \"langfuse sdk guide\", \"how to use langfuse\", \"langfuse idioms\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-security-basics",
-      "slug": "langfuse-security-basics",
-      "name": "langfuse-security-basics",
-      "description": "Implement Langfuse security best practices for API keys and data privacy. Use when securing Langfuse integration, protecting API keys, or implementing data privacy controls for LLM observability. Trigger with phrases like \"langfuse security\", \"langfuse API key security\", \"langfuse data privacy\", \"secure langfuse\", \"langfuse PII\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-security-basics implement langfuse security best practices for api keys and data privacy. use when securing langfuse integration, protecting api keys, or implementing data privacy controls for llm observability. trigger with phrases like \"langfuse security\", \"langfuse api key security\", \"langfuse data privacy\", \"secure langfuse\", \"langfuse pii\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-upgrade-migration",
-      "slug": "langfuse-upgrade-migration",
-      "name": "langfuse-upgrade-migration",
-      "description": "Upgrade Langfuse SDK versions and migrate between API changes. Use when upgrading Langfuse SDK, handling breaking changes, or migrating between Langfuse versions. Trigger with phrases like \"upgrade langfuse\", \"langfuse migration\", \"update langfuse SDK\", \"langfuse breaking changes\", \"langfuse version\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-upgrade-migration upgrade langfuse sdk versions and migrate between api changes. use when upgrading langfuse sdk, handling breaking changes, or migrating between langfuse versions. trigger with phrases like \"upgrade langfuse\", \"langfuse migration\", \"update langfuse sdk\", \"langfuse breaking changes\", \"langfuse version\". saas-packs read write edit bash(npm:*) bash(pip:*) "
-    },
-    {
-      "type": "skill",
-      "id": "langfuse-webhooks-events",
-      "slug": "langfuse-webhooks-events",
-      "name": "langfuse-webhooks-events",
-      "description": "Configure Langfuse webhooks for prompt change notifications and event-driven workflows. Use when setting up prompt change notifications, triggering CI/CD on prompt updates, or integrating Langfuse events with Slack and external systems. Trigger with phrases like \"langfuse webhooks\", \"langfuse events\", \"langfuse notifications\", \"langfuse prompt webhook\", \"langfuse alerts\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.17.0",
-      "parentPlugin": {
-        "name": "langfuse-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "langfuse-webhooks-events configure langfuse webhooks for prompt change notifications and event-driven workflows. use when setting up prompt change notifications, triggering ci/cd on prompt updates, or integrating langfuse events with slack and external systems. trigger with phrases like \"langfuse webhooks\", \"langfuse events\", \"langfuse notifications\", \"langfuse prompt webhook\", \"langfuse alerts\". saas-packs read write edit "
+      "searchText": "langfuse-trace-ingestion-medic investigate missing, partial or incorrectly nested langfuse observations by reconciling a captured otlp batch with observations api v2 readbacks. use when traces disappear after a serverless exit, exported spans are absent, or parent context differs. trigger with \"langfuse spans missing\", \"flush succeeded but no observations\" or \"why is this langfuse child at the root?\". saas-packs read bash(python3:*) "
     },
     {
       "type": "skill",

@@ -5865,8 +5865,8 @@
     {
       "name": "langfuse-pack",
       "source": "./plugins/saas-packs/langfuse-pack",
-      "description": "Complete Langfuse integration skill pack with 24 skills covering LLM observability, tracing, prompt management, and evaluation. Flagship tier vendor pack.",
-      "version": "1.17.0",
+      "description": "Five executable Langfuse operator workflows for trace ingestion, experiment regressions, prompt release review, recorded cost and data-boundary evidence. Offline receipt analysis without provider calls.",
+      "version": "2.0.0",
       "category": "saas-packs",
       "keywords": [
         "langfuse",
