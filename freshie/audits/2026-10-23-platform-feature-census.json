@@ -5890,7 +5890,7 @@
   "population_authorities": {
     "publication_eligible": {
       "path": "scripts/publication-policy.cjs",
-      "entrypoint": "publishedPlugins(catalog.plugins, audit)",
+      "entrypoint": "publishedPlugins(catalog.plugins, 'audit')",
       "snapshot_count": 435,
       "source_sha256": "0a1716a9498311a209fa0f91541b8dc99f7d90b98a5b04f080d68e4c8b9abc9a"
     },
@@ -5917,5 +5917,32 @@
     "source_channels": "Git cat-file blobs and optional direct working-file bytes; two byte channels checked by the audit author, not an independent human review.",
     "default": "Read-only frozen Git replay; no network, upstream parity, provider calls or runtime feature activation.",
     "upstream_limit": "Local source-marker ancestry is not proof of current upstream HEAD parity or legal ownership."
+  },
+  "issue_state_snapshot": {
+    "as_of": "2026-10-24T01:00:19.393133+00:00",
+    "authority": "Beads via bd show --json; historical snapshot, not a live tracker",
+    "issues": [
+      {
+        "id": "claude-41c2.7",
+        "title": "Opportunistic audit-sweep of 400+ existing plugins \u2014 disallowed-tools migration + hook if:-matcher migration + MCP _meta annotation candidates",
+        "status": "in_progress",
+        "priority": 3,
+        "parent": "claude-41c2"
+      },
+      {
+        "id": "claude-41c2.10",
+        "title": "Review and adopt source-bound platform-feature audit opportunities",
+        "status": "open",
+        "priority": 3,
+        "parent": "claude-41c2"
+      },
+      {
+        "id": "claude-41c2.9",
+        "title": "Repair native event handling and activation semantics in GCP and formatter hooks",
+        "status": "open",
+        "priority": 1,
+        "parent": "claude-41c2"
+      }
+    ]
   }
 }
