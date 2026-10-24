@@ -53,8 +53,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
-    "zod": "^4.4.3",
-    "zod-to-json-schema": "^3.25.2"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@types/node": "^22.19.19",
@@ -64,7 +63,10 @@
   },
   "pnpm": {
     "overrides": {
-      "hono@<4.13.11": "4.13.13"
+      "hono@<4.13.11": "4.13.13",
+      "body-parser@>=2.0.0 <2.4.0": "2.4.0",
+      "express-rate-limit>ip-address": "10.7.4",
+      "ajv>fast-uri": "3.1.9"
     }
   }
 }

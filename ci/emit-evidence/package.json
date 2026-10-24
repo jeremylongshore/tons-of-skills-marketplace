@@ -6,5 +6,10 @@
   "type": "module",
   "dependencies": {
     "@intentsolutions/core": "0.10.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@intentsolutions/core>zod": "4.6.6"
+    }
   }
 }

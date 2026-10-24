@@ -118,14 +118,14 @@
     "overrides": {
       "@hono/node-server": "1.19.15",
       "@intentsolutions/core": "0.10.0",
-      "ajv>fast-uri": "3.1.8",
+      "ajv>fast-uri": "3.1.9",
       "axios": "1.20.0",
       "browserslist": "4.28.7",
       "devalue": "5.9.3",
       "esbuild": "0.28.2",
-      "express@4.22.2>body-parser": "1.20.6",
-      "express@5.2.1>body-parser": "2.3.0",
-      "express-rate-limit>ip-address": "10.7.3",
+      "express@4.22.2>body-parser": "1.20.9",
+      "express@5.2.1>body-parser": "2.4.0",
+      "express-rate-limit>ip-address": "10.7.4",
       "proxy-addr": "2.0.8",
       "form-data": "4.0.6",
       "gray-matter>js-yaml": "3.15.2",
@@ -151,7 +151,11 @@
       "vitest@>=4.0.0 <4.1.12": "4.1.12",
       "tinypool@<2.1.2": "2.1.2",
       "vite@6.4.4>esbuild": "0.25.12",
-      "@vitest/coverage-v8@>=4.0.0 <4.1.12": "4.1.12"
+      "@vitest/coverage-v8@>=4.0.0 <4.1.12": "4.1.12",
+      "astro>zod": "4.6.6",
+      "@intentsolutions/core>zod": "4.6.6",
+      "undici@>=6.0.0 <6.29.1": "6.29.1",
+      "unifont>undici": "8.12.2"
     }
   }
 }

@@ -8,7 +8,6 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema, Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 const ParseFigmaSchema = z.object({
   json: z.string().describe('Figma JSON export'),
@@ -142,9 +141,9 @@ const server = new Server(
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
-    { name: 'parse_figma', description: 'Parse Figma JSON export', inputSchema: zodToJsonSchema(ParseFigmaSchema as any) as Tool['inputSchema'] },
-    { name: 'analyze_screenshot', description: 'Analyze screenshot layout', inputSchema: zodToJsonSchema(AnalyzeScreenshotSchema as any) as Tool['inputSchema'] },
-    { name: 'generate_component', description: 'Generate code component', inputSchema: zodToJsonSchema(GenerateComponentSchema as any) as Tool['inputSchema'] }
+    { name: 'parse_figma', description: 'Parse Figma JSON export', inputSchema: z.toJSONSchema(ParseFigmaSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema'] },
+    { name: 'analyze_screenshot', description: 'Analyze screenshot layout', inputSchema: z.toJSONSchema(AnalyzeScreenshotSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema'] },
+    { name: 'generate_component', description: 'Generate code component', inputSchema: z.toJSONSchema(GenerateComponentSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema'] }
   ]
 }));
 

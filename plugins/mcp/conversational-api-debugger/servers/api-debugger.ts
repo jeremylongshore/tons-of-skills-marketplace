@@ -16,7 +16,6 @@ import {
   Tool
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import { promises as fs } from 'fs';
 import * as yaml from 'yaml';
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
@@ -696,22 +695,22 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     {
       name: 'load_openapi',
       description: 'Load and parse an OpenAPI specification file (JSON or YAML). Extracts endpoint definitions, parameters, and expected responses for comparison with actual API behavior.',
-      inputSchema: zodToJsonSchema(LoadOpenAPISchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(LoadOpenAPISchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     },
     {
       name: 'ingest_logs',
       description: 'Ingest HTTP request/response logs from file (HAR format) or direct array. Analyzes patterns, identifies errors, and prepares logs for failure analysis.',
-      inputSchema: zodToJsonSchema(IngestLogsSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(IngestLogsSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     },
     {
       name: 'explain_failure',
       description: 'Analyze why an API call failed. Compares actual behavior with OpenAPI spec (if loaded), identifies root causes, and suggests fixes. Provides severity assessment.',
-      inputSchema: zodToJsonSchema(ExplainFailureSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(ExplainFailureSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     },
     {
       name: 'make_repro',
       description: 'Generate cURL command (and alternatives: HTTPie, JavaScript fetch) to reproduce an API call. Useful for debugging, documentation, and sharing reproducible test cases.',
-      inputSchema: zodToJsonSchema(MakeReproSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(MakeReproSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     }
   ];
 

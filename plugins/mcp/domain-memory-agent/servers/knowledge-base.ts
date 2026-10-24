@@ -15,7 +15,6 @@ import {
   Tool
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import { createHash } from 'crypto';
 
 // ============================================================================
@@ -561,32 +560,32 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     {
       name: 'store_document',
       description: 'Store a document in the knowledge base with optional tags and metadata. Content is automatically indexed for semantic search.',
-      inputSchema: zodToJsonSchema(StoreDocumentSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(StoreDocumentSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     },
     {
       name: 'semantic_search',
       description: 'Search documents using TF-IDF semantic search. Returns relevant documents with excerpts and relevance scores.',
-      inputSchema: zodToJsonSchema(SemanticSearchSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(SemanticSearchSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     },
     {
       name: 'summarize',
       description: 'Generate extractive summary of a document or content. Summaries are cached for documents.',
-      inputSchema: zodToJsonSchema(SummarizeSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(SummarizeSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     },
     {
       name: 'list_documents',
       description: 'List all documents in knowledge base with filtering, sorting, and pagination.',
-      inputSchema: zodToJsonSchema(ListDocumentsSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(ListDocumentsSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     },
     {
       name: 'get_document',
       description: 'Retrieve a specific document by ID including full content.',
-      inputSchema: zodToJsonSchema(GetDocumentSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(GetDocumentSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     },
     {
       name: 'delete_document',
       description: 'Delete a document from the knowledge base and remove from search index.',
-      inputSchema: zodToJsonSchema(DeleteDocumentSchema as any) as Tool['inputSchema']
+      inputSchema: z.toJSONSchema(DeleteDocumentSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema']
     }
   ];
 
