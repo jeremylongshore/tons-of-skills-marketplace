@@ -227,6 +227,9 @@ def persist(root: Path, raw: bytes, at: dt.datetime) -> dict:
             if os.write(index_fd, entry) != len(entry):
                 raise OSError("short index write")
             os.fsync(index_fd)
+            latest = index.lstat()
+            if (latest.st_dev, latest.st_ino) != (before.st_dev, before.st_ino):
+                raise OSError("index replaced during append")
         except OSError:
             # Retain the reviewed report; never delete evidence or rewrite an
             # index that another editor may have changed. Signal incomplete work.

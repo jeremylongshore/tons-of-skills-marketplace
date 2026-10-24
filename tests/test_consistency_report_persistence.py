@@ -115,6 +115,22 @@ class PersistenceTests(unittest.TestCase):
         self.assertEqual(self.index.read_text(), self.before)
         self.assertEqual(len(list((self.root / "000-docs").glob("*-consistency-*.md"))), 1)
 
+    def test_concurrent_index_replacement_is_preserved_and_reported_incomplete(self):
+        original_write = os.write
+
+        def replace_after_append(fd, data):
+            count = original_write(fd, data)
+            replacement = self.root / "new-index.md"
+            replacement.write_text("Concurrent owner's replacement index\n")
+            replacement.replace(self.index)  # Owned scratch fixture only.
+            return count
+
+        with self.approved(), patch.object(SINK.os, "write", side_effect=replace_after_append):
+            with self.assertRaisesRegex(SINK.Held, "report-saved-index-incomplete"):
+                SINK.persist(self.root, payload(), AT)
+        self.assertEqual(self.index.read_text(), "Concurrent owner's replacement index\n")
+        self.assertEqual(len(list((self.root / "000-docs").glob("*-consistency-*.md"))), 1)
+
 
 class PolicyTransportTests(unittest.TestCase):
     def test_success_exit_with_dropped_payload_does_not_authorize_a_write(self):
