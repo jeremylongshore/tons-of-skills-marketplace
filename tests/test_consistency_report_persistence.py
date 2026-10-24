@@ -91,6 +91,12 @@ class PersistenceTests(unittest.TestCase):
         self.assertEqual(self.index.read_text(), self.before)
         self.assertFalse(list((self.root / "000-docs").glob("*-consistency-*.md")))
 
+    def test_missing_policy_is_held_before_any_destination_write(self):
+        with self.assertRaisesRegex(SINK.Held, "missing-required-file"):
+            SINK.persist(self.root, payload(), AT)
+        self.assertEqual(self.index.read_text(), self.before)
+        self.assertFalse(list((self.root / "000-docs").glob("*-consistency-*.md")))
+
     def test_index_symlink_is_rejected_without_following_it(self):
         other = self.root / "outside.md"
         other.write_text("do not modify")
