@@ -21,6 +21,63 @@
     },
     "/deployment-thesis": {
       "reason": "Never a tonsofskills.com page; a dual-published blog post linked it relative to the wrong host."
+    },
+    "/plugins/appfolio-pack": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-ci-integration": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-common-errors": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-core-workflow-a": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-core-workflow-b": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-cost-tuning": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-debug-bundle": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-deploy-integration": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-hello-world": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-install-auth": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-local-dev-loop": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-performance-tuning": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-prod-checklist": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-rate-limits": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-reference-architecture": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-sdk-patterns": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-security-basics": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-upgrade-migration": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/skills/appfolio-webhooks-events": {
+      "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
     }
   }
 }

@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 435,
-    "totalSkills": 2881,
+    "totalPlugins": 434,
+    "totalSkills": 2863,
     "totalCommands": 82,
-    "pluginsWithSkills": 401,
+    "pluginsWithSkills": 400,
     "byCategory": {
       "productivity": 28,
       "security": 28,
@@ -26,7 +26,7 @@
       "business-tools": 4,
       "community": 19,
       "examples": 5,
-      "saas-packs": 103,
+      "saas-packs": 102,
       "analytics": 1,
       "design": 2
     },
@@ -8966,32 +8966,6 @@
       "commandCount": 0,
       "installCommand": "/plugin install apify-pack",
       "sourcePath": "./plugins/saas-packs/apify-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "appfolio-pack",
-      "name": "appfolio-pack",
-      "displayName": "appfolio pack",
-      "description": "Claude Code skill pack for AppFolio (18 skills)",
-      "version": "1.5.0",
-      "category": "saas-packs",
-      "keywords": [
-        "appfolio",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "hasSkills": true,
-      "skillCount": 18,
-      "commandCount": 0,
-      "installCommand": "/plugin install appfolio-pack",
-      "sourcePath": "./plugins/saas-packs/appfolio-pack",
       "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",
