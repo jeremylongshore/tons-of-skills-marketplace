@@ -307,7 +307,7 @@ def main():
             json.loads(raw, object_pairs_hook=unique_object, parse_float=Decimal, parse_constant=reject_constant)
         )
         result["input_sha256"] = hashlib.sha256(raw).hexdigest()
-    except (InvalidReceipt, json.JSONDecodeError, UnicodeError, OSError, RecursionError) as exc:
+    except (ValueError, OSError, RecursionError) as exc:
         code = str(exc) if isinstance(exc, InvalidReceipt) else "unreadable-or-invalid-json"
         print(json.dumps({"status": "held", "code": code}), file=sys.stderr)
         return 2
