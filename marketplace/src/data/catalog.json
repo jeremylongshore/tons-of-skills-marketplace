@@ -38,7 +38,7 @@
       "name": "000-jeremy-content-consistency-validator",
       "displayName": "content consistency validator",
       "description": "Read-only consistency validator: 9 deterministic drift checks across docs, code, tests, and CI, adjudicated by a per-fact-class authority registry (sot-map.yaml) — no global source-of-truth ranking, LLM-judged findings advisory-only, golden-fixture gated. Invoked by /release Phase 1.6.",
-      "version": "3.29.0",
+      "version": "3.30.0",
       "category": "productivity",
       "keywords": [
         "documentation",

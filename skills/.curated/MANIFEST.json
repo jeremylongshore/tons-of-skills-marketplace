@@ -36772,7 +36772,9 @@
       "files": [
         "SKILL.md",
         "references/drift-categories.md",
-        "references/sot-registry.md"
+        "references/report-persistence.md",
+        "references/sot-registry.md",
+        "scripts/persist-report.py"
       ]
     },
     {

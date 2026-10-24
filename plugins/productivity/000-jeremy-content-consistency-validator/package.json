@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/000-jeremy-content-consistency-validator",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Read-only consistency validator: 9 deterministic drift checks adjudicated by a per-fact-class authority registry (sot-map.yaml); LLM-judged findings advisory-only; golden-fixture gated.",
   "keywords": [
     "documentation",

@@ -12,7 +12,7 @@ description: |
   "audit documentation", "doc drift check".
 allowed-tools: Read, Glob, Grep, Bash(echo:*), Bash(git:*), Bash(diff:*), Bash(python3:*)
 argument-hint: '[optional path to sot-map.yaml — defaults to ~/000-projects/intent-os/sot-map.yaml]'
-version: 3.29.0
+version: 3.30.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

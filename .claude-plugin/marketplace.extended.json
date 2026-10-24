@@ -30,7 +30,7 @@
       "name": "000-jeremy-content-consistency-validator",
       "source": "./plugins/productivity/000-jeremy-content-consistency-validator",
       "description": "Read-only consistency validator: 9 deterministic drift checks across docs, code, tests, and CI, adjudicated by a per-fact-class authority registry (sot-map.yaml) — no global source-of-truth ranking, LLM-judged findings advisory-only, golden-fixture gated. Invoked by /release Phase 1.6.",
-      "version": "3.29.0",
+      "version": "3.30.0",
       "category": "productivity",
       "maintainer": "@jeremylongshore",
       "keywords": [
@@ -54,10 +54,10 @@
         "commands": 1
       },
       "verification": {
-        "score": 90,
+        "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-24T00:00:00.000Z"
       }
     },
     {

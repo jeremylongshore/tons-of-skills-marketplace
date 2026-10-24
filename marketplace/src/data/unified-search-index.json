@@ -1780,12 +1780,12 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "3.29.0",
+      "version": "3.30.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 90,
+      "verificationScore": 91,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "content consistency validator read-only consistency validator: 9 deterministic drift checks across docs, code, tests, and ci, adjudicated by a per-fact-class authority registry (sot-map.yaml) — no global source-of-truth ranking, llm-judged findings advisory-only, golden-fixture gated. invoked by /release phase 1.6. productivity documentation consistency validation drift-detection source-of-truth authority-registry content-audit quality-assurance release-gate standards"
@@ -76050,15 +76050,16 @@
         "Grep",
         "Bash(echo:*)",
         "Bash(git:*)",
-        "Bash(diff:*)"
+        "Bash(diff:*)",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "3.29.0",
+      "version": "3.30.0",
       "parentPlugin": {
         "name": "000-jeremy-content-consistency-validator",
         "category": "productivity"
       },
-      "searchText": "validate-consistency universal document consistency auditor. runs deterministic drift checks across docs, code, tests, and ci, resolves conflicts through a per-fact-class authority registry (sot-map.yaml), and produces reports that structurally separate deterministic findings from advisory llm-judged findings. use when checking documentation accuracy before a release, after major refactors, or when onboarding to a new codebase. also invoked automatically by /release phase 1.6. trigger with \"/validate-consistency\", \"check consistency\", \"validate docs\", \"audit documentation\", \"doc drift check\". productivity read glob grep bash(echo:*) bash(git:*) bash(diff:*) "
+      "searchText": "validate-consistency universal document consistency auditor. runs deterministic drift checks across docs, code, tests, and ci, resolves conflicts through a per-fact-class authority registry (sot-map.yaml), and produces reports that structurally separate deterministic findings from advisory llm-judged findings. use when checking documentation accuracy before a release, after major refactors, or when onboarding to a new codebase. also invoked automatically by /release phase 1.6. trigger with \"/validate-consistency\", \"check consistency\", \"validate docs\", \"audit documentation\", \"doc drift check\". productivity read glob grep bash(echo:*) bash(git:*) bash(diff:*) bash(python3:*) "
     },
     {
       "type": "skill",
