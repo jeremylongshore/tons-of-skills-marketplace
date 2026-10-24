@@ -11,7 +11,7 @@ contract, not proof of a successful provider call.
 | `property_id` | Numeric GA4 property ID as a string; never a `G-...` measurement ID. |
 | `start_date`, `end_date` | Inclusive absolute ISO dates, resolved in the property timezone. One date window per receipt. |
 | `time_zone` | IANA name such as `America/Chicago`. If response metadata supplies a timezone, it must agree. |
-| `filters` | Complete normalized filter contract, including dimension/metric filters, comparisons and relevant report segments. Use `{}` only when verified absent. Keep the same normalization on both sides. |
+| `filters` | Complete normalized filter contract, including dimension/metric filters, comparisons and relevant report segments. Use `{}` only when verified absent and `null` when unknown. Unknown filters prevent numeric comparison. Keep the same normalization on both sides. |
 | `reporting_identity` | The recorded identity/mode relevant to the source report, or `null` when unknown. Do not infer a UI setting from the API response. |
 | `currency` | Recorded currency, or `null` when unavailable. Monetary comparisons require a known currency. |
 

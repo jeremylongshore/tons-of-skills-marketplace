@@ -77,6 +77,16 @@ class ReportForensicsTests(unittest.TestCase):
         result = ENGINE.analyze({"left": report(("0",)), "right": report((value,))})
         self.assertEqual(result["metric_deltas"][0]["right_minus_left"], value)
 
+    def test_unknown_filters_withhold_deltas_even_when_both_receipts_agree(self):
+        data = {"left": report(filters=None), "right": report(("20",), filters=None)}
+        result = ENGINE.analyze(data)
+        self.assertEqual(result["comparison"], "inconclusive")
+        self.assertEqual(result["metric_deltas"], [])
+        self.assertEqual(
+            {f["report"] for f in result["findings"] if f["code"] == "filter-contract-unavailable"},
+            {"left", "right"},
+        )
+
     def test_unknown_currency_blocks_comparison_of_money(self):
         data = pair()
         for side in data.values():

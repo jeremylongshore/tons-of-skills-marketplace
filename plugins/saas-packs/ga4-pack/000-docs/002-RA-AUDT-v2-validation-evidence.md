@@ -8,8 +8,16 @@
 
 The evaluated operator source is commit
 `a338bab4ea70729b98f937f04eba5267adb266c5`. Documentation and generated
-publication projections may be appended after that source snapshot; the three
-SKILL.md files and six executable helpers remain the graded implementation.
+publication projections were appended after that source snapshot. The grades
+below describe that immutable source, rather than certifying later helper changes.
+
+A subsequent regression test reproduced two receipts with `filters: null`
+producing a numeric comparison. The corrected analyzer retains diagnostic
+findings and returns `inconclusive` with no deltas until filters are known.
+The receipt contract now states this requirement. The new test failed before
+the correction; afterward all 58 GA4 cases passed in system Python, with three
+optional SDK cases skipped. This analyzer and reference correction postdates
+run 139 and is not covered by its original source-file hash manifest.
 
 Freshie run **139** is published as tag `run-139`, Dolt commit
 `mf70vsi6nk1tt23alrbujmq4jungnk7a`. The public API was queried at that immutable revision and

@@ -199,6 +199,12 @@ def inspect(receipt, label):
             f"/{label}/pages",
             "Confirm the selected property, collection and reporting window; empty rows alone do not prove zero traffic.",
         )
+    if context["filters"] is None:
+        finding(
+            "filter-contract-unavailable",
+            f"/{label}/context/filters",
+            "Record the complete filter contract; use an empty object only when filters are verified absent.",
+        )
     if context["reporting_identity"] is None:
         finding(
             "reporting-identity-unavailable",
@@ -231,6 +237,7 @@ def analyze(payload):
     findings = [{"report": name, **f} for name, report in reports.items() for f in report["findings"]]
     comparable = not mismatches and all(
         r["complete"]
+        and r["context"]["filters"] is not None
         and r["context"]["reporting_identity"] is not None
         and ("TYPE_CURRENCY" not in r["types"] or r["context"]["currency"] is not None)
         for r in reports.values()
