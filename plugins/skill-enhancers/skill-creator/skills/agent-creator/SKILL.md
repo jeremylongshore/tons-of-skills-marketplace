@@ -207,6 +207,7 @@ experimental:              # Claude Code v2.1.248+; optional
 - `expertise_level` — invented, not in Anthropic spec
 - `activation_priority` — invented, not in Anthropic spec
 - `activation_triggers`, `type`, `category` — not in spec
+- `compatible-with`, `when_to_use` — rejected by the IS agent gate; put activation context in `description` or the body
 - `allowed-tools` — that's the skill-only syntax; agents use `tools` or `disallowedTools`
 - `disallowed-tools` (kebab-case) — skill-only spelling (schema 3.7.0+); agents use camelCase `disallowedTools`
 
@@ -245,7 +246,7 @@ standalone agents; upstream-minimum examples do not satisfy this overlay.
 | Complete IS fields | All eleven plugin fields, plus the three standalone fields where applicable |
 | `name` present | 1-64 chars, kebab-case |
 | `description` present | 20-1536 chars under the IS contract; concise and selection-specific |
-| No invalid fields | None of: capabilities, expertise_level, activation_priority, type, category |
+| No invalid fields | None of: capabilities, expertise_level, activation_priority, type, category, compatible-with, when_to_use |
 | No skill-only fields | No `allowed-tools`, no kebab-case `disallowed-tools` (agents use `tools` / camelCase `disallowedTools`) |
 | Plugin restrictions | No hooks/mcpServers/permissionMode if plugin agent |
 | Body has Role section | Clear domain + boundaries |
@@ -297,7 +298,7 @@ When the user wants to validate an existing agent:
    - All eleven plugin fields or fourteen standalone fields present?
    - `name` present and valid (1-64 chars, kebab-case)?
    - `description` present and valid (20-1536 chars; concise and selection-specific)?
-   - Any invalid fields? (capabilities, expertise_level, activation_priority, etc.)
+   - Any invalid fields? (capabilities, expertise_level, activation_priority, compatible-with, when_to_use, etc.)
    - Any skill-only fields? (`allowed-tools`, kebab-case `disallowed-tools`)
    - Plugin restrictions respected?
 4. Check body content:

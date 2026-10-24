@@ -71713,9 +71713,7 @@
         "Bash(pnpm:*)",
         "Bash(node:*)",
         "Bash(git:*)",
-        "Bash(scripts/run-jrig-eval.sh:*)",
-        "WebSearch",
-        "WebFetch"
+        "Bash(scripts/run-jrig-eval.sh:*)"
       ],
       "compatibleWith": [],
       "version": "5.25.0",
@@ -71723,7 +71721,7 @@
         "name": "skill-creator",
         "category": "skill-enhancers"
       },
-      "searchText": "skill-creator create, validate, optimize or refresh claude code skills. use when scaffolding a skill, grading an existing skill, or using forge/reforge for an api plugin. trigger with \"/skill-creator\", \"create a skill\", or \"validate my skill\". skill-enhancers read write edit glob grep bash(mkdir:*) bash(chmod:*) bash(python:*) bash(claude:*) agent askuserquestion bash(python3:*) bash(pnpm:*) bash(node:*) bash(git:*) bash(scripts/run-jrig-eval.sh:*) websearch webfetch "
+      "searchText": "skill-creator create, validate, optimize or refresh claude code skills. use when scaffolding a skill, grading an existing skill, or using forge/reforge for an api plugin. trigger with \"/skill-creator\", \"create a skill\", or \"validate my skill\". skill-enhancers read write edit glob grep bash(mkdir:*) bash(chmod:*) bash(python:*) bash(claude:*) agent askuserquestion bash(python3:*) bash(pnpm:*) bash(node:*) bash(git:*) bash(scripts/run-jrig-eval.sh:*) "
     },
     {
       "type": "skill",

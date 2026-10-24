@@ -9,7 +9,7 @@ description: 'Create, validate, optimize or refresh Claude Code skills. Use when
 
   '
 argument-hint: '[create|validate|optimize|--forge|--reforge] [target]'
-allowed-tools: Read,Write,Edit,Glob,Grep,Bash(mkdir:*),Bash(chmod:*),Bash(python:*),Bash(claude:*),Agent,AskUserQuestion,Bash(python3:*),Bash(pnpm:*),Bash(node:*),Bash(git:*),Bash(scripts/run-jrig-eval.sh:*),WebSearch,WebFetch
+allowed-tools: Read,Write,Edit,Glob,Grep,Bash(mkdir:*),Bash(chmod:*),Bash(python:*),Bash(claude:*),Agent,AskUserQuestion,Bash(python3:*),Bash(pnpm:*),Bash(node:*),Bash(git:*),Bash(scripts/run-jrig-eval.sh:*)
 version: 5.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
@@ -92,8 +92,10 @@ when sources disagree; preserve the target's existing gate and report the mismat
 - Refresh a generated plugin: [Reforge workflow](references/reforge-workflow.md).
 
 Use Write for new files and Edit for bounded revisions. Use WebSearch and
-WebFetch for current API documentation in forge mode, not for ordinary local
-grading. Use [field guidance](references/frontmatter-spec.md) and the actual templates.
+WebFetch for current API documentation only when the selected forge mode has
+those capabilities available and already authorized in the parent session. The
+ordinary authoring grant does not automatically grant network research. Report
+missing capability instead of expanding permissions as part of grading. Use [field guidance](references/frontmatter-spec.md) and the actual templates.
 Keep shared purpose and essential constraints in SKILL.md; put substantial
 conditional procedures in linked references. Choose supporting resources for
 the actual workflow rather than creating a fixed directory checklist.

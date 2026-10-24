@@ -161,8 +161,10 @@ context: fork # If needs isolated execution
 agent: general-purpose # Subagent type (with context: fork)
 disable-model-invocation: true # If explicit /name only (no auto-activation)
 user-invocable: false # If background knowledge only
-hooks: {} # Use documented lifecycle event groups
 ```
+
+The optional `hooks` field takes documented lifecycle event groups. Read the
+target hook schema before adding a handler; an empty example is not a tested hook.
 
 **Deprecated — do NOT use in new skills:**
 

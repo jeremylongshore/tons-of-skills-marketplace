@@ -114,6 +114,29 @@ def test_formatted_agent_template_passes_context_gate(context, tmp_path, validat
     assert not result["errors"], result
 
 
+@pytest.mark.parametrize("model", ["inherit", "claude-fixture-model-1"])
+@pytest.mark.parametrize("tools", [["Read", "Glob", "Grep"], "Read, Glob, Grep"], ids=["array", "csv"])
+def test_agent_gate_accepts_model_and_tool_wire_forms(model, tools, tmp_path, validator):
+    source = render(format_template(AGENT))
+    fm, body = validator.parse_frontmatter(source)
+    fm.update(model=model, tools=tools)
+    path = write_agent(tmp_path, "plugin", "---\n" + yaml.safe_dump(fm) + "---\n" + body)
+    assert validator.detect_component(path) == ("agent", "plugin")
+    result = validator.validate_agent(path)
+    assert not result.get("fatal"), result
+    assert not result["errors"], result
+
+
+@pytest.mark.parametrize("field", ["compatible-with", "when_to_use"])
+def test_agent_rejects_skill_fields(field, tmp_path, validator):
+    source = render(format_template(AGENT))
+    fm, body = validator.parse_frontmatter(source)
+    fm[field] = "fixture"
+    path = write_agent(tmp_path, "plugin", "---\n" + yaml.safe_dump(fm) + "---\n" + body)
+    result = validator.validate_agent(path)
+    assert any(f"Invalid field '{field}'" in error for error in result["errors"]), result
+
+
 def test_missing_author_is_rejected(tmp_path, validator):
     source = render(SKILL.read_text())
     fm, body = validator.parse_frontmatter(source)

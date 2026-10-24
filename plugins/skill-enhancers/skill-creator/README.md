@@ -1,6 +1,8 @@
 # Skill Creator
 
-Create, validate and refresh skills against the existing IS marketplace contract. The paired agent creator emits the plugin or standalone enterprise fields required by the target repository.
+Create, validate and refresh skills against the existing IS marketplace contract.
+The paired agent creator emits the IS plugin or standalone enterprise templates;
+adapt them to another target repository's canonical gate.
 
 ## Features
 
