@@ -1474,6 +1474,32 @@ sources:
       - '.git/**'
       - '*.log'
 
+  # ============================================================
+  # Nitrogen (mksd0398)
+  # https://github.com/mksd0398/nitrogen
+  # ============================================================
+
+  - name: nitrogen
+    description: Agent skill for Nitrogen (npx @mksd0398/nitrogen), a CLI that scaffolds a Shopify embedded app on Firebase and deploys it. Cloud Functions gen 2 on Node.js 24 with one function per API resource (TypeScript or JavaScript), Firestore, Hosting and Secret Manager, and a plain-HTML admin UI built from Polaris web components and App Bridge. The skill runs the CLI with flags instead of the interactive wizard, and covers adding APIs, webhooks, pages, scopes and Firestore data, testing and deploying. Independent project, not affiliated with Shopify or Google.
+    repo: mksd0398/nitrogen
+    branch: master
+    source_path: skills/shopify-firebase-app
+    target_path: plugins/community/nitrogen
+    author:
+      name: Mayank Khan Singh DeSouza
+      github: mksd0398
+    license: MIT
+    category: community
+    verified: false
+    include:
+      - '/SKILL.md'
+      - '/references/**'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
