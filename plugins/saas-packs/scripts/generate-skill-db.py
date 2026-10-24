@@ -10,6 +10,7 @@ import csv
 # Refuse regeneration so deleted filler cannot silently reappear through an old
 # release command.
 RETIRED_SKILL_DATABASES = {
+    "clay": "The unsupported Clay tutorial pack is retired (claude-juoz.3.11.53)",
     "appfolio": "The unsupported AppFolio tutorial pack is retired (claude-juoz.3.11.52)",
     "snowflake": "Snowflake v2 uses the curated snowflake-pack operator skills",
     "langfuse": "Langfuse v2 uses the five evidence-driven langfuse-pack operator skills",

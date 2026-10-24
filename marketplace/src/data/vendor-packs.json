@@ -262,25 +262,6 @@
       "dashboardUrl": "https://www.firecrawl.dev/signin"
     },
     {
-      "id": "clay",
-      "name": "Clay",
-      "tier": "flagship+",
-      "skillCount": 30,
-      "description": "Data enrichment platform for sales and marketing automation",
-      "icon": "users",
-      "color": "#4F46E5",
-      "installCommand": "/plugin install clay-pack@claude-code-plugins-plus",
-      "categories": [
-        { "name": "Onboarding & Foundations", "skills": ["clay-install-auth", "clay-hello-world", "clay-local-dev-loop", "clay-sdk-patterns", "clay-core-workflow-a", "clay-core-workflow-b"] },
-        { "name": "Operations & Debugging", "skills": ["clay-common-errors", "clay-debug-bundle", "clay-rate-limits", "clay-security-basics", "clay-prod-checklist", "clay-upgrade-migration"] },
-        { "name": "CI/CD & Deployment", "skills": ["clay-ci-integration", "clay-deploy-integration", "clay-webhooks-events", "clay-performance-tuning", "clay-cost-tuning", "clay-reference-architecture"] },
-        { "name": "Enterprise & Compliance", "skills": ["clay-multi-env-setup", "clay-observability", "clay-incident-runbook", "clay-data-handling", "clay-enterprise-rbac", "clay-migration-deep-dive"] },
-        { "name": "Advanced Patterns", "skills": ["clay-advanced-troubleshooting", "clay-load-scale", "clay-reliability-patterns", "clay-policy-guardrails", "clay-architecture-variants", "clay-known-pitfalls"] }
-      ],
-      "docsUrl": "https://docs.clay.com",
-      "dashboardUrl": "https://app.clay.com"
-    },
-    {
       "id": "exa",
       "name": "Exa",
       "tier": "flagship+",

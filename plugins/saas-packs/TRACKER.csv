@@ -8,7 +8,7 @@ klingai,Kling AI,flagship+,30,@intentsolutionsio/klingai-skill-md-pack,published
 retellai,Retell AI,flagship+,30,@intentsolutionsio/retellai-skill-md-pack,published,ccpi-retellai,30,30,complete,added,Brex #4 - website added 2026-01-06
 windsurf,Windsurf,flagship+,30,@intentsolutionsio/windsurf-skill-md-pack,published,ccpi-windsurf,30,30,complete,added,Brex #6 - website added 2026-01-06
 firecrawl,FireCrawl,flagship+,30,@intentsolutionsio/firecrawl-skill-md-pack,published,ccpi-firecrawl,30,30,complete,added,Brex #7 - website added 2026-01-06
-clay,Clay,flagship+,30,@intentsolutionsio/clay-skill-md-pack,published,ccpi-clay,30,30,complete,added,Brex #8 - website added 2026-01-06
+clay,Clay,retired,0,@intentsolutionsio/clay-skill-md-pack,retired,ccpi-clay,30,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.53); registry disposition tracked in bead
 exa,Exa,flagship+,30,@intentsolutionsio/exa-skill-md-pack,published,ccpi-exa,30,30,complete,added,Brex #10 - website added 2026-01-06
 vastai,Vast.ai,flagship,24,@intentsolutionsio/vastai-skill-md-pack,published,ccpi-vastai,24,24,complete,added,Brex #11 - website added 2026-01-06
 groq,Groq,flagship,24,@intentsolutionsio/groq-skill-md-pack,published,ccpi-groq,24,24,complete,added,Brex #12 - website added 2026-01-06

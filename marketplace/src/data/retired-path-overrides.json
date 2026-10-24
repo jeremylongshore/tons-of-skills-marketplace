@@ -78,6 +78,102 @@
     },
     "/skills/appfolio-webhooks-events": {
       "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/plugins/clay-pack": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/learn/clay": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-advanced-troubleshooting": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-architecture-variants": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-ci-integration": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-common-errors": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-core-workflow-a": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-core-workflow-b": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-cost-tuning": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-data-handling": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-debug-bundle": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-deploy-integration": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-enterprise-rbac": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-hello-world": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-incident-runbook": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-install-auth": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-known-pitfalls": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-load-scale": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-local-dev-loop": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-migration-deep-dive": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-multi-env-setup": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-observability": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-performance-tuning": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-policy-guardrails": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-prod-checklist": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-rate-limits": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-reference-architecture": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-reliability-patterns": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-sdk-patterns": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-security-basics": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-upgrade-migration": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-webhooks-events": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
     }
   }
 }

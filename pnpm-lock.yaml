@@ -607,8 +607,6 @@ importers:
 
   plugins/saas-packs/claude-pack: {}
 
-  plugins/saas-packs/clay-pack: {}
-
   plugins/saas-packs/clerk-pack: {}
 
   plugins/saas-packs/clickhouse-pack: {}
