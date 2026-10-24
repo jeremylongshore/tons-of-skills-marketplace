@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/generate-unified-search.mjs"
   },
   "stats": {
-    "totalPlugins": 432,
-    "totalSkills": 2809,
+    "totalPlugins": 431,
+    "totalSkills": 2785,
     "totalDocs": 24,
-    "totalItems": 3265,
+    "totalItems": 3240,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -451,7 +451,6 @@
       "ai-finance",
       "ai-flows",
       "ai-gateway",
-      "ai-generation",
       "ai-integration",
       "ai-notes",
       "ai-partner",
@@ -777,7 +776,6 @@
       "document-management",
       "document-signing",
       "documentation",
-      "documents",
       "dogfood",
       "dolt",
       "dolt-mcp",
@@ -917,7 +915,6 @@
       "ga4",
       "gainers",
       "games",
-      "gamma",
       "gas",
       "gcr",
       "gdpr",
@@ -1299,7 +1296,6 @@
       "preflight",
       "premium",
       "preprocessing",
-      "presentations",
       "pretrained",
       "prettier",
       "preview",
@@ -1496,7 +1492,6 @@
       "sla",
       "slack",
       "sli",
-      "slides",
       "slo",
       "smart money",
       "smoke-tests",
@@ -1678,7 +1673,6 @@
       "video-production",
       "viem",
       "vision",
-      "visual-content",
       "visual-organization",
       "visual-regression",
       "visualization",
@@ -1742,7 +1736,7 @@
     "totalHooks": 26,
     "pluginsWithAgents": 91,
     "pluginsWithHooks": 18,
-    "officialPlugins": 386,
+    "officialPlugins": 385,
     "communityPlugins": 46,
     "communityContributors": 36
   },
@@ -10989,39 +10983,6 @@
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "ga4 pack investigate ga4 report discrepancies, realtime event observations and bigquery export gaps using evidence receipts, executable analyzers and bounded optional collection. saas-packs google-analytics ga4 analytics data-api bigquery reporting dau-mau cohort-retention"
-    },
-    {
-      "type": "plugin",
-      "id": "gamma-pack",
-      "slug": "gamma-pack",
-      "name": "gamma-pack",
-      "displayName": "gamma pack",
-      "description": "Complete Gamma integration skill pack with 24 skills covering AI presentations, document generation, templates, and visual content creation. Flagship tier vendor pack.",
-      "category": "saas-packs",
-      "keywords": [
-        "gamma",
-        "presentations",
-        "documents",
-        "ai-generation",
-        "templates",
-        "slides",
-        "visual-content"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "authorType": "official",
-      "version": "1.13.0",
-      "isFeatured": false,
-      "isNew": false,
-      "badges": [],
-      "skillCount": 24,
-      "verificationScore": 87,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "gamma pack complete gamma integration skill pack with 24 skills covering ai presentations, document generation, templates, and visual content creation. flagship tier vendor pack. saas-packs gamma presentations documents ai-generation templates slides visual-content"
     },
     {
       "type": "plugin",
@@ -40768,516 +40729,6 @@
         "category": "saas-packs"
       },
       "searchText": "ga4-report-forensics investigate conflicting ga4 report numbers using request and response receipts. compare windows, identities, filters and row coverage; distinguish sampling, thresholding and high-cardinality loss. use when ga4 api and ui reports disagree or exported rows are missing. trigger with \"ga4 user counts differ\", \"missing ga4 rows\" or \"is this report sampled?\". saas-packs read bash(python3:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-ci-integration",
-      "slug": "gamma-ci-integration",
-      "name": "gamma-ci-integration",
-      "description": "Configure Gamma CI/CD integration with GitHub Actions and testing. Use when setting up automated testing, configuring CI pipelines, or integrating Gamma tests into your build process. Trigger with phrases like \"gamma CI\", \"gamma GitHub Actions\", \"gamma automated tests\", \"CI gamma\", \"gamma pipeline\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(gh:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-ci-integration configure gamma ci/cd integration with github actions and testing. use when setting up automated testing, configuring ci pipelines, or integrating gamma tests into your build process. trigger with phrases like \"gamma ci\", \"gamma github actions\", \"gamma automated tests\", \"ci gamma\", \"gamma pipeline\". saas-packs read write edit bash(gh:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-common-errors",
-      "slug": "gamma-common-errors",
-      "name": "gamma-common-errors",
-      "description": "Debug and resolve common Gamma API errors. Use when encountering authentication failures, rate limits, generation errors, or unexpected API responses. Trigger with phrases like \"gamma error\", \"gamma not working\", \"gamma API error\", \"gamma debug\", \"gamma troubleshoot\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-common-errors debug and resolve common gamma api errors. use when encountering authentication failures, rate limits, generation errors, or unexpected api responses. trigger with phrases like \"gamma error\", \"gamma not working\", \"gamma api error\", \"gamma debug\", \"gamma troubleshoot\". saas-packs read write edit grep "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-core-workflow-a",
-      "slug": "gamma-core-workflow-a",
-      "name": "gamma-core-workflow-a",
-      "description": "Generate presentations, documents, and webpages via Gamma API. Use when creating content from text prompts, configuring themes, image styles, text modes, and output formats. Trigger: \"gamma generate\", \"gamma presentation from text\", \"gamma AI slides\", \"gamma create deck\", \"gamma content generation\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(node:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-core-workflow-a generate presentations, documents, and webpages via gamma api. use when creating content from text prompts, configuring themes, image styles, text modes, and output formats. trigger: \"gamma generate\", \"gamma presentation from text\", \"gamma ai slides\", \"gamma create deck\", \"gamma content generation\". saas-packs read write edit bash(curl:*) bash(node:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-core-workflow-b",
-      "slug": "gamma-core-workflow-b",
-      "name": "gamma-core-workflow-b",
-      "description": "Generate from templates, retrieve exports, and manage sharing via Gamma API. Use when creating content from template gammas, downloading PDF/PPTX/PNG exports, or configuring sharing and folder organization. Trigger: \"gamma template\", \"gamma export\", \"gamma download PDF\", \"gamma PPTX\", \"gamma sharing\", \"gamma from template\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(node:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-core-workflow-b generate from templates, retrieve exports, and manage sharing via gamma api. use when creating content from template gammas, downloading pdf/pptx/png exports, or configuring sharing and folder organization. trigger: \"gamma template\", \"gamma export\", \"gamma download pdf\", \"gamma pptx\", \"gamma sharing\", \"gamma from template\". saas-packs read write edit bash(curl:*) bash(node:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-cost-tuning",
-      "slug": "gamma-cost-tuning",
-      "name": "gamma-cost-tuning",
-      "description": "Optimize Gamma usage costs and manage API spending. Use when reducing API costs, implementing usage quotas, or planning for scale with budget constraints. Trigger with phrases like \"gamma cost\", \"gamma billing\", \"gamma budget\", \"gamma expensive\", \"gamma pricing\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-cost-tuning optimize gamma usage costs and manage api spending. use when reducing api costs, implementing usage quotas, or planning for scale with budget constraints. trigger with phrases like \"gamma cost\", \"gamma billing\", \"gamma budget\", \"gamma expensive\", \"gamma pricing\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-data-handling",
-      "slug": "gamma-data-handling",
-      "name": "gamma-data-handling",
-      "description": "Handle data privacy, retention, and compliance for Gamma integrations. Use when implementing GDPR compliance, data retention policies, or managing user data within Gamma workflows. Trigger with phrases like \"gamma data\", \"gamma privacy\", \"gamma GDPR\", \"gamma data retention\", \"gamma compliance\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-data-handling handle data privacy, retention, and compliance for gamma integrations. use when implementing gdpr compliance, data retention policies, or managing user data within gamma workflows. trigger with phrases like \"gamma data\", \"gamma privacy\", \"gamma gdpr\", \"gamma data retention\", \"gamma compliance\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-debug-bundle",
-      "slug": "gamma-debug-bundle",
-      "name": "gamma-debug-bundle",
-      "description": "Comprehensive debugging toolkit for Gamma integration issues. Use when you need detailed diagnostics, request tracing, or systematic debugging of Gamma API problems. Trigger with phrases like \"gamma debug bundle\", \"gamma diagnostics\", \"gamma trace\", \"gamma inspect\", \"gamma detailed logs\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(node:*)",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-debug-bundle comprehensive debugging toolkit for gamma integration issues. use when you need detailed diagnostics, request tracing, or systematic debugging of gamma api problems. trigger with phrases like \"gamma debug bundle\", \"gamma diagnostics\", \"gamma trace\", \"gamma inspect\", \"gamma detailed logs\". saas-packs read write edit bash(node:*) grep "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-deploy-integration",
-      "slug": "gamma-deploy-integration",
-      "name": "gamma-deploy-integration",
-      "description": "Deploy Gamma-integrated applications to production environments. Use when deploying to Vercel, AWS, GCP, or other cloud platforms with proper secret management and configuration. Trigger with phrases like \"gamma deploy\", \"gamma production\", \"gamma vercel\", \"gamma AWS\", \"gamma cloud deployment\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(vercel:*)",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-deploy-integration deploy gamma-integrated applications to production environments. use when deploying to vercel, aws, gcp, or other cloud platforms with proper secret management and configuration. trigger with phrases like \"gamma deploy\", \"gamma production\", \"gamma vercel\", \"gamma aws\", \"gamma cloud deployment\". saas-packs read write edit bash(vercel:*) bash(aws:*) bash(gcloud:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-enterprise-rbac",
-      "slug": "gamma-enterprise-rbac",
-      "name": "gamma-enterprise-rbac",
-      "description": "Implement enterprise role-based access control for Gamma integrations. Use when configuring team permissions, multi-tenant access, or enterprise authorization patterns. Trigger with phrases like \"gamma RBAC\", \"gamma permissions\", \"gamma access control\", \"gamma enterprise\", \"gamma roles\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-enterprise-rbac implement enterprise role-based access control for gamma integrations. use when configuring team permissions, multi-tenant access, or enterprise authorization patterns. trigger with phrases like \"gamma rbac\", \"gamma permissions\", \"gamma access control\", \"gamma enterprise\", \"gamma roles\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-hello-world",
-      "slug": "gamma-hello-world",
-      "name": "gamma-hello-world",
-      "description": "Generate your first Gamma presentation via the API. Use when learning the generate-poll-retrieve workflow, testing API connectivity, or creating a minimal example. Trigger: \"gamma hello world\", \"gamma quick start\", \"first gamma presentation\", \"gamma example\", \"gamma test\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(node:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-hello-world generate your first gamma presentation via the api. use when learning the generate-poll-retrieve workflow, testing api connectivity, or creating a minimal example. trigger: \"gamma hello world\", \"gamma quick start\", \"first gamma presentation\", \"gamma example\", \"gamma test\". saas-packs read write edit bash(curl:*) bash(node:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-incident-runbook",
-      "slug": "gamma-incident-runbook",
-      "name": "gamma-incident-runbook",
-      "description": "Manage incident response for Gamma integration issues. Use when experiencing production incidents, outages, or need systematic troubleshooting procedures. Trigger with phrases like \"gamma incident\", \"gamma outage\", \"gamma down\", \"gamma emergency\", \"gamma runbook\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-incident-runbook manage incident response for gamma integration issues. use when experiencing production incidents, outages, or need systematic troubleshooting procedures. trigger with phrases like \"gamma incident\", \"gamma outage\", \"gamma down\", \"gamma emergency\", \"gamma runbook\". saas-packs read write edit bash(curl:*) grep "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-install-auth",
-      "slug": "gamma-install-auth",
-      "name": "gamma-install-auth",
-      "description": "Set up Gamma API v1.0 authentication and first request. Use when configuring API keys, setting up X-API-KEY header, or initializing Gamma REST API access in a project. Trigger: \"install gamma\", \"setup gamma API\", \"gamma auth\", \"gamma API key\", \"configure gamma\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(npm:*)",
-        "Bash(pip:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-install-auth set up gamma api v1.0 authentication and first request. use when configuring api keys, setting up x-api-key header, or initializing gamma rest api access in a project. trigger: \"install gamma\", \"setup gamma api\", \"gamma auth\", \"gamma api key\", \"configure gamma\". saas-packs read write edit bash(curl:*) bash(npm:*) bash(pip:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-local-dev-loop",
-      "slug": "gamma-local-dev-loop",
-      "name": "gamma-local-dev-loop",
-      "description": "Set up local development workflow for Gamma API integration. Use when building automation scripts, testing API calls locally, or configuring a dev environment with mock responses. Trigger: \"gamma local dev\", \"gamma development setup\", \"gamma test locally\", \"gamma mock API\", \"gamma dev workflow\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(curl:*)",
-        "Bash(node:*)",
-        "Bash(npm:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-local-dev-loop set up local development workflow for gamma api integration. use when building automation scripts, testing api calls locally, or configuring a dev environment with mock responses. trigger: \"gamma local dev\", \"gamma development setup\", \"gamma test locally\", \"gamma mock api\", \"gamma dev workflow\". saas-packs read write edit bash(curl:*) bash(node:*) bash(npm:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-migration-deep-dive",
-      "slug": "gamma-migration-deep-dive",
-      "name": "gamma-migration-deep-dive",
-      "description": "Deep dive into migrating to Gamma from other presentation platforms. Use when migrating from PowerPoint, Google Slides, Canva, or other presentation tools to Gamma. Trigger with phrases like \"gamma migration\", \"migrate to gamma\", \"gamma import\", \"gamma from powerpoint\", \"gamma from google slides\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(node:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-migration-deep-dive deep dive into migrating to gamma from other presentation platforms. use when migrating from powerpoint, google slides, canva, or other presentation tools to gamma. trigger with phrases like \"gamma migration\", \"migrate to gamma\", \"gamma import\", \"gamma from powerpoint\", \"gamma from google slides\". saas-packs read write edit bash(node:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-multi-env-setup",
-      "slug": "gamma-multi-env-setup",
-      "name": "gamma-multi-env-setup",
-      "description": "Configure Gamma across development, staging, and production environments. Use when setting up multi-environment deployments, configuring per-environment secrets, or implementing environment-specific Gamma configurations. Trigger with phrases like \"gamma environments\", \"gamma staging\", \"gamma dev prod\", \"gamma environment setup\", \"gamma config by env\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(aws:*)",
-        "Bash(gcloud:*)",
-        "Bash(vault:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-multi-env-setup configure gamma across development, staging, and production environments. use when setting up multi-environment deployments, configuring per-environment secrets, or implementing environment-specific gamma configurations. trigger with phrases like \"gamma environments\", \"gamma staging\", \"gamma dev prod\", \"gamma environment setup\", \"gamma config by env\". saas-packs read write edit bash(aws:*) bash(gcloud:*) bash(vault:*) "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-observability",
-      "slug": "gamma-observability",
-      "name": "gamma-observability",
-      "description": "Implement comprehensive observability for Gamma integrations. Use when setting up monitoring, logging, tracing, or building dashboards for Gamma API usage. Trigger with phrases like \"gamma monitoring\", \"gamma logging\", \"gamma metrics\", \"gamma observability\", \"gamma dashboard\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-observability implement comprehensive observability for gamma integrations. use when setting up monitoring, logging, tracing, or building dashboards for gamma api usage. trigger with phrases like \"gamma monitoring\", \"gamma logging\", \"gamma metrics\", \"gamma observability\", \"gamma dashboard\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-performance-tuning",
-      "slug": "gamma-performance-tuning",
-      "name": "gamma-performance-tuning",
-      "description": "Optimize Gamma API performance and reduce latency. Use when experiencing slow response times, optimizing throughput, or improving user experience with Gamma integrations. Trigger with phrases like \"gamma performance\", \"gamma slow\", \"gamma latency\", \"gamma optimization\", \"gamma speed\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-performance-tuning optimize gamma api performance and reduce latency. use when experiencing slow response times, optimizing throughput, or improving user experience with gamma integrations. trigger with phrases like \"gamma performance\", \"gamma slow\", \"gamma latency\", \"gamma optimization\", \"gamma speed\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-prod-checklist",
-      "slug": "gamma-prod-checklist",
-      "name": "gamma-prod-checklist",
-      "description": "Production readiness checklist for Gamma integration. Use when preparing to deploy Gamma integration to production, or auditing existing production setup. Trigger with phrases like \"gamma production\", \"gamma prod ready\", \"gamma go live\", \"gamma deployment checklist\", \"gamma launch\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-prod-checklist production readiness checklist for gamma integration. use when preparing to deploy gamma integration to production, or auditing existing production setup. trigger with phrases like \"gamma production\", \"gamma prod ready\", \"gamma go live\", \"gamma deployment checklist\", \"gamma launch\". saas-packs read write edit grep "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-rate-limits",
-      "slug": "gamma-rate-limits",
-      "name": "gamma-rate-limits",
-      "description": "Understand and manage Gamma API rate limits effectively. Use when hitting rate limits, optimizing API usage, or implementing request queuing systems. Trigger with phrases like \"gamma rate limit\", \"gamma quota\", \"gamma 429\", \"gamma throttle\", \"gamma request limits\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-rate-limits understand and manage gamma api rate limits effectively. use when hitting rate limits, optimizing api usage, or implementing request queuing systems. trigger with phrases like \"gamma rate limit\", \"gamma quota\", \"gamma 429\", \"gamma throttle\", \"gamma request limits\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-reference-architecture",
-      "slug": "gamma-reference-architecture",
-      "name": "gamma-reference-architecture",
-      "description": "Reference architecture for enterprise Gamma integrations. Use when designing systems, planning integrations, or implementing best-practice Gamma architectures. Trigger with phrases like \"gamma architecture\", \"gamma design\", \"gamma system design\", \"gamma integration pattern\", \"gamma enterprise\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-reference-architecture reference architecture for enterprise gamma integrations. use when designing systems, planning integrations, or implementing best-practice gamma architectures. trigger with phrases like \"gamma architecture\", \"gamma design\", \"gamma system design\", \"gamma integration pattern\", \"gamma enterprise\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-sdk-patterns",
-      "slug": "gamma-sdk-patterns",
-      "name": "gamma-sdk-patterns",
-      "description": "Reusable patterns for the Gamma REST API (no SDK exists). Use when building typed wrappers, generation helpers, template factories, or error handling for Gamma. Trigger: \"gamma patterns\", \"gamma client wrapper\", \"gamma best practices\", \"gamma API helper\", \"gamma code structure\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-sdk-patterns reusable patterns for the gamma rest api (no sdk exists). use when building typed wrappers, generation helpers, template factories, or error handling for gamma. trigger: \"gamma patterns\", \"gamma client wrapper\", \"gamma best practices\", \"gamma api helper\", \"gamma code structure\". saas-packs read write edit "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-security-basics",
-      "slug": "gamma-security-basics",
-      "name": "gamma-security-basics",
-      "description": "Implement security best practices for Gamma integration. Use when securing API keys, implementing access controls, or auditing Gamma security configuration. Trigger with phrases like \"gamma security\", \"gamma API key security\", \"gamma secure\", \"gamma credentials\", \"gamma access control\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-security-basics implement security best practices for gamma integration. use when securing api keys, implementing access controls, or auditing gamma security configuration. trigger with phrases like \"gamma security\", \"gamma api key security\", \"gamma secure\", \"gamma credentials\", \"gamma access control\". saas-packs read write edit grep "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-upgrade-migration",
-      "slug": "gamma-upgrade-migration",
-      "name": "gamma-upgrade-migration",
-      "description": "Upgrade Gamma SDK versions and migrate between API versions. Use when upgrading SDK packages, handling deprecations, or migrating to new API versions. Trigger with phrases like \"gamma upgrade\", \"gamma migration\", \"gamma new version\", \"gamma deprecated\", \"gamma SDK update\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(npm:*)",
-        "Bash(pip:*)",
-        "Grep"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-upgrade-migration upgrade gamma sdk versions and migrate between api versions. use when upgrading sdk packages, handling deprecations, or migrating to new api versions. trigger with phrases like \"gamma upgrade\", \"gamma migration\", \"gamma new version\", \"gamma deprecated\", \"gamma sdk update\". saas-packs read write edit bash(npm:*) bash(pip:*) grep "
-    },
-    {
-      "type": "skill",
-      "id": "gamma-webhooks-events",
-      "slug": "gamma-webhooks-events",
-      "name": "gamma-webhooks-events",
-      "description": "Handle Gamma webhooks and events for real-time updates. Use when implementing webhook receivers, processing events, or building real-time Gamma integrations. Trigger with phrases like \"gamma webhooks\", \"gamma events\", \"gamma notifications\", \"gamma real-time\", \"gamma callbacks\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit"
-      ],
-      "compatibleWith": [],
-      "version": "1.13.0",
-      "parentPlugin": {
-        "name": "gamma-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "gamma-webhooks-events handle gamma webhooks and events for real-time updates. use when implementing webhook receivers, processing events, or building real-time gamma integrations. trigger with phrases like \"gamma webhooks\", \"gamma events\", \"gamma notifications\", \"gamma real-time\", \"gamma callbacks\". saas-packs read write edit "
     },
     {
       "type": "skill",

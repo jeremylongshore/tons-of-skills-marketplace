@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-24
+
+- **fix(gamma):** retire the 24-skill Gamma tutorial pack after reviewing its
+  source against current Gamma API and MCP documentation. Remove active install
+  entries and legacy scaffolds; keep retired plugin, vendor, and skill URLs at 404. Historical source remains in Git at
+  `1a55bc6251c5de1f10a3078d77072a432adfff7a`.
+  Refs bead `claude-juoz.3.11.55`.
+
 ## 2026-10-12
 
 - **fix(currency):** retain the Python validator's advisory registry comparisons

@@ -22,13 +22,13 @@
       "error_files": 278,
       "error_total": 2798,
       "grade_distribution": {
-        "A": 2863,
-        "B": 254,
-        "C": 125,
+        "A": 2854,
+        "B": 241,
+        "C": 123,
         "D": 154,
         "F": 4
       },
-      "rows": 3400
+      "rows": 3376
     }
   },
   "rows": {
@@ -42,7 +42,7 @@
       "unpersisted_values": ["tracked_files"],
       "values": {
         "plugin_agent_files": 352,
-        "raw_tracked_plugin_skill_files": 2900
+        "raw_tracked_plugin_skill_files": 2876
       }
     },
     "2": {
@@ -53,9 +53,9 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "distinct_names": 435,
+        "distinct_names": 434,
         "duplicate_names": [],
-        "entries": 435
+        "entries": 434
       }
     },
     "3": {
@@ -80,28 +80,28 @@
       "values": {
         "agent_lane": {
           "error_total_all_validated_surfaces": 230,
-          "fully_compliant_surfaces": 774,
+          "fully_compliant_surfaces": 773,
           "terminal_denominator": {
             "agents": 363,
-            "files": 949,
+            "files": 948,
             "label": "agents_plus_plugin_manifests",
-            "plugin_manifests": 586
+            "plugin_manifests": 585
           },
-          "validator_reported_mixed_denominator_percent": 81.6
+          "validator_reported_mixed_denominator_percent": 81.5
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3029,
-          "fully_compliant_surfaces": 2087,
+          "fully_compliant_surfaces": 2086,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
-            "files": 4719,
+            "files": 4694,
             "label": "skills_plus_commands_plus_agents_plus_plugin_manifests",
-            "plugin_manifests": 586,
-            "skills": 3400
+            "plugin_manifests": 585,
+            "skills": 3376
           },
-          "validated_plugin_manifests": 593,
-          "validator_reported_mixed_denominator_percent": 44.2
+          "validated_plugin_manifests": 592,
+          "validator_reported_mixed_denominator_percent": 44.4
         },
         "skill_rows": {
           "a_error_total": 23,
@@ -112,13 +112,13 @@
           "error_files": 278,
           "error_total": 2798,
           "grade_distribution": {
-            "A": 2863,
-            "B": 254,
-            "C": 125,
+            "A": 2854,
+            "B": 241,
+            "C": 123,
             "D": 154,
             "F": 4
           },
-          "rows": 3400
+          "rows": 3376
         }
       }
     },
@@ -129,22 +129,22 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 91.9,
+        "average_score": 92,
         "grade_distribution": {
-          "A": 2863,
-          "B": 254,
-          "C": 125,
+          "A": 2854,
+          "B": 241,
+          "C": 123,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 84.2,
-          "B": 7.5,
-          "C": 3.7,
-          "D": 4.5,
+          "A": 84.5,
+          "B": 7.1,
+          "C": 3.6,
+          "D": 4.6,
           "F": 0.1
         },
-        "rows": 3400
+        "rows": 3376
       }
     },
     "6": {
@@ -161,7 +161,7 @@
         "b_error_total": 147,
         "b_failing": 14,
         "certified_target": 0,
-        "skill_summary_rows": 3400
+        "skill_summary_rows": 3376
       }
     },
     "7": {
@@ -188,7 +188,7 @@
         "missing_required_field_occurrences": 580,
         "missing_required_section_occurrences": 1641,
         "other_skill_error_occurrences": 577,
-        "skill_rows": 3400,
+        "skill_rows": 3376,
         "structural_occurrences": 2221,
         "structural_share_of_skill_errors_pct": 79.3781,
         "target": 0,
@@ -238,7 +238,7 @@
       "values": {
         "agent_errors": 230,
         "agent_files": 363,
-        "reported_compliance_percent": 81.6,
+        "reported_compliance_percent": 81.5,
         "target_errors": 0,
         "target_percent_max": 100
       }
@@ -296,12 +296,12 @@
       ],
       "status": "partial",
       "values": {
-        "declared": 3389,
+        "declared": 3365,
         "folded_scalar": 5,
         "malformed_frontmatter": 0,
         "malformed_shape": 0,
         "missing": 11,
-        "rows": 3400,
+        "rows": 3376,
         "target_malformed": 0
       }
     },
@@ -417,7 +417,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2129,
+            "count": 2105,
             "value": "Designed for Claude Code"
           },
           {
@@ -2476,7 +2476,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2542
+            "value": 2520
           },
           {
             "cohort": "curriculum",
@@ -2484,15 +2484,15 @@
           },
           {
             "cohort": "first-party",
-            "value": 2553
+            "value": 2529
           },
           {
             "cohort": "graded",
-            "value": 3400
+            "value": 3376
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2809
+            "value": 2785
           }
         ],
         "distinct_numeric_answers": 5,
@@ -4037,9 +4037,9 @@
       ],
       "status": "measured",
       "values": {
-        "adoption_percent": 1.38,
+        "adoption_percent": 1.39,
         "curated_copies": 40,
-        "plugin_skill_rows": 2900,
+        "plugin_skill_rows": 2876,
         "source_eval_specs": 40,
         "tracked_eval_specs": 80
       }

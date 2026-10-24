@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 432,
-    "totalSkills": 2809,
+    "totalPlugins": 431,
+    "totalSkills": 2785,
     "totalCommands": 82,
-    "pluginsWithSkills": 398,
+    "pluginsWithSkills": 397,
     "byCategory": {
       "productivity": 28,
       "security": 28,
@@ -26,7 +26,7 @@
       "business-tools": 4,
       "community": 19,
       "examples": 5,
-      "saas-packs": 100,
+      "saas-packs": 99,
       "analytics": 1,
       "design": 2
     },
@@ -8141,35 +8141,6 @@
       "commandCount": 0,
       "installCommand": "/plugin install ga4-pack",
       "sourcePath": "./plugins/saas-packs/ga4-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "gamma-pack",
-      "name": "gamma-pack",
-      "displayName": "gamma pack",
-      "description": "Complete Gamma integration skill pack with 24 skills covering AI presentations, document generation, templates, and visual content creation. Flagship tier vendor pack.",
-      "version": "1.13.0",
-      "category": "saas-packs",
-      "keywords": [
-        "gamma",
-        "presentations",
-        "documents",
-        "ai-generation",
-        "templates",
-        "slides",
-        "visual-content"
-      ],
-      "hasSkills": true,
-      "skillCount": 24,
-      "commandCount": 0,
-      "installCommand": "/plugin install gamma-pack",
-      "sourcePath": "./plugins/saas-packs/gamma-pack",
       "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",

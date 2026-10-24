@@ -273,6 +273,105 @@
     },
     "/skills/glean-webhooks-events": {
       "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/learn/gamma": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/plugins/gamma-pack": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-advanced-troubleshooting": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-ci-integration": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-common-errors": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-core-feature": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-core-workflow-a": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-core-workflow-b": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-cost-tuning": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-data-handling": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-debug-bundle": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-deploy-integration": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-deploy-pipeline": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-enterprise-rbac": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-hello-world": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-incident-runbook": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-install-auth": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-known-pitfalls": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-load-scale": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-local-dev-loop": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-migration-deep-dive": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-multi-env-setup": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-observability": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-performance-tuning": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-primary-workflow": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-prod-checklist": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-rate-limits": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-reference-architecture": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-reliability-patterns": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-sdk-patterns": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-security-basics": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-upgrade-migration": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-webhooks-events": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
     }
   }
 }

@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "12ce1b373ad8d3816315f76aa2578a0bfd511219af490591e838448bb254a361",
+    "catalog_sha256": "858fc95784ed87ed430f8adad5d20cfdb0a9d9f31e183bb134e3b99cf24cada8",
     "curated_manifest": "skills/.curated/MANIFEST.json",
-    "curated_manifest_sha256": "c80aa6c34abe892ba4ebca4103fb83326bb981f87f926b7631d2544bc1e9cf08",
-    "tracked_inventory_sha256": "e80185f07f4d45d7037c09d308898926ff6f128d44e801d67669e20bf461d90e"
+    "curated_manifest_sha256": "60911054202d62d57780b3fb0acd2e63c2c4a259e231dde2d9f0613ac5d067a5",
+    "tracked_inventory_sha256": "a82cd434c5be6ae61ac9a5f9a43fa475f6330468bc04d1ba0532b82527f2ab0b"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -65,12 +65,12 @@
     }
   ],
   "summary": {
-    "active_saas_packs": 100,
-    "active_skills": 2190,
-    "tutorial_lattice_skills": 2036,
-    "affected_packs": 93,
-    "fully_lattice_packs": 78,
-    "at_least_80_percent_lattice_packs": 87,
+    "active_saas_packs": 99,
+    "active_skills": 2166,
+    "tutorial_lattice_skills": 2012,
+    "affected_packs": 92,
+    "fully_lattice_packs": 77,
+    "at_least_80_percent_lattice_packs": 86,
     "unaffected_packs": 7,
     "prefix_mismatch_skills": 1,
     "prefix_override_candidate_skills": 78
@@ -78,34 +78,34 @@
   "suffix_frequency": {
     "advanced-troubleshooting": 16,
     "architecture-variants": 15,
-    "ci-integration": 88,
-    "common-errors": 92,
-    "core-workflow-a": 85,
-    "core-workflow-b": 85,
-    "cost-tuning": 87,
-    "data-handling": 56,
-    "debug-bundle": 91,
-    "deploy-integration": 86,
-    "enterprise-rbac": 56,
-    "hello-world": 91,
-    "incident-runbook": 56,
-    "install-auth": 92,
+    "ci-integration": 87,
+    "common-errors": 91,
+    "core-workflow-a": 84,
+    "core-workflow-b": 84,
+    "cost-tuning": 86,
+    "data-handling": 55,
+    "debug-bundle": 90,
+    "deploy-integration": 85,
+    "enterprise-rbac": 55,
+    "hello-world": 90,
+    "incident-runbook": 55,
+    "install-auth": 91,
     "known-pitfalls": 19,
-    "local-dev-loop": 91,
+    "local-dev-loop": 90,
     "load-scale": 16,
-    "migration-deep-dive": 54,
-    "multi-env-setup": 57,
-    "observability": 57,
-    "performance-tuning": 89,
+    "migration-deep-dive": 53,
+    "multi-env-setup": 56,
+    "observability": 56,
+    "performance-tuning": 88,
     "policy-guardrails": 15,
-    "prod-checklist": 90,
-    "rate-limits": 90,
-    "reference-architecture": 89,
+    "prod-checklist": 89,
+    "rate-limits": 89,
+    "reference-architecture": 88,
     "reliability-patterns": 16,
-    "sdk-patterns": 92,
-    "security-basics": 89,
-    "upgrade-migration": 91,
-    "webhooks-events": 85
+    "sdk-patterns": 91,
+    "security-basics": 88,
+    "upgrade-migration": 90,
+    "webhooks-events": 84
   },
   "queue_policy": {
     "completion_authority": "Beads under claude-juoz.3.11",
@@ -144,18 +144,6 @@
     },
     {
       "rank": 2,
-      "pack": "gamma-pack",
-      "candidate_skills": 24,
-      "skill_count": 24,
-      "candidate_basis_points": 10000,
-      "verification_grade": "B",
-      "verification_score": 87,
-      "pack_inventory_sha256": "31c06b9fa917df6fabc45af50a6a5d8eb09ace95b9d31f4d712b2289303381cb",
-      "candidate_set_sha256": "ef631f49863d7472034476bd82c6da63228a7c9ab4782e4d0453c28273905243",
-      "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
-    },
-    {
-      "rank": 3,
       "pack": "anthropic-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -167,7 +155,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 4,
+      "rank": 3,
       "pack": "fondo-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -179,7 +167,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 5,
+      "rank": 4,
       "pack": "framer-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -191,7 +179,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 6,
+      "rank": 5,
       "pack": "deepgram-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -203,7 +191,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 7,
+      "rank": 6,
       "pack": "lokalise-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -215,7 +203,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 8,
+      "rank": 7,
       "pack": "obsidian-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -227,7 +215,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 9,
+      "rank": 8,
       "pack": "fathom-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -239,7 +227,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 10,
+      "rank": 9,
       "pack": "hootsuite-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -251,7 +239,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 11,
+      "rank": 10,
       "pack": "granola-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -263,7 +251,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 12,
+      "rank": 11,
       "pack": "maintainx-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -275,7 +263,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 13,
+      "rank": 12,
       "pack": "twinmind-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -287,7 +275,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 14,
+      "rank": 13,
       "pack": "finta-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -299,7 +287,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 15,
+      "rank": 14,
       "pack": "hex-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -311,7 +299,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 16,
+      "rank": 15,
       "pack": "figma-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -323,7 +311,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 17,
+      "rank": 16,
       "pack": "retellai-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -335,7 +323,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 18,
+      "rank": 17,
       "pack": "apollo-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -347,7 +335,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 19,
+      "rank": 18,
       "pack": "juicebox-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -359,7 +347,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 20,
+      "rank": 19,
       "pack": "castai-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -371,7 +359,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 21,
+      "rank": 20,
       "pack": "quicknode-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -383,7 +371,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 22,
+      "rank": 21,
       "pack": "clerk-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -395,7 +383,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 23,
+      "rank": 22,
       "pack": "posthog-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -407,7 +395,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 24,
+      "rank": 23,
       "pack": "vastai-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -419,7 +407,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 25,
+      "rank": 24,
       "pack": "brightdata-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -431,7 +419,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 26,
+      "rank": 25,
       "pack": "workhuman-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -443,7 +431,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 27,
+      "rank": 26,
       "pack": "canva-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -455,7 +443,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 28,
+      "rank": 27,
       "pack": "salesforce-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -467,7 +455,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 29,
+      "rank": 28,
       "pack": "documenso-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -479,7 +467,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 30,
+      "rank": 29,
       "pack": "flexport-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -491,7 +479,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 31,
+      "rank": 30,
       "pack": "procore-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -503,7 +491,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 32,
+      "rank": 31,
       "pack": "speak-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -515,7 +503,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 33,
+      "rank": 32,
       "pack": "assemblyai-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -527,7 +515,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 34,
+      "rank": 33,
       "pack": "mindtickle-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -539,7 +527,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 35,
+      "rank": 34,
       "pack": "serpapi-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -551,7 +539,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 36,
+      "rank": 35,
       "pack": "exa-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -563,7 +551,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 37,
+      "rank": 36,
       "pack": "clickhouse-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -575,7 +563,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 38,
+      "rank": 37,
       "pack": "evernote-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -587,7 +575,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 39,
+      "rank": 38,
       "pack": "anima-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -599,7 +587,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 40,
+      "rank": 39,
       "pack": "apify-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -611,7 +599,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 41,
+      "rank": 40,
       "pack": "clari-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -623,7 +611,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 42,
+      "rank": 41,
       "pack": "lucidchart-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -635,7 +623,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 43,
+      "rank": 42,
       "pack": "persona-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -647,7 +635,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 44,
+      "rank": 43,
       "pack": "runway-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -659,7 +647,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 45,
+      "rank": 44,
       "pack": "fireflies-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -671,7 +659,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 46,
+      "rank": 45,
       "pack": "intercom-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -683,7 +671,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 47,
+      "rank": 46,
       "pack": "klaviyo-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -695,7 +683,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 48,
+      "rank": 47,
       "pack": "lindy-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -707,7 +695,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 49,
+      "rank": 48,
       "pack": "elevenlabs-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -719,7 +707,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 50,
+      "rank": 49,
       "pack": "flyio-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -731,7 +719,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 51,
+      "rank": 50,
       "pack": "windsurf-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -743,7 +731,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 52,
+      "rank": 51,
       "pack": "groq-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -755,7 +743,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 53,
+      "rank": 52,
       "pack": "mistral-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -767,7 +755,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 54,
+      "rank": 53,
       "pack": "bamboohr-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -779,7 +767,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 55,
+      "rank": 54,
       "pack": "linktree-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -791,7 +779,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 56,
+      "rank": 55,
       "pack": "techsmith-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -803,7 +791,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 57,
+      "rank": 56,
       "pack": "together-pack",
       "candidate_skills": 16,
       "skill_count": 16,
@@ -815,7 +803,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 58,
+      "rank": 57,
       "pack": "remofirst-pack",
       "candidate_skills": 12,
       "skill_count": 12,
@@ -827,7 +815,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 59,
+      "rank": 58,
       "pack": "adobe-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -839,7 +827,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 60,
+      "rank": 59,
       "pack": "firecrawl-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -851,7 +839,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 61,
+      "rank": 60,
       "pack": "coderabbit-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -863,7 +851,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 62,
+      "rank": 61,
       "pack": "ideogram-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -875,7 +863,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 63,
+      "rank": 62,
       "pack": "instantly-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -887,7 +875,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 64,
+      "rank": 63,
       "pack": "palantir-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -899,7 +887,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 65,
+      "rank": 64,
       "pack": "ramp-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -911,7 +899,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 66,
+      "rank": 65,
       "pack": "abridge-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -923,7 +911,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 67,
+      "rank": 66,
       "pack": "attio-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -935,7 +923,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 68,
+      "rank": 67,
       "pack": "onenote-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -947,7 +935,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 69,
+      "rank": 68,
       "pack": "salesloft-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -959,7 +947,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 70,
+      "rank": 69,
       "pack": "stackblitz-pack",
       "candidate_skills": 10,
       "skill_count": 10,
@@ -971,7 +959,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 71,
+      "rank": 70,
       "pack": "algolia-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -983,7 +971,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 72,
+      "rank": 71,
       "pack": "clickup-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -995,7 +983,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 73,
+      "rank": 72,
       "pack": "cohere-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1007,7 +995,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 74,
+      "rank": 73,
       "pack": "miro-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1019,7 +1007,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 75,
+      "rank": 74,
       "pack": "openevidence-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1031,7 +1019,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 76,
+      "rank": 75,
       "pack": "webflow-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1043,7 +1031,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 77,
+      "rank": 76,
       "pack": "alchemy-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -1055,7 +1043,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 78,
+      "rank": 77,
       "pack": "linear-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1067,7 +1055,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 79,
+      "rank": 78,
       "pack": "claude-pack",
       "candidate_skills": 30,
       "skill_count": 32,
@@ -1079,7 +1067,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 80,
+      "rank": 79,
       "pack": "notion-pack",
       "candidate_skills": 30,
       "skill_count": 32,
@@ -1091,7 +1079,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 81,
+      "rank": 80,
       "pack": "vercel-pack",
       "candidate_skills": 28,
       "skill_count": 30,
@@ -1103,7 +1091,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 82,
+      "rank": 81,
       "pack": "supabase-pack",
       "candidate_skills": 28,
       "skill_count": 30,
@@ -1115,7 +1103,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 83,
+      "rank": 82,
       "pack": "oraclecloud-pack",
       "candidate_skills": 24,
       "skill_count": 26,
@@ -1127,7 +1115,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 84,
+      "rank": 83,
       "pack": "navan-pack",
       "candidate_skills": 24,
       "skill_count": 26,
@@ -1139,7 +1127,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 85,
+      "rank": 84,
       "pack": "sentry-pack",
       "candidate_skills": 27,
       "skill_count": 30,
@@ -1151,7 +1139,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 86,
+      "rank": 85,
       "pack": "customerio-pack",
       "candidate_skills": 21,
       "skill_count": 24,
@@ -1163,7 +1151,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 87,
+      "rank": 86,
       "pack": "coreweave-pack",
       "candidate_skills": 20,
       "skill_count": 23,
@@ -1175,7 +1163,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 88,
+      "rank": 87,
       "pack": "shopify-pack",
       "candidate_skills": 30,
       "skill_count": 38,
@@ -1187,7 +1175,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 89,
+      "rank": 88,
       "pack": "langchain-py-pack",
       "candidate_skills": 18,
       "skill_count": 33,
@@ -1199,7 +1187,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 90,
+      "rank": 89,
       "pack": "guidewire-pack",
       "candidate_skills": 5,
       "skill_count": 10,
@@ -1211,7 +1199,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 91,
+      "rank": 90,
       "pack": "klingai-pack",
       "candidate_skills": 12,
       "skill_count": 30,
@@ -1223,7 +1211,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 92,
+      "rank": 91,
       "pack": "openrouter-pack",
       "candidate_skills": 11,
       "skill_count": 30,
@@ -1235,7 +1223,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 93,
+      "rank": 92,
       "pack": "cursor-pack",
       "candidate_skills": 10,
       "skill_count": 30,
@@ -15834,406 +15822,6 @@
         "ga4-measurement-verifier",
         "ga4-report-forensics"
       ],
-      "required_blast_radius_checks": [
-        "catalog",
-        "curated_projection",
-        "npm_publication_history",
-        "compatibility_redirects",
-        "repository_references",
-        "mirror_ownership"
-      ]
-    },
-    {
-      "name": "gamma-pack",
-      "source": "plugins/saas-packs/gamma-pack",
-      "version": "1.13.0",
-      "verification": {
-        "grade": "B",
-        "score": 87
-      },
-      "npm_candidate": {
-        "name": "@intentsolutionsio/gamma-pack",
-        "version": "1.0.3",
-        "private": false,
-        "files_include_skills": true,
-        "live_registry_check": "REQUIRED_BEFORE_MUTATION"
-      },
-      "publication": "published",
-      "ownership": {
-        "status": "first-party"
-      },
-      "pack_inventory_sha256": "31c06b9fa917df6fabc45af50a6a5d8eb09ace95b9d31f4d712b2289303381cb",
-      "candidate_set_sha256": "ef631f49863d7472034476bd82c6da63228a7c9ab4782e4d0453c28273905243",
-      "skill_count": 24,
-      "catalog_declared_skill_count": 24,
-      "tutorial_lattice_count": 24,
-      "tutorial_lattice_basis_points": 10000,
-      "curated_skill_count": 22,
-      "candidate_curated_count": 22,
-      "candidate_skills": [
-        {
-          "directory_name": "gamma-ci-integration",
-          "public_name": "gamma-ci-integration",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-ci-integration/SKILL.md",
-          "family": "ci-integration",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-ci-integration"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-common-errors",
-          "public_name": "gamma-common-errors",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-common-errors/SKILL.md",
-          "family": "common-errors",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-common-errors"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-core-workflow-a",
-          "public_name": "gamma-core-workflow-a",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-core-workflow-a/SKILL.md",
-          "family": "core-workflow-a",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": false,
-            "curated_name": null
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-core-workflow-b",
-          "public_name": "gamma-core-workflow-b",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-core-workflow-b/SKILL.md",
-          "family": "core-workflow-b",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": false,
-            "curated_name": null
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-cost-tuning",
-          "public_name": "gamma-cost-tuning",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-cost-tuning/SKILL.md",
-          "family": "cost-tuning",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-cost-tuning"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-data-handling",
-          "public_name": "gamma-data-handling",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-data-handling/SKILL.md",
-          "family": "data-handling",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-data-handling"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-debug-bundle",
-          "public_name": "gamma-debug-bundle",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-debug-bundle/SKILL.md",
-          "family": "debug-bundle",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-debug-bundle"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-deploy-integration",
-          "public_name": "gamma-deploy-integration",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-deploy-integration/SKILL.md",
-          "family": "deploy-integration",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-deploy-integration"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-enterprise-rbac",
-          "public_name": "gamma-enterprise-rbac",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-enterprise-rbac/SKILL.md",
-          "family": "enterprise-rbac",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-enterprise-rbac"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-hello-world",
-          "public_name": "gamma-hello-world",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-hello-world/SKILL.md",
-          "family": "hello-world",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-hello-world"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-incident-runbook",
-          "public_name": "gamma-incident-runbook",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-incident-runbook/SKILL.md",
-          "family": "incident-runbook",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-incident-runbook"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-install-auth",
-          "public_name": "gamma-install-auth",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-install-auth/SKILL.md",
-          "family": "install-auth",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-install-auth"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-local-dev-loop",
-          "public_name": "gamma-local-dev-loop",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-local-dev-loop/SKILL.md",
-          "family": "local-dev-loop",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-local-dev-loop"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-migration-deep-dive",
-          "public_name": "gamma-migration-deep-dive",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-migration-deep-dive/SKILL.md",
-          "family": "migration-deep-dive",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-migration-deep-dive"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-multi-env-setup",
-          "public_name": "gamma-multi-env-setup",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-multi-env-setup/SKILL.md",
-          "family": "multi-env-setup",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-multi-env-setup"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-observability",
-          "public_name": "gamma-observability",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-observability/SKILL.md",
-          "family": "observability",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-observability"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-performance-tuning",
-          "public_name": "gamma-performance-tuning",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-performance-tuning/SKILL.md",
-          "family": "performance-tuning",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-performance-tuning"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-prod-checklist",
-          "public_name": "gamma-prod-checklist",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-prod-checklist/SKILL.md",
-          "family": "prod-checklist",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-prod-checklist"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-rate-limits",
-          "public_name": "gamma-rate-limits",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-rate-limits/SKILL.md",
-          "family": "rate-limits",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-rate-limits"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-reference-architecture",
-          "public_name": "gamma-reference-architecture",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-reference-architecture/SKILL.md",
-          "family": "reference-architecture",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-reference-architecture"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-sdk-patterns",
-          "public_name": "gamma-sdk-patterns",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-sdk-patterns/SKILL.md",
-          "family": "sdk-patterns",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-sdk-patterns"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-security-basics",
-          "public_name": "gamma-security-basics",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-security-basics/SKILL.md",
-          "family": "security-basics",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-security-basics"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-upgrade-migration",
-          "public_name": "gamma-upgrade-migration",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-upgrade-migration/SKILL.md",
-          "family": "upgrade-migration",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-upgrade-migration"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "gamma-webhooks-events",
-          "public_name": "gamma-webhooks-events",
-          "path": "plugins/saas-packs/gamma-pack/skills/gamma-webhooks-events/SKILL.md",
-          "family": "webhooks-events",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "gamma-webhooks-events"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        }
-      ],
-      "prefix_mismatch_skills": [],
-      "non_lattice_skills": [],
       "required_blast_radius_checks": [
         "catalog",
         "curated_projection",

@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-10-24T21:03:58.594Z",
+  "generatedAt": "2026-10-24T22:48:11.785Z",
   "max_age_hours": 72,
-  "publishedCount": 383,
-  "establishedCount": 383,
-  "candidateCount": 413,
-  "totalDay": 469,
-  "totalWeek": 2067,
-  "totalMonth": 11356,
-  "establishedDay": 469,
-  "establishedWeek": 2067,
-  "establishedMonth": 11356,
+  "publishedCount": 382,
+  "establishedCount": 382,
+  "candidateCount": 412,
+  "totalDay": 467,
+  "totalWeek": 2061,
+  "totalMonth": 11312,
+  "establishedDay": 467,
+  "establishedWeek": 2061,
+  "establishedMonth": 11312,
   "top": [
     {
       "name": "@intentsolutionsio/claude-pack",
@@ -468,15 +468,6 @@
       "lastWeek": 10,
       "lastMonth": 44,
       "createdAt": 1776741648453,
-      "latestVersion": "1.0.3"
-    },
-    {
-      "name": "@intentsolutionsio/gamma-pack",
-      "status": "published",
-      "lastDay": 2,
-      "lastWeek": 6,
-      "lastMonth": 44,
-      "createdAt": 1767929569776,
       "latestVersion": "1.0.3"
     },
     {
@@ -3460,9 +3451,9 @@
     }
   ],
   "telemetry": {
-    "candidates": 413,
-    "probed": 413,
-    "published": 383,
+    "candidates": 412,
+    "probed": 412,
+    "published": 382,
     "unpublished": 28,
     "foreign": 2,
     "rateLimited": 0,

@@ -593,24 +593,6 @@
       "dashboardLabel": "Get Granola"
     },
     {
-      "id": "gamma",
-      "name": "Gamma",
-      "tier": "flagship",
-      "skillCount": 24,
-      "description": "AI presentation and document generator with beautiful templates",
-      "icon": "presentation",
-      "color": "#8B5CF6",
-      "installCommand": "/plugin install gamma-pack@claude-code-plugins-plus",
-      "categories": [
-        { "name": "Onboarding & Foundations", "skills": ["gamma-install-auth", "gamma-hello-world", "gamma-local-dev-loop", "gamma-sdk-patterns", "gamma-core-workflow-a", "gamma-core-workflow-b"] },
-        { "name": "Operations & Debugging", "skills": ["gamma-common-errors", "gamma-debug-bundle", "gamma-rate-limits", "gamma-security-basics", "gamma-prod-checklist", "gamma-upgrade-migration"] },
-        { "name": "CI/CD & Deployment", "skills": ["gamma-ci-integration", "gamma-deploy-integration", "gamma-webhooks-events", "gamma-performance-tuning", "gamma-cost-tuning", "gamma-reference-architecture"] },
-        { "name": "Enterprise & Compliance", "skills": ["gamma-multi-env-setup", "gamma-observability", "gamma-incident-runbook", "gamma-data-handling", "gamma-enterprise-rbac", "gamma-migration-deep-dive"] }
-      ],
-      "docsUrl": "https://gamma.app/help",
-      "dashboardUrl": "https://gamma.app"
-    },
-    {
       "id": "clerk",
       "name": "Clerk",
       "tier": "flagship",

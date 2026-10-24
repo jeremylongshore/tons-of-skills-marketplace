@@ -5736,27 +5736,6 @@
       }
     },
     {
-      "name": "gamma-pack",
-      "source": "./plugins/saas-packs/gamma-pack",
-      "description": "Complete Gamma integration skill pack with 24 skills covering AI presentations, document generation, templates, and visual content creation. Flagship tier vendor pack.",
-      "version": "1.13.0",
-      "category": "saas-packs",
-      "keywords": [
-        "gamma",
-        "presentations",
-        "documents",
-        "ai-generation",
-        "templates",
-        "slides",
-        "visual-content"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      }
-    },
-    {
       "name": "clerk-pack",
       "source": "./plugins/saas-packs/clerk-pack",
       "description": "Complete Clerk integration skill pack with 24 skills covering authentication, user management, embeddable UIs, and identity platform. Flagship tier vendor pack.",

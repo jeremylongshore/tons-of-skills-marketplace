@@ -24,7 +24,7 @@ customerio,Customer.io,flagship,24,@intentsolutionsio/customerio-skill-md-pack,r
 langchain,LangChain,flagship,24,@intentsolutionsio/langchain-skill-md-pack,reserved,ccpi-langchain,24,24,complete,added,Brex #22 - website added 2026-01-06
 lindy,Lindy,flagship,24,@intentsolutionsio/lindy-skill-md-pack,reserved,ccpi-lindy,24,24,complete,added,Brex #24 - website added 2026-01-06
 granola,Granola,flagship,24,@intentsolutionsio/granola-skill-md-pack,reserved,ccpi-granola,24,24,complete,added,Brex #25 - website added 2026-01-06
-gamma,Gamma,flagship,24,@intentsolutionsio/gamma-skill-md-pack,reserved,ccpi-gamma,24,24,complete,added,Brex #26 - website added 2026-01-06
+gamma,Gamma,retired,0,@intentsolutionsio/gamma-skill-md-pack,retired,ccpi-gamma,24,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.55); registry disposition tracked in bead
 clerk,Clerk,flagship,24,@intentsolutionsio/clerk-skill-md-pack,reserved,ccpi-clerk,24,24,complete,added,Brex #28 - website added 2026-01-06
 linear,Linear,flagship,24,@intentsolutionsio/linear-skill-md-pack,reserved,ccpi-linear,24,24,complete,added,Brex #29 - website added 2026-01-06
 clickhouse,ClickHouse,flagship,24,@intentsolutionsio/clickhouse-skill-md-pack,reserved,ccpi-clickhouse,24,0,not_started,not_added,Brex #30
