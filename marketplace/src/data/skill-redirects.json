@@ -30,6 +30,11 @@
     { "from": "snowflake-sdk-patterns", "to": "snowflake-deploy-medic", "status": 301 },
     { "from": "snowflake-security-basics", "to": "snowflake-access-guardian", "status": 301 },
     { "from": "snowflake-upgrade-migration", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-webhooks-events", "to": "snowflake-pipeline-guardian", "status": 301 }
+    { "from": "snowflake-webhooks-events", "to": "snowflake-pipeline-guardian", "status": 301 },
+    { "from": "ga4-auth-setup", "to": "ga4-report-forensics", "status": 301 },
+    { "from": "ga4-data-api-query", "to": "ga4-report-forensics", "status": 301 },
+    { "from": "ga4-common-reports", "to": "ga4-report-forensics", "status": 301 },
+    { "from": "ga4-realtime-api", "to": "ga4-measurement-verifier", "status": 301 },
+    { "from": "ga4-bigquery-export", "to": "ga4-export-guardian", "status": 301 }
   ]
 }

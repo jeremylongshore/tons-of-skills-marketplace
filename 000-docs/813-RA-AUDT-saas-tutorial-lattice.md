@@ -15,7 +15,7 @@ A matching skill name proves structural repetition only. It does **not** prove t
 | Measure | Count |
 | --- | ---: |
 | Active SaaS packs | 103 |
-| Active skills | 2283 |
+| Active skills | 2281 |
 | Tutorial-lattice candidates | 2132 |
 | Packs containing candidates | 97 |
 | Packs entirely inside the lattice | 82 |
@@ -24,8 +24,8 @@ A matching skill name proves structural repetition only. It does **not** prove t
 | Candidates admitted by explicit prefix aliases | 78 |
 | Suffix-only names excluded by prefix policy | 1 |
 
-- Catalog SHA-256: `2ae12b1d3458bb85c74dd43a40c2ebf9441c2b224c9812da48a747892c6fb9a9`
-- Tracked inventory SHA-256: `543b74b041314cf40551e02aca151ee9499b16e9c17f2f02a5454121ff7d6540`
+- Catalog SHA-256: `bd780b87a44286247395719fd68cb589e44457189c3a88fda881c3b9cfaea31a`
+- Tracked inventory SHA-256: `d1ba352f63babcfc4679c10105d50ce09df9c7b983f4fa3c3a9668ff831ccb3f`
 
 The earlier 2,011-candidate census used 24 base families and literal pack-name stems. This version expands the family set with `advanced-troubleshooting`, `architecture-variants`, `known-pitfalls`, `load-scale`, `policy-guardrails`, and `reliability-patterns`, then applies versioned exact aliases for `anthropic-pack`, `claude-pack`, and `langchain-py-pack`. The current generated counts above are authoritative. Suffix-only near-matches such as `langchain-otel-observability` and the explicitly recorded content-specific Customer.io workflows remain excluded.
 

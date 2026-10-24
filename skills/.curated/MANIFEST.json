@@ -18,10 +18,10 @@
   },
   "selection": {
     "resolver": "graded∩first-party",
-    "count": 2628,
-    "sha256": "0c8266ad4ff2f35198d467aaa7c3b27789176c57fabb5f54ac6992b74860a7d2"
+    "count": 2625,
+    "sha256": "61b16efcb57bbbe7cb96ca7acfd51f32b93478e6c59e1dd9b38251261f6068a1"
   },
-  "count": 2628,
+  "count": 2625,
   "skills": [
     {
       "curated_name": "abridge-ci-integration",
@@ -16004,45 +16004,6 @@
         "references/README.md",
         "scripts/README.md",
         "scripts/generate_payloads.py"
-      ]
-    },
-    {
-      "curated_name": "ga4-auth-setup",
-      "source_path": "plugins/saas-packs/ga4-pack/skills/ga4-auth-setup",
-      "category": "saas-packs",
-      "plugin": "ga4-pack",
-      "recorded_grade": "B",
-      "recorded_score": "86",
-      "fresh_grade": "B",
-      "run_id": 138,
-      "files": [
-        "SKILL.md"
-      ]
-    },
-    {
-      "curated_name": "ga4-data-api-query",
-      "source_path": "plugins/saas-packs/ga4-pack/skills/ga4-data-api-query",
-      "category": "saas-packs",
-      "plugin": "ga4-pack",
-      "recorded_grade": "B",
-      "recorded_score": "80",
-      "fresh_grade": "B",
-      "run_id": 138,
-      "files": [
-        "SKILL.md"
-      ]
-    },
-    {
-      "curated_name": "ga4-realtime-api",
-      "source_path": "plugins/saas-packs/ga4-pack/skills/ga4-realtime-api",
-      "category": "saas-packs",
-      "plugin": "ga4-pack",
-      "recorded_grade": "B",
-      "recorded_score": "80",
-      "fresh_grade": "B",
-      "run_id": 138,
-      "files": [
-        "SKILL.md"
       ]
     },
     {

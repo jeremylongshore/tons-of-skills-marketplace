@@ -1,4 +1,4 @@
-# Snowflake v2 retired-skill redirects — generated from skill-redirects.json.
+# Retired-skill redirects — generated from skill-redirects.json.
 # Import this fragment from the tonsofskills.com Caddy site block.
 # Each matcher covers both slash forms and `permanent` emits HTTP 301.
 
@@ -62,3 +62,13 @@ redir @redir111 /skills/snowflake-access-guardian/ permanent
 redir @redir112 /skills/snowflake-deploy-medic/ permanent
 @redir113 path /skills/snowflake-webhooks-events /skills/snowflake-webhooks-events/
 redir @redir113 /skills/snowflake-pipeline-guardian/ permanent
+@redir114 path /skills/ga4-auth-setup /skills/ga4-auth-setup/
+redir @redir114 /skills/ga4-report-forensics/ permanent
+@redir115 path /skills/ga4-data-api-query /skills/ga4-data-api-query/
+redir @redir115 /skills/ga4-report-forensics/ permanent
+@redir116 path /skills/ga4-common-reports /skills/ga4-common-reports/
+redir @redir116 /skills/ga4-report-forensics/ permanent
+@redir117 path /skills/ga4-realtime-api /skills/ga4-realtime-api/
+redir @redir117 /skills/ga4-measurement-verifier/ permanent
+@redir118 path /skills/ga4-bigquery-export /skills/ga4-bigquery-export/
+redir @redir118 /skills/ga4-export-guardian/ permanent

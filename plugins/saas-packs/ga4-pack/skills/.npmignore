@@ -1,0 +1,4 @@
+# Keep local interpreter caches out of the published skill directories.
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/

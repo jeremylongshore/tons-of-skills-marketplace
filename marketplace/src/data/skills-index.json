@@ -14415,10 +14415,10 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "ga4-auth-setup",
-      "name": "ga4-auth-setup",
-      "description": "Configure auth for the GA4 Data API — OAuth user credentials for interactive use, or a service account for automation / CI. Pick the right path, set the right scopes, grant the right property-level access. Trigger with \"set up GA4 auth\", \"GA4 service account\", \"GA4 OAuth\", \"connect to Google Analytics\".",
-      "version": "1.3.0",
+      "slug": "ga4-export-guardian",
+      "name": "ga4-export-guardian",
+      "description": "Investigate GA4 BigQuery export gaps, daily/intraday overlap and query scan risk from table-inventory and dry-run receipts. Use when exported days appear missing or a GA4 query may scan too much. Trigger with \"missing GA4 BigQuery tables\", \"GA4 export delayed\" or \"check this GA4 query's scan budget\".",
+      "version": "2.0.0",
       "category": "saas-packs",
       "parentPlugin": "ga4-pack",
       "requires_env": [],
@@ -14427,10 +14427,10 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "ga4-bigquery-export",
-      "name": "ga4-bigquery-export",
-      "description": "Wire GA4 → BigQuery for unsampled, queryable event-level data. Covers the one-time export setup, the events_YYYYMMDD table schema, partitioning + clustering, and the SQL patterns for the reports the Data API can't do well (true cohort retention, custom-event attribution, large date ranges). Trigger with \"GA4 BigQuery\", \"GA4 to BQ\", \"event-level GA4 data\", \"unsampled GA4\", \"GA4 export setup\", \"GA4 SQL\".",
-      "version": "1.3.0",
+      "slug": "ga4-measurement-verifier",
+      "name": "ga4-measurement-verifier",
+      "description": "Check expected GA4 event names and counts against a realtime report receipt, preserving row coverage, minute-window and deployment-timing limits. Use when verifying tracking after a deployment or investigating missing events. Trigger with \"did GA4 receive sign_up?\", \"check GA4 tracking after deploy\" or \"missing GA4 events\".",
+      "version": "2.0.0",
       "category": "saas-packs",
       "parentPlugin": "ga4-pack",
       "requires_env": [],
@@ -14439,34 +14439,10 @@
       "fallback_for_tools": []
     },
     {
-      "slug": "ga4-common-reports",
-      "name": "ga4-common-reports",
-      "description": "Copy-paste recipes for the 6-7 reports every site owner actually wants: DAU/MAU/WAU, retention cohort, top pages by source, channel attribution, conversion funnel, geo breakdown, device split. Each recipe is a fully-formed Data API request. Trigger with \"GA4 DAU\", \"GA4 retention\", \"GA4 top pages\", \"GA4 funnel\", \"GA4 channel report\", \"common GA4 reports\".",
-      "version": "1.3.0",
-      "category": "saas-packs",
-      "parentPlugin": "ga4-pack",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "ga4-data-api-query",
-      "name": "ga4-data-api-query",
-      "description": "Build a runReport request against the GA4 Data API v1 — pick valid metric/dimension combinations, set date ranges that respect data-freshness limits, apply filters, paginate large result sets, handle sampling thresholds. Trigger with \"query GA4\", \"GA4 Data API\", \"runReport\", \"fetch GA4 metrics\", \"GA4 pageviews\", \"GA4 sessions\".",
-      "version": "1.3.0",
-      "category": "saas-packs",
-      "parentPlugin": "ga4-pack",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "ga4-realtime-api",
-      "name": "ga4-realtime-api",
-      "description": "Pull current-session / active-user data from the GA4 Realtime endpoint — a separate API surface from runReport with different metrics, dimensions, and freshness guarantees (~30 min rolling window instead of T-48h). Trigger with \"GA4 realtime\", \"active users right now\", \"GA4 current sessions\", \"who's on my site now\".",
-      "version": "1.3.0",
+      "slug": "ga4-report-forensics",
+      "name": "ga4-report-forensics",
+      "description": "Investigate conflicting GA4 report numbers using request and response receipts. Compare windows, identities, filters and row coverage; distinguish sampling, thresholding and high-cardinality loss. Use when GA4 API and UI reports disagree or exported rows are missing. Trigger with \"GA4 user counts differ\", \"missing GA4 rows\" or \"is this report sampled?\".",
+      "version": "2.0.0",
       "category": "saas-packs",
       "parentPlugin": "ga4-pack",
       "requires_env": [],
@@ -34827,7 +34803,7 @@
       "fallback_for_tools": []
     }
   ],
-  "count": 2902,
+  "count": 2900,
   "categories": [
     "ai-agency",
     "ai-ml",

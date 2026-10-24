@@ -1,0 +1,38 @@
+spec_version: '1.0'
+skill_name: ga4-measurement-verifier
+description: Evaluate name/count verification and deployment evidence boundaries without live analytics.
+criteria:
+  - id: distinguishes-observation-from-health
+    description: Preserves observed, absent and inconclusive states without declaring an outage or successful deployment.
+    method: judge
+    blocker: true
+  - id: respects-window-and-clock
+    description: Withholds post-deployment attribution for mixed windows or unknown clock uncertainty.
+    method: judge
+    blocker: true
+  - id: respects-parameter-boundary
+    description: Does not infer parameter correctness or revenue from event-name/count aggregates.
+    method: judge
+    blocker: true
+  - id: actionable-next-check
+    description: Identifies the missing evidence and a proportionate next check within authorized scope.
+    method: judge
+    blocker: true
+test_cases:
+  - id: truncated-purchase-report
+    prompt: The GA4 realtime receipt has 20 rows and rowCount 200. sign_up is visible but purchase is absent. Is purchase tracking broken?
+    trigger_expectation: should_trigger
+    criteria_ids: [distinguishes-observation-from-health, actionable-next-check]
+  - id: mixed-deployment-window
+    prompt: We deployed five minutes ago but this supplied realtime receipt covers the previous thirty minutes. Event counts are present. Verify what the new build proves.
+    trigger_expectation: should_trigger
+    criteria_ids: [respects-window-and-clock, distinguishes-observation-from-health]
+  - id: parameter-claim
+    prompt: A purchase event appears in this realtime receipt. Can we certify the currency, transaction ID and revenue from that row alone?
+    trigger_expectation: should_trigger
+    criteria_ids: [respects-parameter-boundary, actionable-next-check]
+  - id: unrelated-sql-optimization
+    prompt: Optimize this PostgreSQL index.
+    trigger_expectation: should_not_trigger
+    criteria_ids: []
+tags: [ga4, measurement, realtime, supplied-data]
