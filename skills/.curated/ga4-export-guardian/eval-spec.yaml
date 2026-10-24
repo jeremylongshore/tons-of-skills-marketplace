@@ -1,0 +1,38 @@
+spec_version: '1.0'
+skill_name: ga4-export-guardian
+description: Evaluate export-gap and query-risk reasoning from supplied metadata without cloud operations.
+criteria:
+  - id: preserves-inventory-boundary
+    description: Distinguishes observed tables, incomplete listing, recent gaps, export-start limits and operator assumptions.
+    method: judge
+    blocker: true
+  - id: avoids-double-counting
+    description: Does not add daily and intraday rows or claim that source preference proves completeness.
+    method: judge
+    blocker: true
+  - id: respects-billing-boundary
+    description: Does not equate dry-run processed bytes with billable bytes or approve execution from a low estimate.
+    method: judge
+    blocker: true
+  - id: actionable-next-check
+    description: Links findings to source metadata and proposes a discriminating check within the authorized scope.
+    method: judge
+    blocker: true
+test_cases:
+  - id: partial-listing
+    prompt: One GA4 export day is absent from a supplied table listing whose pagination is incomplete. Has the export lost data?
+    trigger_expectation: should_trigger
+    criteria_ids: [preserves-inventory-boundary, actionable-next-check]
+  - id: overlapping-daily-intraday
+    prompt: Daily and intraday tables exist for the same date. Can we add their row counts to report traffic?
+    trigger_expectation: should_trigger
+    criteria_ids: [avoids-double-counting, actionable-next-check]
+  - id: tiny-byte-cap
+    prompt: This supplied BigQuery dry run estimates 1000 processed bytes and maximumBytesBilled is 2000. Is it safe to execute on that basis?
+    trigger_expectation: should_trigger
+    criteria_ids: [respects-billing-boundary, actionable-next-check]
+  - id: unrelated-analytics-product
+    prompt: Configure a Plausible dashboard.
+    trigger_expectation: should_not_trigger
+    criteria_ids: []
+tags: [ga4, bigquery, export, supplied-data]

@@ -43,6 +43,25 @@ Its useful pattern is a distinct operator problem, actual evidence, deterministi
 computation and an actionable report with explicit limits. Its historical live
 execution claims are not inherited by GA4.
 
+## Post-rebuild Freshie receipt
+
+The baseline table above describes the retired v1 skills. The replacement
+portfolio was discovered and graded in run **139** from source commit
+`a338bab4ea70729b98f937f04eba5267adb266c5`, then published at Dolt commit
+`mf70vsi6nk1tt23alrbujmq4jungnk7a`, tag `run-139`.
+
+| Replacement | Freshie score | Grade | Errors |
+| --- | ---: | --- | ---: |
+| `ga4-report-forensics` | 92 | A | 0 |
+| `ga4-measurement-verifier` | 95 | A | 0 |
+| `ga4-export-guardian` | 97 | A | 0 |
+
+These are published Freshie compliance grades, not behavioral model-evaluation
+or live-provider certification. The [validation record](002-RA-AUDT-v2-validation-evidence.md)
+separates native publication, local execution evidence and remaining limits.
+Run 138 and its five GA4 records remain in historical inventory; run 139 carries
+three successors. No prior score or history was rewritten.
+
 ## Per-skill disposition
 
 | Existing slot | Disposition | Coverage to preserve |

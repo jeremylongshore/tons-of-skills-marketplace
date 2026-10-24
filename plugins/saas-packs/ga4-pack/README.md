@@ -6,8 +6,10 @@ install identity and consolidates five tutorials into three operator workflows.
 
 **Install:** `/plugin install ga4-pack@claude-code-plugins-plus`
 
-This working-branch migration is under review; it is not a published v2 release
-or a new Freshie grade claim. See the [value decision](000-docs/001-AT-ADEC-operator-value-review.md).
+Freshie run 139 grades the three workflows A/92, A/95 and A/97. See the
+[value decision](000-docs/001-AT-ADEC-operator-value-review.md) and
+[validation evidence](000-docs/002-RA-AUDT-v2-validation-evidence.md) for the
+immutable source, public inventory receipt and verification limits.
 
 | Workflow | Concrete output |
 | --- | --- |

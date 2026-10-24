@@ -87,6 +87,9 @@ c981c39992716a9c8dfd678952ff45a237574e4192f26a3ccbd603471b3c9d5d  skills/.curate
 612e95e032e99f3861a86ab4a6a6a7d675127951099b8ffa5fecf4243641cee1  skills/.curated/databricks-cost-leak-hunter/eval-spec.yaml
 73f412c16a3687b3b49ab5c5f415c692170f3c52fc44362d73e59fcc3a35e25e  skills/.curated/databricks-streaming-guardian/eval-spec.yaml
 3a4ae971a3f941de41e94ced00697fc2561a3555af9122d872fca23b29e39bde  skills/.curated/databricks-uc-migration-pilot/eval-spec.yaml
+bd3773945c221852c206d612d8e544297fc0232e038587d9384944e8e0051df4  skills/.curated/ga4-export-guardian/eval-spec.yaml
+df839eedee32588c2dfec2c063410e29dc447d4cea1e8a10d8e05849ad714e69  skills/.curated/ga4-measurement-verifier/eval-spec.yaml
+2b91ff6175fdfad0332100317059f8be6a61ed5568b5ca0c8dc3f967bcec3c55  skills/.curated/ga4-report-forensics/eval-spec.yaml
 541bea78668c52f6759ae560fffdfd9c3fa8e4f5189cc0be2ad5351a8ffb42c5  skills/.curated/grammarly-access-readiness/eval-spec.yaml
 edf550a176fa847dc9580e09278a5aeaed910c65b941493baf9e896f4453b7ef  skills/.curated/grammarly-api-reliability/eval-spec.yaml
 cfdbcbf984d1d4353bcf89d910e258fd4cbeb57fffca94db7fcc827a128f6fa6  skills/.curated/grammarly-data-safety-guardian/eval-spec.yaml

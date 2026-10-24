@@ -2456,7 +2456,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2625
+            "value": 2628
           },
           {
             "cohort": "curriculum",
@@ -3803,17 +3803,17 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-138.json",
+        "freshie/reports/run-delta-139.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "i2nfhlceo2a7affjh32dpt98urqk07f4",
-        "header_total_skills": 2916,
-        "run_id": 138,
+        "dolt_commit": "mf70vsi6nk1tt23alrbujmq4jungnk7a",
+        "header_total_skills": 2914,
+        "run_id": 139,
         "skill_row_delta": 0,
-        "skill_rows": 2916,
+        "skill_rows": 2914,
         "target_skill_row_delta": 0
       }
     },
@@ -3824,32 +3824,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-138.json"
+        "freshie/reports/run-delta-139.json"
       ],
       "status": "target_met",
       "values": {
-        "compliance_rows": 3493,
-        "export_dolt_commit": "i2nfhlceo2a7affjh32dpt98urqk07f4",
-        "export_run_id": 138,
-        "grades_csv_rows": 3493,
-        "grades_csv_sha256": "f92394a2dfdf1fc09337598a0e5c3563e2a9ad5288ce04e7e0b80e79401710cd",
+        "compliance_rows": 3491,
+        "export_dolt_commit": "mf70vsi6nk1tt23alrbujmq4jungnk7a",
+        "export_run_id": 139,
+        "grades_csv_rows": 3491,
+        "grades_csv_sha256": "04ede95b460fa54b3f17359cf1bf9e2e87a844875076e599fd743b9748efd829",
         "histogram_grades": {
-          "A": 2881,
-          "B": 322,
-          "C": 132,
+          "A": 2884,
+          "B": 319,
+          "C": 130,
           "D": 154,
           "F": 4
         },
-        "histogram_total": 3493,
+        "histogram_total": 3491,
         "immutable_grade_counts": {
-          "A": 2881,
-          "B": 322,
-          "C": 132,
+          "A": 2884,
+          "B": 319,
+          "C": 130,
           "D": 154,
           "F": 4
         },
-        "inventory_dolt_commit": "i2nfhlceo2a7affjh32dpt98urqk07f4",
-        "inventory_run_id": 138,
+        "inventory_dolt_commit": "mf70vsi6nk1tt23alrbujmq4jungnk7a",
+        "inventory_run_id": 139,
         "target_lag_runs": 0
       }
     },
@@ -3859,7 +3859,7 @@
       "reproduce": "pnpm run measure:e1 --row=54 --stdout",
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-138.json",
+        "freshie/reports/run-delta-139.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
@@ -3873,7 +3873,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 138,
+        "current_run_id": 139,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -3897,7 +3897,7 @@
       "source": [
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-138.json",
+        "freshie/reports/run-delta-139.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
@@ -3980,6 +3980,9 @@
         "skills/.curated/databricks-cost-leak-hunter/eval-spec.yaml",
         "skills/.curated/databricks-streaming-guardian/eval-spec.yaml",
         "skills/.curated/databricks-uc-migration-pilot/eval-spec.yaml",
+        "skills/.curated/ga4-export-guardian/eval-spec.yaml",
+        "skills/.curated/ga4-measurement-verifier/eval-spec.yaml",
+        "skills/.curated/ga4-report-forensics/eval-spec.yaml",
         "skills/.curated/grammarly-access-readiness/eval-spec.yaml",
         "skills/.curated/grammarly-api-reliability/eval-spec.yaml",
         "skills/.curated/grammarly-data-safety-guardian/eval-spec.yaml",
@@ -4005,10 +4008,10 @@
       "status": "measured",
       "values": {
         "adoption_percent": 1.17,
-        "curated_copies": 32,
+        "curated_copies": 35,
         "plugin_skill_rows": 2991,
         "source_eval_specs": 35,
-        "tracked_eval_specs": 67
+        "tracked_eval_specs": 70
       }
     },
     "58": {

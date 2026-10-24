@@ -557,7 +557,7 @@ plugins/productivity/navigating-github/skills/navigating-github,A,94
 plugins/productivity/neurodivergent-visual-org/skills/neurodivergent-visual-org,A,90
 plugins/productivity/obsidian-project-documentation/skills/obsidian-project-documentation,D,67
 plugins/productivity/overnight-dev/skills/overnight-development,A,97
-plugins/productivity/plane/skills/plane,A,97
+plugins/productivity/plane/skills/plane,A,96
 plugins/productivity/pm-ai-partner/skills/builder,A,94
 plugins/productivity/pm-ai-partner/skills/competitor-analyst,A,94
 plugins/productivity/pm-ai-partner/skills/data-analyst,A,96
@@ -1523,11 +1523,9 @@ plugins/saas-packs/framer-pack/skills/framer-sdk-patterns,B,82
 plugins/saas-packs/framer-pack/skills/framer-security-basics,A,91
 plugins/saas-packs/framer-pack/skills/framer-upgrade-migration,B,89
 plugins/saas-packs/framer-pack/skills/framer-webhooks-events,B,85
-plugins/saas-packs/ga4-pack/skills/ga4-auth-setup,B,86
-plugins/saas-packs/ga4-pack/skills/ga4-bigquery-export,C,77
-plugins/saas-packs/ga4-pack/skills/ga4-common-reports,C,78
-plugins/saas-packs/ga4-pack/skills/ga4-data-api-query,B,80
-plugins/saas-packs/ga4-pack/skills/ga4-realtime-api,B,80
+plugins/saas-packs/ga4-pack/skills/ga4-export-guardian,A,97
+plugins/saas-packs/ga4-pack/skills/ga4-measurement-verifier,A,95
+plugins/saas-packs/ga4-pack/skills/ga4-report-forensics,A,92
 plugins/saas-packs/gamma-pack/skills/gamma-ci-integration,B,84
 plugins/saas-packs/gamma-pack/skills/gamma-common-errors,B,89
 plugins/saas-packs/gamma-pack/skills/gamma-core-workflow-a,C,78
@@ -2121,7 +2119,7 @@ plugins/saas-packs/notion-pack/skills/notion-architecture-variants,A,96
 plugins/saas-packs/notion-pack/skills/notion-ci-integration,A,96
 plugins/saas-packs/notion-pack/skills/notion-common-errors,A,98
 plugins/saas-packs/notion-pack/skills/notion-content-management,A,97
-plugins/saas-packs/notion-pack/skills/notion-core-workflow-a,A,96
+plugins/saas-packs/notion-pack/skills/notion-core-workflow-a,A,97
 plugins/saas-packs/notion-pack/skills/notion-core-workflow-b,A,96
 plugins/saas-packs/notion-pack/skills/notion-cost-tuning,A,97
 plugins/saas-packs/notion-pack/skills/notion-data-handling,A,96
@@ -2956,7 +2954,7 @@ plugins/skill-enhancers/file-to-code/skills/file-to-code,A,93
 plugins/skill-enhancers/research-to-deploy/skills/research-to-deploy,B,89
 plugins/skill-enhancers/search-to-slack/skills/search-to-slack,A,92
 plugins/skill-enhancers/skill-creator/skills/agent-creator,A,94
-plugins/skill-enhancers/skill-creator/skills/skill-creator,A,98
+plugins/skill-enhancers/skill-creator/skills/skill-creator,A,93
 plugins/skill-enhancers/validate-plugin/skills/validate-plugin,A,97
 plugins/skill-enhancers/web-to-github-issue/skills/creating-github-issues-from-web-research,A,96
 plugins/skill-enhancers/zero-tech-debt/skills/zero-tech-debt,B,82

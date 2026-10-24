@@ -3,8 +3,8 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "f92394a2dfdf1fc09337598a0e5c3563e2a9ad5288ce04e7e0b80e79401710cd",
-    "artifact_count": 3493
+    "sha256": "04ede95b460fa54b3f17359cf1bf9e2e87a844875076e599fd743b9748efd829",
+    "artifact_count": 3491
   },
   "rule_order": [
     "G0",
@@ -21,7 +21,7 @@
   "counts": {
     "AUTO-MIGRATE": 1,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 3144,
+    "CERTIFY-PENDING-EVIDENCE": 3142,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
     "QUARANTINE": 347
@@ -9187,7 +9187,7 @@
     {
       "path": "plugins/productivity/plane/skills/plane/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -19825,9 +19825,9 @@
       ]
     },
     {
-      "path": "plugins/saas-packs/ga4-pack/skills/ga4-auth-setup/SKILL.md",
-      "grade": "B",
-      "score": 86,
+      "path": "plugins/saas-packs/ga4-pack/skills/ga4-export-guardian/SKILL.md",
+      "grade": "A",
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -19836,9 +19836,9 @@
       ]
     },
     {
-      "path": "plugins/saas-packs/ga4-pack/skills/ga4-bigquery-export/SKILL.md",
-      "grade": "C",
-      "score": 77,
+      "path": "plugins/saas-packs/ga4-pack/skills/ga4-measurement-verifier/SKILL.md",
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -19847,31 +19847,9 @@
       ]
     },
     {
-      "path": "plugins/saas-packs/ga4-pack/skills/ga4-common-reports/SKILL.md",
-      "grade": "C",
-      "score": 78,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/ga4-pack/skills/ga4-data-api-query/SKILL.md",
-      "grade": "B",
-      "score": 80,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/ga4-pack/skills/ga4-realtime-api/SKILL.md",
-      "grade": "B",
-      "score": 80,
+      "path": "plugins/saas-packs/ga4-pack/skills/ga4-report-forensics/SKILL.md",
+      "grade": "A",
+      "score": 92,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -26405,7 +26383,7 @@
     {
       "path": "plugins/saas-packs/notion-pack/skills/notion-core-workflow-a/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -35592,7 +35570,7 @@
     {
       "path": "plugins/skill-enhancers/skill-creator/skills/skill-creator/SKILL.md",
       "grade": "A",
-      "score": 98,
+      "score": 93,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
