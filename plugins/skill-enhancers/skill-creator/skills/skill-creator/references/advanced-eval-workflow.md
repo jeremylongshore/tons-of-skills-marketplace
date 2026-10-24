@@ -6,6 +6,11 @@ blind comparison, packaging, and platform-specific adaptations.
 Read this reference when using the eval infrastructure (Steps E1-E5), improving skills
 through iteration, running automated description optimization, or working on Claude.ai/Cowork.
 
+This reference is opt-in. Execute model/provider evaluations only when requested
+and covered by existing authorization for their cases and proof destination.
+Keep missing coverage INCOMPLETE and absent runs unverified. Use the available
+bounded concurrency; reading this document does not authorize provider calls.
+
 ---
 
 ## Running and Evaluating Test Cases
@@ -18,10 +23,10 @@ Put results in `<skill-name>-workspace/` as a sibling to the skill directory. Wi
 workspace, organize by iteration (`iteration-1/`, `iteration-2/`, etc.) and within that,
 each test case gets a directory (`eval-0/`, `eval-1/`, etc.). Create directories as you go.
 
-### Step E1: Spawn all runs (with-skill AND baseline) in the same turn
+### Step E1: Schedule the authorized with-skill and baseline runs
 
-For each test case, spawn two subagents in the same turn — one with the skill, one without.
-Launch everything at once so runs finish around the same time.
+For each authorized case, compare the same task with and without the skill.
+Schedule runs within the available concurrency; preserve the approved matrix.
 
 **With-skill run:**
 

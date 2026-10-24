@@ -1,23 +1,16 @@
 ---
 name: skill-creator
-description: 'Create production-grade agent skills aligned with the 2026 AgentSkills.io
-  spec and Anthropic
+description: 'Create, validate, optimize or refresh Claude Code skills. Use when scaffolding
+  a skill,
 
-  best practices (2026). Also validates existing skills against the Intent Solutions
-  100-point rubric.
+  grading an existing skill, or using forge/reforge for an API plugin.
 
-  Use when building, testing, validating, or optimizing Claude Code skills.
-
-  Trigger with "/skill-creator", "create a skill", "validate my skill", or "check
-  skill quality".
-
-  Make sure to use this skill whenever creating a new skill, slash command, or agent
-  capability.
+  Trigger with "/skill-creator", "create a skill", or "validate my skill".
 
   '
-argument-hint: "<create|validate|optimize> [skill-path]"
-allowed-tools: Read,Write,Edit,Glob,Grep,Bash(mkdir:*),Bash(chmod:*),Bash(python:*),Bash(claude:*),Agent,AskUserQuestion
-version: 5.24.0
+argument-hint: '[create|validate|optimize|--forge|--reforge] [target]'
+allowed-tools: Read,Write,Edit,Glob,Grep,Bash(mkdir:*),Bash(chmod:*),Bash(python:*),Bash(claude:*),Agent,AskUserQuestion,Bash(python3:*),Bash(pnpm:*),Bash(node:*),Bash(git:*),Bash(scripts/run-jrig-eval.sh:*)
+version: 5.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -28,6 +21,7 @@ model: inherit
 effort: high
 compatibility: Designed for Claude Code
 ---
+
 # Skill Creator
 
 Creates complete, spec-compliant skill packages following AgentSkills.io and Anthropic standards.
@@ -38,23 +32,34 @@ Supports both creation and validation workflows with 100-point marketplace gradi
 Skill Creator solves the gap between writing ad-hoc agent skills and producing marketplace-ready
 packages that score well on the Intent Solutions 100-point rubric. It enforces the 2026 spec
 (top-level identity fields, `${CLAUDE_SKILL_DIR}` paths, scored sections) and catches
-contradictions that would cost marketplace points. Supports two modes: create new skills from
-scratch with full validation, or grade/audit existing skills with actionable fix suggestions.
+contradictions that would cost marketplace points. Supports create, validate, forge and reforge modes, loading their details only
+when selected.
 
 ## Prerequisites
 
-- Claude Code CLI with skill support (v2.1.78+ for advanced features like `effort`, `maxTurns`)
-- Python 3.10+ for validation scripts (`validate-skill.py`, `aggregate_benchmark.py`)
-- Target skill directory writable (`~/.claude/skills/` or `.claude/skills/`)
+- A known target location, workflow and authoring authority.
+- The target's canonical validator and required local tools available for any
+  claimed static result; report unavailable tools rather than claiming a pass.
+- Known provenance and licensing for reused content.
 
 ## Instructions
+
+For test-quality or infrastructure work, use `audit-tests` for diagnosis and
+`implement-tests` for the authorized repair handoff. Skill grading, package
+checks and behavioral evaluation are separate; ordinary authoring does not
+implicitly authorize installing a test stack or making paid provider calls.
 
 ### Mode Detection
 
 Determine user intent from their prompt:
 
-- **Create mode**: "create a skill", "build a skill", "new skill" -> proceed to Step 1
-- **Validate mode**: "validate", "check", "grade", "score", "audit" -> jump to Validation Workflow
+- **Optimize mode**: improve an existing description through the requested
+  [advanced workflow](references/advanced-eval-workflow.md), using its existing
+  model/provider authorization.
+- **Create mode** (default): "create a skill", "build a skill", "new skill" -> proceed to Step 1
+- **Validate mode**: "validate", "check", "grade", "score", "audit" -> read [Validation Workflow](references/validation-workflow.md)
+- **Forge mode** (`--forge`): "/skill-creator --forge <api>", "forge a skill from <api>", "generate plugin from API" -> read [Forge Mode Workflow](references/forge-workflow.md). The `--forge` flag invokes a stricter pipeline with NOI gate, ecosystem absorb, mandatory validation, and `.forge/` audit trail. Right when generating a plugin from an API surface; not needed for hand-authored skills.
+- **Reforge mode** (`--reforge`): "/skill-creator --reforge <plugin-name>", "reforge plugin", "regenerate against current API" -> read [Reforge Mode Workflow](references/reforge-workflow.md). Targets an existing forge-generated plugin and regenerates against the current API surface to fight catalog rot. Reuses existing NOI from `.forge/research.md` (no re-prompting unless `--reset-noi` is passed).
 
 ### Communicating with the User
 
@@ -64,133 +69,59 @@ Pay attention to context cues to understand the user's technical level. Skill cr
 - For "JSON" and "assertion", check for cues the user knows these terms before using them without explanation
 - Briefly explain terms if in doubt
 
-### Step 1: Understand Requirements
+### Step 1: Select Scope and Authority
 
-If the current conversation already contains a workflow the user wants to capture (e.g., "turn this into a skill"), extract answers from the conversation history first — the tools used, the sequence of steps, corrections the user made, input/output formats observed. Confirm with the user before proceeding.
+Use Read, Glob and Grep to inspect the target. Use AskUserQuestion only for
+missing decisions. Establish the target
+location, provenance, runtime and current repository contract. Preserve unrelated
+files and supported optional metadata. Do not promote a skill on the homepage
+or change repository governance as part of ordinary authoring.
 
-Ask the user with AskUserQuestion:
+IS marketplace skill output needs all eight top-level fields: `name`,
+`description`, `allowed-tools`, `version`, `author`, `license`, `compatibility`,
+`tags`. Agent output goes through `agent-creator` and its context-specific
+11-field plugin or 14-field standalone template. Upstream-minimum examples do
+not satisfy those overlays. Read [authoring authority](references/source-of-truth.md)
+when sources disagree; preserve the target's existing gate and report the mismatch.
 
-**Skill Identity:**
+### Step 2: Run the Selected Workflow
 
-- Name (kebab-case, gerund preferred: `processing-pdfs`, `analyzing-data`)
-- Purpose (1-2 sentences: what it does + when to use it)
+- Create or revise: [Creation workflow](references/creation-workflow.md).
+- Grade an existing skill: [Validation workflow](references/validation-workflow.md).
+- Generate from an API: [Forge workflow](references/forge-workflow.md).
+- Refresh a generated plugin: [Reforge workflow](references/reforge-workflow.md).
 
-**Execution Model:**
+Use Write for new files and Edit for bounded revisions. Use WebSearch and
+WebFetch for current API documentation only when the selected forge mode has
+those capabilities available and already authorized in the parent session. The
+ordinary authoring grant does not automatically grant network research. Report
+missing capability instead of expanding permissions as part of grading. Use [field guidance](references/frontmatter-spec.md) and the actual templates.
+Keep shared purpose and essential constraints in SKILL.md; put substantial
+conditional procedures in linked references. Choose supporting resources for
+the actual workflow rather than creating a fixed directory checklist.
 
-- User-invocable via `/name`? Or background knowledge only?
-- Accepts arguments? (`$ARGUMENTS` substitution)
-- Needs isolated context? (`context: fork` for subagent execution)
-- Explicit-only invocation? (`disable-model-invocation: true` — prevents auto-activation, requires `/name`)
+### Step 3: Validate and Report
 
-**Required Tools:**
+Run the target's canonical validator and the relevant deterministic package and
+production checks described in [validation rules](references/validation-rules.md).
+Use real generated artifacts and positive/negative fixtures for changed scripts
+or templates; fixing a copied field list is not proof of output correctness.
+Retain errors, warnings and missing tooling. Never change the validator,
+required-field sets, pins or baselines to make generated output pass.
 
-- Read, Write, Edit, Glob, Grep, WebFetch, WebSearch, Agent, AskUserQuestion, Skill
-- Bash must be scoped: `Bash(git:*)`, `Bash(npm:*)`, etc.
-- MCP tools: `ServerName:tool_name`
-
-**Optional: declare `disallowed-tools` (schema 3.7.0+):**
-
-- Defense-in-depth — an explicit denylist layered on top of the `allowed-tools` allowlist
-- Useful when the skill needs broad Bash but should never reach for high-risk operations
-  like `rm`, `curl` to arbitrary hosts, `.env` file edits, or system-config writes
-- Example: `disallowed-tools: [Bash(rm:*), Bash(curl:*), Bash(wget:*), Bash(sudo:*), Edit(.env), Write(.env)]`
-- A pattern must never appear in BOTH `allowed-tools` and `disallowed-tools` — the
-  marketplace validator reports the overlap as an ERROR
-- Default: omit the field (don't clutter frontmatter with a denylist the allowlist already covers)
-- Naming parallel: skills use kebab-case `disallowed-tools`; agents use camelCase
-  `disallowedTools` — never copy-paste between the two without renaming
-
-**Complexity:**
-
-- Simple (SKILL.md only)
-- With scripts (automation code in `scripts/`)
-- With references (documentation in `references/`)
-- With templates (boilerplate in `templates/`)
-- Full package (all directories)
-
-**Location:**
-
-- Global: `~/.claude/skills/<skill-name>/`
-- Project: `.claude/skills/<skill-name>/`
-
-### Step 2: Plan the Skill
-
-Before writing, determine:
-
-**Degrees of Freedom:**
-
-| Level | When to Use |
-|-------|-------------|
-| High | Creative/open-ended tasks (analysis, writing) |
-| Medium | Defined workflow, flexible content (most skills) |
-| Low | Strict output format (compliance, API calls, configs) |
-
-Think of it as **narrow bridge vs open field**: a deployment skill is a narrow bridge (one safe path, guard rails everywhere), while a writing skill is an open field (Claude roams freely within broad boundaries). Match constraint level to the task.
-
-**Workflow Pattern** (see [`references/workflows.md`](references/workflows.md)):
-
-- Sequential: fixed steps in order
-- Conditional: branch based on input
-- Wizard: interactive multi-step gathering
-- Plan-Validate-Execute: verifiable intermediates
-- Feedback Loop: iterate until quality met
-- Checklist Workflow: copy-pasteable progress tracking for complex multi-step processes
-- Search-Analyze-Report: explore and summarize
-
-**Output Pattern** (see [`references/output-patterns.md`](references/output-patterns.md)):
-
-- Strict template (exact format)
-- Flexible template (structure with creative content)
-- Examples-driven (input/output pairs)
-- Visual (HTML generation)
-- Structured data (JSON/YAML)
-
-### Step 3: Initialize Structure
-
-Create the skill directory and files:
-
-```bash
-mkdir -p {location}/{skill-name}
-mkdir -p {location}/{skill-name}/scripts      # if needed
-mkdir -p {location}/{skill-name}/references   # if needed
-mkdir -p {location}/{skill-name}/templates    # if needed
-mkdir -p {location}/{skill-name}/assets       # if needed
-mkdir -p {location}/{skill-name}/evals        # for eval-driven development
-```
-
-### Steps 4-10: Write, Validate, Test, Iterate, Optimize, Report
-
-For detailed guidance on writing SKILL.md (frontmatter rules, description scoring, body guidelines, string substitutions, DCI syntax), creating supporting files, validation, testing, iteration, description optimization, and final reporting, see [Creation Guide](references/creation-guide.md).
-
-Key rules:
-
-- `version`, `author`, `license`, `compatibility`, and `tags` are top-level fields (not nested under `metadata:`)
-- Scope Bash: `Bash(git:*)` not bare `Bash`
-- Optional `disallowed-tools` denylist (schema 3.7.0+) must never overlap `allowed-tools` (validator ERROR)
-- Keep under 500 lines; offload to `references/` if longer
-- Include "Use when" and "Trigger with" in description for enterprise scoring
-- No XML tags in name or description (Anthropic spec prohibition)
-- No time-sensitive information; use 'old patterns' section for deprecated approaches
-- Include feedback loops for quality-critical workflows
-- Run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate-skill.py --grade {skill-dir}/SKILL.md` to validate
-- Create `evals/evals.json` with 3+ scenarios, iterate until all assertions pass
-
-## Validation Workflow
-
-When the user wants to validate, grade, or audit an existing skill. For detailed steps (V1-V5), see [Creation Guide](references/creation-guide.md).
-
-1. Locate the SKILL.md (global `~/.claude/skills/` or project `.claude/skills/`)
-2. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate-skill.py --grade {path}/SKILL.md`
-3. Review grade against the 100-point rubric (A: 90+, B: 80-89, C: 70-79, D: 60-69, F: <60)
-4. Report results with prioritized fix recommendations
-5. Auto-fix if requested: add missing sections, fix description patterns, move nested metadata to top-level
+Behavioral evaluation and description optimization are separate opt-in work.
+When requested and already authorized, follow
+[advanced evaluation](references/advanced-eval-workflow.md) within its actual
+model/provider scope. Otherwise report SKIPPED; missing requested coverage is
+INCOMPLETE. A schema pass, package check or ignored flag is not execution proof.
 
 ## Output
 
-The skill produces one of two outputs depending on mode:
-
-- **Create mode**: A complete skill package directory containing SKILL.md, optional `scripts/`, `references/`, `templates/`, `assets/`, and `evals/` subdirectories, plus a creation summary report with validation grade and eval results.
-- **Validate mode**: A grade report showing the 100-point rubric score across 5 pillars (Progressive Disclosure, Ease of Use, Utility, Spec Compliance, Writing Style), with prioritized fix recommendations sorted by point value.
+Deliver the requested skill files, their provenance and a concise verification
+report. Name the actual schema/rubric results and unresolved findings. Distinguish
+static validation from model execution, and record unrun behavioral work as
+SKIPPED. Forge and reforge additionally retain their build-time `.forge/` records;
+runtime users should not need to load that diary.
 
 ## Examples
 
@@ -209,13 +140,14 @@ Frontmatter:
 ---
 name: code-review
 description: |
-  Make sure to use this skill whenever reviewing code for quality, security
-  vulnerabilities, and best practices. Use when doing code reviews, PR analysis,
-  or checking code quality. Trigger with "/code-review" or "review this code".
+  Review code changes for correctness and actionable findings. Use when doing
+  a code review. Trigger with "/code-review" or "review this change".
 allowed-tools: "Read,Glob,Grep"
 version: 1.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
+compatibility: "Designed for Claude Code"
+tags: [review, quality]
 model: inherit
 ---
 ```
@@ -224,21 +156,8 @@ model: inherit
 
 ```
 User: Create a skill that generates release notes from git history
-
-Creates:
-~/.claude/skills/generating-release-notes/
-├── SKILL.md              (argument-hint: "[version-tag]")
-├── scripts/
-│   └── parse-commits.py
-├── references/
-│   └── commit-conventions.md
-├── templates/
-│   └── release-template.md
-└── evals/
-    └── evals.json
-
-Uses $ARGUMENTS[0] for version tag.
-Uses context: fork for isolated execution.
+Creates: SKILL.md (argument-hint: "[version-tag]") + scripts/ + references/ + templates/ + evals/
+Uses $ARGUMENTS[0] for version tag. Uses context: fork for isolated execution.
 ```
 
 ### Validate Mode
@@ -268,24 +187,23 @@ Output:
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Name exists | Directory already present | Choose different name or confirm overwrite |
-| Invalid name | Not kebab-case or >64 chars | Fix to lowercase-with-hyphens |
-| Validation fails | Missing fields or anti-patterns | Run validator, fix reported issues |
-| Resource missing | `${CLAUDE_SKILL_DIR}/` ref points to nonexistent file | Create the file or fix the reference |
-| Undertriggering | Description too passive | Add "Make sure to use whenever..." phrasing |
-| Eval failures | Skill not producing expected output | Iterate on instructions and re-test |
-| Low grade | Missing scored sections or fields | Add Overview, Prerequisites, Output sections |
+| Error            | Cause                                                 | Solution                                     |
+| ---------------- | ----------------------------------------------------- | -------------------------------------------- |
+| Name exists      | Directory already present                             | Choose different name or confirm overwrite   |
+| Invalid name     | Not kebab-case or >64 chars                           | Fix to lowercase-with-hyphens                |
+| Validation fails | Missing fields or anti-patterns                       | Run validator, fix reported issues           |
+| Resource missing | `${CLAUDE_SKILL_DIR}/` ref points to nonexistent file | Create the file or fix the reference         |
+| Undertriggering  | Description too passive                               | Add "Make sure to use whenever..." phrasing  |
+| Eval failures    | Skill not producing expected output                   | Iterate on instructions and re-test          |
+| Low grade        | Missing scored sections or fields                     | Add Overview, Prerequisites, Output sections |
 
 ## Resources
 
 **References:** `${CLAUDE_SKILL_DIR}/references/`
 
-- `creation-guide.md` — Detailed Steps 4-10 and Validation Workflow (V1-V5)
-- `source-of-truth.md` — Canonical spec ([AgentSkills.io](https://agentskills.io/specification), [Anthropic docs](https://code.claude.com/docs/en/skills), [Lee Han Chung deep dive](https://leehanchung.github.io/blogs/2025/10/26/claude-skills-deep-dive/)) | `frontmatter-spec.md` — Field reference | `validation-rules.md` — 100-point rubric
+- `source-of-truth.md` — Canonical spec ([AgentSkills.io](https://agentskills.io/specification), [Anthropic docs](https://code.claude.com/docs/en/skills), [Lee Han Chung deep dive](https://leehanchung.github.io/blogs/2025/10/26/claude-skills-deep-dive/)) | `frontmatter-spec.md` — Field reference | `validation-rules.md` — Canonical validation and evidence classes
 - `workflows.md` — Workflow patterns | `output-patterns.md` — Output formats | `schemas.md` — JSON schemas (evals, grading, benchmarks)
-- `anthropic-comparison.md` — Gap analysis | `advanced-eval-workflow.md` — Eval, iteration, optimization, platform notes
+- `anthropic-comparison.md` — Upstream and IS contract distinctions | `advanced-eval-workflow.md` — Eval, iteration, optimization, platform notes
 
 **Agents** (read when spawning subagents): `${CLAUDE_SKILL_DIR}/agents/`
 
@@ -299,9 +217,14 @@ Output:
 - `generate_report.py` — HTML reports | `package_skill.py` — .skill packaging | `utils.py` — Shared utilities
 
 **Eval Viewer:** `${CLAUDE_SKILL_DIR}/eval-viewer/` — `generate_review.py` + `viewer.html` (interactive output comparison)
-**Assets:** [`assets/eval_review.html`](assets/eval_review.html) (trigger eval set editor)
-**Templates:** [`templates/skill-template.md`](templates/skill-template.md) (SKILL.md skeleton)
+**Assets:** `${CLAUDE_SKILL_DIR}/assets/eval_review.html` (trigger eval set editor)
+**Templates:** `${CLAUDE_SKILL_DIR}/templates/skill-template.md` (SKILL.md skeleton)
 
 ---
 
-For advanced workflows (empirical eval, description optimization, blind comparison, packaging, platform notes), see [Creation Guide](references/creation-guide.md) and [`references/advanced-eval-workflow.md`](references/advanced-eval-workflow.md).
+## Authentication
+
+Local authoring and static validation need no provider credentials. Forge API
+research and requested model evaluations may need the relevant service's existing
+credential setup; use its approved loader and retain only sanitized evidence.
+Do not request, print or invent credentials merely to grade a local skill.

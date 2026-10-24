@@ -3329,14 +3329,14 @@
       "status": "partial",
       "values": {
         "coverage": {
-          "conditional_envelopes": 43,
-          "containers": 236,
+          "conditional_envelopes": 44,
+          "containers": 237,
           "containers_with_sites": 17,
           "counts_overlap": true,
           "jobs": 28,
           "opaque_actions": 73,
-          "run_containers": 163,
-          "unreviewed_run_containers": 146,
+          "run_containers": 164,
+          "unreviewed_run_containers": 147,
           "workflows": 3
         },
         "repository_unbounded_total": null,
@@ -3408,7 +3408,7 @@
           {
             "authority": [
               {
-                "line": 956,
+                "line": 960,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3421,7 +3421,7 @@
             "promotion": null,
             "rationale": "Test failure is accumulated and propagated by the final fail check in this bound run body.",
             "run_line": 70,
-            "step": 8,
+            "step": 9,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3489,7 +3489,7 @@
           {
             "authority": [
               {
-                "line": 1160,
+                "line": 1164,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
@@ -3507,7 +3507,7 @@
             "promotion": null,
             "rationale": "Only grep's no-match status 1 is normalized; find traversal and exclusion-filter failures remain blocking under pipefail, including partial discovery output. Extracted-workflow tests preserve pytest arguments and failures.",
             "run_line": 20,
-            "step": 16,
+            "step": 17,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3612,7 +3612,7 @@
             "promotion": null,
             "rationale": "Full-lane optional runtime installation remains best-effort without case-specific failure authority; the three-file fixture dependency closure is installed strictly afterward in both lanes.",
             "run_line": 14,
-            "step": 13,
+            "step": 14,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3625,7 +3625,7 @@
             "promotion": null,
             "rationale": "Report versus gate role and bounds are unresolved; the later CLI marker does not apply.",
             "run_line": 11,
-            "step": 22,
+            "step": 23,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3636,13 +3636,13 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 1258
+              "source_line": 1262
             },
             "owner": null,
             "promotion": null,
             "rationale": "The CLI marker and historical issue reference do not establish a current owner.",
             "run_line": 47,
-            "step": 22,
+            "step": 23,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3720,7 +3720,7 @@
             "promotion": null,
             "rationale": "Only grep's no-match status 1 selects no-test/Python/test:ci branches; operational errors in all four queries terminate before package commands. Remaining discovery-policy disposition is unresolved.",
             "run_line": 27,
-            "step": 8,
+            "step": 9,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {

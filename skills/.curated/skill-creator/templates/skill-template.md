@@ -1,22 +1,22 @@
 ---
-# Required (AgentSkills.io)
+# Required IS marketplace fields (upstream permits a smaller minimum)
 # NOTE: name and description must NOT contain XML tags (< or >)
-name: {{SKILL_NAME}}
+name: "{{SKILL_NAME}}"
 description: |
   {{PURPOSE_STATEMENT}}. Use when {{WHEN_TO_USE}}.
   Trigger with "/{{SKILL_NAME}}" or "{{NATURAL_TRIGGER}}".
 
-# Tools (recommended)
+# Required tool scope
 allowed-tools: "{{TOOLS_CSV}}"
 # Optional defense-in-depth denylist (schema 3.7.0+) — must never overlap allowed-tools
 # disallowed-tools: "Bash(rm:*),Bash(curl:*),Bash(wget:*),Bash(sudo:*)"
 
 # Identity (top-level, NOT inside metadata)
 version: 1.0.0
-author: {{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>
+author: "{{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>"
 license: MIT
 compatibility: "{{ENVIRONMENT_REQUIREMENTS}}"
-tags: [{{TAG_1}}, {{TAG_2}}]
+tags: ["{{TAG_1}}", "{{TAG_2}}"]
 
 # Claude Code extensions (include as needed)
 model: inherit

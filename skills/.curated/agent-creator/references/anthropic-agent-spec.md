@@ -50,6 +50,10 @@ documented frontmatter.
 
 ## Plugin Agent Restrictions
 
+The IS agent gate separately rejects `compatible-with` and `when_to_use` on
+agents. Put activation context in `description` or the body. The optional
+`when_to_use` skill field has a different contract; do not copy it onto agents.
+
 Claude Code ignores these fields on plugin agents (`plugins/*/agents/*.md`):
 
 - `hooks` — ignored when loading from plugin

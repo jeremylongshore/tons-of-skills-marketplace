@@ -9856,12 +9856,12 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "5.24.0",
+      "version": "5.25.0",
       "isFeatured": true,
       "isNew": false,
       "badges": [],
       "skillCount": 2,
-      "verificationScore": 96,
+      "verificationScore": 94,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "skill creator create and validate production-grade agent skills with 100-point marketplace grading. supports creation workflows, eval-driven development, and auto-fix for spec compliance. skill-enhancers skill-creation validation meta-tooling grading anthropic-spec"
@@ -16443,16 +16443,17 @@
         "Glob",
         "Grep",
         "Bash(python:*)",
+        "Bash(python3:*)",
         "AskUserQuestion",
         "Agent"
       ],
       "compatibleWith": [],
-      "version": "5.24.0",
+      "version": "5.25.0",
       "parentPlugin": {
         "name": "skill-creator",
         "category": "skill-enhancers"
       },
-      "searchText": "agent-creator create production-grade agent .md files aligned with the current anthropic subagent contract. also validates existing agents against the marketplace compliance rules. use when building custom subagents, reviewing agent quality, or creating parallel agent architectures for orchestrator skills. trigger with \"/agent-creator\", \"create an agent\", \"build a subagent\", or \"validate my agent\". make sure to use this skill whenever creating agents/*.md files for plugins or standalone use. skill-enhancers read write edit glob grep bash(python:*) askuserquestion agent "
+      "searchText": "agent-creator create production-grade agent .md files aligned with the current anthropic subagent contract. also validates existing agents against the marketplace compliance rules. use when building custom subagents, reviewing agent quality, or creating parallel agent architectures for orchestrator skills. trigger with \"/agent-creator\", \"create an agent\", \"build a subagent\", or \"validate my agent\". make sure to use this skill whenever creating agents/*.md files for plugins or standalone use. skill-enhancers read write edit glob grep bash(python:*) bash(python3:*) askuserquestion agent "
     },
     {
       "type": "skill",
@@ -71694,7 +71695,7 @@
       "id": "skill-creator",
       "slug": "skill-creator",
       "name": "skill-creator",
-      "description": "Create production-grade agent skills aligned with the 2026 AgentSkills.io spec and Anthropic best practices (2026). Also validates existing skills against the Intent Solutions 100-point rubric. Use when building, testing, validating, or optimizing Claude Code skills. Trigger with \"/skill-creator\", \"create a skill\", \"validate my skill\", or \"check skill quality\". Make sure to use this skill whenever creating a new skill, slash command, or agent capability.",
+      "description": "Create, validate, optimize or refresh Claude Code skills. Use when scaffolding a skill, grading an existing skill, or using forge/reforge for an API plugin. Trigger with \"/skill-creator\", \"create a skill\", or \"validate my skill\".",
       "category": "skill-enhancers",
       "allowedTools": [
         "Read",
@@ -71707,15 +71708,20 @@
         "Bash(python:*)",
         "Bash(claude:*)",
         "Agent",
-        "AskUserQuestion"
+        "AskUserQuestion",
+        "Bash(python3:*)",
+        "Bash(pnpm:*)",
+        "Bash(node:*)",
+        "Bash(git:*)",
+        "Bash(scripts/run-jrig-eval.sh:*)"
       ],
       "compatibleWith": [],
-      "version": "5.24.0",
+      "version": "5.25.0",
       "parentPlugin": {
         "name": "skill-creator",
         "category": "skill-enhancers"
       },
-      "searchText": "skill-creator create production-grade agent skills aligned with the 2026 agentskills.io spec and anthropic best practices (2026). also validates existing skills against the intent solutions 100-point rubric. use when building, testing, validating, or optimizing claude code skills. trigger with \"/skill-creator\", \"create a skill\", \"validate my skill\", or \"check skill quality\". make sure to use this skill whenever creating a new skill, slash command, or agent capability. skill-enhancers read write edit glob grep bash(mkdir:*) bash(chmod:*) bash(python:*) bash(claude:*) agent askuserquestion "
+      "searchText": "skill-creator create, validate, optimize or refresh claude code skills. use when scaffolding a skill, grading an existing skill, or using forge/reforge for an api plugin. trigger with \"/skill-creator\", \"create a skill\", or \"validate my skill\". skill-enhancers read write edit glob grep bash(mkdir:*) bash(chmod:*) bash(python:*) bash(claude:*) agent askuserquestion bash(python3:*) bash(pnpm:*) bash(node:*) bash(git:*) bash(scripts/run-jrig-eval.sh:*) "
     },
     {
       "type": "skill",
