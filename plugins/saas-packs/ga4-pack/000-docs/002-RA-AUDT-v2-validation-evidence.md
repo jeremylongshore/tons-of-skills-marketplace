@@ -15,8 +15,8 @@ A subsequent regression test reproduced two receipts with `filters: null`
 producing a numeric comparison. The corrected analyzer retains diagnostic
 findings and returns `inconclusive` with no deltas until filters are known.
 The receipt contract now states this requirement. The new test failed before
-the correction; afterward all 58 GA4 cases passed in system Python, with three
-optional SDK cases skipped. This analyzer and reference correction postdates
+the correction. Afterward, system Python ran 58 GA4 cases: 55 passed and three
+optional SDK cases were skipped. In the SDK-enabled environment, all 58 passed. This analyzer and reference correction postdates
 run 139 and is not covered by its original source-file hash manifest.
 
 Freshie run **139** is published as tag `run-139`, Dolt commit
