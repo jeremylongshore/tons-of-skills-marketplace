@@ -4,7 +4,9 @@ description: |
   Universal document consistency auditor. Runs deterministic drift checks across
   docs, code, tests, and CI, resolves conflicts through a per-fact-class authority
   registry (sot-map.yaml), and produces reports that structurally separate
-  deterministic findings from advisory LLM-judged findings.
+  deterministic findings from advisory LLM-judged findings. Each local run attempts
+  disclosure-approved report and index writes in the caller’s separate Intent OS
+  checkout; unavailable or rejected filing is reported as HELD.
   Use when checking documentation accuracy before a release, after major refactors,
   or when onboarding to a new codebase. Also invoked automatically by /release Phase
   1.6.
@@ -364,7 +366,8 @@ Save each local report into the caller's Intent OS checkout (default
 disclosure policy, filing rules and failure recovery. Use `Bash(python3:*)` only
 for this helper as a workflow instruction, not an OS sandbox. Pass the actual
 audited directory as `--audited-root`; the writer refuses its report/index
-destination inside that tree. The audit's other probes remain read-only.
+destination inside that tree. Read-only audit behavior is an instruction-level constraint; the Git and Python
+grants do not enforce filesystem immutability.
 
 Pass the complete Part A/Part B report and any caller-supplied repair evidence.
 Do not invent fixes or treat advisory findings as adjudicated facts. This helper

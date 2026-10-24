@@ -1,7 +1,7 @@
 {
   "name": "000-jeremy-content-consistency-validator",
   "version": "3.30.0",
-  "description": "Document consistency auditor with per-fact authority and separated deterministic/advisory findings. Audit probes leave the project unchanged; the report writer optionally files disclosure-approved reports and index entries in a separate Intent OS checkout. Invoked by /release Phase 1.6.",
+  "description": "Document consistency auditor with per-fact authority and separated deterministic/advisory findings. Audit probes are instructed to leave project inputs unchanged; each local run attempts disclosure-approved report and index writes in a separate Intent OS checkout, reporting held filing explicitly. Invoked by /release Phase 1.6.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"

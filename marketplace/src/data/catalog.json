@@ -37,7 +37,7 @@
       "slug": "content-consistency-validator",
       "name": "000-jeremy-content-consistency-validator",
       "displayName": "content consistency validator",
-      "description": "Consistency audit across docs, code, tests and CI with per-fact authority and advisory-only LLM findings. Audit probes leave the project unchanged; the writer files disclosure-approved reports and index entries in a separate Intent OS checkout. Invoked by /release Phase 1.6.",
+      "description": "Consistency audit across docs, code, tests and CI with per-fact authority and advisory-only LLM findings. Audit probes are instructed to leave project inputs unchanged; each local run attempts disclosure-approved report and index writes in a separate Intent OS checkout, reporting held filing explicitly. Invoked by /release Phase 1.6.",
       "version": "3.30.0",
       "category": "productivity",
       "keywords": [

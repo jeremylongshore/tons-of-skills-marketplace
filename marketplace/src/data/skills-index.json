@@ -32681,7 +32681,7 @@
     {
       "slug": "validate-consistency",
       "name": "validate-consistency",
-      "description": "Universal document consistency auditor. Runs deterministic drift checks across docs, code, tests, and CI, resolves conflicts through a per-fact-class authority registry (sot-map.yaml), and produces reports that structurally separate deterministic findings from advisory LLM-judged findings. Use when checking documentation accuracy before a release, after major refactors, or when onboarding to a new codebase. Also invoked automatically by /release Phase 1.6. Trigger with \"/validate-consistency\", \"check consistency\", \"validate docs\", \"audit documentation\", \"doc drift check\".",
+      "description": "Universal document consistency auditor. Runs deterministic drift checks across docs, code, tests, and CI, resolves conflicts through a per-fact-class authority registry (sot-map.yaml), and produces reports that structurally separate deterministic findings from advisory LLM-judged findings. Each local run attempts disclosure-approved report and index writes in the caller’s separate Intent OS checkout; unavailable or rejected filing is reported as HELD. Use when checking documentation accuracy before a release, after major refactors, or when onboarding to a new codebase. Also invoked automatically by /release Phase 1.6. Trigger with \"/validate-consistency\", \"check consistency\", \"validate docs\", \"audit documentation\", \"doc drift check\".",
       "version": "3.30.0",
       "category": "productivity",
       "parentPlugin": "000-jeremy-content-consistency-validator",

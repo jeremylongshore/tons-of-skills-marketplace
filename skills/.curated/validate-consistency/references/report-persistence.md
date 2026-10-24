@@ -1,6 +1,6 @@
 # Local report persistence
 
-Each local audit can file its report in the caller's Intent OS checkout. The
+Each local audit attempts to file its report in the caller's Intent OS checkout. The
 audited project remains read-only. Only the supplied report and its index entry
 are written, after the destination's existing disclosure adapter accepts them.
 The bundled writer makes no provider or network calls and performs no repairs,
