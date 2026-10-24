@@ -5861,5 +5861,61 @@
     "ownership": "scripts/plugin-provenance.mjs resolvePluginProvenance per root; independently review manifests for contributor ownership",
     "hooks": "JSON-parse every tracked basename hooks.json; read referenced command-filter scripts without execution",
     "mcp": "Hash tracked .ts/.tsx/.cts/.mts/.js/.mjs/.cjs/.py/.json under plugins/mcp; manually review authored result builders and registrations; separately include bundled server source"
+  },
+  "schema_version": 1,
+  "snapshot_only": true,
+  "catalog_source": {
+    "path": ".claude-plugin/marketplace.extended.json",
+    "sha256": "bc99553b37d9d5cc2630541b40afa78e3cfd63c6cfb4ff5038a522b7ee9c1429",
+    "entry_count": 438,
+    "authority": "Canonical live catalog; this census is a derived frozen snapshot."
+  },
+  "mcp_roots": [
+    "plugins/mcp/a2a-client",
+    "plugins/mcp/ai-experiment-logger",
+    "plugins/mcp/conversational-api-debugger",
+    "plugins/mcp/databricks-workspace-mcp",
+    "plugins/mcp/design-to-code",
+    "plugins/mcp/dolt-mcp-vcs",
+    "plugins/mcp/domain-memory-agent",
+    "plugins/mcp/governed-second-brain",
+    "plugins/mcp/lumera-agent-memory",
+    "plugins/mcp/pr-to-spec",
+    "plugins/mcp/project-health-auditor",
+    "plugins/mcp/servicegraph",
+    "plugins/mcp/slack-channel",
+    "plugins/mcp/workflow-orchestrator",
+    "plugins/mcp/x-bug-triage"
+  ],
+  "population_authorities": {
+    "publication_eligible": {
+      "path": "scripts/publication-policy.cjs",
+      "entrypoint": "publishedPlugins(catalog.plugins, audit)",
+      "snapshot_count": 435,
+      "source_sha256": "0a1716a9498311a209fa0f91541b8dc99f7d90b98a5b04f080d68e4c8b9abc9a"
+    },
+    "cohorts": {
+      "path": "scripts/corpus-resolver.mjs",
+      "entrypoint": "resolveCorpus",
+      "snapshot_counts": {
+        "graded": 3493,
+        "marketplace-visible": 2902,
+        "curriculum": 500
+      },
+      "source_sha256": "23d39faa367fed353c20ee07507638f45891e9b99ce3417c152b23ea1184710f"
+    },
+    "raw_plugin_dirs_and_skill_paths": {
+      "method": "Pinned Git-tracked path inventory; raw directories do not establish plugin identities.",
+      "snapshot_counts": {
+        "raw_top_level_plugin_directories": 470,
+        "plugin_skill_files": 2993
+      }
+    }
+  },
+  "verification": {
+    "command": "python3 freshie/audits/verify-platform-feature-census.py --compare-worktree",
+    "source_channels": "Git cat-file blobs and optional direct working-file bytes; two byte channels checked by the audit author, not an independent human review.",
+    "default": "Read-only frozen Git replay; no network, upstream parity, provider calls or runtime feature activation.",
+    "upstream_limit": "Local source-marker ancestry is not proof of current upstream HEAD parity or legal ownership."
   }
 }
