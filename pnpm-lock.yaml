@@ -589,8 +589,6 @@ importers:
 
   plugins/saas-packs/apollo-pack: {}
 
-  plugins/saas-packs/appfolio-pack: {}
-
   plugins/saas-packs/apple-notes-pack: {}
 
   plugins/saas-packs/assemblyai-pack: {}

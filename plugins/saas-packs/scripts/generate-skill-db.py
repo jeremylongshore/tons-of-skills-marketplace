@@ -6,10 +6,11 @@ import sys
 import csv
 
 
-# These vendors have replaced the legacy fixed-taxonomy database with a curated,
-# outcome-focused pack. Refuse regeneration so deleted filler cannot silently
-# reappear through an old release command.
+# These vendors have replaced or retired the legacy fixed-taxonomy database.
+# Refuse regeneration so deleted filler cannot silently reappear through an old
+# release command.
 RETIRED_SKILL_DATABASES = {
+    "appfolio": "The unsupported AppFolio tutorial pack is retired (claude-juoz.3.11.52)",
     "snowflake": "Snowflake v2 uses the curated snowflake-pack operator skills",
     "langfuse": "Langfuse v2 uses the five evidence-driven langfuse-pack operator skills",
 }
