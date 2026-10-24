@@ -3,8 +3,8 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "64c543e72069b150f7d859fb589726b17664fda274b06c2cd161dba446f211c4",
-    "artifact_count": 3472
+    "sha256": "81b308711ee6c760833a5883f8767280679bea857351a9c1eadc472255ee9d95",
+    "artifact_count": 3454
   },
   "rule_order": [
     "G0",
@@ -21,7 +21,7 @@
   "counts": {
     "AUTO-MIGRATE": 1,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 3123,
+    "CERTIFY-PENDING-EVIDENCE": 3105,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
     "QUARANTINE": 347
@@ -11435,204 +11435,6 @@
       "path": "plugins/saas-packs/apollo-pack/skills/apollo-webhooks-events/SKILL.md",
       "grade": "A",
       "score": 93,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-ci-integration/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-common-errors/SKILL.md",
-      "grade": "A",
-      "score": 90,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-core-workflow-a/SKILL.md",
-      "grade": "B",
-      "score": 89,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-core-workflow-b/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-cost-tuning/SKILL.md",
-      "grade": "A",
-      "score": 90,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-debug-bundle/SKILL.md",
-      "grade": "B",
-      "score": 88,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-deploy-integration/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-hello-world/SKILL.md",
-      "grade": "B",
-      "score": 87,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-install-auth/SKILL.md",
-      "grade": "B",
-      "score": 85,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-local-dev-loop/SKILL.md",
-      "grade": "B",
-      "score": 88,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-performance-tuning/SKILL.md",
-      "grade": "B",
-      "score": 87,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-prod-checklist/SKILL.md",
-      "grade": "B",
-      "score": 88,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-rate-limits/SKILL.md",
-      "grade": "B",
-      "score": 82,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-reference-architecture/SKILL.md",
-      "grade": "B",
-      "score": 84,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-sdk-patterns/SKILL.md",
-      "grade": "B",
-      "score": 87,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-security-basics/SKILL.md",
-      "grade": "B",
-      "score": 89,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-upgrade-migration/SKILL.md",
-      "grade": "B",
-      "score": 88,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/appfolio-pack/skills/appfolio-webhooks-events/SKILL.md",
-      "grade": "B",
-      "score": 88,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
