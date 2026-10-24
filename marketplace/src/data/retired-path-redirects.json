@@ -4,10 +4,10 @@
   "stats": {
     "observedPaths": 709,
     "normalizedPaths": 611,
-    "redirected": 231,
-    "observedPathsRedirected": 258,
-    "kept404": 380,
-    "observedPathsKept404": 451,
+    "redirected": 230,
+    "observedPathsRedirected": 257,
+    "kept404": 381,
+    "observedPathsKept404": 452,
     "byRule": {
       "category-path": 2,
       "duplicate-suffix": 9,
@@ -19,11 +19,11 @@
       "relative-link-artifact": 162,
       "retired-learn-section-index": 3,
       "retired-plugin-section-index": 39,
-      "reviewed-keep-404": 4,
+      "reviewed-keep-404": 5,
       "reviewed-override": 2,
       "same-name-plugin": 1,
       "similar-plugin": 1,
-      "vendor-pack-page": 53
+      "vendor-pack-page": 52
     }
   },
   "entries": [
@@ -370,9 +370,9 @@
       "observed": [
         "/learn/glean/"
       ],
-      "status": 301,
-      "to": "/plugins/glean-pack/",
-      "rule": "vendor-pack-page"
+      "status": 404,
+      "rule": "reviewed-keep-404",
+      "note": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
     },
     {
       "from": "/learn/grammarly",

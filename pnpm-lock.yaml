@@ -657,8 +657,6 @@ importers:
 
   plugins/saas-packs/gamma-pack: {}
 
-  plugins/saas-packs/glean-pack: {}
-
   plugins/saas-packs/grammarly-pack: {}
 
   plugins/saas-packs/granola-pack: {}

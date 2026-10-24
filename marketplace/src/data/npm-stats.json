@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-10-24T18:56:06.052Z",
+  "generatedAt": "2026-10-24T21:03:58.594Z",
   "max_age_hours": 72,
-  "publishedCount": 384,
-  "establishedCount": 384,
-  "candidateCount": 414,
-  "totalDay": 473,
-  "totalWeek": 2074,
-  "totalMonth": 11371,
-  "establishedDay": 473,
-  "establishedWeek": 2074,
-  "establishedMonth": 11371,
+  "publishedCount": 383,
+  "establishedCount": 383,
+  "candidateCount": 413,
+  "totalDay": 469,
+  "totalWeek": 2067,
+  "totalMonth": 11356,
+  "establishedDay": 469,
+  "establishedWeek": 2067,
+  "establishedMonth": 11356,
   "top": [
     {
       "name": "@intentsolutionsio/claude-pack",
@@ -1441,15 +1441,6 @@
       "lastMonth": 15,
       "createdAt": 1776741890993,
       "latestVersion": "1.0.2"
-    },
-    {
-      "name": "@intentsolutionsio/glean-pack",
-      "status": "published",
-      "lastDay": 4,
-      "lastWeek": 7,
-      "lastMonth": 15,
-      "createdAt": 1776741947525,
-      "latestVersion": "1.0.3"
     },
     {
       "name": "@intentsolutionsio/jeremy-plugin-tool",
@@ -3469,9 +3460,9 @@
     }
   ],
   "telemetry": {
-    "candidates": 414,
-    "probed": 414,
-    "published": 384,
+    "candidates": 413,
+    "probed": 413,
+    "published": 383,
     "unpublished": 28,
     "foreign": 2,
     "rateLimited": 0,

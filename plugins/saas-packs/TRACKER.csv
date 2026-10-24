@@ -50,7 +50,7 @@ wispr,Wispr,pro,18,@intentsolutionsio/wispr-skill-md-pack,reserved,ccpi-wispr,18
 anthropic,Anthropic,flagship+,30,@intentsolutionsio/anthropic-skill-md-pack,reserved,ccpi-anthropic,30,0,not_started,not_added,Extended #51 - Claude maker
 databricks,Databricks,flagship+,30,@intentsolutionsio/databricks-skill-md-pack,reserved,ccpi-databricks,30,0,not_started,not_added,Extended #52
 coreweave,CoreWeave,flagship,23,@intentsolutionsio/coreweave-skill-md-pack,reserved,ccpi-coreweave,23,0,not_started,not_added,Extended #53; pruned 4 filler skills + added CoreWeave non-affiliation notice (v1.1.0); added coreweave-gpu-cost-leak-hunter heavy-hitter v2 pilot (v1.2.0); added coreweave-gpu-node-forensics heavy-hitter #2 (v1.3.0); added coreweave-fabric-diagnostics GPUDirect-RDMA fallback detector (v1.4.0)
-glean,Glean,flagship,24,@intentsolutionsio/glean-skill-md-pack,reserved,ccpi-glean,24,0,not_started,not_added,Extended #54
+glean,Glean,retired,0,@intentsolutionsio/glean-skill-md-pack,retired,ccpi-glean,24,0,retired,removed,Retired unsafe tutorial pack after source and value review (claude-juoz.3.11.54); registry disposition tracked in bead
 cohere,Cohere,flagship,24,@intentsolutionsio/cohere-skill-md-pack,reserved,ccpi-cohere,24,0,not_started,not_added,Extended #55
 abridge,Abridge,pro,18,@intentsolutionsio/abridge-skill-md-pack,reserved,ccpi-abridge,18,0,not_started,not_added,Extended #56
 notion,Notion,flagship+,30,@intentsolutionsio/notion-skill-md-pack,reserved,ccpi-notion,30,0,not_started,not_added,Extended #57 - top note-taking app

@@ -10,6 +10,7 @@ import csv
 # Refuse regeneration so deleted filler cannot silently reappear through an old
 # release command.
 RETIRED_SKILL_DATABASES = {
+    "glean": "The unsafe Glean tutorial pack is retired (claude-juoz.3.11.54)",
     "clay": "The unsupported Clay tutorial pack is retired (claude-juoz.3.11.53)",
     "appfolio": "The unsupported AppFolio tutorial pack is retired (claude-juoz.3.11.52)",
     "snowflake": "Snowflake v2 uses the curated snowflake-pack operator skills",

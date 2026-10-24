@@ -16,8 +16,6 @@ redir @retired433b01349403 /plugins/evernote-pack/{?query} permanent
 redir @retired1aa88fe28c08 /plugins/flyio-pack/{?query} permanent
 @retiredd2dac749f5b8 path /learn/framer /learn/framer/
 redir @retiredd2dac749f5b8 /plugins/framer-pack/{?query} permanent
-@retiredd861aebc1ef5 path /learn/glean /learn/glean/
-redir @retiredd861aebc1ef5 /plugins/glean-pack/{?query} permanent
 @retired65044d5040d8 path /learn/grammarly /learn/grammarly/
 redir @retired65044d5040d8 /plugins/grammarly-pack/{?query} permanent
 @retired3de8538bb21f path /learn/guidewire /learn/guidewire/

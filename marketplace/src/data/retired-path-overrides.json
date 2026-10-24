@@ -174,6 +174,105 @@
     },
     "/skills/clay-webhooks-events": {
       "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/plugins/glean-pack": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/learn/glean": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-advanced-troubleshooting": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-ci-integration": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-common-errors": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-core-feature": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-core-workflow-a": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-core-workflow-b": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-cost-tuning": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-data-handling": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-debug-bundle": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-deploy-integration": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-deploy-pipeline": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-enterprise-rbac": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-hello-world": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-incident-runbook": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-install-auth": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-known-pitfalls": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-load-scale": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-local-dev-loop": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-migration-deep-dive": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-multi-env-setup": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-observability": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-performance-tuning": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-primary-workflow": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-prod-checklist": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-rate-limits": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-reference-architecture": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-reliability-patterns": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-sdk-patterns": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-security-basics": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-upgrade-migration": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-webhooks-events": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
     }
   }
 }

@@ -14,18 +14,18 @@ A matching skill name proves structural repetition only. It does **not** prove t
 
 | Measure | Count |
 | --- | ---: |
-| Active SaaS packs | 101 |
-| Active skills | 2214 |
-| Tutorial-lattice candidates | 2060 |
-| Packs containing candidates | 94 |
-| Packs entirely inside the lattice | 79 |
-| Packs at least 80% inside the lattice | 88 |
+| Active SaaS packs | 100 |
+| Active skills | 2190 |
+| Tutorial-lattice candidates | 2036 |
+| Packs containing candidates | 93 |
+| Packs entirely inside the lattice | 78 |
+| Packs at least 80% inside the lattice | 87 |
 | Packs with no lattice candidates | 7 |
 | Candidates admitted by explicit prefix aliases | 78 |
 | Suffix-only names excluded by prefix policy | 1 |
 
-- Catalog SHA-256: `1185e7bd9f569b068abdeb51cc1ca9c1abc705b5a134b40fd4b9f68f63381678`
-- Tracked inventory SHA-256: `1c36302ca6032dfd32543c0f4588dd164ea92cbfdfa0e1b40a9bfaad20590392`
+- Catalog SHA-256: `12ce1b373ad8d3816315f76aa2578a0bfd511219af490591e838448bb254a361`
+- Tracked inventory SHA-256: `7c0db58726362321db0bc740a2685d98e93ae2485ce2f1b64fa4dcb6cc9ad2d2`
 
 The earlier 2,011-candidate census used 24 base families and literal pack-name stems. This version expands the family set with `advanced-troubleshooting`, `architecture-variants`, `known-pitfalls`, `load-scale`, `policy-guardrails`, and `reliability-patterns`, then applies versioned exact aliases for `anthropic-pack`, `claude-pack`, and `langchain-py-pack`. The current generated counts above are authoritative. Suffix-only near-matches such as `langchain-otel-observability` and the explicitly recorded content-specific Customer.io workflows remain excluded.
 
@@ -33,30 +33,30 @@ The earlier 2,011-candidate census used 24 base families and literal pack-name s
 
 | Family | Skills |
 | --- | ---: |
-| `common-errors` | 93 |
-| `install-auth` | 93 |
-| `sdk-patterns` | 93 |
-| `debug-bundle` | 92 |
-| `hello-world` | 92 |
-| `local-dev-loop` | 92 |
-| `upgrade-migration` | 92 |
-| `prod-checklist` | 91 |
-| `rate-limits` | 91 |
-| `performance-tuning` | 90 |
-| `reference-architecture` | 90 |
-| `security-basics` | 90 |
-| `ci-integration` | 89 |
-| `cost-tuning` | 88 |
-| `deploy-integration` | 87 |
-| `core-workflow-a` | 86 |
-| `core-workflow-b` | 86 |
-| `webhooks-events` | 86 |
-| `multi-env-setup` | 58 |
-| `observability` | 58 |
-| `data-handling` | 57 |
-| `enterprise-rbac` | 57 |
-| `incident-runbook` | 57 |
-| `migration-deep-dive` | 55 |
+| `common-errors` | 92 |
+| `install-auth` | 92 |
+| `sdk-patterns` | 92 |
+| `debug-bundle` | 91 |
+| `hello-world` | 91 |
+| `local-dev-loop` | 91 |
+| `upgrade-migration` | 91 |
+| `prod-checklist` | 90 |
+| `rate-limits` | 90 |
+| `performance-tuning` | 89 |
+| `reference-architecture` | 89 |
+| `security-basics` | 89 |
+| `ci-integration` | 88 |
+| `cost-tuning` | 87 |
+| `deploy-integration` | 86 |
+| `core-workflow-a` | 85 |
+| `core-workflow-b` | 85 |
+| `webhooks-events` | 85 |
+| `multi-env-setup` | 57 |
+| `observability` | 57 |
+| `data-handling` | 56 |
+| `enterprise-rbac` | 56 |
+| `incident-runbook` | 56 |
+| `migration-deep-dive` | 54 |
 | `known-pitfalls` | 19 |
 | `advanced-troubleshooting` | 16 |
 | `load-scale` | 16 |
@@ -79,98 +79,97 @@ Beads is the completion authority. Search direct children before creation, selec
 | ---: | --- | ---: | ---: | ---: | :---: | ---: |
 | 1 | `apple-notes-pack` | 24 | 24 | 100.00% | B | 87 |
 | 2 | `gamma-pack` | 24 | 24 | 100.00% | B | 87 |
-| 3 | `glean-pack` | 24 | 24 | 100.00% | B | 87 |
-| 4 | `anthropic-pack` | 30 | 30 | 100.00% | B | 88 |
-| 5 | `fondo-pack` | 18 | 18 | 100.00% | B | 88 |
-| 6 | `framer-pack` | 18 | 18 | 100.00% | B | 88 |
-| 7 | `deepgram-pack` | 24 | 24 | 100.00% | B | 89 |
-| 8 | `lokalise-pack` | 24 | 24 | 100.00% | B | 89 |
-| 9 | `obsidian-pack` | 24 | 24 | 100.00% | A | 90 |
-| 10 | `fathom-pack` | 18 | 18 | 100.00% | A | 90 |
-| 11 | `hootsuite-pack` | 18 | 18 | 100.00% | A | 90 |
-| 12 | `granola-pack` | 24 | 24 | 100.00% | A | 91 |
-| 13 | `maintainx-pack` | 24 | 24 | 100.00% | A | 91 |
-| 14 | `twinmind-pack` | 24 | 24 | 100.00% | A | 91 |
-| 15 | `finta-pack` | 18 | 18 | 100.00% | A | 91 |
-| 16 | `hex-pack` | 18 | 18 | 100.00% | A | 91 |
-| 17 | `figma-pack` | 30 | 30 | 100.00% | A | 92 |
-| 18 | `retellai-pack` | 30 | 30 | 100.00% | A | 92 |
-| 19 | `apollo-pack` | 24 | 24 | 100.00% | A | 92 |
-| 20 | `juicebox-pack` | 24 | 24 | 100.00% | A | 92 |
-| 21 | `castai-pack` | 18 | 18 | 100.00% | A | 92 |
-| 22 | `quicknode-pack` | 18 | 18 | 100.00% | A | 92 |
-| 23 | `clerk-pack` | 24 | 24 | 100.00% | A | 93 |
-| 24 | `posthog-pack` | 24 | 24 | 100.00% | A | 93 |
-| 25 | `vastai-pack` | 24 | 24 | 100.00% | A | 93 |
-| 26 | `brightdata-pack` | 18 | 18 | 100.00% | A | 93 |
-| 27 | `workhuman-pack` | 18 | 18 | 100.00% | A | 93 |
-| 28 | `canva-pack` | 30 | 30 | 100.00% | A | 94 |
-| 29 | `salesforce-pack` | 30 | 30 | 100.00% | A | 94 |
-| 30 | `documenso-pack` | 24 | 24 | 100.00% | A | 94 |
-| 31 | `flexport-pack` | 24 | 24 | 100.00% | A | 94 |
-| 32 | `procore-pack` | 24 | 24 | 100.00% | A | 94 |
-| 33 | `speak-pack` | 24 | 24 | 100.00% | A | 94 |
-| 34 | `assemblyai-pack` | 18 | 18 | 100.00% | A | 94 |
-| 35 | `mindtickle-pack` | 18 | 18 | 100.00% | A | 94 |
-| 36 | `serpapi-pack` | 18 | 18 | 100.00% | A | 94 |
-| 37 | `exa-pack` | 30 | 30 | 100.00% | A | 95 |
-| 38 | `clickhouse-pack` | 24 | 24 | 100.00% | A | 95 |
-| 39 | `evernote-pack` | 24 | 24 | 100.00% | A | 95 |
-| 40 | `anima-pack` | 18 | 18 | 100.00% | A | 95 |
-| 41 | `apify-pack` | 18 | 18 | 100.00% | A | 95 |
-| 42 | `clari-pack` | 18 | 18 | 100.00% | A | 95 |
-| 43 | `lucidchart-pack` | 18 | 18 | 100.00% | A | 95 |
-| 44 | `persona-pack` | 18 | 18 | 100.00% | A | 95 |
-| 45 | `runway-pack` | 18 | 18 | 100.00% | A | 95 |
-| 46 | `fireflies-pack` | 24 | 24 | 100.00% | A | 96 |
-| 47 | `intercom-pack` | 24 | 24 | 100.00% | A | 96 |
-| 48 | `klaviyo-pack` | 24 | 24 | 100.00% | A | 96 |
-| 49 | `lindy-pack` | 24 | 24 | 100.00% | A | 96 |
-| 50 | `elevenlabs-pack` | 18 | 18 | 100.00% | A | 96 |
-| 51 | `flyio-pack` | 18 | 18 | 100.00% | A | 96 |
-| 52 | `windsurf-pack` | 30 | 30 | 100.00% | A | 97 |
-| 53 | `groq-pack` | 24 | 24 | 100.00% | A | 97 |
-| 54 | `mistral-pack` | 24 | 24 | 100.00% | A | 97 |
-| 55 | `bamboohr-pack` | 18 | 18 | 100.00% | A | 97 |
-| 56 | `linktree-pack` | 18 | 18 | 100.00% | A | 97 |
-| 57 | `techsmith-pack` | 18 | 18 | 100.00% | A | 97 |
-| 58 | `together-pack` | 16 | 16 | 100.00% | A | 97 |
-| 59 | `remofirst-pack` | 12 | 12 | 100.00% | A | 97 |
-| 60 | `adobe-pack` | 30 | 30 | 100.00% | A | 98 |
-| 61 | `firecrawl-pack` | 30 | 30 | 100.00% | A | 98 |
-| 62 | `coderabbit-pack` | 24 | 24 | 100.00% | A | 98 |
-| 63 | `ideogram-pack` | 24 | 24 | 100.00% | A | 98 |
-| 64 | `instantly-pack` | 24 | 24 | 100.00% | A | 98 |
-| 65 | `palantir-pack` | 24 | 24 | 100.00% | A | 98 |
-| 66 | `ramp-pack` | 24 | 24 | 100.00% | A | 98 |
-| 67 | `abridge-pack` | 18 | 18 | 100.00% | A | 98 |
-| 68 | `attio-pack` | 18 | 18 | 100.00% | A | 98 |
-| 69 | `onenote-pack` | 18 | 18 | 100.00% | A | 98 |
-| 70 | `salesloft-pack` | 18 | 18 | 100.00% | A | 98 |
-| 71 | `stackblitz-pack` | 10 | 10 | 100.00% | A | 98 |
-| 72 | `algolia-pack` | 24 | 24 | 100.00% | A | 99 |
-| 73 | `clickup-pack` | 24 | 24 | 100.00% | A | 99 |
-| 74 | `cohere-pack` | 24 | 24 | 100.00% | A | 99 |
-| 75 | `miro-pack` | 24 | 24 | 100.00% | A | 99 |
-| 76 | `openevidence-pack` | 24 | 24 | 100.00% | A | 99 |
-| 77 | `webflow-pack` | 24 | 24 | 100.00% | A | 99 |
-| 78 | `alchemy-pack` | 18 | 18 | 100.00% | A | 99 |
-| 79 | `linear-pack` | 24 | 24 | 100.00% | A | 100 |
-| 80 | `claude-pack` | 30 | 32 | 93.75% | A | 94 |
-| 81 | `notion-pack` | 30 | 32 | 93.75% | A | 98 |
-| 82 | `vercel-pack` | 28 | 30 | 93.33% | A | 92 |
-| 83 | `supabase-pack` | 28 | 30 | 93.33% | A | 94 |
-| 84 | `oraclecloud-pack` | 24 | 26 | 92.31% | A | 91 |
-| 85 | `navan-pack` | 24 | 26 | 92.31% | A | 97 |
-| 86 | `sentry-pack` | 27 | 30 | 90.00% | A | 91 |
-| 87 | `customerio-pack` | 21 | 24 | 87.50% | A | 90 |
-| 88 | `coreweave-pack` | 20 | 23 | 86.96% | A | 91 |
-| 89 | `shopify-pack` | 30 | 38 | 78.95% | A | 93 |
-| 90 | `langchain-py-pack` | 18 | 33 | 54.55% | A | 92 |
-| 91 | `guidewire-pack` | 5 | 10 | 50.00% | A | 96 |
-| 92 | `klingai-pack` | 12 | 30 | 40.00% | A | 97 |
-| 93 | `openrouter-pack` | 11 | 30 | 36.67% | A | 94 |
-| 94 | `cursor-pack` | 10 | 30 | 33.33% | A | 93 |
+| 3 | `anthropic-pack` | 30 | 30 | 100.00% | B | 88 |
+| 4 | `fondo-pack` | 18 | 18 | 100.00% | B | 88 |
+| 5 | `framer-pack` | 18 | 18 | 100.00% | B | 88 |
+| 6 | `deepgram-pack` | 24 | 24 | 100.00% | B | 89 |
+| 7 | `lokalise-pack` | 24 | 24 | 100.00% | B | 89 |
+| 8 | `obsidian-pack` | 24 | 24 | 100.00% | A | 90 |
+| 9 | `fathom-pack` | 18 | 18 | 100.00% | A | 90 |
+| 10 | `hootsuite-pack` | 18 | 18 | 100.00% | A | 90 |
+| 11 | `granola-pack` | 24 | 24 | 100.00% | A | 91 |
+| 12 | `maintainx-pack` | 24 | 24 | 100.00% | A | 91 |
+| 13 | `twinmind-pack` | 24 | 24 | 100.00% | A | 91 |
+| 14 | `finta-pack` | 18 | 18 | 100.00% | A | 91 |
+| 15 | `hex-pack` | 18 | 18 | 100.00% | A | 91 |
+| 16 | `figma-pack` | 30 | 30 | 100.00% | A | 92 |
+| 17 | `retellai-pack` | 30 | 30 | 100.00% | A | 92 |
+| 18 | `apollo-pack` | 24 | 24 | 100.00% | A | 92 |
+| 19 | `juicebox-pack` | 24 | 24 | 100.00% | A | 92 |
+| 20 | `castai-pack` | 18 | 18 | 100.00% | A | 92 |
+| 21 | `quicknode-pack` | 18 | 18 | 100.00% | A | 92 |
+| 22 | `clerk-pack` | 24 | 24 | 100.00% | A | 93 |
+| 23 | `posthog-pack` | 24 | 24 | 100.00% | A | 93 |
+| 24 | `vastai-pack` | 24 | 24 | 100.00% | A | 93 |
+| 25 | `brightdata-pack` | 18 | 18 | 100.00% | A | 93 |
+| 26 | `workhuman-pack` | 18 | 18 | 100.00% | A | 93 |
+| 27 | `canva-pack` | 30 | 30 | 100.00% | A | 94 |
+| 28 | `salesforce-pack` | 30 | 30 | 100.00% | A | 94 |
+| 29 | `documenso-pack` | 24 | 24 | 100.00% | A | 94 |
+| 30 | `flexport-pack` | 24 | 24 | 100.00% | A | 94 |
+| 31 | `procore-pack` | 24 | 24 | 100.00% | A | 94 |
+| 32 | `speak-pack` | 24 | 24 | 100.00% | A | 94 |
+| 33 | `assemblyai-pack` | 18 | 18 | 100.00% | A | 94 |
+| 34 | `mindtickle-pack` | 18 | 18 | 100.00% | A | 94 |
+| 35 | `serpapi-pack` | 18 | 18 | 100.00% | A | 94 |
+| 36 | `exa-pack` | 30 | 30 | 100.00% | A | 95 |
+| 37 | `clickhouse-pack` | 24 | 24 | 100.00% | A | 95 |
+| 38 | `evernote-pack` | 24 | 24 | 100.00% | A | 95 |
+| 39 | `anima-pack` | 18 | 18 | 100.00% | A | 95 |
+| 40 | `apify-pack` | 18 | 18 | 100.00% | A | 95 |
+| 41 | `clari-pack` | 18 | 18 | 100.00% | A | 95 |
+| 42 | `lucidchart-pack` | 18 | 18 | 100.00% | A | 95 |
+| 43 | `persona-pack` | 18 | 18 | 100.00% | A | 95 |
+| 44 | `runway-pack` | 18 | 18 | 100.00% | A | 95 |
+| 45 | `fireflies-pack` | 24 | 24 | 100.00% | A | 96 |
+| 46 | `intercom-pack` | 24 | 24 | 100.00% | A | 96 |
+| 47 | `klaviyo-pack` | 24 | 24 | 100.00% | A | 96 |
+| 48 | `lindy-pack` | 24 | 24 | 100.00% | A | 96 |
+| 49 | `elevenlabs-pack` | 18 | 18 | 100.00% | A | 96 |
+| 50 | `flyio-pack` | 18 | 18 | 100.00% | A | 96 |
+| 51 | `windsurf-pack` | 30 | 30 | 100.00% | A | 97 |
+| 52 | `groq-pack` | 24 | 24 | 100.00% | A | 97 |
+| 53 | `mistral-pack` | 24 | 24 | 100.00% | A | 97 |
+| 54 | `bamboohr-pack` | 18 | 18 | 100.00% | A | 97 |
+| 55 | `linktree-pack` | 18 | 18 | 100.00% | A | 97 |
+| 56 | `techsmith-pack` | 18 | 18 | 100.00% | A | 97 |
+| 57 | `together-pack` | 16 | 16 | 100.00% | A | 97 |
+| 58 | `remofirst-pack` | 12 | 12 | 100.00% | A | 97 |
+| 59 | `adobe-pack` | 30 | 30 | 100.00% | A | 98 |
+| 60 | `firecrawl-pack` | 30 | 30 | 100.00% | A | 98 |
+| 61 | `coderabbit-pack` | 24 | 24 | 100.00% | A | 98 |
+| 62 | `ideogram-pack` | 24 | 24 | 100.00% | A | 98 |
+| 63 | `instantly-pack` | 24 | 24 | 100.00% | A | 98 |
+| 64 | `palantir-pack` | 24 | 24 | 100.00% | A | 98 |
+| 65 | `ramp-pack` | 24 | 24 | 100.00% | A | 98 |
+| 66 | `abridge-pack` | 18 | 18 | 100.00% | A | 98 |
+| 67 | `attio-pack` | 18 | 18 | 100.00% | A | 98 |
+| 68 | `onenote-pack` | 18 | 18 | 100.00% | A | 98 |
+| 69 | `salesloft-pack` | 18 | 18 | 100.00% | A | 98 |
+| 70 | `stackblitz-pack` | 10 | 10 | 100.00% | A | 98 |
+| 71 | `algolia-pack` | 24 | 24 | 100.00% | A | 99 |
+| 72 | `clickup-pack` | 24 | 24 | 100.00% | A | 99 |
+| 73 | `cohere-pack` | 24 | 24 | 100.00% | A | 99 |
+| 74 | `miro-pack` | 24 | 24 | 100.00% | A | 99 |
+| 75 | `openevidence-pack` | 24 | 24 | 100.00% | A | 99 |
+| 76 | `webflow-pack` | 24 | 24 | 100.00% | A | 99 |
+| 77 | `alchemy-pack` | 18 | 18 | 100.00% | A | 99 |
+| 78 | `linear-pack` | 24 | 24 | 100.00% | A | 100 |
+| 79 | `claude-pack` | 30 | 32 | 93.75% | A | 94 |
+| 80 | `notion-pack` | 30 | 32 | 93.75% | A | 98 |
+| 81 | `vercel-pack` | 28 | 30 | 93.33% | A | 92 |
+| 82 | `supabase-pack` | 28 | 30 | 93.33% | A | 94 |
+| 83 | `oraclecloud-pack` | 24 | 26 | 92.31% | A | 91 |
+| 84 | `navan-pack` | 24 | 26 | 92.31% | A | 97 |
+| 85 | `sentry-pack` | 27 | 30 | 90.00% | A | 91 |
+| 86 | `customerio-pack` | 21 | 24 | 87.50% | A | 90 |
+| 87 | `coreweave-pack` | 20 | 23 | 86.96% | A | 91 |
+| 88 | `shopify-pack` | 30 | 38 | 78.95% | A | 93 |
+| 89 | `langchain-py-pack` | 18 | 33 | 54.55% | A | 92 |
+| 90 | `guidewire-pack` | 5 | 10 | 50.00% | A | 96 |
+| 91 | `klingai-pack` | 12 | 30 | 40.00% | A | 97 |
+| 92 | `openrouter-pack` | 11 | 30 | 36.67% | A | 94 |
+| 93 | `cursor-pack` | 10 | 30 | 33.33% | A | 93 |
 
 ## Reproduce
 

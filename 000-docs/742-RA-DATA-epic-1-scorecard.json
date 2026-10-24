@@ -22,13 +22,13 @@
       "error_files": 278,
       "error_total": 2798,
       "grade_distribution": {
-        "A": 2866,
-        "B": 275,
+        "A": 2863,
+        "B": 254,
         "C": 125,
         "D": 154,
         "F": 4
       },
-      "rows": 3424
+      "rows": 3400
     }
   },
   "rows": {
@@ -42,7 +42,7 @@
       "unpersisted_values": ["tracked_files"],
       "values": {
         "plugin_agent_files": 352,
-        "raw_tracked_plugin_skill_files": 2924
+        "raw_tracked_plugin_skill_files": 2900
       }
     },
     "2": {
@@ -53,9 +53,9 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "distinct_names": 436,
+        "distinct_names": 435,
         "duplicate_names": [],
-        "entries": 436
+        "entries": 435
       }
     },
     "3": {
@@ -80,28 +80,28 @@
       "values": {
         "agent_lane": {
           "error_total_all_validated_surfaces": 230,
-          "fully_compliant_surfaces": 775,
+          "fully_compliant_surfaces": 774,
           "terminal_denominator": {
             "agents": 363,
-            "files": 950,
+            "files": 949,
             "label": "agents_plus_plugin_manifests",
-            "plugin_manifests": 587
+            "plugin_manifests": 586
           },
           "validator_reported_mixed_denominator_percent": 81.6
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3029,
-          "fully_compliant_surfaces": 2088,
+          "fully_compliant_surfaces": 2087,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
-            "files": 4744,
+            "files": 4719,
             "label": "skills_plus_commands_plus_agents_plus_plugin_manifests",
-            "plugin_manifests": 587,
-            "skills": 3424
+            "plugin_manifests": 586,
+            "skills": 3400
           },
-          "validated_plugin_manifests": 594,
-          "validator_reported_mixed_denominator_percent": 44
+          "validated_plugin_manifests": 593,
+          "validator_reported_mixed_denominator_percent": 44.2
         },
         "skill_rows": {
           "a_error_total": 23,
@@ -112,13 +112,13 @@
           "error_files": 278,
           "error_total": 2798,
           "grade_distribution": {
-            "A": 2866,
-            "B": 275,
+            "A": 2863,
+            "B": 254,
             "C": 125,
             "D": 154,
             "F": 4
           },
-          "rows": 3424
+          "rows": 3400
         }
       }
     },
@@ -131,20 +131,20 @@
       "values": {
         "average_score": 91.9,
         "grade_distribution": {
-          "A": 2866,
-          "B": 275,
+          "A": 2863,
+          "B": 254,
           "C": 125,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 83.7,
-          "B": 8,
+          "A": 84.2,
+          "B": 7.5,
           "C": 3.7,
           "D": 4.5,
           "F": 0.1
         },
-        "rows": 3424
+        "rows": 3400
       }
     },
     "6": {
@@ -161,7 +161,7 @@
         "b_error_total": 147,
         "b_failing": 14,
         "certified_target": 0,
-        "skill_summary_rows": 3424
+        "skill_summary_rows": 3400
       }
     },
     "7": {
@@ -188,7 +188,7 @@
         "missing_required_field_occurrences": 580,
         "missing_required_section_occurrences": 1641,
         "other_skill_error_occurrences": 577,
-        "skill_rows": 3424,
+        "skill_rows": 3400,
         "structural_occurrences": 2221,
         "structural_share_of_skill_errors_pct": 79.3781,
         "target": 0,
@@ -296,12 +296,12 @@
       ],
       "status": "partial",
       "values": {
-        "declared": 3413,
+        "declared": 3389,
         "folded_scalar": 5,
         "malformed_frontmatter": 0,
         "malformed_shape": 0,
         "missing": 11,
-        "rows": 3424,
+        "rows": 3400,
         "target_malformed": 0
       }
     },
@@ -417,7 +417,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2153,
+            "count": 2129,
             "value": "Designed for Claude Code"
           },
           {
@@ -2476,7 +2476,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2566
+            "value": 2542
           },
           {
             "cohort": "curriculum",
@@ -2484,15 +2484,15 @@
           },
           {
             "cohort": "first-party",
-            "value": 2577
+            "value": 2553
           },
           {
             "cohort": "graded",
-            "value": 3424
+            "value": 3400
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2833
+            "value": 2809
           }
         ],
         "distinct_numeric_answers": 5,
@@ -4037,9 +4037,9 @@
       ],
       "status": "measured",
       "values": {
-        "adoption_percent": 1.37,
+        "adoption_percent": 1.38,
         "curated_copies": 40,
-        "plugin_skill_rows": 2924,
+        "plugin_skill_rows": 2900,
         "source_eval_specs": 40,
         "tracked_eval_specs": 80
       }

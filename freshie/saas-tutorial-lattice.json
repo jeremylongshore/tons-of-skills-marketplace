@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "1185e7bd9f569b068abdeb51cc1ca9c1abc705b5a134b40fd4b9f68f63381678",
+    "catalog_sha256": "12ce1b373ad8d3816315f76aa2578a0bfd511219af490591e838448bb254a361",
     "curated_manifest": "skills/.curated/MANIFEST.json",
-    "curated_manifest_sha256": "358accf78e770203bf2d48ebcb2cc9dd888ae32504c05d75200c985a6393298e",
-    "tracked_inventory_sha256": "1c36302ca6032dfd32543c0f4588dd164ea92cbfdfa0e1b40a9bfaad20590392"
+    "curated_manifest_sha256": "93286675c3f439b53f8c0ebfe67f14ded4c430eba5aaa485445c331bb76a84bc",
+    "tracked_inventory_sha256": "7c0db58726362321db0bc740a2685d98e93ae2485ce2f1b64fa4dcb6cc9ad2d2"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -65,12 +65,12 @@
     }
   ],
   "summary": {
-    "active_saas_packs": 101,
-    "active_skills": 2214,
-    "tutorial_lattice_skills": 2060,
-    "affected_packs": 94,
-    "fully_lattice_packs": 79,
-    "at_least_80_percent_lattice_packs": 88,
+    "active_saas_packs": 100,
+    "active_skills": 2190,
+    "tutorial_lattice_skills": 2036,
+    "affected_packs": 93,
+    "fully_lattice_packs": 78,
+    "at_least_80_percent_lattice_packs": 87,
     "unaffected_packs": 7,
     "prefix_mismatch_skills": 1,
     "prefix_override_candidate_skills": 78
@@ -78,34 +78,34 @@
   "suffix_frequency": {
     "advanced-troubleshooting": 16,
     "architecture-variants": 15,
-    "ci-integration": 89,
-    "common-errors": 93,
-    "core-workflow-a": 86,
-    "core-workflow-b": 86,
-    "cost-tuning": 88,
-    "data-handling": 57,
-    "debug-bundle": 92,
-    "deploy-integration": 87,
-    "enterprise-rbac": 57,
-    "hello-world": 92,
-    "incident-runbook": 57,
-    "install-auth": 93,
+    "ci-integration": 88,
+    "common-errors": 92,
+    "core-workflow-a": 85,
+    "core-workflow-b": 85,
+    "cost-tuning": 87,
+    "data-handling": 56,
+    "debug-bundle": 91,
+    "deploy-integration": 86,
+    "enterprise-rbac": 56,
+    "hello-world": 91,
+    "incident-runbook": 56,
+    "install-auth": 92,
     "known-pitfalls": 19,
-    "local-dev-loop": 92,
+    "local-dev-loop": 91,
     "load-scale": 16,
-    "migration-deep-dive": 55,
-    "multi-env-setup": 58,
-    "observability": 58,
-    "performance-tuning": 90,
+    "migration-deep-dive": 54,
+    "multi-env-setup": 57,
+    "observability": 57,
+    "performance-tuning": 89,
     "policy-guardrails": 15,
-    "prod-checklist": 91,
-    "rate-limits": 91,
-    "reference-architecture": 90,
+    "prod-checklist": 90,
+    "rate-limits": 90,
+    "reference-architecture": 89,
     "reliability-patterns": 16,
-    "sdk-patterns": 93,
-    "security-basics": 90,
-    "upgrade-migration": 92,
-    "webhooks-events": 86
+    "sdk-patterns": 92,
+    "security-basics": 89,
+    "upgrade-migration": 91,
+    "webhooks-events": 85
   },
   "queue_policy": {
     "completion_authority": "Beads under claude-juoz.3.11",
@@ -156,18 +156,6 @@
     },
     {
       "rank": 3,
-      "pack": "glean-pack",
-      "candidate_skills": 24,
-      "skill_count": 24,
-      "candidate_basis_points": 10000,
-      "verification_grade": "B",
-      "verification_score": 87,
-      "pack_inventory_sha256": "5dde8cc0dfa5983c136a9467dae7ea635f10b310efa27f83f8c514033bc769bb",
-      "candidate_set_sha256": "254513c66c7b4b0a0f0d90fc01b4f47db412aaf64f1fae6a568024787b1fe780",
-      "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
-    },
-    {
-      "rank": 4,
       "pack": "anthropic-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -179,7 +167,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 5,
+      "rank": 4,
       "pack": "fondo-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -191,7 +179,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 6,
+      "rank": 5,
       "pack": "framer-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -203,7 +191,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 7,
+      "rank": 6,
       "pack": "deepgram-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -215,7 +203,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 8,
+      "rank": 7,
       "pack": "lokalise-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -227,7 +215,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 9,
+      "rank": 8,
       "pack": "obsidian-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -239,7 +227,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 10,
+      "rank": 9,
       "pack": "fathom-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -251,7 +239,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 11,
+      "rank": 10,
       "pack": "hootsuite-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -263,7 +251,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 12,
+      "rank": 11,
       "pack": "granola-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -275,7 +263,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 13,
+      "rank": 12,
       "pack": "maintainx-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -287,7 +275,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 14,
+      "rank": 13,
       "pack": "twinmind-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -299,7 +287,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 15,
+      "rank": 14,
       "pack": "finta-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -311,7 +299,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 16,
+      "rank": 15,
       "pack": "hex-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -323,7 +311,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 17,
+      "rank": 16,
       "pack": "figma-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -335,7 +323,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 18,
+      "rank": 17,
       "pack": "retellai-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -347,7 +335,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 19,
+      "rank": 18,
       "pack": "apollo-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -359,7 +347,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 20,
+      "rank": 19,
       "pack": "juicebox-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -371,7 +359,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 21,
+      "rank": 20,
       "pack": "castai-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -383,7 +371,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 22,
+      "rank": 21,
       "pack": "quicknode-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -395,7 +383,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 23,
+      "rank": 22,
       "pack": "clerk-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -407,7 +395,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 24,
+      "rank": 23,
       "pack": "posthog-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -419,7 +407,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 25,
+      "rank": 24,
       "pack": "vastai-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -431,7 +419,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 26,
+      "rank": 25,
       "pack": "brightdata-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -443,7 +431,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 27,
+      "rank": 26,
       "pack": "workhuman-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -455,7 +443,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 28,
+      "rank": 27,
       "pack": "canva-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -467,7 +455,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 29,
+      "rank": 28,
       "pack": "salesforce-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -479,7 +467,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 30,
+      "rank": 29,
       "pack": "documenso-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -491,7 +479,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 31,
+      "rank": 30,
       "pack": "flexport-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -503,7 +491,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 32,
+      "rank": 31,
       "pack": "procore-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -515,7 +503,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 33,
+      "rank": 32,
       "pack": "speak-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -527,7 +515,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 34,
+      "rank": 33,
       "pack": "assemblyai-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -539,7 +527,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 35,
+      "rank": 34,
       "pack": "mindtickle-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -551,7 +539,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 36,
+      "rank": 35,
       "pack": "serpapi-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -563,7 +551,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 37,
+      "rank": 36,
       "pack": "exa-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -575,7 +563,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 38,
+      "rank": 37,
       "pack": "clickhouse-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -587,7 +575,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 39,
+      "rank": 38,
       "pack": "evernote-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -599,7 +587,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 40,
+      "rank": 39,
       "pack": "anima-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -611,7 +599,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 41,
+      "rank": 40,
       "pack": "apify-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -623,7 +611,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 42,
+      "rank": 41,
       "pack": "clari-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -635,7 +623,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 43,
+      "rank": 42,
       "pack": "lucidchart-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -647,7 +635,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 44,
+      "rank": 43,
       "pack": "persona-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -659,7 +647,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 45,
+      "rank": 44,
       "pack": "runway-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -671,7 +659,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 46,
+      "rank": 45,
       "pack": "fireflies-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -683,7 +671,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 47,
+      "rank": 46,
       "pack": "intercom-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -695,7 +683,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 48,
+      "rank": 47,
       "pack": "klaviyo-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -707,7 +695,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 49,
+      "rank": 48,
       "pack": "lindy-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -719,7 +707,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 50,
+      "rank": 49,
       "pack": "elevenlabs-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -731,7 +719,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 51,
+      "rank": 50,
       "pack": "flyio-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -743,7 +731,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 52,
+      "rank": 51,
       "pack": "windsurf-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -755,7 +743,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 53,
+      "rank": 52,
       "pack": "groq-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -767,7 +755,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 54,
+      "rank": 53,
       "pack": "mistral-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -779,7 +767,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 55,
+      "rank": 54,
       "pack": "bamboohr-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -791,7 +779,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 56,
+      "rank": 55,
       "pack": "linktree-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -803,7 +791,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 57,
+      "rank": 56,
       "pack": "techsmith-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -815,7 +803,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 58,
+      "rank": 57,
       "pack": "together-pack",
       "candidate_skills": 16,
       "skill_count": 16,
@@ -827,7 +815,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 59,
+      "rank": 58,
       "pack": "remofirst-pack",
       "candidate_skills": 12,
       "skill_count": 12,
@@ -839,7 +827,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 60,
+      "rank": 59,
       "pack": "adobe-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -851,7 +839,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 61,
+      "rank": 60,
       "pack": "firecrawl-pack",
       "candidate_skills": 30,
       "skill_count": 30,
@@ -863,7 +851,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 62,
+      "rank": 61,
       "pack": "coderabbit-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -875,7 +863,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 63,
+      "rank": 62,
       "pack": "ideogram-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -887,7 +875,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 64,
+      "rank": 63,
       "pack": "instantly-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -899,7 +887,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 65,
+      "rank": 64,
       "pack": "palantir-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -911,7 +899,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 66,
+      "rank": 65,
       "pack": "ramp-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -923,7 +911,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 67,
+      "rank": 66,
       "pack": "abridge-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -935,7 +923,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 68,
+      "rank": 67,
       "pack": "attio-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -947,7 +935,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 69,
+      "rank": 68,
       "pack": "onenote-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -959,7 +947,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 70,
+      "rank": 69,
       "pack": "salesloft-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -971,7 +959,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 71,
+      "rank": 70,
       "pack": "stackblitz-pack",
       "candidate_skills": 10,
       "skill_count": 10,
@@ -983,7 +971,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 72,
+      "rank": 71,
       "pack": "algolia-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -995,7 +983,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 73,
+      "rank": 72,
       "pack": "clickup-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1007,7 +995,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 74,
+      "rank": 73,
       "pack": "cohere-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1019,7 +1007,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 75,
+      "rank": 74,
       "pack": "miro-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1031,7 +1019,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 76,
+      "rank": 75,
       "pack": "openevidence-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1043,7 +1031,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 77,
+      "rank": 76,
       "pack": "webflow-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1055,7 +1043,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 78,
+      "rank": 77,
       "pack": "alchemy-pack",
       "candidate_skills": 18,
       "skill_count": 18,
@@ -1067,7 +1055,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 79,
+      "rank": 78,
       "pack": "linear-pack",
       "candidate_skills": 24,
       "skill_count": 24,
@@ -1079,7 +1067,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 80,
+      "rank": 79,
       "pack": "claude-pack",
       "candidate_skills": 30,
       "skill_count": 32,
@@ -1091,7 +1079,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 81,
+      "rank": 80,
       "pack": "notion-pack",
       "candidate_skills": 30,
       "skill_count": 32,
@@ -1103,7 +1091,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 82,
+      "rank": 81,
       "pack": "vercel-pack",
       "candidate_skills": 28,
       "skill_count": 30,
@@ -1115,7 +1103,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 83,
+      "rank": 82,
       "pack": "supabase-pack",
       "candidate_skills": 28,
       "skill_count": 30,
@@ -1127,7 +1115,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 84,
+      "rank": 83,
       "pack": "oraclecloud-pack",
       "candidate_skills": 24,
       "skill_count": 26,
@@ -1139,7 +1127,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 85,
+      "rank": 84,
       "pack": "navan-pack",
       "candidate_skills": 24,
       "skill_count": 26,
@@ -1151,7 +1139,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 86,
+      "rank": 85,
       "pack": "sentry-pack",
       "candidate_skills": 27,
       "skill_count": 30,
@@ -1163,7 +1151,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 87,
+      "rank": 86,
       "pack": "customerio-pack",
       "candidate_skills": 21,
       "skill_count": 24,
@@ -1175,7 +1163,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 88,
+      "rank": 87,
       "pack": "coreweave-pack",
       "candidate_skills": 20,
       "skill_count": 23,
@@ -1187,7 +1175,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 89,
+      "rank": 88,
       "pack": "shopify-pack",
       "candidate_skills": 30,
       "skill_count": 38,
@@ -1199,7 +1187,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 90,
+      "rank": 89,
       "pack": "langchain-py-pack",
       "candidate_skills": 18,
       "skill_count": 33,
@@ -1211,7 +1199,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 91,
+      "rank": 90,
       "pack": "guidewire-pack",
       "candidate_skills": 5,
       "skill_count": 10,
@@ -1223,7 +1211,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 92,
+      "rank": 91,
       "pack": "klingai-pack",
       "candidate_skills": 12,
       "skill_count": 30,
@@ -1235,7 +1223,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 93,
+      "rank": 92,
       "pack": "openrouter-pack",
       "candidate_skills": 11,
       "skill_count": 30,
@@ -1247,7 +1235,7 @@
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
-      "rank": 94,
+      "rank": 93,
       "pack": "cursor-pack",
       "candidate_skills": 10,
       "skill_count": 30,
@@ -16237,406 +16225,6 @@
           "curated": {
             "present": true,
             "curated_name": "gamma-webhooks-events"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        }
-      ],
-      "prefix_mismatch_skills": [],
-      "non_lattice_skills": [],
-      "required_blast_radius_checks": [
-        "catalog",
-        "curated_projection",
-        "npm_publication_history",
-        "compatibility_redirects",
-        "repository_references",
-        "mirror_ownership"
-      ]
-    },
-    {
-      "name": "glean-pack",
-      "source": "plugins/saas-packs/glean-pack",
-      "version": "1.8.0",
-      "verification": {
-        "grade": "B",
-        "score": 87
-      },
-      "npm_candidate": {
-        "name": "@intentsolutionsio/glean-pack",
-        "version": "1.0.3",
-        "private": false,
-        "files_include_skills": true,
-        "live_registry_check": "REQUIRED_BEFORE_MUTATION"
-      },
-      "publication": "published",
-      "ownership": {
-        "status": "first-party"
-      },
-      "pack_inventory_sha256": "5dde8cc0dfa5983c136a9467dae7ea635f10b310efa27f83f8c514033bc769bb",
-      "candidate_set_sha256": "254513c66c7b4b0a0f0d90fc01b4f47db412aaf64f1fae6a568024787b1fe780",
-      "skill_count": 24,
-      "catalog_declared_skill_count": 24,
-      "tutorial_lattice_count": 24,
-      "tutorial_lattice_basis_points": 10000,
-      "curated_skill_count": 24,
-      "candidate_curated_count": 24,
-      "candidate_skills": [
-        {
-          "directory_name": "glean-ci-integration",
-          "public_name": "glean-ci-integration",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-ci-integration/SKILL.md",
-          "family": "ci-integration",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-ci-integration"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-common-errors",
-          "public_name": "glean-common-errors",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-common-errors/SKILL.md",
-          "family": "common-errors",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-common-errors"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-core-workflow-a",
-          "public_name": "glean-core-workflow-a",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-core-workflow-a/SKILL.md",
-          "family": "core-workflow-a",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-core-workflow-a"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-core-workflow-b",
-          "public_name": "glean-core-workflow-b",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-core-workflow-b/SKILL.md",
-          "family": "core-workflow-b",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-core-workflow-b"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-cost-tuning",
-          "public_name": "glean-cost-tuning",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-cost-tuning/SKILL.md",
-          "family": "cost-tuning",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-cost-tuning"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-data-handling",
-          "public_name": "glean-data-handling",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-data-handling/SKILL.md",
-          "family": "data-handling",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-data-handling"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-debug-bundle",
-          "public_name": "glean-debug-bundle",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-debug-bundle/SKILL.md",
-          "family": "debug-bundle",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-debug-bundle"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-deploy-integration",
-          "public_name": "glean-deploy-integration",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-deploy-integration/SKILL.md",
-          "family": "deploy-integration",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-deploy-integration"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-enterprise-rbac",
-          "public_name": "glean-enterprise-rbac",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-enterprise-rbac/SKILL.md",
-          "family": "enterprise-rbac",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-enterprise-rbac"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-hello-world",
-          "public_name": "glean-hello-world",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-hello-world/SKILL.md",
-          "family": "hello-world",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-hello-world"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-incident-runbook",
-          "public_name": "glean-incident-runbook",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-incident-runbook/SKILL.md",
-          "family": "incident-runbook",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-incident-runbook"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-install-auth",
-          "public_name": "glean-install-auth",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-install-auth/SKILL.md",
-          "family": "install-auth",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-install-auth"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-local-dev-loop",
-          "public_name": "glean-local-dev-loop",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-local-dev-loop/SKILL.md",
-          "family": "local-dev-loop",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-local-dev-loop"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-migration-deep-dive",
-          "public_name": "glean-migration-deep-dive",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-migration-deep-dive/SKILL.md",
-          "family": "migration-deep-dive",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-migration-deep-dive"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-multi-env-setup",
-          "public_name": "glean-multi-env-setup",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-multi-env-setup/SKILL.md",
-          "family": "multi-env-setup",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-multi-env-setup"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-observability",
-          "public_name": "glean-observability",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-observability/SKILL.md",
-          "family": "observability",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-observability"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-performance-tuning",
-          "public_name": "glean-performance-tuning",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-performance-tuning/SKILL.md",
-          "family": "performance-tuning",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-performance-tuning"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-prod-checklist",
-          "public_name": "glean-prod-checklist",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-prod-checklist/SKILL.md",
-          "family": "prod-checklist",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-prod-checklist"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-rate-limits",
-          "public_name": "glean-rate-limits",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-rate-limits/SKILL.md",
-          "family": "rate-limits",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-rate-limits"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-reference-architecture",
-          "public_name": "glean-reference-architecture",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-reference-architecture/SKILL.md",
-          "family": "reference-architecture",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-reference-architecture"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-sdk-patterns",
-          "public_name": "glean-sdk-patterns",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-sdk-patterns/SKILL.md",
-          "family": "sdk-patterns",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-sdk-patterns"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-security-basics",
-          "public_name": "glean-security-basics",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-security-basics/SKILL.md",
-          "family": "security-basics",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-security-basics"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-upgrade-migration",
-          "public_name": "glean-upgrade-migration",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-upgrade-migration/SKILL.md",
-          "family": "upgrade-migration",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-upgrade-migration"
-          },
-          "ownership": {
-            "status": "first-party"
-          },
-          "disposition": "REVIEW_REQUIRED"
-        },
-        {
-          "directory_name": "glean-webhooks-events",
-          "public_name": "glean-webhooks-events",
-          "path": "plugins/saas-packs/glean-pack/skills/glean-webhooks-events/SKILL.md",
-          "family": "webhooks-events",
-          "match_rule": "canonical-pack-prefix",
-          "curated": {
-            "present": true,
-            "curated_name": "glean-webhooks-events"
           },
           "ownership": {
             "status": "first-party"
