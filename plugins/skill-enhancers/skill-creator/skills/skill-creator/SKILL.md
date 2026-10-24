@@ -10,7 +10,7 @@ description: 'Create, validate, optimize or refresh Claude Code skills. Use when
   '
 argument-hint: '[create|validate|optimize|--forge|--reforge] [target]'
 allowed-tools: Read,Write,Edit,Glob,Grep,Bash(mkdir:*),Bash(chmod:*),Bash(python:*),Bash(claude:*),Agent,AskUserQuestion,Bash(python3:*),Bash(pnpm:*),Bash(node:*),Bash(git:*),Bash(scripts/run-jrig-eval.sh:*),WebSearch,WebFetch
-version: 5.24.0
+version: 5.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

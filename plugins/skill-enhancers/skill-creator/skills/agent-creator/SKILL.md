@@ -18,7 +18,7 @@ description: 'Create production-grade agent .md files aligned with the current A
   '
 allowed-tools: Read,Write,Edit,Glob,Grep,Bash(python:*),Bash(python3:*),AskUserQuestion,Agent
 argument-hint: "<create|validate> [agent path or requirements]"
-version: 5.24.0
+version: 5.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -49,7 +49,8 @@ Key difference from skill-creator: **agents support both `tools` (allowlist) AND
 (denylist)**. Skills use `allowed-tools` (allowlist) and, since schema 3.7.0, an optional
 kebab-case `disallowed-tools` denylist — a parallel field, not a unification. Agents also support
 `effort`, `maxTurns`, `skills`, `memory`, `isolation`, `permissionMode`, `background`, `color`, and
-`initialPrompt` — fields that don't exist for skills. Claude Code also recognizes a separately
+`initialPrompt`. These controls have context-specific support; `effort` also exists on skills.
+Do not assume agent field spellings or constraints apply to skills. Claude Code also recognizes a separately
 labeled runtime `experimental` object; do not present it as part of the public 16-field table.
 The agent body becomes the **system prompt** that drives the subagent — it does NOT receive the
 full Claude Code system prompt.

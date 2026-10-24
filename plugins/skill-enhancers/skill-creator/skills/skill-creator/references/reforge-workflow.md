@@ -40,8 +40,8 @@ Re-run Forge Gates 4 and 5 with the updated surface. New endpoints may unlock ne
 Re-run Forge Gate 6 to write fresh:
 
 - `skills/<api-name>/SKILL.md` (preserves frontmatter version per the bump rule above; updates body sections that cover the new/changed/removed endpoints)
-- `skills/<api-name>/agents/<api>-expert.md` (refreshes against the new surface)
-- `skills/<api-name>/agents/<api>-analyst.md` (refreshes compound-command implementations)
+- `agents/<api>-expert.md` (refreshes against the new surface)
+- `agents/<api>-analyst.md` (refreshes compound-command implementations)
 - `skills/<api-name>/scripts/sync-cache.sh` (only if the schema delta requires SQL changes — usually unchanged)
 
 Preserve any **engineer-authored sections** in SKILL.md marked with `<!-- ENGINEER-EDIT-START -->...<!-- ENGINEER-EDIT-END -->` comments — reforge does not overwrite human refinements.
@@ -65,7 +65,7 @@ Apply Forge Gate 7 from `forge-workflow.md`: Grade A plus static checks, with be
 
 Schedule a weekly cron (separate from `/skill-creator`) that:
 
-1. Walks all forge-generated plugins (`plugin.json` has `"generated": true`)
+1. Walks forge-generated entries in the canonical catalog (`generated: true`), resolving their declared source paths and confirming `.forge/research.md`; the runtime `plugin.json` does not own this classification
 2. For each, fetches the live API surface and diffs against `references/api-surface.md`
 3. Opens a GitHub issue when drift is detected, tagged `forge-drift`, with the diff in the body
 4. Maintainer takes the issue, runs `/skill-creator --reforge <plugin-name>` to resolve

@@ -13,11 +13,11 @@ plugins/<category>/<api-name>/
 │   ├── ecosystem.md                        ← competitor catalog + gap analysis
 │   ├── proofs.md                           ← validation results (validate-skillmd + JRig output)
 │   └── discovery.md                        ← optional: HAR / sniffing artifacts when no spec exists
+├── agents/                                 ← plugin-discovered agents
+│   ├── <api>-expert.md                     ← domain expert agent (NOI-framed)
+│   └── <api>-analyst.md                    ← compound synthesis agent
 └── skills/<api-name>/
     ├── SKILL.md                            ← orchestrator skill
-    ├── agents/
-    │   ├── <api>-expert.md                 ← domain expert agent (NOI-framed)
-    │   └── <api>-analyst.md                ← compound synthesis agent
     ├── references/                         ← RUNTIME DOCS (read every invocation)
     │   ├── noi.md                          ← NOI statement (skill reads to stay on-mission)
     │   ├── api-surface.md                  ← live API coverage the skill operates against
@@ -118,8 +118,8 @@ Generate the plugin per the output anatomy above:
 1. `plugin.json` — use the target manifest schema for `name`, `version`, `description`, `author`, `license` and `repository`. Record forge provenance in `.forge/research.md`. The existing catalog fields `generated: true` and `author_type: forge` belong in an authorized canonical catalog entry, not the runtime plugin manifest; do not invent or rename source-classification labels.
 2. `README.md` — NOI framing in the opening paragraph.
 3. `skills/<api-name>/SKILL.md` — orchestrator skill, references `noi.md` + `api-surface.md` + `compound-commands.md`. Marketplace-tier compliant: 8-field frontmatter, `compatibility` free-text, `tags` populated from archetype + API category.
-4. `skills/<api-name>/agents/<api>-expert.md` — domain expert agent, NOI-framed system prompt, deep on the API surface.
-5. `skills/<api-name>/agents/<api>-analyst.md` — compound synthesis agent that orchestrates the expert across compound commands.
+4. `agents/<api>-expert.md` — domain expert agent, NOI-framed system prompt, deep on the API surface.
+5. `agents/<api>-analyst.md` — compound synthesis agent that orchestrates the expert across compound commands.
 6. `skills/<api-name>/scripts/sync-cache.sh` (when SQLite caching is part of the design).
 
 Use `agent-creator` skill to generate `agents/*` rather than hand-rolling — single canonical agent generator.
