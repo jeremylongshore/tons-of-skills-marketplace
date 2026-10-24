@@ -77,9 +77,9 @@ Across **386 published packages** in the [claude-code-plugins](https://www.npmjs
 
 | Window        | All packages | Established (>30d) |
 | ------------- | -----------: | -----------------: |
-| Last 24 hours |          321 |                321 |
-| Last 7 days   |        1,939 |              1,939 |
-| Last 30 days  |       12,311 |             12,311 |
+| Last 24 hours |          478 |                478 |
+| Last 7 days   |        2,090 |              2,090 |
+| Last 30 days  |       11,455 |             11,455 |
 
 <sub>"Established" excludes packages first published within the last 30 days, so a bulk-publish event doesn't dominate the headline.</sub>
 
@@ -87,18 +87,18 @@ Across **386 published packages** in the [claude-code-plugins](https://www.npmjs
 
 | #   | Package                                                                                                                  | Last 30d |
 | --- | ------------------------------------------------------------------------------------------------------------------------ | -------: |
-| 1   | [`@intentsolutionsio/claude-pack`](https://www.npmjs.com/package/@intentsolutionsio/claude-pack)                         |      856 |
-| 2   | [`@intentsolutionsio/openrouter-pack`](https://www.npmjs.com/package/@intentsolutionsio/openrouter-pack)                 |      440 |
-| 3   | [`@intentsolutionsio/anthropic-pack`](https://www.npmjs.com/package/@intentsolutionsio/anthropic-pack)                   |      383 |
-| 4   | [`@intentsolutionsio/databricks-pack`](https://www.npmjs.com/package/@intentsolutionsio/databricks-pack)                 |      306 |
-| 5   | [`@intentsolutionsio/groq-pack`](https://www.npmjs.com/package/@intentsolutionsio/groq-pack)                             |      297 |
-| 6   | [`@intentsolutionsio/shopify-pack`](https://www.npmjs.com/package/@intentsolutionsio/shopify-pack)                       |      245 |
-| 7   | [`@intentsolutionsio/neural-network-builder`](https://www.npmjs.com/package/@intentsolutionsio/neural-network-builder)   |      239 |
-| 8   | [`@intentsolutionsio/supabase-pack`](https://www.npmjs.com/package/@intentsolutionsio/supabase-pack)                     |      213 |
-| 9   | [`@intentsolutionsio/clickhouse-pack`](https://www.npmjs.com/package/@intentsolutionsio/clickhouse-pack)                 |      198 |
-| 10  | [`@intentsolutionsio/wallet-security-auditor`](https://www.npmjs.com/package/@intentsolutionsio/wallet-security-auditor) |      188 |
+| 1   | [`@intentsolutionsio/claude-pack`](https://www.npmjs.com/package/@intentsolutionsio/claude-pack)                         |      876 |
+| 2   | [`@intentsolutionsio/openrouter-pack`](https://www.npmjs.com/package/@intentsolutionsio/openrouter-pack)                 |      413 |
+| 3   | [`@intentsolutionsio/anthropic-pack`](https://www.npmjs.com/package/@intentsolutionsio/anthropic-pack)                   |      390 |
+| 4   | [`@intentsolutionsio/databricks-pack`](https://www.npmjs.com/package/@intentsolutionsio/databricks-pack)                 |      268 |
+| 5   | [`@intentsolutionsio/groq-pack`](https://www.npmjs.com/package/@intentsolutionsio/groq-pack)                             |      266 |
+| 6   | [`@intentsolutionsio/shopify-pack`](https://www.npmjs.com/package/@intentsolutionsio/shopify-pack)                       |      207 |
+| 7   | [`@intentsolutionsio/neural-network-builder`](https://www.npmjs.com/package/@intentsolutionsio/neural-network-builder)   |      196 |
+| 8   | [`@intentsolutionsio/wallet-security-auditor`](https://www.npmjs.com/package/@intentsolutionsio/wallet-security-auditor) |      195 |
+| 9   | [`@intentsolutionsio/clickhouse-pack`](https://www.npmjs.com/package/@intentsolutionsio/clickhouse-pack)                 |      180 |
+| 10  | [`@intentsolutionsio/jeremy-adk-orchestrator`](https://www.npmjs.com/package/@intentsolutionsio/jeremy-adk-orchestrator) |      164 |
 
-<sub>Last refreshed 2026-10-22T01:25:23.003Z.</sub>
+<sub>Last refreshed 2026-10-24T05:09:20.938Z.</sub>
 
 <!-- NPM-STATS:END -->
 
