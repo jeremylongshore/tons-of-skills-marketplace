@@ -38,7 +38,30 @@ class AppFolioRetirementTests(unittest.TestCase):
             path = ROOT / relative
             populated = path.is_file() or path.is_symlink()
             if path.is_dir():
-                populated = any(p.is_file() or p.is_symlink() for p in path.rglob("*"))
+                for entry in path.rglob("*"):
+                    if not (entry.is_file() or entry.is_symlink()):
+                        continue
+                    parts = entry.relative_to(path).parts
+                    # Private historical sidecars may survive a checkout. They
+                    # are not installable content and must not be deleted to
+                    # satisfy this guard. Tracked documents never qualify:
+                    # check-ignore deliberately ignores tracked index entries.
+                    historical = (
+                        relative == "plugins/saas-packs/appfolio-pack"
+                        and len(parts) > 1
+                        and parts[0] == "000-docs"
+                        and not entry.is_symlink()
+                    )
+                    if historical:
+                        ignored = subprocess.run(
+                            ["git", "check-ignore", "--quiet", "--", entry.relative_to(ROOT).as_posix()],
+                            cwd=ROOT,
+                            capture_output=True,
+                        )
+                        if ignored.returncode == 0:
+                            continue
+                    populated = True
+                    break
             self.assertFalse(populated, relative)
         self.assertEqual(list((ROOT / "skills/.curated").glob("appfolio-*")), [])
         catalog = json.loads((ROOT / ".claude-plugin/marketplace.extended.json").read_text())
