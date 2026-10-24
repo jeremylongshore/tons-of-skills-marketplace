@@ -16,7 +16,7 @@ description: 'Create production-grade agent .md files aligned with the current A
   use.
 
   '
-allowed-tools: Read,Write,Edit,Glob,Grep,Bash(python:*),AskUserQuestion,Agent
+allowed-tools: Read,Write,Edit,Glob,Grep,Bash(python:*),Bash(python3:*),AskUserQuestion,Agent
 argument-hint: "<create|validate> [agent path or requirements]"
 version: 5.24.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -58,6 +58,12 @@ full Claude Code system prompt.
 skills use kebab-case `disallowed-tools:` (schema 3.7.0+). The validator rejects either mismatch —
 never copy-paste between agent and skill frontmatter without renaming.
 
+## Authentication
+
+Authoring and static validation do not require provider credentials. Generated
+workflows have their own authentication requirements. Use only the requested
+scope and existing authorization for any model/provider execution.
+
 ## Prerequisites
 
 - Claude Code CLI with agent support
@@ -75,7 +81,7 @@ Determine user intent from their prompt:
 
 ### Step 1: Understand Requirements
 
-Ask the user with AskUserQuestion:
+Use known requirements; use AskUserQuestion only for missing decisions:
 
 **Agent Identity:**
 
@@ -139,6 +145,7 @@ All production agents should follow this body structure:
 
 Generate the agent .md using the template from
 `${CLAUDE_SKILL_DIR}/../skill-creator/templates/agent-template.md`.
+Resolve the template MODEL placeholder from the requested model or target profile.
 Use `Write` for a new definition and `Edit` for a targeted remediation of an
 existing definition; do not replace unrelated project content.
 
@@ -226,12 +233,15 @@ experimental:              # Claude Code v2.1.248+; optional
 
 ### Step 4: Validate the Agent
 
-Run validation against the documented Anthropic schema and the runtime extension allowlist:
+Run the target's current canonical IS validator as well as the runtime checks.
+Its existing gate requires eleven live fields on plugin agents and fourteen on
+standalone agents; upstream-minimum examples do not satisfy this overlay.
 
 **Manual checklist:**
 
 | Check | Rule |
 |-------|------|
+| Complete IS fields | All eleven plugin fields, plus the three standalone fields where applicable |
 | `name` present | 1-64 chars, kebab-case |
 | `description` present | 20-1536 chars under the IS contract; concise and selection-specific |
 | No invalid fields | None of: capabilities, expertise_level, activation_priority, type, category |
@@ -243,15 +253,20 @@ Run validation against the documented Anthropic schema and the runtime extension
 | Body has Guidelines | Do/don't rules |
 | Body under 300 lines | Offload to references if longer (prevents context bloat) |
 
-**Automated validation:**
+**Automated validation:** resolve `validator` to the target's canonical
+`scripts/validate-skills-schema.py` and `target_root` to its repository root.
+A plugin fixture needs its actual `.claude-plugin/plugin.json`; a folder name
+alone does not establish plugin context. Missing tooling is UNVERIFIED.
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/../skill-creator/scripts/validate-skill.py --agents-only {plugin-dir}/
+python3 "$validator" --repo-root "$target_root" --agents-only --json
 ```
 
 ### Step 5: Test the Agent
 
-Test the agent by spawning it via the `Agent` tool:
+When behavioral testing is requested and covered by existing model/provider
+authorization, exercise the agent via the `Agent` tool. Otherwise report SKIPPED;
+a static pass does not establish behavioral success. For an authorized run:
 
 1. Write a test prompt that exercises the agent's core capability
 2. Spawn the agent with that prompt
@@ -278,6 +293,7 @@ When the user wants to validate an existing agent:
 1. Locate the agent .md file
 2. Parse YAML frontmatter
 3. Check against the documented Anthropic schema and runtime extension allowlist:
+   - All eleven plugin fields or fourteen standalone fields present?
    - `name` present and valid (1-64 chars, kebab-case)?
    - `description` present and valid (20-1536 chars; concise and selection-specific)?
    - Any invalid fields? (capabilities, expertise_level, activation_priority, etc.)
@@ -310,7 +326,15 @@ When the user wants to validate an existing agent:
 ```yaml
 name: risk-assessor
 description: "Score contract clauses for legal and financial risk on a 1-10 scale"
+tools: [Read, Glob, Grep]
 model: sonnet
+color: blue
+version: 1.0.0
+author: "Example Maintainer <maintainer@example.com>"
+tags: [review, risk]
+disallowedTools: []
+skills: []
+background: false
 effort: high
 maxTurns: 10
 ```
@@ -329,6 +353,18 @@ cite clause text, use 4-factor scoring methodology).
 ```yaml
 name: code-reviewer
 description: "Review code for bugs, performance issues, and security vulnerabilities"
+tools: [Read, Glob, Grep]
+model: inherit
+color: blue
+version: 1.0.0
+author: "Example Maintainer <maintainer@example.com>"
+tags: [review, quality]
+disallowedTools: [Write, Edit, Bash, Agent]
+skills: []
+background: false
+hooks: {}
+mcpServers: []
+permissionMode: default
 effort: high
 ```
 
