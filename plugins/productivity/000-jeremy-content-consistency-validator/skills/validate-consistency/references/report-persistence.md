@@ -3,8 +3,9 @@
 Each local audit can file its report in the caller's Intent OS checkout. The
 audited project remains read-only. Only the supplied report and its index entry
 are written, after the destination's existing disclosure adapter accepts them.
-There are no provider calls, network probes, automatic repairs, registry changes,
-brain ingestion or scheduled jobs.
+The bundled writer makes no provider or network calls and performs no repairs,
+registry changes, brain ingestion or scheduled jobs. The destination-owned adapter
+is trusted local policy code; its behavior remains subject to that checkout's review.
 
 ## Invocation
 
@@ -18,7 +19,7 @@ hold the write; do not synthesize a replacement policy.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/persist-report.py" \
-  --intent-os "$intent_os" < "$payload_json"
+  --intent-os "$intent_os" --audited-root "$audited_project" < "$payload_json"
 ```
 
 Input is UTF-8 JSON on standard input, at most 1 MiB:
@@ -50,6 +51,10 @@ No intermediate report file in Intent OS is needed before screening.
 `--at` accepts an explicit UTC ISO timestamp for deterministic rehearsals; normal
 runs use the current UTC time. It does not select arbitrary output paths.
 
+Pass the actual audited directory as `--audited-root`. The writer refuses a
+report/index destination inside that tree. Auditing Intent OS itself can therefore
+hold persistence; retain the conversation report rather than overriding this guard.
+
 ## Disclosure boundary
 
 The helper invokes the destination's canonical C8 adapter for `evidence-ingest`.
@@ -58,7 +63,9 @@ It requires exact accepted payloads, two passing content-free receipts, matching
 content digests and a matching run receipt. A zero exit alone is insufficient:
 the policy can reject a document while exiting successfully.
 
-Receipt scratch files live in a private temporary directory outside Intent OS.
+Receipt scratch files live in a private process temporary directory. If its
+configured parent lies inside Intent OS or the declared audited tree, the writer
+holds before creating scratch files or invoking the adapter.
 Only after acceptance does the helper file the report. Errors return a generic
 code without echoing rejected text or raw subprocess errors. The saved record
 includes content-free policy/body/receipt digests. These prove the local filter
@@ -75,7 +82,8 @@ The helper follows Intent OS content schema `003`: it scans the full numbered
 tree, including cluster folders, and creates the next flat
 `NNN-AA-AUDR-consistency-<UTC timestamp>-<input digest>.md` artifact. It appends one
 entry to the existing index without rewriting unrelated edits. Report creation
-is exclusive; identical input retries are held, symlinks are refused and a busy
+is exclusive; identical input retries are checked across the numbered tree, symlink entries
+in that tree and required paths are refused, and a busy
 index is held immediately. No old report is replaced or deleted.
 
 Success exits zero with JSON containing `status: saved`, the relative record

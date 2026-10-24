@@ -75,10 +75,12 @@ Also invoked automatically by `/release` during Phase 1.6 — deterministic 🔴
 The audit reports discrepancies with file paths and line numbers; it never fixes
 the audited project or writes the authority registry. Its existing read and
 read-only shell probes remain. `Bash(python3:*)` is added for the bundled report
-persistence helper, which screens the complete local report through Intent OS's
+persistence helper, whose required `--audited-root` guard keeps report/index
+writes outside the declared audited tree. It screens the local report through Intent OS's
 existing disclosure adapter before creating a dated audit record and appending
-its index entry. There is no general Write/Edit grant, network research, brain
-ingestion, automatic Git action or scheduler.
+its index entry. The Python permission is a workflow scope, not an OS sandbox.
+The writer adds no network research, brain ingestion, mutating Git action or
+scheduler; existing read-only Git probes remain.
 
 See [report persistence](skills/validate-consistency/references/report-persistence.md)
 for JSON input, filing and recovery. A missing or rejecting policy means HELD;

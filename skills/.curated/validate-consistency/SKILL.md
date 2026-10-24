@@ -362,7 +362,9 @@ Save each local report into the caller's Intent OS checkout (default
 `${CLAUDE_SKILL_DIR}/scripts/persist-report.py`. Read
 [report persistence](references/report-persistence.md) for the input contract,
 disclosure policy, filing rules and failure recovery. Use `Bash(python3:*)` only
-for this helper; the audit's other probes remain read-only.
+for this helper as a workflow instruction, not an OS sandbox. Pass the actual
+audited directory as `--audited-root`; the writer refuses its report/index
+destination inside that tree. The audit's other probes remain read-only.
 
 Pass the complete Part A/Part B report and any caller-supplied repair evidence.
 Do not invent fixes or treat advisory findings as adjudicated facts. This helper

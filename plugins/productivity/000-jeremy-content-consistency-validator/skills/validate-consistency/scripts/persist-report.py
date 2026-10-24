@@ -85,7 +85,7 @@ def parse_payload(raw: bytes) -> tuple[str, str]:
     return report.rstrip() + "\n\n" + "\n".join(repair_lines) + "\n", "\n".join(raw_strings)
 
 
-def screen(root: Path, rendered: str, raw_text: str, timestamp: float) -> dict:
+def screen(root: Path, rendered: str, raw_text: str, timestamp: float, *, audited_root: Path | None = None) -> dict:
     adapter = root / "ops/disclosure-policy/adapters/enforce.sh"
     policy = root / "ops/disclosure-policy/policy.py"
     regular(adapter)
@@ -94,7 +94,11 @@ def screen(root: Path, rendered: str, raw_text: str, timestamp: float) -> dict:
     # redaction: accepting a placeholder would silently discard the report.
     run_id = str(uuid.uuid4())
     candidates = [{"id": run_id + "-raw", "text": raw_text}, {"id": run_id + "-report", "text": rendered}]
-    with tempfile.TemporaryDirectory(prefix="consistency-disclosure-") as folder:
+    temporary_parent = Path(tempfile.gettempdir()).resolve()
+    protected = [root.resolve(), *([audited_root.resolve()] if audited_root is not None else [])]
+    if any(temporary_parent.is_relative_to(path) for path in protected):
+        raise Held("temporary-directory-inside-protected-tree")
+    with tempfile.TemporaryDirectory(prefix="consistency-disclosure-", dir=temporary_parent) as folder:
         receipts = Path(folder) / "receipts.jsonl"
         run_receipt = Path(folder) / "run.json"
         try:
@@ -154,27 +158,45 @@ def screen(root: Path, rendered: str, raw_text: str, timestamp: float) -> dict:
     }
 
 
-def next_number(docs: Path) -> int:
-    highest = 0
-    for current, directories, files in os.walk(docs, followlinks=False):
-        directories[:] = [name for name in directories if not (Path(current) / name).is_symlink()]
+def numbered_tree(docs: Path) -> list[Path]:
+    entries = []
+
+    def unreadable(_error):
+        raise Held("document-tree-unreadable")
+
+    for current, directories, files in os.walk(docs, followlinks=False, onerror=unreadable):
         for name in [*directories, *files]:
-            match = re.match(r"^(\d{3})(?:[a-z]|-\d+)?-", name)
-            if match:
-                highest = max(highest, int(match[1]))
+            path = Path(current) / name
+            if path.is_symlink():
+                raise Held("symlink-in-document-tree")
+            entries.append(path)
+    return entries
+
+
+def next_number(entries: list[Path]) -> int:
+    highest = 0
+    for path in entries:
+        match = re.match(r"^(\d{3})(?:[a-z]|-\d+)?-", path.name)
+        if match:
+            highest = max(highest, int(match[1]))
     if highest >= 999:
         raise Held("number-range-exhausted")
     return highest + 1
 
 
-def persist(root: Path, raw: bytes, at: dt.datetime) -> dict:
+def persist(root: Path, raw: bytes, at: dt.datetime, *, audited_root: Path) -> dict:
     body, raw_text = parse_payload(raw)
     root = root.absolute()
+    audited_root = audited_root.resolve(strict=True)
+    if not audited_root.is_dir():
+        raise Held("audited-root-must-be-directory")
+    if (root / "000-docs").resolve().is_relative_to(audited_root):
+        raise Held("destination-inside-audited-tree")
     index = root / "000-docs/000-INDEX.md"
     regular(index)
     if not (root / ".git").exists():
         raise Held("not-intent-os-checkout")
-    proof = screen(root, body, raw_text, at.timestamp())
+    proof = screen(root, body, raw_text, at.timestamp(), audited_root=audited_root)
     fingerprint = digest(raw)
     docs = index.parent
     # Lock the existing index without introducing another persistent lock file.
@@ -196,9 +218,10 @@ def persist(root: Path, raw: bytes, at: dt.datetime) -> dict:
         ):
             raise Held("index-changed")
         # A retry of identical input must not create a second audit entry.
-        if any(docs.glob(f"*-AA-AUDR-consistency-*-{fingerprint[:16]}.md")):
+        entries = numbered_tree(docs)
+        if any(path.match(f"*-AA-AUDR-consistency-*-{fingerprint[:16]}.md") for path in entries):
             raise Held("already-recorded")
-        number = next_number(docs)
+        number = next_number(entries)
         name = f"{number:03d}-AA-AUDR-consistency-{at.strftime('%Y-%m-%dT%H%M%SZ')}-{fingerprint[:16]}.md"
         content = (
             f"---\ntitle: Document consistency audit\ndate: {at.date().isoformat()}\n---\n\n"
@@ -243,13 +266,16 @@ def persist(root: Path, raw: bytes, at: dt.datetime) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--intent-os", type=Path, required=True)
+    parser.add_argument(
+        "--audited-root", type=Path, required=True, help="Audited tree; destination writes must stay outside it"
+    )
     parser.add_argument("--at", help="UTC ISO timestamp; defaults to the current time")
     args = parser.parse_args()
     try:
         at = dt.datetime.fromisoformat(args.at.replace("Z", "+00:00")) if args.at else dt.datetime.now(dt.timezone.utc)
         if at.tzinfo is None or at.utcoffset() != dt.timedelta(0):
             raise Held("utc-timestamp-required")
-        outcome = persist(args.intent_os, sys.stdin.buffer.read(LIMIT + 1), at)
+        outcome = persist(args.intent_os, sys.stdin.buffer.read(LIMIT + 1), at, audited_root=args.audited_root)
     except Held as error:
         print(json.dumps({"status": "held", "code": str(error)}))
         return 2

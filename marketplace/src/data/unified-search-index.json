@@ -1761,7 +1761,7 @@
       "slug": "content-consistency-validator",
       "name": "000-jeremy-content-consistency-validator",
       "displayName": "content consistency validator",
-      "description": "Read-only consistency validator: 9 deterministic drift checks across docs, code, tests, and CI, adjudicated by a per-fact-class authority registry (sot-map.yaml) — no global source-of-truth ranking, LLM-judged findings advisory-only, golden-fixture gated. Invoked by /release Phase 1.6.",
+      "description": "Consistency audit across docs, code, tests and CI with per-fact authority and advisory-only LLM findings. Audit probes leave the project unchanged; the writer files disclosure-approved reports and index entries in a separate Intent OS checkout. Invoked by /release Phase 1.6.",
       "category": "productivity",
       "keywords": [
         "documentation",
@@ -1788,7 +1788,7 @@
       "verificationScore": 91,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "content consistency validator read-only consistency validator: 9 deterministic drift checks across docs, code, tests, and ci, adjudicated by a per-fact-class authority registry (sot-map.yaml) — no global source-of-truth ranking, llm-judged findings advisory-only, golden-fixture gated. invoked by /release phase 1.6. productivity documentation consistency validation drift-detection source-of-truth authority-registry content-audit quality-assurance release-gate standards"
+      "searchText": "content consistency validator consistency audit across docs, code, tests and ci with per-fact authority and advisory-only llm findings. audit probes leave the project unchanged; the writer files disclosure-approved reports and index entries in a separate intent os checkout. invoked by /release phase 1.6. productivity documentation consistency validation drift-detection source-of-truth authority-registry content-audit quality-assurance release-gate standards"
     },
     {
       "type": "plugin",

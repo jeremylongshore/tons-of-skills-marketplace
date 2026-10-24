@@ -37,7 +37,7 @@
       "slug": "content-consistency-validator",
       "name": "000-jeremy-content-consistency-validator",
       "displayName": "content consistency validator",
-      "description": "Read-only consistency validator: 9 deterministic drift checks across docs, code, tests, and CI, adjudicated by a per-fact-class authority registry (sot-map.yaml) — no global source-of-truth ranking, LLM-judged findings advisory-only, golden-fixture gated. Invoked by /release Phase 1.6.",
+      "description": "Consistency audit across docs, code, tests and CI with per-fact authority and advisory-only LLM findings. Audit probes leave the project unchanged; the writer files disclosure-approved reports and index entries in a separate Intent OS checkout. Invoked by /release Phase 1.6.",
       "version": "3.30.0",
       "category": "productivity",
       "keywords": [

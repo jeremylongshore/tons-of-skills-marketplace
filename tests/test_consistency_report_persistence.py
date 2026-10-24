@@ -41,6 +41,8 @@ class PersistenceTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix="consistency-sink-test-")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
+        self.audited = self.root / "audited-project"
+        self.audited.mkdir()
         (self.root / ".git").mkdir()
         (self.root / "000-docs").mkdir()
         self.index = self.root / "000-docs/000-INDEX.md"
@@ -56,7 +58,7 @@ class PersistenceTests(unittest.TestCase):
     def test_numbered_report_preserves_lanes_authority_repairs_and_index_prefix(self):
         data = payload(repairs=[{"summary": "Updated README version", "evidence": "reviewed commit fixture-proof"}])
         with self.approved():
-            result = SINK.persist(self.root, data, AT)
+            result = SINK.persist(self.root, data, AT, audited_root=self.audited)
         self.assertEqual(result["status"], "saved")
         self.assertTrue(result["path"].startswith("000-docs/093-AA-AUDR-consistency-"))
         written = (self.root / result["path"]).read_bytes()
@@ -70,30 +72,59 @@ class PersistenceTests(unittest.TestCase):
 
     def test_identical_retry_never_overwrites_or_adds_an_index_entry(self):
         with self.approved():
-            result = SINK.persist(self.root, payload(), AT)
+            result = SINK.persist(self.root, payload(), AT, audited_root=self.audited)
             before = self.index.read_bytes()
             original = (self.root / result["path"]).read_bytes()
             with self.assertRaisesRegex(SINK.Held, "already-recorded"):
-                SINK.persist(self.root, payload(), AT)
+                SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertEqual(self.index.read_bytes(), before)
         self.assertEqual((self.root / result["path"]).read_bytes(), original)
+
+    def test_moved_record_in_cluster_still_blocks_identical_retry(self):
+        with self.approved():
+            result = SINK.persist(self.root, payload(), AT, audited_root=self.audited)
+            original = self.root / result["path"]
+            original.rename(self.root / "000-docs/041-AA-cluster" / original.name)
+            before = self.index.read_bytes()
+            with self.assertRaisesRegex(SINK.Held, "already-recorded"):
+                SINK.persist(self.root, payload(), AT, audited_root=self.audited)
+        self.assertEqual(self.index.read_bytes(), before)
+
+    def test_destination_cannot_be_the_audited_tree(self):
+        with self.approved() as screening:
+            with self.assertRaisesRegex(SINK.Held, "destination-inside-audited-tree"):
+                SINK.persist(self.root, payload(), AT, audited_root=self.root)
+        screening.assert_not_called()
+        self.assertEqual(self.index.read_text(), self.before)
+
+    def test_symlink_file_or_directory_in_numbered_tree_is_held(self):
+        for name, target in [("777-AA-linked.md", self.index), ("888-AA-linked", self.audited)]:
+            with self.subTest(name=name), self.approved():
+                link = self.root / "000-docs" / name
+                link.symlink_to(target)
+                try:
+                    with self.assertRaisesRegex(SINK.Held, "symlink-in-document-tree"):
+                        SINK.persist(self.root, payload(), AT, audited_root=self.audited)
+                finally:
+                    link.unlink()  # Owned scratch fixture only.
+        self.assertEqual(self.index.read_text(), self.before)
 
     def test_missing_lanes_and_unsubstantiated_repair_shape_are_rejected(self):
         for data in [payload("one merged findings section"), payload(repairs=[{"summary": "fixed"}])]:
             with self.assertRaises(SINK.Held):
-                SINK.persist(self.root, data, AT)
+                SINK.persist(self.root, data, AT, audited_root=self.audited)
         self.assertEqual(self.index.read_text(), self.before)
 
     def test_policy_hold_writes_no_report_or_index_bytes(self):
         with patch.object(SINK, "screen", side_effect=SINK.Held("disclosure-held")):
             with self.assertRaisesRegex(SINK.Held, "disclosure-held"):
-                SINK.persist(self.root, payload(), AT)
+                SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertEqual(self.index.read_text(), self.before)
         self.assertFalse(list((self.root / "000-docs").glob("*-consistency-*.md")))
 
     def test_missing_policy_is_held_before_any_destination_write(self):
         with self.assertRaisesRegex(SINK.Held, "missing-required-file"):
-            SINK.persist(self.root, payload(), AT)
+            SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertEqual(self.index.read_text(), self.before)
         self.assertFalse(list((self.root / "000-docs").glob("*-consistency-*.md")))
 
@@ -103,21 +134,21 @@ class PersistenceTests(unittest.TestCase):
         self.index.unlink()  # Owned scratch fixture only.
         self.index.symlink_to(other)
         with self.assertRaisesRegex(SINK.Held, "symlink-path"):
-            SINK.persist(self.root, payload(), AT)
+            SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertEqual(other.read_text(), "do not modify")
 
     def test_busy_index_is_held_without_creating_a_report(self):
         with self.index.open() as owner, self.approved():
             fcntl.flock(owner, fcntl.LOCK_EX | fcntl.LOCK_NB)
             with self.assertRaisesRegex(SINK.Held, "index-busy"):
-                SINK.persist(self.root, payload(), AT)
+                SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertEqual(self.index.read_text(), self.before)
         self.assertFalse(list((self.root / "000-docs").glob("*-consistency-*.md")))
 
     def test_index_write_failure_preserves_report_and_reports_incomplete(self):
         with self.approved(), patch.object(SINK.os, "write", side_effect=OSError("fixture index failure")):
             with self.assertRaisesRegex(SINK.Held, "report-saved-index-incomplete"):
-                SINK.persist(self.root, payload(), AT)
+                SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertEqual(self.index.read_text(), self.before)
         self.assertEqual(len(list((self.root / "000-docs").glob("*-consistency-*.md"))), 1)
 
@@ -133,12 +164,26 @@ class PersistenceTests(unittest.TestCase):
 
         with self.approved(), patch.object(SINK.os, "write", side_effect=replace_after_append):
             with self.assertRaisesRegex(SINK.Held, "report-saved-index-incomplete"):
-                SINK.persist(self.root, payload(), AT)
+                SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertEqual(self.index.read_text(), "Concurrent owner's replacement index\n")
         self.assertEqual(len(list((self.root / "000-docs").glob("*-consistency-*.md"))), 1)
 
 
 class PolicyTransportTests(unittest.TestCase):
+    def test_temp_parent_inside_destination_or_audited_tree_is_held_before_adapter(self):
+        with tempfile.TemporaryDirectory() as folder, tempfile.TemporaryDirectory() as audited:
+            root = Path(folder)
+            for relative in ["ops/disclosure-policy/policy.py", "ops/disclosure-policy/adapters/enforce.sh"]:
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("transport fixture; not a privacy policy")
+            for parent in [folder, audited]:
+                with self.subTest(parent=parent), patch.object(SINK.tempfile, "gettempdir", return_value=parent):
+                    with patch.object(SINK.subprocess, "run") as adapter:
+                        with self.assertRaisesRegex(SINK.Held, "temporary-directory-inside-protected-tree"):
+                            SINK.screen(root, REPORT, REPORT, AT.timestamp(), audited_root=Path(audited))
+                        adapter.assert_not_called()
+
     def test_success_exit_with_dropped_payload_does_not_authorize_a_write(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
@@ -187,7 +232,7 @@ class CanonicalPolicyIntegrationTests(unittest.TestCase):
             shutil.copyfile(canonical / relative, target)
 
     def test_real_filter_saves_only_approved_report(self):
-        result = SINK.persist(self.root, payload(), AT)
+        result = SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertTrue((self.root / result["path"]).is_file())
         self.assertEqual(result["disclosure"]["sink"], "evidence-ingest")
 
@@ -201,18 +246,27 @@ class CanonicalPolicyIntegrationTests(unittest.TestCase):
         for data, env in cases:
             with self.subTest(env=env), patch.dict(os.environ, env):
                 with self.assertRaises(SINK.Held):
-                    SINK.persist(self.root, data, AT)
+                    SINK.persist(self.root, data, AT, audited_root=self.audited)
             self.assertEqual(self.index.read_text(), self.before)
             self.assertFalse(list((self.root / "000-docs").glob("*-consistency-*.md")))
         (self.root / "ops/disclosure-policy/policy.py").unlink()  # Scratch copy only.
         with self.assertRaises(SINK.Held):
-            SINK.persist(self.root, payload(), AT)
+            SINK.persist(self.root, payload(), AT, audited_root=self.audited)
         self.assertEqual(self.index.read_text(), self.before)
 
     def test_cli_failure_output_contains_no_rejected_content(self):
         prohibited = "AK" + "IA" + "EXAMPLEFIXTUREKEY0"
         result = subprocess.run(
-            [os.sys.executable, str(SCRIPT), "--intent-os", str(self.root), "--at", "2026-10-24T03:00:00Z"],
+            [
+                os.sys.executable,
+                str(SCRIPT),
+                "--intent-os",
+                str(self.root),
+                "--audited-root",
+                str(self.audited),
+                "--at",
+                "2026-10-24T03:00:00Z",
+            ],
             input=payload(REPORT + "\n" + prohibited),
             capture_output=True,
             check=False,

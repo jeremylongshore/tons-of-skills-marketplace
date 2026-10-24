@@ -129,8 +129,11 @@ The separately requested `claude-flwe.3` work adds durable local reports while
 preserving the Phase-1 audit and registry behavior above. A bundled Python helper
 uses the destination Intent OS C8 `evidence-ingest` adapter before writing a
 plain dated `NNN-AA-AUDR` record and appending its existing index. The skill adds
-`Bash(python3:*)` for that helper; the audited tree and registry remain read-only.
-There is no general Write/Edit grant, provider call, brain ingestion or scheduler.
+`Bash(python3:*)` for that helper as a workflow instruction, not a process
+sandbox. Its required `--audited-root` guard refuses report/index destinations
+inside the declared audited tree. The writer does not repair source or registry
+content, contact providers, ingest into the brain or schedule work. The
+destination-owned adapter is trusted policy code reviewed by that checkout.
 
 Accepted payloads and content-free receipts must agree; a successful process
 exit alone cannot authorize persistence. Rejected or unavailable policy holds
@@ -142,5 +145,5 @@ does not resolve the deferred hash-chain substrate or multi-agent decisions.
 
 The unchanged golden fixture gate still checks audit behavior. Focused portable
 tests cover filing and adapter transport; separately selected integration tests
-exercise the real unvendored C8 policy in scratch destinations. No real Intent OS
+exercise the real unvendored C8 policy copied into scratch destinations. No real Intent OS
 record is needed to run those tests.
