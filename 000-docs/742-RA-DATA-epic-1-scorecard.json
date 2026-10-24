@@ -2476,7 +2476,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2607
+            "value": 2612
           },
           {
             "cohort": "curriculum",
@@ -3823,17 +3823,17 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-139.json",
+        "freshie/reports/run-delta-140.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "mf70vsi6nk1tt23alrbujmq4jungnk7a",
-        "header_total_skills": 2914,
-        "run_id": 139,
+        "dolt_commit": "jrqsqrgt32rck9agall86oi8g85q89rn",
+        "header_total_skills": 2895,
+        "run_id": 140,
         "skill_row_delta": 0,
-        "skill_rows": 2914,
+        "skill_rows": 2895,
         "target_skill_row_delta": 0
       }
     },
@@ -3844,32 +3844,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-139.json"
+        "freshie/reports/run-delta-140.json"
       ],
       "status": "target_met",
       "values": {
-        "compliance_rows": 3491,
-        "export_dolt_commit": "mf70vsi6nk1tt23alrbujmq4jungnk7a",
-        "export_run_id": 139,
-        "grades_csv_rows": 3491,
-        "grades_csv_sha256": "04ede95b460fa54b3f17359cf1bf9e2e87a844875076e599fd743b9748efd829",
+        "compliance_rows": 3472,
+        "export_dolt_commit": "jrqsqrgt32rck9agall86oi8g85q89rn",
+        "export_run_id": 140,
+        "grades_csv_rows": 3472,
+        "grades_csv_sha256": "64c543e72069b150f7d859fb589726b17664fda274b06c2cd161dba446f211c4",
         "histogram_grades": {
-          "A": 2884,
-          "B": 319,
-          "C": 130,
+          "A": 2879,
+          "B": 308,
+          "C": 127,
           "D": 154,
           "F": 4
         },
-        "histogram_total": 3491,
+        "histogram_total": 3472,
         "immutable_grade_counts": {
-          "A": 2884,
-          "B": 319,
-          "C": 130,
+          "A": 2879,
+          "B": 308,
+          "C": 127,
           "D": 154,
           "F": 4
         },
-        "inventory_dolt_commit": "mf70vsi6nk1tt23alrbujmq4jungnk7a",
-        "inventory_run_id": 139,
+        "inventory_dolt_commit": "jrqsqrgt32rck9agall86oi8g85q89rn",
+        "inventory_run_id": 140,
         "target_lag_runs": 0
       }
     },
@@ -3879,7 +3879,7 @@
       "reproduce": "pnpm run measure:e1 --row=54 --stdout",
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-139.json",
+        "freshie/reports/run-delta-140.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
@@ -3893,7 +3893,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 139,
+        "current_run_id": 140,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -3917,7 +3917,7 @@
       "source": [
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-139.json",
+        "freshie/reports/run-delta-140.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
@@ -4014,6 +4014,11 @@
         "skills/.curated/grammarly-document-evaluator/eval-spec.yaml",
         "skills/.curated/grammarly-license-governor/eval-spec.yaml",
         "skills/.curated/hubspot-warehouse-sync/eval-spec.yaml",
+        "skills/.curated/langfuse-cost-forensics/eval-spec.yaml",
+        "skills/.curated/langfuse-data-boundary-auditor/eval-spec.yaml",
+        "skills/.curated/langfuse-experiment-guardian/eval-spec.yaml",
+        "skills/.curated/langfuse-prompt-release-guardian/eval-spec.yaml",
+        "skills/.curated/langfuse-trace-ingestion-medic/eval-spec.yaml",
         "skills/.curated/production-upgrade/eval-spec.yaml",
         "skills/.curated/sentry-data-handling/eval-spec.yaml",
         "skills/.curated/skill-creator/eval-spec.yaml",
@@ -4033,10 +4038,10 @@
       "status": "measured",
       "values": {
         "adoption_percent": 1.35,
-        "curated_copies": 35,
+        "curated_copies": 40,
         "plugin_skill_rows": 2972,
         "source_eval_specs": 40,
-        "tracked_eval_specs": 75
+        "tracked_eval_specs": 80
       }
     },
     "58": {

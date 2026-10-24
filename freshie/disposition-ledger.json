@@ -3,8 +3,8 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "04ede95b460fa54b3f17359cf1bf9e2e87a844875076e599fd743b9748efd829",
-    "artifact_count": 3491
+    "sha256": "64c543e72069b150f7d859fb589726b17664fda274b06c2cd161dba446f211c4",
+    "artifact_count": 3472
   },
   "rule_order": [
     "G0",
@@ -21,7 +21,7 @@
   "counts": {
     "AUTO-MIGRATE": 1,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 3142,
+    "CERTIFY-PENDING-EVIDENCE": 3123,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
     "QUARANTINE": 347
@@ -23598,62 +23598,7 @@
       ]
     },
     {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-ci-integration/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-common-errors/SKILL.md",
-      "grade": "B",
-      "score": 86,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-core-workflow-a/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-core-workflow-b/SKILL.md",
-      "grade": "C",
-      "score": 79,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-cost-tuning/SKILL.md",
-      "grade": "A",
-      "score": 92,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-data-handling/SKILL.md",
+      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-cost-forensics/SKILL.md",
       "grade": "A",
       "score": 93,
       "diagnostics": [],
@@ -23664,128 +23609,7 @@
       ]
     },
     {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-debug-bundle/SKILL.md",
-      "grade": "B",
-      "score": 87,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-deploy-integration/SKILL.md",
-      "grade": "C",
-      "score": 79,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-enterprise-rbac/SKILL.md",
-      "grade": "A",
-      "score": 96,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-hello-world/SKILL.md",
-      "grade": "B",
-      "score": 80,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-incident-runbook/SKILL.md",
-      "grade": "A",
-      "score": 95,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-install-auth/SKILL.md",
-      "grade": "B",
-      "score": 87,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-local-dev-loop/SKILL.md",
-      "grade": "B",
-      "score": 81,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-migration-deep-dive/SKILL.md",
-      "grade": "A",
-      "score": 92,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-multi-env-setup/SKILL.md",
-      "grade": "B",
-      "score": 82,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-observability/SKILL.md",
-      "grade": "A",
-      "score": 92,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-performance-tuning/SKILL.md",
-      "grade": "B",
-      "score": 80,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-prod-checklist/SKILL.md",
+      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-data-boundary-auditor/SKILL.md",
       "grade": "A",
       "score": 94,
       "diagnostics": [],
@@ -23796,9 +23620,9 @@
       ]
     },
     {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-rate-limits/SKILL.md",
+      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-experiment-guardian/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -23807,9 +23631,9 @@
       ]
     },
     {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-reference-architecture/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-prompt-release-guardian/SKILL.md",
+      "grade": "A",
+      "score": 93,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -23818,42 +23642,9 @@
       ]
     },
     {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-sdk-patterns/SKILL.md",
+      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-trace-ingestion-medic/SKILL.md",
       "grade": "A",
       "score": 92,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-security-basics/SKILL.md",
-      "grade": "C",
-      "score": 79,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-upgrade-migration/SKILL.md",
-      "grade": "A",
-      "score": 91,
-      "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
-      "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
-      ]
-    },
-    {
-      "path": "plugins/saas-packs/langfuse-pack/skills/langfuse-webhooks-events/SKILL.md",
-      "grade": "B",
-      "score": 82,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

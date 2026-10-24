@@ -67,6 +67,17 @@ def receipt():
 
 
 class PromptReleaseTests(unittest.TestCase):
+    def test_unclosed_template_delimiters_finish_within_bounded_runtime(self):
+        # Run in a child so a quadratic scanner fails without hanging the suite.
+        code = (
+            "import importlib.util; "
+            "s=importlib.util.spec_from_file_location('release', " + repr(str(SCRIPT)) + "); "
+            "m=importlib.util.module_from_spec(s); s.loader.exec_module(m); "
+            "assert m.template_contract({'type':'text','prompt':'{' * 50000}) == (set(),set(),True)"
+        )
+        result = subprocess.run([sys.executable, "-c", code], capture_output=True, timeout=3)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_pinned_fresh_compatible_versions_yield_only_a_proposal(self):
         data = receipt()
         before = copy.deepcopy(data)

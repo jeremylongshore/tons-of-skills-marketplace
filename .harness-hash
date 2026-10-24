@@ -101,6 +101,11 @@ cfdbcbf984d1d4353bcf89d910e258fd4cbeb57fffca94db7fcc827a128f6fa6  skills/.curate
 2016b189ab62d8c8b464bd2682d2f7d2ec609a0b79ff8da82fd35c966f7833b1  skills/.curated/grammarly-document-evaluator/eval-spec.yaml
 aec1ccbc2020a4a52670a8ee090dbb20c6a2d9b1bcfb6a92ae5fd76d1b74f051  skills/.curated/grammarly-license-governor/eval-spec.yaml
 7312747954bc4618385908f57a7dd08f7b11fa27ca762cb840e00f8fa800161d  skills/.curated/hubspot-warehouse-sync/eval-spec.yaml
+ffde936ab597916eadb3886c254717a54d4be64dc8d6c370a53829fb225f8d6e  skills/.curated/langfuse-cost-forensics/eval-spec.yaml
+c9991395a20109093ecb2c33c47817561e6ff91cf76790e7f8535d947b2806fb  skills/.curated/langfuse-data-boundary-auditor/eval-spec.yaml
+fa9166c7c89c62ffda6f4a18f0b4f279c099afa14494bfda22ec3486ba30b6b4  skills/.curated/langfuse-experiment-guardian/eval-spec.yaml
+b61b1208ab1ec6e4dae49e6ce7928840bae9dbdd68bcae042a65068d5e36714b  skills/.curated/langfuse-prompt-release-guardian/eval-spec.yaml
+b089674121dfd1909dfa7295d0db5dfa27f42293fdcd9cd1aff9847f6fea1905  skills/.curated/langfuse-trace-ingestion-medic/eval-spec.yaml
 4ec96e380060eeca8a3e106de6052f61927005482b007af8d090c06ca46ce0a4  skills/.curated/production-upgrade/eval-spec.yaml
 d543f74906821a7fa80ba90dc80d3b6ff7fbdc81078ab0a9d75e45e965b3a5d3  skills/.curated/sentry-data-handling/eval-spec.yaml
 81eabecbc8b79a87d105d061bd0f3380e6d74648e412fa46f20885a1abf46160  skills/.curated/skill-creator/eval-spec.yaml

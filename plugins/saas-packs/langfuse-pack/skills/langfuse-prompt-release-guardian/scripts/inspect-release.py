@@ -83,14 +83,23 @@ def template_contract(prompt):
     for text in texts:
         require(len(text) <= LIMIT, "prompt-text-too-large")
         rest, position = [], 0
-        for match in re.finditer(r"\{\{.*?\}\}", text, re.DOTALL):
-            rest.append(text[position : match.start()])
-            token = re.fullmatch(r"\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}", match[0])
+        # Advance monotonically: a regex retry at every unmatched opening brace
+        # makes malformed input quadratic even within the receipt size limit.
+        while True:
+            start = text.find("{{", position)
+            if start < 0:
+                break
+            end = text.find("}}", start + 2)
+            if end < 0:
+                unsupported = True
+                break
+            rest.append(text[position:start])
+            token = re.fullmatch(r"\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}", text[start : end + 2])
             if token:
                 variables.add(token[1])
             else:
                 unsupported = True
-            position = match.end()
+            position = end + 2
         rest.append(text[position:])
         remainder = "".join(rest)
         if "{{" in remainder or "}}" in remainder:

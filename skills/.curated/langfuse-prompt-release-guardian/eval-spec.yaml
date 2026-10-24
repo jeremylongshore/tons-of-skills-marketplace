@@ -1,0 +1,60 @@
+spec_version: '1.0'
+skill_name: langfuse-prompt-release-guardian
+description: Assess explicit version/label proposals and supplied webhook evidence without deployment.
+criteria:
+  - id: pins-release
+    description: Requires explicit versions, fresh native label evidence and reviewed content/config/dependency identity.
+    method: judge
+    blocker: true
+  - id: checks-runtime
+    description:
+      Checks candidate and rollback variables/placeholders; complex syntax needs SDK review, not guessed
+      compatibility.
+    method: judge
+    blocker: true
+  - id: bounds-webhooks
+    description:
+      Distinguishes raw-byte signature validity, replay history and event order from current deployment
+      state.
+    method: judge
+    blocker: true
+  - id: preserves-release-authority
+    description:
+      Makes only a proposal; never assigns labels, deploys, triggers CI or treats a helper pass as owner
+      approval.
+    method: judge
+    blocker: true
+test_cases:
+  - id: new-variable
+    prompt:
+      Promote this Langfuse prompt from our supplied snapshots. Candidate adds a variable the app never sends;
+      its content hash was reviewed.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - pins-release
+      - checks-runtime
+      - preserves-release-authority
+  - id: signed-but-stale
+    prompt:
+      A correctly signed Langfuse prompt-version updated webhook arrived twice. We have no replay history and
+      an old production snapshot. Is it enough to deploy?
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - bounds-webhooks
+      - pins-release
+      - preserves-release-authority
+  - id: rollback-chat
+    prompt: Check a Langfuse rollback to an older chat prompt with a message placeholder. Do not change labels.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - checks-runtime
+      - pins-release
+      - preserves-release-authority
+  - id: unrelated-styling
+    prompt: Change my dashboard font.
+    trigger_expectation: should_not_trigger
+    criteria_ids: []
+tags:
+  - langfuse
+  - supplied-data
+  - operator-review
