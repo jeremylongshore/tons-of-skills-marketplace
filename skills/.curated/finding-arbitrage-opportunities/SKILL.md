@@ -14,7 +14,7 @@ description: 'Compare live best bid and ask for one crypto pair across exchanges
   '
 allowed-tools: Bash(python3:*)
 argument-hint: "<scan BASE QUOTE | triangular VENUE | monitor BASE QUOTE>"
-version: 2.1.0
+version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

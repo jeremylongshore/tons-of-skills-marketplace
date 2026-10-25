@@ -15,7 +15,7 @@ description: 'Research crypto perpetual swaps, dated futures and options from li
   '
 allowed-tools: Bash(python3:*)
 argument-hint: "<funding|oi|basis|liquidations|options|dashboard> <SYMBOL>"
-version: 2.1.0
+version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:

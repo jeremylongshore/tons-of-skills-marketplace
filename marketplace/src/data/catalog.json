@@ -1096,7 +1096,7 @@
       "name": "arbitrage-opportunity-finder",
       "displayName": "arbitrage opportunity finder",
       "description": "Compare live bid/ask for a crypto pair across exchanges and show spreads net of stated fees; read-only",
-      "version": "2.1.0",
+      "version": "2.0.0",
       "category": "crypto",
       "keywords": [
         "arbitrage",
@@ -1841,7 +1841,7 @@
       "name": "crypto-derivatives-tracker",
       "displayName": "crypto derivatives tracker",
       "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
-      "version": "2.1.0",
+      "version": "2.0.0",
       "category": "crypto",
       "keywords": [
         "crypto",
