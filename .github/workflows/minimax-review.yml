@@ -49,8 +49,8 @@ on:
     branches: [main]
 
 # Token budget: the MiniMax Token Plan is shared by every estate repo, and on
-# 2026-10-25 this workflow exhausted its 5-hour window (130 runs over 87 unique
-# heads since 10-23; 43 re-reviewed unchanged code). So: no lane runs on a draft
+# 2026-10-25 this workflow exhausted its 5-hour window (127 runs over 85 unique
+# heads from 10-23; 42 repeated an already-reviewed head). So: no lane runs on a draft
 # (it runs once on ready_for_review), and an `edited` event re-runs only the
 # adversarial lane, the one that reads the title and description, unless the
 # base branch changed. `converted_to_draft` starts a run whose lanes all skip; it
