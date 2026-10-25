@@ -50,11 +50,12 @@ on:
 
 # Token budget: the MiniMax Token Plan is shared by every estate repo, and on
 # 2026-10-25 this workflow exhausted its 5-hour window (127 runs over 85 unique
-# heads from 10-23; 42 repeated an already-reviewed head). So: no lane runs on a draft
-# (it runs once on ready_for_review), and an `edited` event re-runs only the
+# heads from 10-23; 42 repeated an already-reviewed head). So: no lane starts on a
+# draft (ready_for_review starts all three), and an `edited` event starts only the
 # adversarial lane, the one that reads the title and description, unless the
 # base branch changed. `converted_to_draft` starts a run whose lanes all skip; it
-# exists to cancel, through the shared `code` group, a review already in flight.
+# exists to cancel, through the shared `code` group, a code-group review already
+# in flight. An edit-group run already in flight finishes.
 
 permissions:
   contents: read
