@@ -89,7 +89,7 @@ def format_optimization_results(df: pd.DataFrame, param_names: List[str]) -> str
 
     output = []
     output.append("=" * 80)
-    output.append("PARAMETER OPTIMIZATION RESULTS")
+    output.append("HISTORICAL SIMULATION: PARAMETER OPTIMIZATION")
     output.append("=" * 80)
     output.append("")
 
@@ -121,7 +121,7 @@ def format_optimization_results(df: pd.DataFrame, param_names: List[str]) -> str
     for p in param_names:
         output.append(f"  {p}: {best[p]}")
     output.append("")
-    output.append("Expected Performance:")
+    output.append("In-sample historical simulation (not expected future performance):")
     output.append(f"  Total Return: {best['total_return']:.2f}%")
     output.append(f"  Sharpe Ratio: {best['sharpe_ratio']:.2f}")
     output.append(f"  Max Drawdown: {best['max_drawdown']:.2f}%")

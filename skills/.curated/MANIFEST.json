@@ -4217,6 +4217,7 @@
         "scripts/metrics.py",
         "scripts/optimize.py",
         "scripts/strategies.py",
+        "tests/test_metrics.py",
         "tests/test_strategies.py"
       ]
     },

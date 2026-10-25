@@ -5,7 +5,8 @@ Performance and Risk Metrics for Backtesting
 
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+from math import isfinite
 from dataclasses import dataclass
 
 
@@ -65,7 +66,7 @@ class BacktestResult:
     # Trade statistics
     total_trades: int = 0
     win_rate: float = 0.0
-    profit_factor: float = 0.0
+    profit_factor: Optional[float] = None
     avg_win: float = 0.0
     avg_loss: float = 0.0
     expectancy: float = 0.0
@@ -198,7 +199,7 @@ def calculate_trade_stats(trades: List[Trade]) -> Dict[str, Any]:
         return {
             "total_trades": 0,
             "win_rate": 0.0,
-            "profit_factor": 0.0,
+            "profit_factor": None,
             "avg_win": 0.0,
             "avg_loss": 0.0,
             "expectancy": 0.0,
@@ -215,7 +216,7 @@ def calculate_trade_stats(trades: List[Trade]) -> Dict[str, Any]:
 
     gross_profit = sum(t.pnl for t in wins) if wins else 0
     gross_loss = abs(sum(t.pnl for t in losses)) if losses else 0
-    profit_factor = gross_profit / gross_loss if gross_loss > 0 else float("inf")
+    profit_factor = gross_profit / gross_loss if gross_loss > 0 else None
 
     avg_win = np.mean([t.pnl for t in wins]) if wins else 0
     avg_loss = np.mean([t.pnl for t in losses]) if losses else 0
@@ -296,7 +297,12 @@ def format_results(result: BacktestResult) -> str:
 
     params_str = ", ".join(f"{k}={v}" for k, v in result.parameters.items())
 
+    profit_factor = f"{result.profit_factor:.2f}" if result.profit_factor is not None else "N/A"
+    sortino = f"{result.sortino_ratio:.2f}" if isfinite(result.sortino_ratio) else "N/A"
+
     return f"""
+Historical simulation only; results describe the supplied data and assumptions.
+Profit factor is N/A without observed losses; zero/one-trade samples are insufficient for inference.
 ╔══════════════════════════════════════════════════════════════════════╗
 ║            BACKTEST RESULTS: {result.strategy.upper():^20}              ║
 ║            {result.symbol} | {result.start_date.strftime("%Y-%m-%d")} to {result.end_date.strftime("%Y-%m-%d")}             ║
@@ -306,12 +312,12 @@ def format_results(result: BacktestResult) -> str:
 ║ Total Return:     {result.total_return:>+10.2f}%         │ Max Drawdown:   {result.max_drawdown:>+10.2f}%    ║
 ║ CAGR:             {result.cagr:>+10.2f}%         │ VaR (95%):      {result.var_95:>+10.2f}%    ║
 ║ Sharpe Ratio:     {result.sharpe_ratio:>10.2f}          │ Volatility:     {result.volatility:>10.2f}%    ║
-║ Sortino Ratio:    {result.sortino_ratio:>10.2f}          │ Ulcer Index:    {result.ulcer_index:>10.2f}     ║
+║ Sortino Ratio:    {sortino:>10}          │ Ulcer Index:    {result.ulcer_index:>10.2f}     ║
 ║ Calmar Ratio:     {result.calmar_ratio:>10.2f}          │ CVaR (95%):     {result.cvar_95:>+10.2f}%    ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║ TRADE STATISTICS                                                     ║
 ║ ─────────────────────────────────────────────────────────────────────║
-║ Total Trades:     {result.total_trades:>10}          │ Profit Factor:  {result.profit_factor:>10.2f}     ║
+║ Total Trades:     {result.total_trades:>10}          │ Profit Factor:  {profit_factor:>10}     ║
 ║ Win Rate:         {result.win_rate:>10.1f}%         │ Expectancy:     ${result.expectancy:>10.2f}    ║
 ║ Avg Win:          ${result.avg_win:>10.2f}         │ Max Consec. Losses: {result.max_consecutive_losses:>5}    ║
 ║ Avg Loss:         ${result.avg_loss:>10.2f}         │ Avg Duration:   {result.avg_trade_duration:>10}     ║
