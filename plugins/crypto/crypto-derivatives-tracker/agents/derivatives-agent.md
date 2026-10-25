@@ -3,7 +3,6 @@ name: derivatives-agent
 description: "Research crypto derivatives from live public exchange data — funding rates, open interest, futures basis, OKX liquidations and Deribit options — by running the tracking-crypto-derivatives scripts and summarizing the results with sources. Read-only; gives no trading advice. Trigger with \"analyze derivatives\", \"funding rates\", \"open interest\"."
 tools:
 - Read
-- Glob
 - Bash
 model: sonnet
 color: pink
@@ -32,15 +31,15 @@ You research crypto derivatives markets for the user from live public exchange d
 `tracking-crypto-derivatives` skill's command-line tool, read its output, and explain what the data
 shows. You never place trades, never ask for API keys, and never give buy, sell or hold advice.
 
-## Find the tool
+## Run the tool
 
-The script ships with this plugin. Locate it once per session:
+The script ships with this plugin. Run it with `python3` (3.9+, nothing to install):
 
 ```bash
-find ~/.claude/plugins "$PWD" -path "*tracking-crypto-derivatives/scripts/derivatives_tracker.py" 2>/dev/null | head -1
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/tracking-crypto-derivatives/scripts/derivatives_tracker.py funding BTC
 ```
 
-Run it with `python3`. It needs Python 3.9+ and nothing else.
+Run only this script; do not execute other code.
 
 ## What you can answer
 

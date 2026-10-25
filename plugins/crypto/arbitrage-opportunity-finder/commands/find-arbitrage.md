@@ -3,6 +3,7 @@ name: find-arbitrage
 description: >
   Compare live crypto bid/ask across exchanges; spreads net of stated fees
 shortcut: fa
+allowed-tools: Bash(python3 ${CLAUDE_PLUGIN_ROOT}/skills/finding-arbitrage-opportunities/scripts/arb_finder.py:*)
 ---
 # Find Arbitrage Spreads
 
@@ -18,18 +19,17 @@ Run the `finding-arbitrage-opportunities` skill's scanner and summarize the resu
 
 ## Steps
 
-1. Locate the scanner (it ships with this plugin):
+1. Run the scanner bundled with this plugin:
 
    ```bash
-   find ~/.claude/plugins "$PWD" -path "*finding-arbitrage-opportunities/scripts/arb_finder.py" 2>/dev/null | head -1
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/finding-arbitrage-opportunities/scripts/arb_finder.py scan BTC USDT
    ```
 
-2. Run the requested command with `python3`:
-   - Pair given (`BTC USDT`): `arb_finder.py scan BTC USDT` plus any `--fee`, `--venues`, `--amount` the user supplied.
-   - `triangular VENUE`: `arb_finder.py triangular VENUE` (okx, kucoin or gate).
-   - No arguments: ask which pair, or run `arb_finder.py scan BTC USDT`.
+   - Pair given (`BTC USDT`): `scan BASE QUOTE` plus any `--fee`, `--venues`, `--amount` the user supplied.
+   - `triangular VENUE`: `triangular VENUE` (okx, kucoin or gate).
+   - No arguments: ask which pair, or run `scan BTC USDT`.
 
-3. Report:
+2. Report:
    - The widest gross spread and the best net spread, with the venues and the fee assumed for each.
    - Venues listed as unavailable, with the reason (Binance and Bybit refuse US networks).
    - What is not included: withdrawal and network fees, transfer time, price moves meanwhile, depth beyond the best bid and ask.

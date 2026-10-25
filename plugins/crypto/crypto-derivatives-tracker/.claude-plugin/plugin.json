@@ -1,7 +1,7 @@
 {
   "name": "crypto-derivatives-tracker",
   "version": "2.0.0",
-  "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
+  "description": "Read-only crypto derivatives research from live public exchange data: funding, open interest, basis, liquidations, options",
   "author": {
     "name": "Intent Solutions IO",
     "email": "jeremy@intentsolutions.ai",
@@ -12,11 +12,10 @@
   "keywords": [
     "crypto",
     "derivatives",
-    "futures",
-    "options",
     "perpetuals",
     "funding-rate",
     "open-interest",
-    "trading"
+    "options",
+    "research"
   ]
 }

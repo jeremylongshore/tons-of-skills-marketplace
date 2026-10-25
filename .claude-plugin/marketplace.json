@@ -1288,18 +1288,17 @@
     {
       "name": "crypto-derivatives-tracker",
       "source": "./plugins/crypto/crypto-derivatives-tracker",
-      "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
+      "description": "Read-only crypto derivatives research from live public exchange data: funding, open interest, basis, liquidations, options",
       "version": "2.0.0",
       "category": "crypto",
       "keywords": [
         "crypto",
         "derivatives",
-        "futures",
-        "options",
         "perpetuals",
         "funding-rate",
         "open-interest",
-        "trading"
+        "options",
+        "research"
       ],
       "author": {
         "name": "Jeremy Longshore",

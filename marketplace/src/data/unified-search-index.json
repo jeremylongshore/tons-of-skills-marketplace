@@ -229,6 +229,8 @@
       "Bash(pytest:*)",
       "Bash(python*:*)",
       "Bash(python3 ${CLAUDE_PLUGIN_ROOT}/scripts/dolt-detect.py:*)",
+      "Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py:*)",
+      "Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py:*)",
       "Bash(python3*)",
       "Bash(python3:*)",
       "Bash(python:*)",
@@ -908,7 +910,6 @@
       "fullstack",
       "function-calling",
       "funding-rate",
-      "futures",
       "fuzzing",
       "ga4",
       "gainers",
@@ -3809,17 +3810,16 @@
       "slug": "crypto-derivatives-tracker",
       "name": "crypto-derivatives-tracker",
       "displayName": "crypto derivatives tracker",
-      "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
+      "description": "Read-only crypto derivatives research from live public exchange data: funding, open interest, basis, liquidations, options",
       "category": "crypto",
       "keywords": [
         "crypto",
         "derivatives",
-        "futures",
-        "options",
         "perpetuals",
         "funding-rate",
         "open-interest",
-        "trading"
+        "options",
+        "research"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -3834,7 +3834,7 @@
       "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "crypto derivatives tracker track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis crypto crypto derivatives futures options perpetuals funding-rate open-interest trading"
+      "searchText": "crypto derivatives tracker read-only crypto derivatives research from live public exchange data: funding, open interest, basis, liquidations, options crypto crypto derivatives perpetuals funding-rate open-interest options research"
     },
     {
       "type": "plugin",
@@ -36524,7 +36524,7 @@
       "description": "Compare live best bid and ask for one crypto pair across exchanges and report every cross-venue spread, gross and net of stated taker fees; search three-trade cycles within one exchange. Read-only, no API keys. Use when checking whether a coin trades at different prices on different exchanges, sizing a spread against fees, or looking for triangular price gaps on OKX, KuCoin or Gate. Trigger with phrases like \"find arbitrage\", \"scan for arb\", \"price spread\", \"exchange price difference\", \"triangular arb\", or \"cross-exchange spread\".",
       "category": "crypto",
       "allowedTools": [
-        "Bash(python3:*)"
+        "Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py:*)"
       ],
       "compatibleWith": [],
       "version": "2.0.0",
@@ -36532,7 +36532,7 @@
         "name": "arbitrage-opportunity-finder",
         "category": "crypto"
       },
-      "searchText": "finding-arbitrage-opportunities compare live best bid and ask for one crypto pair across exchanges and report every cross-venue spread, gross and net of stated taker fees; search three-trade cycles within one exchange. read-only, no api keys. use when checking whether a coin trades at different prices on different exchanges, sizing a spread against fees, or looking for triangular price gaps on okx, kucoin or gate. trigger with phrases like \"find arbitrage\", \"scan for arb\", \"price spread\", \"exchange price difference\", \"triangular arb\", or \"cross-exchange spread\". crypto bash(python3:*) "
+      "searchText": "finding-arbitrage-opportunities compare live best bid and ask for one crypto pair across exchanges and report every cross-venue spread, gross and net of stated taker fees; search three-trade cycles within one exchange. read-only, no api keys. use when checking whether a coin trades at different prices on different exchanges, sizing a spread against fees, or looking for triangular price gaps on okx, kucoin or gate. trigger with phrases like \"find arbitrage\", \"scan for arb\", \"price spread\", \"exchange price difference\", \"triangular arb\", or \"cross-exchange spread\". crypto bash(python3 ${claude_skill_dir}/scripts/arb_finder.py:*) "
     },
     {
       "type": "skill",
@@ -72509,7 +72509,7 @@
       "description": "Research crypto perpetual swaps, dated futures and options from live public exchange data: funding rates, open interest, basis, liquidations, put/call ratios and max pain. Read-only, no API keys. Use when checking funding across exchanges, comparing open interest, reading the futures term structure, reviewing recent liquidations, or summarizing the options market for BTC or ETH. Trigger with phrases like \"funding rate\", \"open interest\", \"perpetual swap\", \"futures basis\", \"liquidations\", \"put call ratio\", \"max pain\", \"derivatives analysis\", or \"BTC perps\".",
       "category": "crypto",
       "allowedTools": [
-        "Bash(python3:*)"
+        "Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py:*)"
       ],
       "compatibleWith": [],
       "version": "2.0.0",
@@ -72517,7 +72517,7 @@
         "name": "crypto-derivatives-tracker",
         "category": "crypto"
       },
-      "searchText": "tracking-crypto-derivatives research crypto perpetual swaps, dated futures and options from live public exchange data: funding rates, open interest, basis, liquidations, put/call ratios and max pain. read-only, no api keys. use when checking funding across exchanges, comparing open interest, reading the futures term structure, reviewing recent liquidations, or summarizing the options market for btc or eth. trigger with phrases like \"funding rate\", \"open interest\", \"perpetual swap\", \"futures basis\", \"liquidations\", \"put call ratio\", \"max pain\", \"derivatives analysis\", or \"btc perps\". crypto bash(python3:*) "
+      "searchText": "tracking-crypto-derivatives research crypto perpetual swaps, dated futures and options from live public exchange data: funding rates, open interest, basis, liquidations, put/call ratios and max pain. read-only, no api keys. use when checking funding across exchanges, comparing open interest, reading the futures term structure, reviewing recent liquidations, or summarizing the options market for btc or eth. trigger with phrases like \"funding rate\", \"open interest\", \"perpetual swap\", \"futures basis\", \"liquidations\", \"put call ratio\", \"max pain\", \"derivatives analysis\", or \"btc perps\". crypto bash(python3 ${claude_skill_dir}/scripts/derivatives_tracker.py:*) "
     },
     {
       "type": "skill",

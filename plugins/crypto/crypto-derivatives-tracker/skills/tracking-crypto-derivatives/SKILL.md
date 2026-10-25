@@ -13,7 +13,7 @@ description: 'Research crypto perpetual swaps, dated futures and options from li
   "BTC perps".
 
   '
-allowed-tools: Bash(python3:*)
+allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py:*)
 argument-hint: "<funding|oi|basis|liquidations|options|dashboard> <SYMBOL>"
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -122,7 +122,7 @@ More in [`references/errors.md`](references/errors.md).
 
 ## Examples
 
-**Cross-venue funding check:**
+**Cross-venue funding check** (an excerpt of captured live output; full runs with their capture time are in `references/examples.md`, and live figures change every minute):
 
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py funding BTC

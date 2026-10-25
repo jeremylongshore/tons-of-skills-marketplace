@@ -12,7 +12,7 @@ description: 'Compare live best bid and ask for one crypto pair across exchanges
   "exchange price difference", "triangular arb", or "cross-exchange spread".
 
   '
-allowed-tools: Bash(python3:*)
+allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py:*)
 argument-hint: "<scan BASE QUOTE | triangular VENUE | monitor BASE QUOTE>"
 version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -101,7 +101,7 @@ More in [`references/errors.md`](references/errors.md).
 
 ## Examples
 
-**Cross-venue BTC/USDT check:**
+**Cross-venue BTC/USDT check** (an excerpt of captured live output; full runs with their capture time are in `references/examples.md`, and live figures change every minute):
 
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan BTC USDT --top 3

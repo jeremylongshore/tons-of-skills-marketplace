@@ -178,6 +178,36 @@ class TestVenues(unittest.TestCase):
         self.assertIsNone(spot_venues.FEES["kucoin"].taker_pct)
         self.assertIsNone(spot_venues.FEES["coinbase"].taker_pct)
 
+    def test_documented_fee_table_matches_code(self):
+        """references/implementation.md must state the same fee as spot_venues.FEES for every venue."""
+        names = {
+            "Kraken": "kraken",
+            "OKX": "okx",
+            "Binance": "binance",
+            "Bybit": "bybit",
+            "Bitfinex": "bitfinex",
+            "Crypto.com": "cryptocom",
+            "Gate": "gate",
+            "KuCoin": "kucoin",
+            "Coinbase": "coinbase",
+        }
+        doc = (SKILL_DIR / "references" / "implementation.md").read_text()
+        section = doc.split("## Fee assumptions", 1)[1].split("\n## ", 1)[0]
+        documented = {}
+        for line in section.splitlines():
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) >= 2 and cells[0] in names:
+                documented[names[cells[0]]] = cells[1]
+        self.assertEqual(set(documented), set(spot_venues.FEES))
+        for venue, assumption in spot_venues.FEES.items():
+            if venue == "gate":
+                expected = "live"
+            elif assumption.taker_pct is None:
+                expected = "unknown"
+            else:
+                expected = f"{assumption.taker_pct:.2f}%".replace(".00%", "%")
+            self.assertEqual(documented[venue], expected, venue)
+
     def test_fee_parsing_rejects_nonsense(self):
         self.assertEqual(arb_finder.parse_fees(["okx=0.1,kraken=0.26"]), {"okx": 0.1, "kraken": 0.26})
         with self.assertRaises(SystemExit):
