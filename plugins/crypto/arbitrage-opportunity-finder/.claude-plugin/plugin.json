@@ -1,6 +1,6 @@
 {
   "name": "arbitrage-opportunity-finder",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Compare live bid/ask for a crypto pair across exchanges and show spreads net of stated fees; read-only",
   "author": {
     "name": "Intent Solutions IO",

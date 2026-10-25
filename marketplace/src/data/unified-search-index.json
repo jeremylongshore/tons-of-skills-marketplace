@@ -2972,7 +2972,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "isFeatured": true,
       "isNew": false,
       "badges": [],
@@ -3826,7 +3826,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -36527,7 +36527,7 @@
         "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "2.0.0",
+      "version": "2.1.0",
       "parentPlugin": {
         "name": "arbitrage-opportunity-finder",
         "category": "crypto"
@@ -72512,7 +72512,7 @@
         "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "2.0.0",
+      "version": "2.1.0",
       "parentPlugin": {
         "name": "crypto-derivatives-tracker",
         "category": "crypto"
