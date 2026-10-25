@@ -7,11 +7,17 @@ shortcut: bs
 
 # Backtest Trading Strategy
 
-Run the shipped Python backtester. Read `skills/backtesting-trading-strategies/SKILL.md` for the
+Requested inputs: $ARGUMENTS
+
+Run the shipped Python backtester. Read
+`${CLAUDE_PLUGIN_ROOT}/skills/backtesting-trading-strategies/SKILL.md` for the
 supported strategies, parameters, data loading and result files.
 
-1. Determine the requested strategy, symbol, historical date range and cost
-   assumptions. Do not infer a future return target from the request.
+1. Parse the requested strategy, symbol, historical date range and cost
+   assumptions. Ask for missing required values and check the strategy against
+   the supported list. Pass validated values as quoted literal arguments; never
+   interpolate raw argument text into shell code. Do not infer a future return
+   target from the request.
 2. Run the existing CLI with those inputs. For example, substitute the user's
    symbol and strategy in this invocation:
 

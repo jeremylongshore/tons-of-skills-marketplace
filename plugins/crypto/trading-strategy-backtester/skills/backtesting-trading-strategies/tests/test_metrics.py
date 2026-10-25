@@ -150,7 +150,11 @@ class UnavailableMetricTests(unittest.TestCase):
         self.assertTrue(pd.api.types.is_numeric_dtype(frame["profit_factor"]))
         self.assertEqual(frame["period"].tolist(), [2, 1])
         self.assertTrue(pd.isna(frame.iloc[-1]["profit_factor"]))
-        self.assertIn("by profit_factor", format_optimization_results(frame, ["period"]))
+        report = format_optimization_results(frame, ["period"])
+        self.assertIn("by profit_factor", report)
+        self.assertIn("ProfitFactor", report)
+        self.assertIn("Ranking metric (profit_factor): 2.00", report)
+        self.assertIn("  period: 2", report.splitlines())
         frame = frame[frame["period"] == 1]
         self.assertIn("no best parameter set", format_optimization_results(frame, ["period"]))
         self.assertIn("no best parameter set", format_optimization_results(pd.DataFrame(), []))

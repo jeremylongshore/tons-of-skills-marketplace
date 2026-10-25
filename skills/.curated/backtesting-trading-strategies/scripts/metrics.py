@@ -292,7 +292,7 @@ def calculate_all_metrics(result: BacktestResult) -> BacktestResult:
     return result
 
 
-def _format_number(value: Optional[float], spec: str = ".2f") -> str:
+def format_metric(value: Optional[float], spec: str = ".2f") -> str:
     """Render an unavailable/non-finite metric without suggesting a numerical result."""
     return format(value, spec) if value is not None and isfinite(value) else "N/A"
 
@@ -311,20 +311,20 @@ Profit factor is N/A without observed losses; zero/one-trade samples are insuffi
 ╠══════════════════════════════════════════════════════════════════════╣
 ║ PERFORMANCE                          │ RISK                          ║
 ║ ─────────────────────────────────────┼─────────────────────────────  ║
-║ Total Return:     {_format_number(result.total_return, "+.2f"):>10}%         │ Max Drawdown:   {_format_number(result.max_drawdown, "+.2f"):>10}%    ║
-║ CAGR:             {_format_number(result.cagr, "+.2f"):>10}%         │ VaR (95%):      {_format_number(result.var_95, "+.2f"):>10}%    ║
-║ Sharpe Ratio:     {_format_number(result.sharpe_ratio, ".2f"):>10}          │ Volatility:     {_format_number(result.volatility, ".2f"):>10}%    ║
-║ Sortino Ratio:    {_format_number(result.sortino_ratio):>10}          │ Ulcer Index:    {_format_number(result.ulcer_index, ".2f"):>10}     ║
-║ Calmar Ratio:     {_format_number(result.calmar_ratio, ".2f"):>10}          │ CVaR (95%):     {_format_number(result.cvar_95, "+.2f"):>10}%    ║
+║ Total Return:     {format_metric(result.total_return, "+.2f"):>10}%         │ Max Drawdown:   {format_metric(result.max_drawdown, "+.2f"):>10}%    ║
+║ CAGR:             {format_metric(result.cagr, "+.2f"):>10}%         │ VaR (95%):      {format_metric(result.var_95, "+.2f"):>10}%    ║
+║ Sharpe Ratio:     {format_metric(result.sharpe_ratio, ".2f"):>10}          │ Volatility:     {format_metric(result.volatility, ".2f"):>10}%    ║
+║ Sortino Ratio:    {format_metric(result.sortino_ratio):>10}          │ Ulcer Index:    {format_metric(result.ulcer_index, ".2f"):>10}     ║
+║ Calmar Ratio:     {format_metric(result.calmar_ratio, ".2f"):>10}          │ CVaR (95%):     {format_metric(result.cvar_95, "+.2f"):>10}%    ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║ TRADE STATISTICS                                                     ║
 ║ ─────────────────────────────────────────────────────────────────────║
-║ Total Trades:     {result.total_trades:>10}          │ Profit Factor:  {_format_number(result.profit_factor):>10}     ║
-║ Win Rate:         {_format_number(result.win_rate, ".1f"):>10}%         │ Expectancy:     ${_format_number(result.expectancy, ".2f"):>10}    ║
-║ Avg Win:          ${_format_number(result.avg_win, ".2f"):>10}         │ Max Consec. Losses: {result.max_consecutive_losses:>5}    ║
-║ Avg Loss:         ${_format_number(result.avg_loss, ".2f"):>10}         │ Avg Duration:   {result.avg_trade_duration:>10}     ║
+║ Total Trades:     {result.total_trades:>10}          │ Profit Factor:  {format_metric(result.profit_factor):>10}     ║
+║ Win Rate:         {format_metric(result.win_rate, ".1f"):>10}%         │ Expectancy:     ${format_metric(result.expectancy, ".2f"):>10}    ║
+║ Avg Win:          ${format_metric(result.avg_win, ".2f"):>10}         │ Max Consec. Losses: {result.max_consecutive_losses:>5}    ║
+║ Avg Loss:         ${format_metric(result.avg_loss, ".2f"):>10}         │ Avg Duration:   {result.avg_trade_duration:>10}     ║
 ╠══════════════════════════════════════════════════════════════════════╣
-║ Capital: ${_format_number(result.initial_capital, ",.0f")} → ${_format_number(result.final_capital, ",.0f")}                                  ║
+║ Capital: ${format_metric(result.initial_capital, ",.0f")} → ${format_metric(result.final_capital, ",.0f")}                                  ║
 ║ Parameters: {params_str:<56} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """
