@@ -306,7 +306,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -344,7 +344,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -382,7 +382,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -420,7 +420,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -458,7 +458,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -496,7 +496,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -534,7 +534,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -572,7 +572,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -610,7 +610,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -648,7 +648,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -686,7 +686,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     },
     {
@@ -724,7 +724,7 @@
       },
       "disposition": "retain-frozen-exclude-standalone",
       "status": "terminal-classification",
-      "rationale": "Retain the licensed vendor payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
       "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
     }
   ],

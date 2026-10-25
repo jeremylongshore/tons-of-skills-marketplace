@@ -12,7 +12,8 @@ issue's retention/exclusion lane. It does not retire these capabilities or chang
 the existing outer Tonone listing. Preserve `curated: true`, `verified: false`,
 source provenance, and every frozen instruction blob.
 
-The marketing, sales, and customer-success workflows remain useful. A new listing
+The instruction bodies cover recognizable marketing, sales, and customer-success
+workflows. Retention reflects that content review, not a behavioral quality grade. A new listing
 would expose incomplete mirrored packages: all twelve instructions reference
 `docs/output-kit.md`, which is absent from the tracked Tonone mirror. Neither
 bundle identity is registered in our catalog, the vendored upstream catalog, or
@@ -75,9 +76,9 @@ classification. The other 28 obsolete orphan labels and ten byte-identical
 visible-root copies retain their previous dispositions. Together these account
 for all fifty frozen paths; no newly arriving candidate enters either cohort.
 
-The current resolver inventory contains 3,376 graded instructions, 2,785 visible
+At the pinned marketplace analysis commit, the resolver snapshot contains 3,376 graded instructions, 2,785 visible
 instructions, 500 curriculum exclusions, and 91 graded plugin candidates outside
-discovery. The 91 are not 91 new publication requests. This decision resolves the
+discovery. This report does not authorize publication of those 91 candidates. This decision resolves the
 twelve frozen classifications without claiming to resolve every later candidate,
 Hyperflow quarantine, or Kobiton source hold.
 
@@ -96,3 +97,46 @@ authority, index, filing-policy (29 assertions), Markdown, and whitespace checks
 passed. Canonical marketplace synchronization wrote no package or catalog changes.
 Canonical scorecard measurement passed; its only delta is the document count
 from 274 to 276. Hosted PR acceptance remains pending.
+
+## Reproduction and canonical inputs
+
+All observations are dated snapshots at the analysis commit above, not competing
+catalog authority. `marketplace_visible` means membership of the exact instruction
+path in `resolveCorpus('marketplace-visible')`; an outer plugin listing does not
+imply membership for every instruction beneath a different nested manifest.
+
+Canonical inputs at the pinned marketplace commit:
+
+- [Catalog](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/3f15d981b8b6d0c869df0106741d192448dcc51d/.claude-plugin/marketplace.extended.json): the outer `tonone` entry, without separate `marketing-team` or `revenue-team` entries.
+- [Source registry](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/3f15d981b8b6d0c869df0106741d192448dcc51d/sources.yaml#L425): Tonone verification/curation flags and selection/exclusion rules. These rules live in `sources.yaml`, not `.source.json`.
+- [Ancestor provenance](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/3f15d981b8b6d0c869df0106741d192448dcc51d/plugins/ai-agency/tonone/.source.json): repository identity without an enumerated files array.
+- [Corpus resolver](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/3f15d981b8b6d0c869df0106741d192448dcc51d/scripts/corpus-resolver.mjs): the cohort predicates, including manifest-based discovery. Cohort counts are source inventory, not new Freshie grades.
+
+For the pinned tracked tree, `git ls-tree -r --name-only <analysis-commit> --
+plugins/ai-agency/tonone` enumerates the package. Filtering those paths for
+`output-kit.md` returns no matches. Reading the twelve receipt paths with
+`git show <analysis-commit>:<path>` shows their output-kit references. The receipt
+provides each blob and SHA-256; recompute SHA-256 over those exact Git bytes.
+The fifty historical item objects compare equal after removing only the new
+`final_review` property; the historical `E2_review` object also compares equal.
+
+The upstream receipt's `inputs` map records all 45 paths and blob/hash identities.
+Retrieve the pinned tree with `gh api
+repos/tonone-ai/tonone/git/trees/1ceec80367a4e846e2f209cc87eea9d7544bd978?recursive=1`;
+check `truncated` is false before interpreting an absence. Fetch blob bytes at the
+recorded IDs and verify Git's SHA-1 over `blob <byte-length>\0<bytes>` plus SHA-256
+over the raw bytes. Compare each root/bundle/team triple before comparing to its
+frozen local instruction. The checked LICENSE input is evidence of the inspected
+artifact; this report makes no additional legal determination.
+
+Local regression commands were `node --test scripts/corpus-resolver.test.mjs
+scripts/plugin-provenance.test.mjs` (24 passed) and `python -m pytest
+tests/test_validate_skills_schema_frontmatter.py -q` in the existing repository
+Python environment (72 passed). Generator/check commands were `pnpm run
+sync-marketplace`, `node scripts/measure-epic-1.mjs`, `node
+scripts/generate-docs-index.mjs --check`, `node scripts/check-doc-classes.mjs`,
+`node scripts/check-doc-authority.mjs`, `node scripts/check-docs-ignore-policy.mjs`,
+and `git diff --cached --check`. Hosted results are attached to
+[PR 1784](https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1784);
+local pass counts do not imply hosted acceptance or independent review of the
+JSON receipt. The first automated reviews explicitly excluded that JSON file.
