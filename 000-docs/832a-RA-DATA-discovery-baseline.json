@@ -24,7 +24,10 @@
     "catalog_projected_types": {
       "instruction-plugin": 431
     },
-    "categories": 19
+    "categories": 19,
+    "browse_intersection_rows": 431,
+    "browse_intersection_unique_source_paths": 429,
+    "browse_intersection_categories": 19
   },
   "quarantined_rows": [
     {
@@ -180,6 +183,18 @@
     "marketplace/tests/T7-explore-plugin-flows.spec.ts": {
       "sha256": "abd236c832f49f566e979bfd51efab71c2fa6f26ff963fb0eb75e34571ab64b2",
       "bytes": 7814
+    },
+    "scripts/sync-marketplace.cjs": {
+      "sha256": "774719d038e6199588c38b2b0621d7ec13ce1b5102c185913f9055973f7c389d",
+      "bytes": 7138
+    },
+    "scripts/regenerate-after-bump.mjs": {
+      "sha256": "d42cec3cbca569396a1ed67c4a565fc4a008b6f9f49f87af271b5b4f8d0294d5",
+      "bytes": 3409
+    },
+    "marketplace/scripts/extract-readme-sections.mjs": {
+      "sha256": "7797fe583d159cd2dcc37f4e8e89657d95b5a85f0ea6693b4ee6fdff8240946a",
+      "bytes": 5908
     }
   },
   "route_contracts": [
@@ -194,17 +209,23 @@
     },
     {
       "route": "/plugins/ and /plugins/<name>/",
-      "source": "marketplace/src/pages/plugins/[name].astro",
       "input": "extended intersect install catalog; skills-catalog; extracted README sections",
       "render": "static HTML",
-      "related": "first six other public catalog entries in same category, catalog order"
+      "related": "first six other public catalog entries in same category, catalog order",
+      "sources": [
+        "marketplace/src/pages/plugins/index.astro",
+        "marketplace/src/pages/plugins/[name].astro"
+      ]
     },
     {
       "route": "/skills/ and /skills/<slug>/",
-      "source": "marketplace/src/pages/skills/index.astro",
       "input": "full skills-catalog; first 24 rows static, additional rows fetched",
       "render": "static first page plus client remainder; full content downloaded then omitted from in-memory skill cards",
-      "related": "detail uses first six other same-category rows, catalog order"
+      "related": "detail uses first six other same-category rows, catalog order",
+      "sources": [
+        "marketplace/src/pages/skills/index.astro",
+        "marketplace/src/pages/skills/[slug].astro"
+      ]
     }
   ],
   "native_extension_boundary": "All431 catalog rows are projected as instruction-plugin. CLI native-extension is a separate harness support classification; neither it nor per-artifact compatibility is selected in explorer filters. Displayed /plugin install commands do not prove cross-harness native support.",
@@ -273,5 +294,60 @@
     "recommendation efficacy"
   ],
   "pilot_authorized": false,
-  "source_changes": false
+  "cohort_derivations": {
+    "browse": "extended.plugins filtered by names in install.plugins; exact 431-name equality verified",
+    "unique_sources": "distinct source values within that same browse intersection,429",
+    "categories": "distinct category values within browse intersection,19; equals catalog.stats.byCategory key count"
+  },
+  "source_selection": {
+    "ref": "refs/heads/main",
+    "resolved_commit": "55ea040716904ce8199516ddb0c3a0500aa4e172",
+    "verified_at_utc": "2026-10-25T12:22:31.410454+00:00",
+    "pr1781_base_commit": "55ea040716904ce8199516ddb0c3a0500aa4e172",
+    "pr1781_created_at_github": "2026-10-25T12:11:51Z",
+    "date_basis": "UTC clock and GitHub PR creation timestamp both identify2026-10-25",
+    "scope": "Snapshot selected from main at collection; not an assertion that main never advances",
+    "observation_commands": [
+      "gh api repos/jeremylongshore/tons-of-skills-marketplace/git/ref/heads/main",
+      "gh pr view 1781 --repo jeremylongshore/tons-of-skills-marketplace --json createdAt,baseRefOid,headRefOid"
+    ]
+  },
+  "source_verification": {
+    "method": "git show source_commit:path, then SHA256 and byte-length comparison for every selected source_inputs entry",
+    "verified_input_count": 30,
+    "git_object_type": "commit",
+    "source_ancestor_of_initial_candidate": true,
+    "selected_input_set_is_not_complete_transitive_build_closure": true,
+    "published_recipe_stdout": "verified_inputs 30 source_commit 55ea040716904ce8199516ddb0c3a0500aa4e172\n.claude-plugin/marketplace.extended.json 325309 42284\nplugins 434\n.claude-plugin/marketplace.json 248032 38199\nplugins 431\nmarketplace/src/data/catalog.json 363221 46048\nplugins 431\nmarketplace/src/data/skills-index.json 1793536 299889\nskills 2785\nmarketplace/src/data/skills-catalog.json 22697053 5083649\nskills 2785\nmarketplace/src/data/unified-search-index.json 3921913 521168\nitems 3240\nCounter({'skill': 2785, 'plugin': 431, 'docs': 24})\nbrowse intersection 431\nbrowse unique source paths 429\nbrowse categories 19\n"
+  },
+  "validation_evidence": {
+    "initial_candidate": "2bce2c0db1efb4d516993ede294b76648d772b00",
+    "local_commands": [
+      {
+        "command": "node scripts/check-docs-ignore-policy.mjs",
+        "output_summary": "docs-ignore-policy:29 assertions OK"
+      },
+      {
+        "command": "node scripts/check-doc-classes.mjs",
+        "output_summary": "243 Markdown docs; issues:[]; allow:true"
+      },
+      {
+        "command": "node scripts/check-doc-authority.mjs",
+        "output_summary": "document-authority:OK(6 effective claimant documents;16 canonical-table links)"
+      },
+      {
+        "command": "node scripts/generate-docs-index.mjs --check",
+        "output_summary": "docs-index:OK(274 tracked documents)"
+      },
+      {
+        "command": "node scripts/measure-epic-1.mjs --check",
+        "output_summary": "epic-1-measurement:OK(000-docs/742-RA-DATA-epic-1-scorecard.json)"
+      }
+    ],
+    "initial_hosted_workflow": "https://github.com/jeremylongshore/tons-of-skills-marketplace/actions/runs/40192056357",
+    "hosted_python_job": "https://github.com/jeremylongshore/tons-of-skills-marketplace/actions/runs/40192056357/job/121165047293",
+    "initial_metadata_failure": "UnregistereddiscoveryPRtitlescope; corrected to registeredmarketplace-site. Failed run retained; followup candidate requires fresh final checks."
+  },
+  "product_source_changed": false,
+  "measurement_records_added": true
 }

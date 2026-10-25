@@ -20,9 +20,9 @@ The largest observed discovery cost is the skills page's catalog fetch: 22,697,0
 
 ## 2. Scope and operational status
 
-This baseline inspects protected main and its tracked projections. Unmerged authentication and Apple Notes retirement work is outside the source revision. No site build, production deployment, browser session, analytics query, provider call, or skill execution was performed for this measurement.
+This baseline inspects main as observed at collection and its tracked projections. Unmerged authentication and Apple Notes retirement work is outside the source revision. No site build, production deployment, browser session, analytics query, provider call, or skill execution was performed for this measurement.
 
-The companion evidence hashes 27 exact source inputs. Every hash was checked against `git show` at the source revision before recording facts. It also records the measured file sizes, local gzip estimates, cohort counts, route contracts, and explicit unknowns.
+The companion evidence hashes 30 selected source inputs. Every hash was checked against `git show` at the source revision before recording facts. It also records the measured file sizes, local gzip estimates, cohort counts, route contracts, and explicit unknowns.
 
 Governed-brain retrieval returned a historical description of Astro 5.16, 244 skills, and 259 plugins: `qmd://kb-guides/ea6e2e59-35f9-5596-9817-96fa44de67f5.md`. That archival memory is not current numerical authority. The frozen source manifest instead declares Astro 7.3.3; all counts here come from this revision's inputs.
 
@@ -61,6 +61,8 @@ flowchart LR
 | Browser asset copies                      | `marketplace/scripts/copy-public-data.mjs:74`         | Untracked `public/data/` assets; not a second editable catalog                         |
 | Build order                               | `marketplace/scripts/build.mjs:25`                    | Discovery, README extraction, catalog, search, Cowork, public data, Astro              |
 
+The browse directory cohort is explicitly the editable rows whose names occur in the install catalog. The measured intersection has 431 rows with exactly the install catalog name set; it contains 429 distinct source paths and 19 distinct category values. The companion records these intersection-specific denominators, and the recipe below computes them directly.
+
 The three quarantined entries are Skyvern, Hyperflow, and llm-box. Their records remain in the editable catalog for provenance; they are not public install entries. The 431 public entries map to 429 source paths, so a catalog-row count is not a count of unique plugin directories.
 
 ## 4. Architectural tradeoffs
@@ -90,14 +92,24 @@ Explore and the skills directory therefore offer different destinations for an e
 
 ## 6. Reproduce the measurements
 
-Use a clean checkout of the source revision, Node 22.12+ and Python 3. No provider, package installation, build, or production access is necessary for the following measurements.
+Use a checkout containing this record and Git history containing the source revision, Node 22.12+ and Python 3. The verifier allows the later documentation commit but refuses differing source-input bytes. No provider, package installation, build, or production access is necessary for the following measurements.
 
 ```bash
 git rev-parse HEAD
 node scripts/corpus-resolver.mjs --cohort graded --cohort marketplace-visible --json
 python3 - <<'PY'
-import collections, gzip, json
+import collections, gzip, hashlib, json, subprocess
 from pathlib import Path
+receipt = json.loads(Path('000-docs/832a-RA-DATA-discovery-baseline.json').read_text())
+revision = receipt['source_commit']
+assert subprocess.check_output(['git', 'cat-file', '-t', revision], text=True).strip() == 'commit'
+subprocess.run(['git', 'merge-base', '--is-ancestor', revision, 'HEAD'], check=True)
+for path, expected in receipt['source_inputs'].items():
+    blob = subprocess.check_output(['git', 'show', revision + ':' + path])
+    assert hashlib.sha256(blob).hexdigest() == expected['sha256'], path
+    assert len(blob) == expected['bytes'], path
+    assert Path(path).read_bytes() == blob, path
+print('verified_inputs', len(receipt['source_inputs']), 'source_commit', revision)
 paths = [
     '.claude-plugin/marketplace.extended.json',
     '.claude-plugin/marketplace.json',
@@ -116,11 +128,19 @@ for path in paths:
     if 'items' in value:
         print(collections.Counter(row['type'] for row in value['items']))
 public = json.loads(Path('.claude-plugin/marketplace.json').read_text())
-print('public unique source paths', len({row['source'] for row in public['plugins']}))
+extended = json.loads(Path('.claude-plugin/marketplace.extended.json').read_text())
+names = {row['name'] for row in public['plugins']}
+browse = [row for row in extended['plugins'] if row['name'] in names]
+assert len(browse) == len(public['plugins']) and {row['name'] for row in browse} == names
+print('browse intersection', len(browse))
+print('browse unique source paths', len({row['source'] for row in browse}))
+print('browse categories', len({row['category'] for row in browse}))
 PY
 ```
 
-The JSON companion specifies the collection toolchain. A gzip estimate is a local compression measurement; actual HTTP compression and cache behavior require a separate deployment measurement. To check projection drift without writing them, use `node scripts/regenerate-after-bump.mjs --check`. To reproduce public-copy timestamps in a disposable checkout, use `SOURCE_DATE_EPOCH` with `marketplace/scripts/copy-public-data.mjs`; do not commit `marketplace/public/data/`.
+The verifier binds each selected input to the named Git commit and refuses a checkout whose input bytes differ. The source revision is an ancestor of the initial PR candidate; the companion records the observed main/base identities and UTC timestamp. This selected set includes the named catalog and README writers and the recommended regeneration entrypoint; it is not a full transitive build-input attestation.
+
+The JSON companion records the executed recipe output and names local documentation checks with result summaries and initial-candidate CI links. Those local summaries are author-reported execution receipts; they are not independent certification. The final PR head still requires its own hosted gates. The JSON companion specifies the collection toolchain. A gzip estimate is a local compression measurement; actual HTTP compression and cache behavior require a separate deployment measurement. To check projection drift without writing them, use `node scripts/regenerate-after-bump.mjs --check`. To reproduce public-copy timestamps in a disposable checkout, use `SOURCE_DATE_EPOCH` with `marketplace/scripts/copy-public-data.mjs`; do not commit `marketplace/public/data/`.
 
 ## 7. Freshness and failure operations
 
@@ -128,7 +148,7 @@ Build order is load-bearing. `marketplace/scripts/build.mjs` stops on a failed s
 
 Explore's fetch catch replaces the loading message with “Failed to load catalog. Please refresh.” It provides no static result list or automatic retry. Its `aria-busy` reset occurs only on success (`explore.astro:477–483`). The skills page retains its initial static cards when loading additional data fails and replaces the additional-loading message (`skills/index.astro:324`). These are different failure contracts.
 
-Both browser routes call `response.json()` without an explicit `response.ok` check at these sites. This observation is not proof that every server error is silently accepted: JSON parsing and downstream operations can also throw. No production HTTP error response was induced.
+Both browser routes call `response.json()` without an explicit `response.ok` check at these sites (`explore.astro:465–466`, `skills/index.astro:300–301`). This observation is not proof that every server error is silently accepted: JSON parsing and downstream operations can also throw. No production HTTP error response was induced.
 
 External popularity statistics have a separate freshness owner, `scripts/check-stats-freshness.mjs:54`, covering GitHub, npm, and skills.sh snapshot files. Its age bound must not be substituted for discovery-catalog freshness. A successful freshness check also does not prove the current deployed revision.
 
@@ -136,7 +156,7 @@ External popularity statistics have a separate freshness owner, `scripts/check-s
 
 At this revision every projected plugin row has `type: instruction-plugin`, because `sync-catalog.mjs:215` assigns that value. The browser index uses `plugin`, `skill`, and `docs` item types. Neither vocabulary proves that all components are portable instructions or that native extensions are absent.
 
-The CLI separately records harness support classes, including `native-extension`, in `packages/cli/src/commands/skills.ts:12`. Explore does not expose a harness-support or native-component filter. Its tool filter matches declared skill `allowedTools`, which is not proof that a target harness implements those tools. Detail component counts and MCP-tool counts are descriptive metadata, not an execution or compatibility test.
+The CLI separately records harness support classes, including `native-extension`, in `packages/cli/src/commands/skills.ts:12`. The hashed Explore template exposes no harness-support or native-component filter in its control block or filter-state implementation (`explore.astro:384–435`, `491–540`). Its tool filter matches declared skill `allowedTools`, which is not proof that a target harness implements those tools. Detail component counts and MCP-tool counts are descriptive metadata, not an execution or compatibility test.
 
 Cards show Claude plugin install commands. Preserving the legacy marketplace identifier is intentional repository compatibility, not evidence of a cross-harness install route. Registration, byte identity, a static grade, a native launch check, and behavioral fitness remain separate fact classes.
 
@@ -144,7 +164,7 @@ Cards show Claude plugin install commands. Preserving the legacy marketplace ide
 
 Explore's search handler passes query text to optional `window.trackEvent` after its debounce (`explore.astro:684–690`). `marketplace/public/scripts/analytics.js:5` forwards events to optional Umami, and `BaseLayout.astro:100` loads the site's analytics script. No visitor query, telemetry stream, or analytics credential was accessed here. A future aggregate-only learning pilot must resolve this existing data path explicitly rather than assume that the current search interface already provides aggregate-only capture.
 
-Explore and skill-card renderers escape HTML string values before insertion. Compare state is read from local storage (`CompareBar.astro:210`); that component also documents escaping stored values before rendering. These observations are narrower than an XSS audit and do not establish safe behavior for every content producer or dependency.
+Explore and skill-card renderers escape HTML string values before insertion (`explore.astro:581–584`, `skills/index.astro:329–332`). Compare state is read from local storage (`CompareBar.astro:210`); that component also documents escaping stored values before rendering. These observations are narrower than an XSS audit and do not establish safe behavior for every content producer or dependency.
 
 No production secrets, personal installation state, private corpus content, or user-authored files are included in the evidence. The governed-memory citation identifies historical context; no raw governed document was copied into the public artifact.
 
@@ -180,7 +200,7 @@ Those are proposed evidence-gathering steps, not a new deployment plan or accept
 The dated artifact and hashed companion provide canonical-writer/projection separation, current journeys and gaps, reproducible counts, source owners, freshness behavior, extension boundaries, and explicit runtime unknowns. The delivery still needs normal PR acceptance before the bead can close.
 
 - Canonical code authority: `CLAUDE.md` and `STANDARDS.md`; fact ownership: blueprint 727 §11.
-- Measurement input: protected main `55ea040716904ce8199516ddb0c3a0500aa4e172`.
+- Measurement input: main as observed at collection `55ea040716904ce8199516ddb0c3a0500aa4e172`.
 - Counts, compression method, hashes, findings: [machine evidence](832a-RA-DATA-discovery-baseline.json).
 - Build and consumer owners: sections 3 and 5.
 - Unmeasured production and behavioral claims: section 11.
