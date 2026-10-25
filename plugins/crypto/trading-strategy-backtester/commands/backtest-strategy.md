@@ -26,7 +26,7 @@ supported strategies, parameters, data loading and result files.
      --strategy sma_crossover --symbol BTC-USD --period 1y
    ```
 
-   Dependencies are listed in the plugin's `requirements.txt`. Use `--help` for
+   Prepare the environment described in the skill's Prerequisites section. Use `--help` for
    the supported flags; parameter optimization is a separate operation to run
    only when requested.
 
