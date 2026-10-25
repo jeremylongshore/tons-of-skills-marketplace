@@ -21909,10 +21909,6 @@
       "category": "crypto",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
-        "Grep",
-        "Glob",
         "Bash(python:*)"
       ],
       "compatibleWith": [],
@@ -21921,7 +21917,7 @@
         "name": "trading-strategy-backtester",
         "category": "crypto"
       },
-      "searchText": "backtesting-trading-strategies backtest crypto and traditional trading strategies against historical data. calculates performance metrics (sharpe, sortino, max drawdown), generates equity curves, and optimizes strategy parameters. use when user wants to test a trading strategy, validate signals, or compare approaches. trigger with phrases like \"backtest strategy\", \"test trading strategy\", \"historical performance\", \"simulate trades\", \"optimize parameters\", or \"validate signals\". crypto read write edit grep glob bash(python:*) "
+      "searchText": "backtesting-trading-strategies backtest crypto and traditional trading strategies against historical data. calculates performance metrics (sharpe, sortino, max drawdown), generates equity curves, and optimizes strategy parameters. use when user wants to test a trading strategy, validate signals, or compare approaches. trigger with phrases like \"backtest strategy\", \"test trading strategy\", \"historical performance\", \"simulate trades\", \"optimize parameters\", or \"validate signals\". crypto read bash(python:*) "
     },
     {
       "type": "skill",

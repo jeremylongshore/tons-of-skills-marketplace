@@ -16,7 +16,7 @@ description: 'Backtest crypto and traditional trading strategies against histori
   "simulate trades", "optimize parameters", or "validate signals".
 
   '
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(python:*)
+allowed-tools: Read, Bash(python:*)
 version: 1.30.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
@@ -43,7 +43,8 @@ Simulate trading strategies against historical data. Results describe a historic
 
 ## Prerequisites
 
-Install required dependencies:
+Before invoking this skill, the user installs the required dependencies in the
+Python environment used for the simulation:
 
 ```bash
 set -euo pipefail
@@ -172,7 +173,7 @@ risk:
 
 ## Error Handling
 
-See [`references/errors.md`](references/errors.md) for common issues and solutions.
+Use Read to inspect [`references/errors.md`](references/errors.md) for common issues and solutions.
 
 ## Examples
 
