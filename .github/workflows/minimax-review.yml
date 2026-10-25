@@ -61,10 +61,11 @@ permissions:
   contents: read
   pull-requests: write
 
-# An `edited` run gets its own group: sharing one would let a description edit
-# cancel an in-progress code review whose lanes the edit run then skips.
+# A title- or description-only edit gets its own group: sharing one would let it
+# cancel an in-progress code review whose lanes the edit run then skips. An edit
+# that changes the base runs every lane, so it joins the `code` group.
 concurrency:
-  group: "minimax-review-${{ github.event.pull_request.number }}-${{ github.event.action == 'edited' && 'edit' || 'code' }}"
+  group: "minimax-review-${{ github.event.pull_request.number }}-${{ (github.event.action == 'edited' && github.event.changes.base == null) && 'edit' || 'code' }}"
   cancel-in-progress: true
 
 # Generated / auto-synced / vendored files are excluded in both lanes so review
