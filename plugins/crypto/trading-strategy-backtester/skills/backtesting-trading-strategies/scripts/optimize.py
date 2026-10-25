@@ -61,7 +61,7 @@ def grid_search(
                     "sortino_ratio": result.sortino_ratio,
                     "max_drawdown": result.max_drawdown,
                     "win_rate": result.win_rate,
-                    "profit_factor": result.profit_factor,
+                    "profit_factor": float("nan") if result.profit_factor is None else result.profit_factor,
                     "total_trades": result.total_trades,
                     "calmar_ratio": result.calmar_ratio,
                 }
@@ -77,10 +77,11 @@ def grid_search(
 
     df = pd.DataFrame(results)
 
-    # Sort by target metric
+    # Undefined ratios cannot outrank a finite measurement.
     if metric in df.columns:
-        df = df.sort_values(metric, ascending=False)
-
+        df[metric] = pd.to_numeric(df[metric], errors="coerce").replace([float("inf"), -float("inf")], float("nan"))
+        df = df.sort_values(metric, ascending=False, na_position="last")
+    df.attrs["ranking_metric"] = metric
     return df
 
 
@@ -93,8 +94,16 @@ def format_optimization_results(df: pd.DataFrame, param_names: List[str]) -> str
     output.append("=" * 80)
     output.append("")
 
+    metric = df.attrs.get("ranking_metric", "sharpe_ratio")
+    if df.empty:
+        output.append("No successful parameter simulations; no best parameter set.")
+        return "\n".join(output)
+    if metric not in df or not df[metric].notna().any():
+        output.append(f"No finite {metric} values; no best parameter set.")
+        return "\n".join(output)
+
     # Top 10 results
-    output.append("TOP 10 PARAMETER COMBINATIONS (by Sharpe Ratio):")
+    output.append(f"TOP 10 PARAMETER COMBINATIONS (by {metric}):")
     output.append("-" * 80)
 
     header = param_names + ["Return%", "Sharpe", "MaxDD%", "WinRate%", "Trades"]

@@ -66,7 +66,7 @@ class BacktestResult:
     # Trade statistics
     total_trades: int = 0
     win_rate: float = 0.0
-    profit_factor: Optional[float] = None
+    profit_factor: Optional[float] = None  # No observed losses: ratio is undefined.
     avg_win: float = 0.0
     avg_loss: float = 0.0
     expectancy: float = 0.0
@@ -292,13 +292,15 @@ def calculate_all_metrics(result: BacktestResult) -> BacktestResult:
     return result
 
 
+def _format_number(value: Optional[float], spec: str = ".2f") -> str:
+    """Render an unavailable/non-finite metric without suggesting a numerical result."""
+    return format(value, spec) if value is not None and isfinite(value) else "N/A"
+
+
 def format_results(result: BacktestResult) -> str:
     """Format backtest results as ASCII table."""
 
     params_str = ", ".join(f"{k}={v}" for k, v in result.parameters.items())
-
-    profit_factor = f"{result.profit_factor:.2f}" if result.profit_factor is not None else "N/A"
-    sortino = f"{result.sortino_ratio:.2f}" if isfinite(result.sortino_ratio) else "N/A"
 
     return f"""
 Historical simulation only; results describe the supplied data and assumptions.
@@ -309,20 +311,20 @@ Profit factor is N/A without observed losses; zero/one-trade samples are insuffi
 ╠══════════════════════════════════════════════════════════════════════╣
 ║ PERFORMANCE                          │ RISK                          ║
 ║ ─────────────────────────────────────┼─────────────────────────────  ║
-║ Total Return:     {result.total_return:>+10.2f}%         │ Max Drawdown:   {result.max_drawdown:>+10.2f}%    ║
-║ CAGR:             {result.cagr:>+10.2f}%         │ VaR (95%):      {result.var_95:>+10.2f}%    ║
-║ Sharpe Ratio:     {result.sharpe_ratio:>10.2f}          │ Volatility:     {result.volatility:>10.2f}%    ║
-║ Sortino Ratio:    {sortino:>10}          │ Ulcer Index:    {result.ulcer_index:>10.2f}     ║
-║ Calmar Ratio:     {result.calmar_ratio:>10.2f}          │ CVaR (95%):     {result.cvar_95:>+10.2f}%    ║
+║ Total Return:     {_format_number(result.total_return, "+.2f"):>10}%         │ Max Drawdown:   {_format_number(result.max_drawdown, "+.2f"):>10}%    ║
+║ CAGR:             {_format_number(result.cagr, "+.2f"):>10}%         │ VaR (95%):      {_format_number(result.var_95, "+.2f"):>10}%    ║
+║ Sharpe Ratio:     {_format_number(result.sharpe_ratio, ".2f"):>10}          │ Volatility:     {_format_number(result.volatility, ".2f"):>10}%    ║
+║ Sortino Ratio:    {_format_number(result.sortino_ratio):>10}          │ Ulcer Index:    {_format_number(result.ulcer_index, ".2f"):>10}     ║
+║ Calmar Ratio:     {_format_number(result.calmar_ratio, ".2f"):>10}          │ CVaR (95%):     {_format_number(result.cvar_95, "+.2f"):>10}%    ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║ TRADE STATISTICS                                                     ║
 ║ ─────────────────────────────────────────────────────────────────────║
-║ Total Trades:     {result.total_trades:>10}          │ Profit Factor:  {profit_factor:>10}     ║
-║ Win Rate:         {result.win_rate:>10.1f}%         │ Expectancy:     ${result.expectancy:>10.2f}    ║
-║ Avg Win:          ${result.avg_win:>10.2f}         │ Max Consec. Losses: {result.max_consecutive_losses:>5}    ║
-║ Avg Loss:         ${result.avg_loss:>10.2f}         │ Avg Duration:   {result.avg_trade_duration:>10}     ║
+║ Total Trades:     {result.total_trades:>10}          │ Profit Factor:  {_format_number(result.profit_factor):>10}     ║
+║ Win Rate:         {_format_number(result.win_rate, ".1f"):>10}%         │ Expectancy:     ${_format_number(result.expectancy, ".2f"):>10}    ║
+║ Avg Win:          ${_format_number(result.avg_win, ".2f"):>10}         │ Max Consec. Losses: {result.max_consecutive_losses:>5}    ║
+║ Avg Loss:         ${_format_number(result.avg_loss, ".2f"):>10}         │ Avg Duration:   {result.avg_trade_duration:>10}     ║
 ╠══════════════════════════════════════════════════════════════════════╣
-║ Capital: ${result.initial_capital:,.0f} → ${result.final_capital:,.0f}                                  ║
+║ Capital: ${_format_number(result.initial_capital, ",.0f")} → ${_format_number(result.final_capital, ",.0f")}                                  ║
 ║ Parameters: {params_str:<56} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """

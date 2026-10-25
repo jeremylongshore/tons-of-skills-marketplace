@@ -31,12 +31,12 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Simulate trading strategies against historical data. Results describe a historical simulation, not expected future performance. This skill provides a complete backtesting framework with 8 built-in strategies, comprehensive performance metrics, and parameter optimization.
+Simulate trading strategies against historical data. Results describe a historical simulation, not expected future performance. The framework includes 8 built-in strategies, the metrics listed below, and parameter optimization.
 
 **Key Features:**
 
 - 8 pre-built trading strategies (SMA, EMA, RSI, MACD, Bollinger, Breakout, Mean Reversion, Momentum)
-- Full performance metrics (Sharpe, Sortino, Calmar, VaR, max drawdown)
+- Performance metrics (Sharpe, Sortino, Calmar, VaR, max drawdown)
 - Parameter grid search optimization
 - Equity curve visualization
 - Trade-by-trade analysis
