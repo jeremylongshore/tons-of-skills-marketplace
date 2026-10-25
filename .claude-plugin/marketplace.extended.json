@@ -1031,15 +1031,15 @@
     {
       "name": "arbitrage-opportunity-finder",
       "source": "./plugins/crypto/arbitrage-opportunity-finder",
-      "description": "Find and analyze arbitrage opportunities across exchanges and DeFi protocols",
-      "version": "1.27.0",
+      "description": "Compare live bid/ask for a crypto pair across exchanges and show spreads net of stated fees; read-only",
+      "version": "2.0.0",
       "category": "crypto",
       "keywords": [
         "arbitrage",
-        "trading",
-        "defi",
-        "mev",
-        "profit"
+        "crypto",
+        "spreads",
+        "order-book",
+        "research"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -1750,10 +1750,10 @@
         "email": "[email protected]"
       },
       "verification": {
-        "score": 96,
+        "score": 97,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-10-25T00:00:00.000Z"
       }
     },
     {

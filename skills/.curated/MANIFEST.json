@@ -13196,16 +13196,17 @@
         "ARD.md",
         "PRD.md",
         "SKILL.md",
-        "config/settings.yaml",
+        "assets/demo-recording.json",
         "references/errors.md",
         "references/examples.md",
         "references/implementation.md",
         "scripts/arb_finder.py",
-        "scripts/formatters.py",
-        "scripts/opportunity_scanner.py",
-        "scripts/price_fetcher.py",
-        "scripts/profit_calculator.py",
-        "scripts/triangular_finder.py"
+        "scripts/http_client.py",
+        "scripts/record_demo.py",
+        "scripts/spot_venues.py",
+        "scripts/spreads.py",
+        "tests/fixtures/binance-bybit-recording.json",
+        "tests/test_arb_finder.py"
       ]
     },
     {
@@ -34833,18 +34834,19 @@
         "ARD.md",
         "PRD.md",
         "SKILL.md",
-        "config/settings.yaml",
+        "assets/demo-recording.json",
         "references/errors.md",
         "references/examples.md",
         "references/implementation.md",
-        "scripts/basis_calculator.py",
+        "scripts/basis_data.py",
         "scripts/derivatives_tracker.py",
-        "scripts/exchange_client.py",
-        "scripts/formatters.py",
-        "scripts/funding_tracker.py",
-        "scripts/liquidation_monitor.py",
-        "scripts/oi_analyzer.py",
-        "scripts/options_analyzer.py"
+        "scripts/http_client.py",
+        "scripts/liquidations.py",
+        "scripts/options_data.py",
+        "scripts/perps.py",
+        "scripts/record_demo.py",
+        "tests/fixtures/binance-bybit-recording.json",
+        "tests/test_derivatives_tracker.py"
       ]
     },
     {
