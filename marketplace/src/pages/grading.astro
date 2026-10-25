@@ -472,6 +472,19 @@ You can configure it with various options.`}</code></pre>
     color: var(--slate-300);
     max-width: 75ch;
   }
+  .grading__subtitle a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--ink-link);
+    text-underline-offset: 0.15em;
+  }
+  .grading__subtitle a:hover {
+    color: var(--ink-link-hover);
+  }
+  .grading__subtitle a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
   .grading__section {
     margin: 3rem 0;
   }
