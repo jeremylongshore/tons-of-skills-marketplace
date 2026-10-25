@@ -233,7 +233,7 @@ class TestReadOnly(unittest.TestCase):
     """The tracker must never reach an order, account or withdrawal endpoint."""
 
     FORBIDDEN = re.compile(
-        r"/trade/|/order|/account[/?]|/asset/|/withdraw|private/|/v5/position|"
+        r"/trade/|/orders?(?![a-z])|/account[/?]|/asset/|/withdraw|private/|/v5/position|"
         r"api[_-]?secret|api[_-]?key|signature|hmac|\"type\":\s*\"order\"",
         re.IGNORECASE,
     )

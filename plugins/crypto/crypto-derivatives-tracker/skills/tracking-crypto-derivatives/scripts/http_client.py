@@ -30,10 +30,11 @@ USER_AGENT = "tracking-crypto-derivatives/2.0 (+https://tonsofskills.com)"
 class FetchError(Exception):
     """A request that did not return usable data, with a reason a person can act on."""
 
-    def __init__(self, reason: str, status: Optional[int] = None):
+    def __init__(self, reason: str, status: Optional[int] = None, body: Any = None):
         super().__init__(reason)
         self.reason = reason
         self.status = status
+        self.body = body  # parsed error body when the venue sent JSON, else None
 
 
 def describe_status(status: int) -> str:
@@ -113,7 +114,7 @@ class Http:
                 raise FetchError("not in the recorded demo data")
             entry = self.replay.responses[key]
             if entry.get("status", 200) != 200:
-                raise FetchError(describe_status(entry["status"]), entry["status"])
+                raise FetchError(describe_status(entry["status"]), entry["status"], entry.get("body"))
             return entry["body"]
 
         data = json.dumps(body).encode() if body is not None else None
@@ -128,8 +129,12 @@ class Http:
                 self._save(key, 200, payload)
                 return payload
         except urllib.error.HTTPError as exc:
-            self._save(key, exc.code, None)
-            raise FetchError(describe_status(exc.code), exc.code) from None
+            try:
+                err_body = json.loads(exc.read().decode("utf-8"))
+            except (ValueError, OSError):
+                err_body = None
+            self._save(key, exc.code, err_body)
+            raise FetchError(describe_status(exc.code), exc.code, err_body) from None
         except (urllib.error.URLError, socket.timeout, TimeoutError) as exc:
             elapsed = time.monotonic() - started
             reason = getattr(exc, "reason", exc)
