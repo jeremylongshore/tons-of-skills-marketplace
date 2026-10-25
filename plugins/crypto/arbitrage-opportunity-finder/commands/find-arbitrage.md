@@ -36,10 +36,9 @@ User-supplied arguments: $ARGUMENTS
    python3 ${CLAUDE_PLUGIN_ROOT}/skills/finding-arbitrage-opportunities/scripts/arb_finder.py scan ETH USD --fee coinbase=0.6
    ```
 
-3. Report:
-   - The widest gross spread and the best net spread, with the venues and the fee assumed for each.
-   - Venues listed as unavailable, with the reason (Binance and Bybit refuse US networks).
-   - What is not included: withdrawal and network fees, transfer time, price moves meanwhile, depth beyond the best bid and ask.
-   - The fetch time and the closing line "Research output only. Not financial advice."
+3. Report what the output shows, by mode:
+   - **scan:** the widest gross spread and the best net spread, with their venues and the fee assumed for each; the size available at the best prices; and the venues listed under "Unavailable" with the reason the tool gives (which venues fail depends on the user's network).
+   - **triangular:** the venue, the volume floor and the per-leg fee used, the number of triangles evaluated, and the best cycles with their gross and net results. Say plainly when no cycle stays positive after fees.
+   - **Both:** what is not included (withdrawal and network fees, transfer time, price moves meanwhile, depth beyond the best bid and ask), the fetch time, and the closing line "Research output only. Not financial advice."
 
-Describe the spreads; do not recommend trading them. If net figures show `n/a`, explain that the venue's fee is unknown and how to set it with `--fee VENUE=PERCENT`.
+Describe the results; do not recommend trading them. If net figures show `n/a`, explain that the venue's fee is unknown and how to set it with `--fee VENUE=PERCENT`. For repeated scans over time, point the user to the skill's `monitor` subcommand.
