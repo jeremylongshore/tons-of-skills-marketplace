@@ -36,6 +36,22 @@ const comparisonLookup = buildComparisonLookup(searchIndex.items);
       font-size: 1rem;
     }
 
+    .comparison-choices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .comparison-choices :global(button) {
+      min-height: 44px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--brand-mid-gray);
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      font: inherit;
+      cursor: pointer;
+    }
+
     /* Empty State */
     .empty-state {
       text-align: center;
@@ -360,6 +376,7 @@ const comparisonLookup = buildComparisonLookup(searchIndex.items);
     </header>
 
     <p id="comparison-notice" role="status" hidden></p>
+    <div id="comparison-choices" class="comparison-choices"></div>
 
     <div id="empty-state" class="empty-state">
       <h2 class="empty-title">No plugins selected</h2>
@@ -490,8 +507,16 @@ const comparisonLookup = buildComparisonLookup(searchIndex.items);
       const notice = document.getElementById('comparison-notice');
       notice.hidden = selection.rejected.length === 0;
       notice.textContent = selection.rejected.some(entry => entry.reason === 'ambiguous')
-        ? 'This older comparison link contains an ID shared by a plugin and a skill. Select each item again using its type.'
+        ? 'This older comparison link contains an ID shared by a plugin and a skill. Choose which one to compare.'
         : 'Some comparison items could not be found. Select those items again.';
+      const choices = document.getElementById('comparison-choices');
+      choices.innerHTML = selection.rejected.filter(entry => entry.reason === 'ambiguous')
+        .flatMap(({ reference }) => ['plugin', 'skill'].map(type => {
+          const key = comparisonKey({ id: reference, type });
+          const item = itemsMap[key];
+          if (!item || typeof item !== 'object') return '';
+          return `<button type="button" class="compare-btn secondary" data-choose-reference="${esc(reference)}" data-choice="${esc(key)}">Use ${esc(type)}: ${esc(item.displayName || item.name)}</button>`;
+        })).join('');
 
       const emptyState = document.getElementById('empty-state');
       const content = document.getElementById('compare-content');
@@ -668,6 +693,15 @@ const comparisonLookup = buildComparisonLookup(searchIndex.items);
     }
 
     // Event listeners
+    document.getElementById('comparison-choices')?.addEventListener('click', (e) => {
+      const button = e.target.closest('[data-choose-reference]');
+      if (!button) return;
+      const references = getItemsFromURL().map(reference =>
+        reference === button.dataset.chooseReference ? button.dataset.choice : reference);
+      window.history.replaceState({}, '', `/compare/?items=${encodeURIComponent(references.join(','))}`);
+      renderComparison();
+    });
+
     // Remove and Copy buttons are rendered at runtime inside this IIFE, so an
     // inline onclick could not reach removeItem/copyToClipboard; delegate.
     document.getElementById('compare-content')?.addEventListener('click', (e) => {

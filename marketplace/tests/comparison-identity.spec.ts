@@ -98,7 +98,7 @@ test('typed saved selections generate distinct share references', async ({ page 
 
 test('ambiguous legacy URL is explicit and never silently replaced by saved selection', async ({
   page,
-}) => {
+}, testInfo) => {
   await page.addInitScript(() =>
     localStorage.setItem(
       'compare-items',
@@ -108,6 +108,17 @@ test('ambiguous legacy URL is explicit and never silently replaced by saved sele
   await page.goto(`/compare/?items=${collision}`);
   await expect(page.locator('#comparison-notice')).toContainText('shared by a plugin and a skill');
   await expect(page.locator('#compare-content')).toBeHidden();
+  await testInfo.attach('ambiguous-link-recovery', {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
+  for (const type of ['plugin', 'skill']) {
+    await page.goto(`/compare/?items=${collision}`);
+    await page.getByRole('button', { name: new RegExp(`^Use ${type}:`) }).click();
+    await expect(page.locator('#type-1')).toHaveText(type);
+    await expect(page.locator('#comparison-notice')).toBeHidden();
+    expect(new URL(page.url()).searchParams.get('items')).toBe(`${type}:${collision}`);
+  }
 });
 
 test('unambiguous legacy links keep their artifact; unknown references are explicit', async ({
