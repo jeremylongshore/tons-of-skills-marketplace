@@ -9004,7 +9004,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -21911,7 +21911,7 @@
         "Bash(python:*)"
       ],
       "compatibleWith": [],
-      "version": "1.29.0",
+      "version": "1.30.0",
       "parentPlugin": {
         "name": "trading-strategy-backtester",
         "category": "crypto"

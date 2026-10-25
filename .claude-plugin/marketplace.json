@@ -4449,7 +4449,7 @@
       "name": "trading-strategy-backtester",
       "source": "./plugins/crypto/trading-strategy-backtester",
       "description": "Backtest trading strategies with historical data, performance metrics, and risk analysis",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "crypto",
       "keywords": [
         "trading",

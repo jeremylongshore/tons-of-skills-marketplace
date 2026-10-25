@@ -3690,7 +3690,7 @@
       "slug": "backtesting-trading-strategies",
       "name": "backtesting-trading-strategies",
       "description": "Backtest crypto and traditional trading strategies against historical data. Calculates performance metrics (Sharpe, Sortino, max drawdown), generates equity curves, and optimizes strategy parameters. Use when user wants to test a trading strategy, validate signals, or compare approaches. Trigger with phrases like \"backtest strategy\", \"test trading strategy\", \"historical performance\", \"simulate trades\", \"optimize parameters\", or \"validate signals\".",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "crypto",
       "parentPlugin": "trading-strategy-backtester",
       "requires_env": [],
