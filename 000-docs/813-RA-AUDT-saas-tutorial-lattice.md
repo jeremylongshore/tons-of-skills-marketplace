@@ -24,8 +24,8 @@ A matching skill name proves structural repetition only. It does **not** prove t
 | Candidates admitted by explicit prefix aliases | 78 |
 | Suffix-only names excluded by prefix policy | 1 |
 
-- Catalog SHA-256: `8e8bc95739a7d84eb7f8538698b49fb1ea90e7d4cb83f635a02d3a2a8d7b7193`
-- Tracked inventory SHA-256: `835cb7f13f173825109a440401c8882502b77b2a842ee8677ebb94622bb7b8b2`
+- Catalog SHA-256: `82a44de18af31fe4a57589024c3445862f60c71a2fe1c577c5d0c18d1824886d`
+- Tracked inventory SHA-256: `9c4267b45652a7ba9261235c9f202d384141f19bb7b1247cef8f5e5e3f34ecdd`
 
 The earlier 2,011-candidate census used 24 base families and literal pack-name stems. This version expands the family set with `advanced-troubleshooting`, `architecture-variants`, `known-pitfalls`, `load-scale`, `policy-guardrails`, and `reliability-patterns`, then applies versioned exact aliases for `anthropic-pack`, `claude-pack`, and `langchain-py-pack`. The current generated counts above are authoritative. Suffix-only near-matches such as `langchain-otel-observability` and the explicitly recorded content-specific Customer.io workflows remain excluded.
 

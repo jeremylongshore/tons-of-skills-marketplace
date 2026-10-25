@@ -11585,8 +11585,8 @@
     {
       "slug": "finding-arbitrage-opportunities",
       "name": "finding-arbitrage-opportunities",
-      "description": "Detect profitable arbitrage opportunities across CEX, DEX, and cross-chain markets in real-time. Use when scanning for price spreads, finding arbitrage paths, comparing exchange prices, or analyzing triangular arbitrage opportunities. Trigger with phrases like \"find arbitrage\", \"scan for arb\", \"price spread\", \"exchange arbitrage\", \"triangular arb\", \"DEX price difference\", or \"cross-exchange opportunity\".",
-      "version": "1.27.0",
+      "description": "Compare live best bid and ask for one crypto pair across exchanges and report every cross-venue spread, gross and net of stated taker fees; search three-trade cycles within one exchange. Read-only, no API keys. Use when checking whether a coin trades at different prices on different exchanges, sizing a spread against fees, or looking for triangular price gaps on OKX, KuCoin or Gate. Trigger with phrases like \"find arbitrage\", \"scan for arb\", \"price spread\", \"exchange price difference\", \"triangular arb\", or \"cross-exchange spread\".",
+      "version": "2.0.0",
       "category": "crypto",
       "parentPlugin": "arbitrage-opportunity-finder",
       "requires_env": [],
@@ -30821,8 +30821,8 @@
     {
       "slug": "tracking-crypto-derivatives",
       "name": "tracking-crypto-derivatives",
-      "description": "Track cryptocurrency futures, options, and perpetual swaps with funding rates, open interest, liquidations, and comprehensive derivatives market analysis. Use when monitoring derivatives markets, analyzing funding rates, tracking open interest, finding liquidation levels, or researching options flow. Trigger with phrases like \"funding rate\", \"open interest\", \"perpetual swap\", \"futures basis\", \"liquidation levels\", \"options flow\", \"put call ratio\", \"derivatives analysis\", or \"BTC perps\".",
-      "version": "1.30.0",
+      "description": "Research crypto perpetual swaps, dated futures and options from live public exchange data: funding rates, open interest, basis, liquidations, put/call ratios and max pain. Read-only, no API keys. Use when checking funding across exchanges, comparing open interest, reading the futures term structure, reviewing recent liquidations, or summarizing the options market for BTC or ETH. Trigger with phrases like \"funding rate\", \"open interest\", \"perpetual swap\", \"futures basis\", \"liquidations\", \"put call ratio\", \"max pain\", \"derivatives analysis\", or \"BTC perps\".",
+      "version": "2.0.0",
       "category": "crypto",
       "parentPlugin": "crypto-derivatives-tracker",
       "requires_env": [],

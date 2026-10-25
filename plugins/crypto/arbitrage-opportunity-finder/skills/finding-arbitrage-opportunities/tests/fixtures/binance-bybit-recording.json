@@ -1,0 +1,52 @@
+{
+ "recorded_at": "2026-10-25T16:35:00Z",
+ "note": "Real Binance and Bybit public spot responses for BTCUSDT, plus Binance's answer for an unlisted symbol, recorded 2026-10-25 from a network those venues serve (they refuse US addresses).",
+ "responses": {
+  "GET https://api.binance.com/api/v3/ticker/bookTicker?symbol=BTCUSDT": {
+   "status": 200,
+   "body": {
+    "symbol": "BTCUSDT",
+    "bidPrice": "80624.00000000",
+    "bidQty": "0.22646000",
+    "askPrice": "80624.01000000",
+    "askQty": "8.40573000"
+   }
+  },
+  "GET https://api.binance.com/api/v3/ticker/bookTicker?symbol=NOPEUSDT": {
+   "status": 400,
+   "body": {
+    "code": -1121,
+    "msg": "Invalid symbol."
+   }
+  },
+  "GET https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT": {
+   "status": 200,
+   "body": {
+    "retCode": 0,
+    "retMsg": "OK",
+    "result": {
+     "category": "spot",
+     "list": [
+      {
+       "symbol": "BTCUSDT",
+       "bid1Price": "80619.7",
+       "bid1Size": "0.885276",
+       "ask1Price": "80619.8",
+       "ask1Size": "1.032472",
+       "lastPrice": "80619.8",
+       "prevPrice24h": "79639.7",
+       "price24hPcnt": "0.0123",
+       "highPrice24h": "81031.5",
+       "lowPrice24h": "79591.1",
+       "turnover24h": "313282168.84338611",
+       "volume24h": "3891.436938",
+       "usdIndexPrice": "80516.286954"
+      }
+     ]
+    },
+    "retExtInfo": {},
+    "time": 1792945913265
+   }
+  }
+ }
+}
