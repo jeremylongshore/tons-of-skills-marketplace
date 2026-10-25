@@ -18,6 +18,7 @@ class CosignTrialContract(unittest.TestCase):
         cls.workflow = yaml.safe_load((ROOT / ".github/workflows/emit-evidence.yml").read_text())
         cls.production = cls.workflow["jobs"]["emit"]
         cls.trial = cls.workflow["jobs"]["cosign-v3-trial"]
+        cls.approval = cls.workflow["jobs"]["approve-cosign-v3-trial"]
 
     def test_trial_requires_explicit_main_dispatch_and_does_not_cancel_production(self):
         events = self.workflow.get("on", self.workflow.get(True))
@@ -75,7 +76,12 @@ process.stdout.write(JSON.stringify(cases.map(({github, inputs}) =>
                 self.assertEqual(group, expected_group)
 
     def test_trial_rejects_unapproved_or_advanced_source_before_any_action(self):
-        guard = self.trial["steps"][0]
+        self.assertEqual(self.trial["needs"], "approve-cosign-v3-trial")
+        self.assertNotIn("environment", self.trial)  # Preserve branch-ref OIDC sub.
+        self.assertEqual(self.approval["environment"], "cosign-v3-trial")
+        self.assertNotIn("id-token", self.approval["permissions"])
+        self.assertEqual(self.approval["if"], self.trial["if"])
+        guard = self.approval["steps"][0]
         self.assertNotIn("uses", guard)
         self.assertIn("inputs.approved_source_sha", guard["env"]["APPROVED_SHA"])
         self.assertIn("github.sha", guard["env"]["SOURCE_SHA"])

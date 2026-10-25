@@ -51,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 30); do
-            gh api --paginate "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/check-runs?per_page=100" > /tmp/required-checks.json
+            gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/check-runs?per_page=100" | node ci/emit-evidence/merge-check-pages.mjs > /tmp/required-checks.json
             missing=$(jq -r '
               .check_runs as $runs |
               ["ci-required", "gitleaks", "skill-conform"] |
