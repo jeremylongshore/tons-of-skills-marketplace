@@ -7,8 +7,8 @@
   "stats": {
     "totalPlugins": 431,
     "totalSkills": 2785,
-    "totalDocs": 24,
-    "totalItems": 3240,
+    "totalDocs": 25,
+    "totalItems": 3241,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -77414,6 +77414,24 @@
       ],
       "url": "/docs/concepts/commands-and-hooks/",
       "searchText": "slash commands and hooks skills and legacy slash commands, plus real lifecycle hook configuration, stdin input, and failure-handling boundaries. concepts claude code commands slash commands claude code hooks pretooluse posttooluse lifecycle hooks commands/*.md claude_plugin_root"
+    },
+    {
+      "type": "docs",
+      "id": "docs/concepts/freshie-architecture",
+      "slug": "concepts/freshie-architecture",
+      "name": "Freshie Inventory Architecture",
+      "description": "How Freshie uses stock SQLite for its local runtime, full Dolt for versioned history, and DoltHub for public inventory snapshots. The former DoltLite experiment is retired.",
+      "category": "concepts",
+      "keywords": [
+        "Freshie",
+        "SQLite",
+        "Dolt",
+        "DoltHub",
+        "DoltLite",
+        "inventory history"
+      ],
+      "url": "/docs/concepts/freshie-architecture/",
+      "searchText": "freshie inventory architecture how freshie uses stock sqlite for its local runtime, full dolt for versioned history, and dolthub for public inventory snapshots. the former doltlite experiment is retired. concepts freshie sqlite dolt dolthub doltlite inventory history"
     },
     {
       "type": "docs",
