@@ -251,7 +251,7 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "candidate_count": 33,
+        "candidate_count": 35,
         "mismatch_count": 0,
         "mismatch_paths": []
       }
@@ -3255,9 +3255,12 @@
       "status": "measured",
       "values": {
         "index_entries": 272,
-        "missing_from_index": [],
+        "missing_from_index": [
+          "000-docs/assets/marketplace-trademark-notice/desktop.png",
+          "000-docs/assets/marketplace-trademark-notice/mobile.png"
+        ],
         "target_equal": true,
-        "tracked_documents": 272,
+        "tracked_documents": 274,
         "untracked_index_entries": []
       }
     },

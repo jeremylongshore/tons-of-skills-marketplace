@@ -584,6 +584,14 @@ const isHome = currentPath === '/';
             text-decoration: underline;
         }
 
+        .footer-trademarks {
+            flex-basis: 100%;
+            margin: 0;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            color: var(--text-3);
+        }
+
         .footer-copyright {
             font-size: 0.75rem;
             color: var(--text-3);
@@ -840,6 +848,7 @@ const isHome = currentPath === '/';
             <div class="footer-bottom">
                 <p class="footer-blurb">Tons of Skills by <a href="https://intentsolutions.io" target="_blank" rel="noopener noreferrer">Intent Solutions</a>. Open-source plugins, agents and skills for AI coding agents.</p>
                 <p class="footer-copyright">&copy; {new Date().getFullYear()} Tons of Skills | <a href="https://intentsolutions.io" target="_blank">Intent Solutions</a></p>
+                <p class="footer-trademarks">Tons of Skills is an independent marketplace operated by intentsolutions.io LLC, not an Anthropic product. Claude and Claude Code are trademarks of Anthropic. Plugin listings do not imply Anthropic's sponsorship or endorsement.</p>
             </div>
         </div>
     </footer>
