@@ -182,7 +182,3 @@ External plugins are hosted **mirror-by-default**: the contributor's repository 
 ## License
 
 MIT for the repository scaffolding and first-party tooling; each plugin carries its own license in its manifest, and mirrored plugins keep their upstream license verbatim.
-
-## Trademarks
-
-Tons of Skills is an independent marketplace operated by intentsolutions.io LLC, not an Anthropic product. Claude and Claude Code are trademarks of Anthropic. Plugin listings do not imply Anthropic's sponsorship or endorsement.

@@ -5,7 +5,7 @@
 > **Generated — do not edit.** Stage newly filed documents, then run
 > `node scripts/generate-docs-index.mjs`.
 
-Covers the **tracked** documentation estate (274 files). Local-only working
+Covers the **tracked** documentation estate (272 files). Local-only working
 documents are counted in doc 720 but deliberately not listed here. The inventory excludes only this
 index and `000-docs/.gitignore`.
 
@@ -281,8 +281,6 @@ index and `000-docs/.gitignore`.
 - [6769-RL-REPT-claude-code-plugins-release-v4.31.0.md](6769-RL-REPT-claude-code-plugins-release-v4.31.0.md)
 - [agentskills-spec-snapshot.md](agentskills-spec-snapshot.md)
 - [anthropic-skills-spec-snapshot.md](anthropic-skills-spec-snapshot.md)
-- [desktop.png](assets/marketplace-trademark-notice/desktop.png)
-- [mobile.png](assets/marketplace-trademark-notice/mobile.png)
 - [README.md](_archive/ms-oldv/README.md)
 - [SCHEMA_CHANGELOG.md](SCHEMA_CHANGELOG.md)
 
