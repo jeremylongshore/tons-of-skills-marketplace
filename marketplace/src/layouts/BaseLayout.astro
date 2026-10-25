@@ -227,6 +227,25 @@ const isHome = currentPath === '/';
             font-weight: 600;
         }
 
+        .skip-link {
+            position: fixed;
+            top: 0.75rem;
+            left: 1rem;
+            z-index: 1100;
+            max-width: calc(100% - 2rem);
+            padding: 0.75rem 1rem;
+            background: var(--panel);
+            color: var(--ink);
+            border: 1px solid var(--rule-bright);
+            transform: translateY(calc(-100% - 1rem));
+        }
+
+        .skip-link:focus {
+            transform: none;
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
         /* Navigation */
         nav {
             position: fixed;
@@ -705,6 +724,7 @@ const isHome = currentPath === '/';
     <link rel="stylesheet" href="/assets/intent-partner.css" />
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <!-- Navigation -->
     <nav>
         <a href="/" class="logo">
@@ -748,7 +768,7 @@ const isHome = currentPath === '/';
 <!-- intent-partner:end -->
 
     <!-- Main Content -->
-    <main>
+    <main id="main-content" tabindex="-1">
         <slot />
     </main>
 
