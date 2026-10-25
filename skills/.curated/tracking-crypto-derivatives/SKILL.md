@@ -21,7 +21,7 @@ license: MIT
 tags:
 - crypto
 - derivatives
-- research
+- futures
 compatibility: Designed for Claude Code
 ---
 # Tracking Crypto Derivatives

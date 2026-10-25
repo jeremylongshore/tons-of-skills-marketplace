@@ -20,7 +20,7 @@ license: MIT
 tags:
 - crypto
 - arbitrage
-- research
+- order-book
 compatibility: Designed for Claude Code
 ---
 # Finding Arbitrage Opportunities

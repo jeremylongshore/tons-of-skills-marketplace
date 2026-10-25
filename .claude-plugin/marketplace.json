@@ -775,7 +775,7 @@
         "crypto",
         "spreads",
         "order-book",
-        "research"
+        "bid-ask"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -1294,11 +1294,13 @@
       "keywords": [
         "crypto",
         "derivatives",
+        "futures",
         "perpetuals",
         "funding-rate",
         "open-interest",
         "options",
-        "research"
+        "basis",
+        "liquidations"
       ],
       "author": {
         "name": "Jeremy Longshore",

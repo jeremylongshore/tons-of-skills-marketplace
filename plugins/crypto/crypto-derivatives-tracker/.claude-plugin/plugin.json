@@ -12,10 +12,12 @@
   "keywords": [
     "crypto",
     "derivatives",
+    "futures",
     "perpetuals",
     "funding-rate",
     "open-interest",
     "options",
-    "research"
+    "basis",
+    "liquidations"
   ]
 }

@@ -536,6 +536,7 @@
       "backup",
       "backward-compatibility",
       "bamboohr",
+      "basis",
       "batch",
       "batch-inference",
       "batch-operations",
@@ -547,6 +548,7 @@
       "benchmarking",
       "best-practices",
       "bias",
+      "bid-ask",
       "bigquery",
       "billingcenter",
       "bitcoin",
@@ -910,6 +912,7 @@
       "fullstack",
       "function-calling",
       "funding-rate",
+      "futures",
       "fuzzing",
       "ga4",
       "gainers",
@@ -1075,6 +1078,7 @@
       "linting",
       "liquid-glass",
       "liquidation",
+      "liquidations",
       "liquidity",
       "llama",
       "llm",
@@ -2966,7 +2970,7 @@
         "crypto",
         "spreads",
         "order-book",
-        "research"
+        "bid-ask"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -2981,7 +2985,7 @@
       "verificationScore": 96,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "arbitrage opportunity finder compare live bid/ask for a crypto pair across exchanges and show spreads net of stated fees; read-only crypto arbitrage crypto spreads order-book research"
+      "searchText": "arbitrage opportunity finder compare live bid/ask for a crypto pair across exchanges and show spreads net of stated fees; read-only crypto arbitrage crypto spreads order-book bid-ask"
     },
     {
       "type": "plugin",
@@ -3815,11 +3819,13 @@
       "keywords": [
         "crypto",
         "derivatives",
+        "futures",
         "perpetuals",
         "funding-rate",
         "open-interest",
         "options",
-        "research"
+        "basis",
+        "liquidations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -3834,7 +3840,7 @@
       "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "crypto derivatives tracker read-only crypto derivatives research from live public exchange data: funding, open interest, basis, liquidations, options crypto crypto derivatives perpetuals funding-rate open-interest options research"
+      "searchText": "crypto derivatives tracker read-only crypto derivatives research from live public exchange data: funding, open interest, basis, liquidations, options crypto crypto derivatives futures perpetuals funding-rate open-interest options basis liquidations"
     },
     {
       "type": "plugin",

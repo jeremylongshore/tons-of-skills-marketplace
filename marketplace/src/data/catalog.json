@@ -1103,7 +1103,7 @@
         "crypto",
         "spreads",
         "order-book",
-        "research"
+        "bid-ask"
       ],
       "hasSkills": true,
       "skillCount": 1,
@@ -1846,11 +1846,13 @@
       "keywords": [
         "crypto",
         "derivatives",
+        "futures",
         "perpetuals",
         "funding-rate",
         "open-interest",
         "options",
-        "research"
+        "basis",
+        "liquidations"
       ],
       "hasSkills": true,
       "skillCount": 1,
