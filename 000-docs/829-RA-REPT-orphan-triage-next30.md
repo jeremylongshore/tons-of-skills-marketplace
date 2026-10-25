@@ -116,3 +116,11 @@ Git blobs as the frozen E1 source where 24 resolver/provenance tests and 72 sche
 tests passed. Those unchanged-code results are reused; the E2-specific evidence
 above was checked separately. Unicode scanning found zero findings. This record
 makes no claim that the mirrored instructions pass content grading or runtime tests.
+
+## Follow-up disposition, 2026-10-25
+
+The twelve cases deferred above now have retention/exclusion decisions in
+[report 833](833-RA-REPT-tonone-bundle-disposition.md), with per-path evidence in
+[receipt 833a](833a-RA-DATA-tonone-bundle-evidence.json). The original E2 result
+remains historical; receipt 828 appends final reviews without replacing it.
+Issue closure still requires normal PR acceptance and merged-state verification.
