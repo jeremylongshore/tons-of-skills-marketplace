@@ -55,7 +55,9 @@ on:
 # adversarial lane, the one that reads the title and description, unless the
 # base branch changed. `converted_to_draft` starts a run whose lanes all skip; it
 # exists to cancel, through the shared `code` group, a code-group review already
-# in flight. An edit-group run already in flight finishes.
+# in flight; it does not cancel an edit-group run. Newest wins throughout: a newer
+# edit cancels an older edit run, and any newer adversarial job supersedes an
+# in-flight one, so a run can end `cancelled` after its other lanes posted.
 
 permissions:
   contents: read
