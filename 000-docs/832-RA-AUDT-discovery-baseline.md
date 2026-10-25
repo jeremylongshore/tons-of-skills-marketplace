@@ -22,7 +22,7 @@ The largest observed discovery cost is the skills page's catalog fetch: 22,697,0
 
 This baseline inspects main as observed at collection and its tracked projections. Unmerged authentication and Apple Notes retirement work is outside the source revision. No site build, production deployment, browser session, analytics query, provider call, or skill execution was performed for this measurement.
 
-The companion evidence hashes 30 selected source inputs. Every hash was checked against `git show` at the source revision before recording facts. It also records the measured file sizes, local gzip estimates, cohort counts, route contracts, and explicit unknowns.
+The companion evidence hashes the selected source inputs listed in the companion. Every hash was checked against `git show` at the source revision before recording facts. It also records the measured file sizes, local gzip estimates, cohort counts, route contracts, and explicit unknowns.
 
 Governed-brain retrieval returned a historical description of Astro 5.16, 244 skills, and 259 plugins: `qmd://kb-guides/ea6e2e59-35f9-5596-9817-96fa44de67f5.md`. That archival memory is not current numerical authority. The frozen source manifest instead declares Astro 7.3.3; all counts here come from this revision's inputs.
 
@@ -88,6 +88,21 @@ The three quarantined entries are Skyvern, Hyperflow, and llm-box. Their records
 | Evaluate plugin details  | `marketplace/src/pages/plugins/[name].astro:14` | Public plugin, extracted README, embedded skill list, install command, same-category related plugins |
 | Evaluate skill details   | `marketplace/src/pages/skills/[slug].astro:7`   | Generated skill route, parent-plugin install command, first six same-category related skills         |
 
+The three main catalog routes are not the whole discovery estate. These secondary entrypoints have different owners and cohorts:
+
+| Surface                              | Source owner                                                                                    | Data and present journey                                                                                                                                                                                          |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Collections, spotlight, stash, stack | `marketplace/src/pages/collections.astro:3` and its four imported feature components            | `collections.json`, `spotlights.json`, and `jeremys-stash.json` are editorial inputs. Stack Builder stores `ccp-plugin-stack` and shares a `stack` URL parameter; it does not infer interoperability.             |
+| Cowork downloads and search          | `marketplace/src/pages/cowork.astro:7`, `CoworkGrid.astro`, `scripts/build-cowork-zips.mjs:263` | Generated manifest and ZIP artifacts; individual plugin name/category substring filtering. Package-local counts are not the public catalog denominator. No archives were rebuilt or downloaded for this baseline. |
+| Side-by-side comparison              | `marketplace/src/pages/compare.astro:451` and `CompareBar.astro`                                | Lookup inlined from unified items; `items` query selection takes precedence over `compare-items` local storage. Empty selection has a browse CTA. Displayed metadata does not establish compatibility.            |
+| Community                            | `marketplace/src/pages/community.astro:11`                                                      | Groups public unified plugin items by author/contributor. Its historical spotlight hall-of-fame is filtered to currently published plugin slugs.                                                                  |
+| Docs                                 | `marketplace/src/pages/docs/index.astro:5` and `docs/[...slug].astro`                           | Astro docs collection grouped by section/order. Footer numbers explicitly marked historical-copy are not current catalog totals.                                                                                  |
+| Learning, playbooks, research        | `learning/index.astro`, `playbooks/index.astro`, `research.astro`                               | Route-local guide/notebook/reference lists. Their declared durations and word counts were not measured here; they are not catalog relationship evidence.                                                          |
+| Specialized/editorial directories    | `skill-enhancers.astro`, `tools.astro`, `compare-marketplaces.astro`                            | Promotional/tool entrypoints and comparison copy; marketplace-comparison totals read unified stats. External comparison claims are not validated by this audit.                                                   |
+| Work diary                           | `blog/index.astro` and `blog/[...slug].astro`                                                   | Astro blog-posts collection and article routes. Blog posts are a separate content cohort, not the 24 indexed documentation rows.                                                                                  |
+
+The companion hashes the selected page, component, data, and generator inputs behind these routes. It does not enumerate or validate every external editorial destination or every article body.
+
 Explore and the skills directory therefore offer different destinations for an embedded skill. This is a current journey difference; this baseline does not assume whether that product choice should remain.
 
 ## 6. Reproduce the measurements
@@ -135,6 +150,10 @@ assert len(browse) == len(public['plugins']) and {row['name'] for row in browse}
 print('browse intersection', len(browse))
 print('browse unique source paths', len({row['source'] for row in browse}))
 print('browse categories', len({row['category'] for row in browse}))
+items = json.loads(Path('marketplace/src/data/unified-search-index.json').read_text())['items']
+ids = collections.Counter(row.get('id') or row['name'] for row in items)
+print('compare raw-ID keys', len(ids))
+print('compare duplicate raw IDs', sum(count > 1 for count in ids.values()))
 PY
 ```
 
@@ -154,7 +173,7 @@ External popularity statistics have a separate freshness owner, `scripts/check-s
 
 ## 8. Native-extension and trust boundaries
 
-At this revision every projected plugin row has `type: instruction-plugin`, because `sync-catalog.mjs:215` assigns that value. The browser index uses `plugin`, `skill`, and `docs` item types. Neither vocabulary proves that all components are portable instructions or that native extensions are absent.
+At this revision every projected plugin row has `type: instruction-plugin`, because `sync-catalog.mjs:215` assigns that value. The browser index uses `plugin`, `skill`, and `docs` item types. Neither vocabulary proves that all components are portable instructions or that native extensions are absent. Cowork packaging provides a separate concrete boundary: `scripts/build-cowork-zips.mjs:263` starts from published catalog rows and its loop skips the MCP directory category (`:319`). That rule is not a universal detector of native behavior in other categories. `cowork.astro:7–17` requires generated manifest fields, and `scripts/validate-cowork-manifest.mjs` owns the package consistency gate; neither a ZIP nor a directory label certifies runtime compatibility.
 
 The CLI separately records harness support classes, including `native-extension`, in `packages/cli/src/commands/skills.ts:12`. The hashed Explore template exposes no harness-support or native-component filter in its control block or filter-state implementation (`explore.astro:384–435`, `491–540`). Its tool filter matches declared skill `allowedTools`, which is not proof that a target harness implements those tools. Detail component counts and MCP-tool counts are descriptive metadata, not an execution or compatibility test.
 
@@ -183,7 +202,9 @@ The skills directory has explicit labels for its search and filter controls. Exp
 
 ## 11. Findings and evidence limits
 
-The machine companion records D01–D08 with source owners. They cover full-catalog payload reuse, failure/busy-state handling, incomplete filter URL round trips, accessible-name review, different skill destinations, category-only recommendations, raw-query telemetry prerequisites, and the limits of current broad E2E assertions.
+The machine companion records D01–D09 with source owners. They cover full-catalog payload reuse, failure/busy-state handling, incomplete filter URL round trips, accessible-name review, different skill destinations, category-only recommendations, raw-query telemetry prerequisites, and the limits of current broad E2E assertions.
+
+A further deterministic failure mode appears in comparison identity: the 3,240 unified rows contain 31 raw IDs shared by a plugin and a skill. The `Map` / `Object.fromEntries` lookup keyed only by raw ID in `compare.astro:6,451` therefore has 3,209 keys, with later entries replacing earlier ones. The companion lists the collisions and the recipe reproduces both counts. This is a source/data collision finding; browser behavior for a particular saved or shared selection was not tested, and no identifier migration is applied here. Remediation is tracked in `claude-dww0`.
 
 Existing `marketplace/tests/T7-explore-plugin-flows.spec.ts` includes fixed waits and broad card/body assertions. Its existence does not establish ranking correctness, failure recovery, or an accessibility/performance budget. It was read, not executed, for this baseline. No prior test receipt is relabeled as a new runtime measurement.
 

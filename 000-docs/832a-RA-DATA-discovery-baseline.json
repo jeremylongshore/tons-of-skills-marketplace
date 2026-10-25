@@ -195,6 +195,102 @@
     "marketplace/scripts/extract-readme-sections.mjs": {
       "sha256": "7797fe583d159cd2dcc37f4e8e89657d95b5a85f0ea6693b4ee6fdff8240946a",
       "bytes": 5908
+    },
+    "marketplace/src/pages/collections.astro": {
+      "sha256": "3b3852c1627566327a8f2b58b1ada58fb40d8c3459739f207a6c7bcd15835281",
+      "bytes": 7150
+    },
+    "marketplace/src/pages/cowork.astro": {
+      "sha256": "ee8cda9a3693e0d5eabdf969e3ec553cb0756cbedeea74d137504dbc8c857c2f",
+      "bytes": 20759
+    },
+    "marketplace/src/pages/compare.astro": {
+      "sha256": "25604157598daa63ad4f718a2b41f5d794744647c44ebef2c3ef6d44e50e91f0",
+      "bytes": 19638
+    },
+    "marketplace/src/pages/docs/index.astro": {
+      "sha256": "fcbe4c384e540868ee54eed38082974bd8e16206c43da0d0c76b1b3e7a7f9411",
+      "bytes": 7550
+    },
+    "marketplace/src/pages/learning/index.astro": {
+      "sha256": "6240f24af4e8f8c7b0f8fae9ab75befc7cb057dc81cbd1ab0c673e0b5cac2a26",
+      "bytes": 17890
+    },
+    "marketplace/src/pages/playbooks/index.astro": {
+      "sha256": "9850ffa081a6434ce70154df2cdf0bd79b8078bd90a9a04a29da593f438a3074",
+      "bytes": 14496
+    },
+    "marketplace/src/pages/community.astro": {
+      "sha256": "7281d4b0a63c134e502d38c886837b018a1d0f99877e2742663cd23120a7dd07",
+      "bytes": 19129
+    },
+    "marketplace/src/pages/skill-enhancers.astro": {
+      "sha256": "46f13ed2a94f4ae2ff6ba8397d3fe393e518fe5b9cef3040ae8edfec82660fdf",
+      "bytes": 35174
+    },
+    "marketplace/src/pages/tools.astro": {
+      "sha256": "5ad851e95bf24f57fd8a441f2f3ef285824396a273b090a873017bcfe4c434fd",
+      "bytes": 14477
+    },
+    "marketplace/src/pages/research.astro": {
+      "sha256": "921dee3195fce9d5d9b0764c5ff54436c85f00c07b9afffdd06987bf8b9af32f",
+      "bytes": 14549
+    },
+    "marketplace/src/pages/compare-marketplaces.astro": {
+      "sha256": "84fb3d077ac7a653a73723aec5f2d6f3de9ad3df59821c52a56e4f8bb21e89a8",
+      "bytes": 18345
+    },
+    "marketplace/src/pages/blog/index.astro": {
+      "sha256": "34fb1af2f1ba71dcf65d8e0e52459c668df17a51ea8e69b50a3dd6222aae905e",
+      "bytes": 4605
+    },
+    "marketplace/src/pages/blog/[...slug].astro": {
+      "sha256": "87c6b5d0f2acfb44cc09529ba011a28c10aada6e83c889d2271eb4d53171005d",
+      "bytes": 4753
+    },
+    "marketplace/src/pages/docs/[...slug].astro": {
+      "sha256": "4ea861865fec65ded2c0b8558c4592376bf32af5642a055cee4fac16856012b2",
+      "bytes": 441
+    },
+    "marketplace/src/components/CollectionsGrid.astro": {
+      "sha256": "475cdcbad3b5b45aad7f4c27ebabe8b970571f3b33a5e9075c223453b767cd51",
+      "bytes": 4457
+    },
+    "marketplace/src/components/KillerSkills.astro": {
+      "sha256": "27e9ae3448af9e90ccf4ea72ec8dea4996372c6f4b204db32217d440cc64652b",
+      "bytes": 6162
+    },
+    "marketplace/src/components/JeremysStash.astro": {
+      "sha256": "7ccbb8605d10439d079d242fc37d336626552561aa4b8128d64be6ad86c74e09",
+      "bytes": 4141
+    },
+    "marketplace/src/components/StackBuilder.astro": {
+      "sha256": "d4ccdfa3200f626367bc3af0318d307b9edfe6e870558e68f275682ae52d5602",
+      "bytes": 18732
+    },
+    "marketplace/src/components/CoworkGrid.astro": {
+      "sha256": "d120c9288e441bf444c4e4c3f27e00c10be205e534d20a602e9f37653ffa363f",
+      "bytes": 7054
+    },
+    "marketplace/src/data/collections.json": {
+      "sha256": "4cdce6fb9354b20c37365b092b16c3ecdcce0b14c22dd1fb0a8ad7d86d0db68b",
+      "bytes": 3212
+    },
+    "marketplace/src/data/spotlights.json": {
+      "sha256": "8c05c3a1170b4a606ebd604db1f8cd7fd2a6c5699b03086b1866727fff6551e2",
+      "bytes": 9678
+    },
+    "marketplace/src/data/jeremys-stash.json": {
+      "sha256": "e176c88985e95dbd39eeb8cfb36117ea86ebc1d5fc070ded9ad1c7cf6aac83bc",
+      "bytes": 1468
+    },
+    "scripts/build-cowork-zips.mjs": {
+      "sha256": "f24c5b771a276610b96b4d0e93eec2cc6f4102ab00c0ef441f9e7e27f99394f3",
+      "bytes": 15553
+    },
+    "scripts/validate-cowork-manifest.mjs": {
+      "sha256": "79c53a8e5fd60f17a7a143834c270c253d32f09fbac60595d5ff894051f99dd7",
+      "bytes": 6478
     }
   },
   "route_contracts": [
@@ -278,6 +374,12 @@
       "kind": "measurement limit",
       "source": "marketplace/tests/T7-explore-plugin-flows.spec.ts:66",
       "fact": "Existing broad card/body assertions and fixed waits do not establish ranking correctness, payload-failure recovery, performance SLOs or accessibility compliance; suites not rerun here"
+    },
+    {
+      "id": "D09",
+      "kind": "comparisonidentitycollision",
+      "source": "marketplace/src/pages/compare.astro:451",
+      "fact": "3240searchrowsreduce to3209rawIDlookupkeys, with31plugin/skillcross-typeIDcollisions; browserselectionimpactunmeasured"
     }
   ],
   "governed_memory": {
@@ -291,7 +393,10 @@
     "cold-device timing or p50/p95/p99 latency",
     "screen-reader/keyboard runtime outcomes",
     "real visitor search or analytics events",
-    "recommendation efficacy"
+    "recommendation efficacy",
+    "Cowork build manifest/ZIP contents and counts",
+    "every external editorial destination",
+    "browser behavior for collision-bearing comparison selections"
   ],
   "pilot_authorized": false,
   "cohort_derivations": {
@@ -314,11 +419,11 @@
   },
   "source_verification": {
     "method": "git show source_commit:path, then SHA256 and byte-length comparison for every selected source_inputs entry",
-    "verified_input_count": 30,
+    "verified_input_count": 54,
     "git_object_type": "commit",
     "source_ancestor_of_initial_candidate": true,
     "selected_input_set_is_not_complete_transitive_build_closure": true,
-    "published_recipe_stdout": "verified_inputs 30 source_commit 55ea040716904ce8199516ddb0c3a0500aa4e172\n.claude-plugin/marketplace.extended.json 325309 42284\nplugins 434\n.claude-plugin/marketplace.json 248032 38199\nplugins 431\nmarketplace/src/data/catalog.json 363221 46048\nplugins 431\nmarketplace/src/data/skills-index.json 1793536 299889\nskills 2785\nmarketplace/src/data/skills-catalog.json 22697053 5083649\nskills 2785\nmarketplace/src/data/unified-search-index.json 3921913 521168\nitems 3240\nCounter({'skill': 2785, 'plugin': 431, 'docs': 24})\nbrowse intersection 431\nbrowse unique source paths 429\nbrowse categories 19\n"
+    "published_recipe_stdout": "verified_inputs 54 source_commit 55ea040716904ce8199516ddb0c3a0500aa4e172\n.claude-plugin/marketplace.extended.json 325309 42284\nplugins 434\n.claude-plugin/marketplace.json 248032 38199\nplugins 431\nmarketplace/src/data/catalog.json 363221 46048\nplugins 431\nmarketplace/src/data/skills-index.json 1793536 299889\nskills 2785\nmarketplace/src/data/skills-catalog.json 22697053 5083649\nskills 2785\nmarketplace/src/data/unified-search-index.json 3921913 521168\nitems 3240\nCounter({'skill': 2785, 'plugin': 431, 'docs': 24})\nbrowse intersection 431\nbrowse unique source paths 429\nbrowse categories 19\ncompare raw-ID keys 3209\ncompare duplicate raw IDs 31\n"
   },
   "validation_evidence": {
     "initial_candidate": "2bce2c0db1efb4d516993ede294b76648d772b00",
@@ -349,5 +454,126 @@
     "initial_metadata_failure": "UnregistereddiscoveryPRtitlescope; corrected to registeredmarketplace-site. Failed run retained; followup candidate requires fresh final checks."
   },
   "product_source_changed": false,
-  "measurement_records_added": true
+  "measurement_records_added": true,
+  "secondary_route_contracts": [
+    {
+      "routes": ["/collections/"],
+      "sources": [
+        "marketplace/src/pages/collections.astro",
+        "marketplace/src/components/CollectionsGrid.astro",
+        "marketplace/src/components/KillerSkills.astro",
+        "marketplace/src/components/JeremysStash.astro",
+        "marketplace/src/components/StackBuilder.astro"
+      ],
+      "inputs": ["collections.json", "spotlights.json", "jeremys-stash.json"],
+      "behavior": "Editorial collection/spotlight/stash discovery plus local ccp-plugin-stack storage/share state; not an automatic catalog relationship ranking"
+    },
+    {
+      "routes": ["/cowork/"],
+      "sources": [
+        "marketplace/src/pages/cowork.astro",
+        "marketplace/src/components/CoworkGrid.astro",
+        "scripts/build-cowork-zips.mjs",
+        "scripts/validate-cowork-manifest.mjs"
+      ],
+      "inputs": ["build-generatedcowork-manifest.json and ZIP artifacts,nottracked/notrebuilthere"],
+      "behavior": "Generated package-local counts/category bundles/individual-name-or-category substring filter; build generator uses published catalog and skips MCP directory category; not universal native-extension detection"
+    },
+    {
+      "routes": ["/compare/"],
+      "sources": [
+        "marketplace/src/pages/compare.astro",
+        "marketplace/src/components/CompareBar.astro"
+      ],
+      "inputs": ["unified-search-index.json", "URLitems param", "compare-items localStorage"],
+      "behavior": "InlineIDlookup; URLselection takes precedence over savedstate, emptyselection displaysCTA; comparison data is descriptive,not compatibility proof"
+    },
+    {
+      "routes": ["/community/"],
+      "sources": ["marketplace/src/pages/community.astro"],
+      "inputs": ["unified-search-index.json", "spotlights.json"],
+      "behavior": "Public plugin author/contributor grouping and spotlight hall-of-fame filtered to current published plugin slugs"
+    },
+    {
+      "routes": ["/docs/", "/docs/<slug>/"],
+      "sources": [
+        "marketplace/src/pages/docs/index.astro",
+        "marketplace/src/pages/docs/[...slug].astro"
+      ],
+      "inputs": ["Astro docs content collection"],
+      "behavior": "Section/order content navigation; historical-copy footer values are not current catalog totals"
+    },
+    {
+      "routes": ["/learning/", "/playbooks/", "/research/"],
+      "sources": [
+        "marketplace/src/pages/learning/index.astro",
+        "marketplace/src/pages/playbooks/index.astro",
+        "marketplace/src/pages/research.astro"
+      ],
+      "inputs": ["Route-local editorial arrays and linked guide/notebook content"],
+      "behavior": "Curated learning/reference discovery,not inferred catalog recommendations; declared durations/wordcounts are not measured by this baseline"
+    },
+    {
+      "routes": ["/skill-enhancers/", "/tools/", "/compare-marketplaces/"],
+      "sources": [
+        "marketplace/src/pages/skill-enhancers.astro",
+        "marketplace/src/pages/tools.astro",
+        "marketplace/src/pages/compare-marketplaces.astro"
+      ],
+      "inputs": [
+        "Route-local promotional/editorial content",
+        "Unified stats for marketplace-comparison copy"
+      ],
+      "behavior": "Specialized/editorial entrypoints,not exhaustive install catalog; no comparison claims independently validated here"
+    },
+    {
+      "routes": ["/blog/", "/blog/<slug>/"],
+      "sources": [
+        "marketplace/src/pages/blog/index.astro",
+        "marketplace/src/pages/blog/[...slug].astro"
+      ],
+      "inputs": ["Astro blog-posts collection"],
+      "behavior": "Date-sorted article discovery and article pages; blog posts are not counted as the24 unified docs rows"
+    }
+  ],
+  "comparison_lookup": {
+    "source": "marketplace/src/pages/compare.astro:451",
+    "search_item_rows": 3240,
+    "raw_id_unique_keys": 3209,
+    "cross_type_duplicate_ids": {
+      "vertex-ai-media-master": ["plugin", "skill"],
+      "agency-os": ["plugin", "skill"],
+      "calendar-to-workflow": ["plugin", "skill"],
+      "cad-dxf-agent": ["plugin", "skill"],
+      "database-documentation-gen": ["plugin", "skill"],
+      "engineer-design-diagram": ["plugin", "skill"],
+      "file-to-code": ["plugin", "skill"],
+      "research-to-deploy": ["plugin", "skill"],
+      "search-to-slack": ["plugin", "skill"],
+      "skill-creator": ["plugin", "skill"],
+      "neurodivergent-visual-org": ["plugin", "skill"],
+      "gh-dash": ["plugin", "skill"],
+      "navigating-github": ["plugin", "skill"],
+      "validate-plugin": ["plugin", "skill"],
+      "zero-tech-debt": ["plugin", "skill"],
+      "box-cloud-filesystem": ["plugin", "skill"],
+      "tweetclaw": ["plugin", "skill"],
+      "plane": ["plugin", "skill"],
+      "web-analytics": ["plugin", "skill"],
+      "cli-ux-tester": ["plugin", "skill"],
+      "x-bug-triage": ["plugin", "skill"],
+      "obsidian-project-documentation": ["plugin", "skill"],
+      "dolt-mcp-vcs": ["plugin", "skill"],
+      "hermes-tweet": ["plugin", "skill"],
+      "x-twitter-scraper": ["plugin", "skill"],
+      "servicegraph": ["plugin", "skill"],
+      "schedule-after-usage-reset": ["plugin", "skill"],
+      "j-rig": ["plugin", "skill"],
+      "agent-safety-preflight": ["plugin", "skill"],
+      "quit-sponsor": ["plugin", "skill"],
+      "hol-guard": ["plugin", "skill"]
+    },
+    "duplicate_id_count": 31,
+    "effect": "Map/Object.fromEntries keyedbyrawID haslast-writer-wins entries; actualindividualselection/renderbehaviornotbrowser-tested"
+  }
 }
