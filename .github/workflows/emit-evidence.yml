@@ -40,9 +40,14 @@ on:
   workflow_dispatch:
     inputs:
       cosign_v3_trial:
-        description: 'Artifact-only Cosign v3.0.6 compatibility trial; requires owner approval before dispatch.'
+        description: 'Cosign v3.0.6 trial: public keyless signing, no release publication. Runbook requires owner approval.'
         type: boolean
         default: false
+        required: false
+      approved_source_sha:
+        description: 'For a v3 trial, the exact main SHA approved by the owner; mismatch fails before signing.'
+        type: string
+        default: ''
         required: false
 
 concurrency:
@@ -212,7 +217,7 @@ jobs:
           echo "report-manifest.json published to the evidence-latest rolling prerelease"
 
   cosign-v3-trial:
-    name: Cosign v3 artifact-only compatibility trial
+    name: Cosign v3 compatibility trial (public signing, no release)
     # Manual, explicit opt-in on main preserves the consumer's workflow identity.
     # Preparing this lane does not authorize its Fulcio/Rekor/TSA operations.
     if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.cosign_v3_trial
@@ -223,6 +228,17 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - name: Validate the approved trial source before signing
+        env:
+          APPROVED_SHA: ${{ inputs.approved_source_sha }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$APPROVED_SHA" =~ ^[a-f0-9]{40}$ ]] || [ "$APPROVED_SHA" != "$SOURCE_SHA" ]; then
+            echo "::error::Trial requires the exact owner-approved main SHA; obtain fresh approval if main advanced."
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -242,10 +258,8 @@ jobs:
           # Trial only; both production signers remain on v2.5.2.
           cosign-release: 'v3.0.6'
 
-      # Standalone install (NOT a workspace member): pins the kernel validators
-      # to the exact version the dashboard verifies with, via the committed
-      # ci/emit-evidence/pnpm-lock.yaml. Root workspace + publish surfaces are
-      # untouched.
+      # Use the existing producer's committed standalone validator lockfile.
+      # Actual reports-hub compatibility remains a separate acceptance step.
       - name: Install kernel validators (standalone, frozen lockfile)
         working-directory: ci/emit-evidence
         run: pnpm install --frozen-lockfile --ignore-workspace
@@ -276,9 +290,9 @@ jobs:
           echo "::error::required contexts did not complete for ${GITHUB_SHA}"
           exit 1
 
-      # Runs the two deterministic validation steps and attaches all three
-      # protected-branch contexts. Missing/in-progress/duplicate contexts abort
-      # rather than being represented as a pass.
+      # The waiter requires one completed run per named context. The producer
+      # validates the complete report, including duplicates and conclusions;
+      # see ci/emit-evidence/emit-evidence.ts and its required-context tests.
       - name: Emit gate-result/v1 EvidenceBundle(s)
         run: node --experimental-strip-types ci/emit-evidence/emit-evidence.ts --out build/evidence --ref "${GITHUB_REF}" --workflow-ref "${GITHUB_WORKFLOW_REF}" --required-checks-report /tmp/required-checks.json
 
@@ -303,8 +317,8 @@ jobs:
 
       # Verify each signature back, in-repo, before publishing — a signature
       # nobody in the producing pipeline checks is not a verified chain. The
-      # pinned identity is the SAME claim pair the manifest skeleton records
-      # and the dashboard re-checks at ingest.
+      # pinned identity uses the existing producer-side workflow expression.
+      # This does not establish actual reports-hub acceptance.
       - name: Verify each EvidenceBundle signature (cosign verify-blob; fail-closed)
         run: |
           set -euo pipefail

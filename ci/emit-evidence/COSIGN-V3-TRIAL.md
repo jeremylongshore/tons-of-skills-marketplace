@@ -1,18 +1,25 @@
 # Cosign v3 compatibility trial
 
-Tracks `claude-yszw`. Preparing or merging this lane does not approve a dispatch.
+Tracks Beads task `claude-yszw`: produce a real v3 bundle, verify it in the
+producer and the actual reports hub, then separately review production adoption.
+Preparing or merging this lane does not approve a dispatch. Owner approval and
+consumer acceptance are runbook/review requirements; this workflow does not
+configure a protected approval environment or authenticate an approval record.
 Obtain the owner's approval for the exact main commit before invoking public
 Fulcio/Rekor/TSA signing services. Both production workflows retain Cosign v2.5.2.
 
 The `Emit signed evidence manifest` workflow has an optional boolean dispatch
 input, `cosign_v3_trial`, defaulting to false. With that input true on `main`, only
-the artifact-only trial runs. Pushes and ordinary dispatches retain the existing
+the trial runs without publishing a release. Pushes and ordinary dispatches retain the existing
 production path. Trial concurrency is unique to its run and cannot supersede a
 production emission. The trial has read-only repository access plus the OIDC
 permission required for signing; it cannot write a release.
 
 After approval and merge, dispatch that workflow on main with
-`cosign_v3_trial=true`. Record the exact source SHA, run ID and attempt. It emits
+`cosign_v3_trial=true` and `approved_source_sha` set to the exact approved
+40-character main commit. The workflow fails before signing if that value is
+missing, malformed, or differs from its actual source SHA. If main advances,
+obtain fresh approval; do not silently substitute the new SHA. Record the exact source SHA, run ID and attempt. It emits
 real source gate-result bundles through the existing producer, signs with pinned
 Cosign v3.0.6, verifies with the existing exact workflow identity and issuer, and
 assembles a manifest. Missing signatures, failed verification or failed assembly

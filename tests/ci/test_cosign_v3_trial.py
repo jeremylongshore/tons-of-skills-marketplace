@@ -2,6 +2,7 @@
 
 import itertools
 import json
+import os
 import pathlib
 import subprocess
 import unittest
@@ -72,6 +73,29 @@ process.stdout.write(JSON.stringify(cases.map(({github, inputs}) =>
                 self.assertFalse(production and trial)
                 expected_group = "cosign-v3-trial-" + context["run_id"] if opted_in else "emit-evidence"
                 self.assertEqual(group, expected_group)
+
+    def test_trial_rejects_unapproved_or_advanced_source_before_any_action(self):
+        guard = self.trial["steps"][0]
+        self.assertNotIn("uses", guard)
+        self.assertIn("inputs.approved_source_sha", guard["env"]["APPROVED_SHA"])
+        self.assertIn("github.sha", guard["env"]["SOURCE_SHA"])
+        source = "a" * 40
+        for approved, succeeds in [
+            (source, True),
+            ("", False),
+            ("a" * 39, False),
+            ("A" * 40, False),
+            ("b" * 40, False),
+            ("$(exit 0)", False),
+        ]:
+            with self.subTest(approved=approved):
+                result = subprocess.run(
+                    ["bash", "-c", guard["run"]],
+                    env={**os.environ, "APPROVED_SHA": approved, "SOURCE_SHA": source},
+                    text=True,
+                    capture_output=True,
+                )
+                self.assertEqual(result.returncode == 0, succeeds, result.stderr)
 
     def test_trial_has_no_write_or_publish_step(self):
         self.assertEqual(
