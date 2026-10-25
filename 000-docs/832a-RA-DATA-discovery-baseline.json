@@ -1,0 +1,277 @@
+{
+  "artifact_class": "dated-source-baseline",
+  "bead": "claude-qyxc.1.1",
+  "date": "2026-10-25",
+  "source_commit": "55ea040716904ce8199516ddb0c3a0500aa4e172",
+  "scope": "Protected main source and tracked projections; not unmerged authentication/retirement stack and not a production runtime certification",
+  "toolchain": {
+    "node": "v22.23.1",
+    "python": "3.12.3",
+    "gzip": "Python gzip.compress(bytes,mtime=0), default compression; local estimate, not measured HTTP transfer"
+  },
+  "cohorts": {
+    "editable_catalog_rows": 434,
+    "public_installable_plugin_rows": 431,
+    "published_unique_source_paths": 429,
+    "graded_skill_paths": 3376,
+    "marketplace_visible_skill_paths": 2785,
+    "search_item_rows": 3240,
+    "search_types": {
+      "plugin": 431,
+      "skill": 2785,
+      "docs": 24
+    },
+    "catalog_projected_types": {
+      "instruction-plugin": 431
+    },
+    "categories": 19
+  },
+  "quarantined_rows": [
+    {
+      "name": "skyvern",
+      "publication": "quarantined"
+    },
+    {
+      "name": "hyperflow",
+      "publication": "quarantined"
+    },
+    {
+      "name": "llm-box",
+      "publication": "quarantined"
+    }
+  ],
+  "payloads": {
+    ".claude-plugin/marketplace.extended.json": {
+      "sha256": "858fc95784ed87ed430f8adad5d20cfdb0a9d9f31e183bb134e3b99cf24cada8",
+      "bytes": 325309,
+      "local_gzip_bytes": 42284
+    },
+    ".claude-plugin/marketplace.json": {
+      "sha256": "8276ab1d2c963923127233fe5de026c7a40dbcec219f3178392da1a73160af3b",
+      "bytes": 248032,
+      "local_gzip_bytes": 38199
+    },
+    "marketplace/src/data/catalog.json": {
+      "sha256": "e006c99bb93e5728b2c6d814d29d07cb08bb5b1c85f5d55a2a0a0a72e4c215b0",
+      "bytes": 363221,
+      "local_gzip_bytes": 46048
+    },
+    "marketplace/src/data/skills-index.json": {
+      "sha256": "1c3f3ffd7b10927c9b3629af83721eb6c95da543a8cfcb71982491ed370a7ba9",
+      "bytes": 1793536,
+      "local_gzip_bytes": 299889
+    },
+    "marketplace/src/data/skills-catalog.json": {
+      "sha256": "e203556ae22621739698242be75bfc7fc7fc881bf508c6ea66a6ace3611698d5",
+      "bytes": 22697053,
+      "local_gzip_bytes": 5083649
+    },
+    "marketplace/src/data/unified-search-index.json": {
+      "sha256": "7ab4149ed96ab1fa00bedae1de857bd2c3cf940840bc88090354819edfca43a3",
+      "bytes": 3921913,
+      "local_gzip_bytes": 521168
+    }
+  },
+  "source_inputs": {
+    ".claude-plugin/marketplace.extended.json": {
+      "sha256": "858fc95784ed87ed430f8adad5d20cfdb0a9d9f31e183bb134e3b99cf24cada8",
+      "bytes": 325309
+    },
+    ".claude-plugin/marketplace.json": {
+      "sha256": "8276ab1d2c963923127233fe5de026c7a40dbcec219f3178392da1a73160af3b",
+      "bytes": 248032
+    },
+    "marketplace/src/data/catalog.json": {
+      "sha256": "e006c99bb93e5728b2c6d814d29d07cb08bb5b1c85f5d55a2a0a0a72e4c215b0",
+      "bytes": 363221
+    },
+    "marketplace/src/data/skills-index.json": {
+      "sha256": "1c3f3ffd7b10927c9b3629af83721eb6c95da543a8cfcb71982491ed370a7ba9",
+      "bytes": 1793536
+    },
+    "marketplace/src/data/skills-catalog.json": {
+      "sha256": "e203556ae22621739698242be75bfc7fc7fc881bf508c6ea66a6ace3611698d5",
+      "bytes": 22697053
+    },
+    "marketplace/src/data/unified-search-index.json": {
+      "sha256": "7ab4149ed96ab1fa00bedae1de857bd2c3cf940840bc88090354819edfca43a3",
+      "bytes": 3921913
+    },
+    "scripts/publication-policy.cjs": {
+      "sha256": "0a1716a9498311a209fa0f91541b8dc99f7d90b98a5b04f080d68e4c8b9abc9a",
+      "bytes": 960
+    },
+    "scripts/corpus-resolver.mjs": {
+      "sha256": "23d39faa367fed353c20ee07507638f45891e9b99ce3417c152b23ea1184710f",
+      "bytes": 16215
+    },
+    "marketplace/scripts/build.mjs": {
+      "sha256": "fa643241dcbc70ff92f7cbacdb7eed73c40315a010587efcee7694e2b5bc50e3",
+      "bytes": 1393
+    },
+    "marketplace/scripts/discover-skills.mjs": {
+      "sha256": "cbf9fa8f480b839566b062f9e1dd1eb06cd88b3b5ffa869d0be9b97e99b7005a",
+      "bytes": 24362
+    },
+    "marketplace/scripts/sync-catalog.mjs": {
+      "sha256": "140fff0d0b63079c68aee7f5848c51375fd43a446a42b5a5b7a8e412061e3399",
+      "bytes": 10717
+    },
+    "marketplace/scripts/generate-unified-search.mjs": {
+      "sha256": "2523104568df94294f8d24491c1174f6813b207d97b998dc0d1879a5823d4944",
+      "bytes": 20845
+    },
+    "marketplace/scripts/copy-public-data.mjs": {
+      "sha256": "80ce9fa2274dd2f11a542b9812a4006d0139680620b1ba0759cca8090d0cea1d",
+      "bytes": 4339
+    },
+    "marketplace/src/pages/index.astro": {
+      "sha256": "4c1461ff69abbeb6b8d64bda178adc486cc913bfa3424b3dbc0b8d57fb5fdc74",
+      "bytes": 20284
+    },
+    "marketplace/src/pages/explore.astro": {
+      "sha256": "a1ba331d1221f5ddb40f8da11f031fc37abd19d2580766fb344e473a6c109238",
+      "bytes": 30869
+    },
+    "marketplace/src/pages/plugins/index.astro": {
+      "sha256": "9d85b8c19da92a12c230597f5a3b5fd8c8227158c594aff96cc959e35638f37c",
+      "bytes": 3502
+    },
+    "marketplace/src/pages/plugins/[name].astro": {
+      "sha256": "6f957d90862252d578949f54f24f3abf755ef6ebb79bdd228541420eb0e8eec9",
+      "bytes": 28151
+    },
+    "marketplace/src/pages/skills/index.astro": {
+      "sha256": "cb9410b83fdbe554a9b75bd6be092816c3eb33d0df3a4099d3fe641cab3b2c12",
+      "bytes": 13614
+    },
+    "marketplace/src/pages/skills/[slug].astro": {
+      "sha256": "19b493f131e7f8a0b5bdb7b5304693e901fb51b320c938d1c9a00fa99e449541",
+      "bytes": 16097
+    },
+    "marketplace/src/components/CompareBar.astro": {
+      "sha256": "199310cddf2baed82feb49cf0bae8d66d4b69f128abe2a272d04c3e945870564",
+      "bytes": 9205
+    },
+    "marketplace/src/layouts/BaseLayout.astro": {
+      "sha256": "35bb25d3903141ac64698cf0e4cb0f882f84df9180f39c02d1f10d82c4be0621",
+      "bytes": 34348
+    },
+    "marketplace/public/scripts/analytics.js": {
+      "sha256": "82b61537293364c184866cbc27ed04ac87a891c873c1c189430118ba9f4804f5",
+      "bytes": 504
+    },
+    "packages/cli/src/commands/skills.ts": {
+      "sha256": "4dc93c0bdbd45b414e7438bc72262e922cee28537bc8aae78b68bac3bd0db438",
+      "bytes": 6333
+    },
+    "scripts/check-stats-freshness.mjs": {
+      "sha256": "b0934ee4d214fb28db8ac3112c2608223b95467621e69b4cbfa1467905f64396",
+      "bytes": 6532
+    },
+    "marketplace/astro.config.mjs": {
+      "sha256": "530b4b18a261505ed543b47c0288f723951384798f4b36ed886ab20dbd826e24",
+      "bytes": 3435
+    },
+    "marketplace/package.json": {
+      "sha256": "6e9dd280d69213c391afcf97f047e2d6aa78ac6a77382c5222c1f331b05b4015",
+      "bytes": 2154
+    },
+    "marketplace/tests/T7-explore-plugin-flows.spec.ts": {
+      "sha256": "abd236c832f49f566e979bfd51efab71c2fa6f26ff963fb0eb75e34571ab64b2",
+      "bytes": 7814
+    }
+  },
+  "route_contracts": [
+    {
+      "route": "/explore/",
+      "source": "marketplace/src/pages/explore.astro",
+      "input": "/data/unified-search-index.json",
+      "render": "client renders all matched rows after fetch; no server-rendered result fallback",
+      "filter_keys": ["type", "authorType", "category", "keyword", "tool", "search", "sort"],
+      "url_roundtrip_keys": ["q", "type", "category", "keyword", "sort"],
+      "related": "none"
+    },
+    {
+      "route": "/plugins/ and /plugins/<name>/",
+      "source": "marketplace/src/pages/plugins/[name].astro",
+      "input": "extended intersect install catalog; skills-catalog; extracted README sections",
+      "render": "static HTML",
+      "related": "first six other public catalog entries in same category, catalog order"
+    },
+    {
+      "route": "/skills/ and /skills/<slug>/",
+      "source": "marketplace/src/pages/skills/index.astro",
+      "input": "full skills-catalog; first 24 rows static, additional rows fetched",
+      "render": "static first page plus client remainder; full content downloaded then omitted from in-memory skill cards",
+      "related": "detail uses first six other same-category rows, catalog order"
+    }
+  ],
+  "native_extension_boundary": "All431 catalog rows are projected as instruction-plugin. CLI native-extension is a separate harness support classification; neither it nor per-artifact compatibility is selected in explorer filters. Displayed /plugin install commands do not prove cross-harness native support.",
+  "freshness_boundary": "Tracked discovery projections have no wall-clock generatedAt; copy-public-data stamps only public skills-catalog at build, honors SOURCE_DATE_EPOCH. Build date is not upstream observation, grade evaluation or deployment proof. External stats freshness is a separate three-artifact contract.",
+  "source_observations": [
+    {
+      "id": "D01",
+      "kind": "performance constraint",
+      "source": "marketplace/src/pages/skills/index.astro:300",
+      "fact": "Downloads full22.697MB skills-catalog even though cards drop content; metadata index exists but is not used for this fetch"
+    },
+    {
+      "id": "D02",
+      "kind": "failure path",
+      "source": "marketplace/src/pages/explore.astro:481",
+      "fact": "Fetch failure replaces loading message, no automatic retry or static result fallback; aria-busy reset exists only in success path"
+    },
+    {
+      "id": "D03",
+      "kind": "shareability gap",
+      "source": "marketplace/src/pages/explore.astro:566",
+      "fact": "Tool and author filters are omitted from URL persistence/restoration"
+    },
+    {
+      "id": "D04",
+      "kind": "accessibility review need",
+      "source": "marketplace/src/pages/explore.astro:355",
+      "fact": "Main search and filter selects lack explicit label/aria-label in this template; source audit only, no WCAG certification"
+    },
+    {
+      "id": "D05",
+      "kind": "journey difference",
+      "source": "marketplace/src/pages/explore.astro:587",
+      "fact": "Search skill rows with parentPlugin link to /cowork, while /skills cards link to individual skill detail"
+    },
+    {
+      "id": "D06",
+      "kind": "recommendation limitation",
+      "source": "marketplace/src/pages/skills/[slug].astro:34",
+      "fact": "Related is category/order selection; no evidence of compatibility, functional equivalence or pain-based ranking"
+    },
+    {
+      "id": "D07",
+      "kind": "privacy prerequisite",
+      "source": "marketplace/src/pages/explore.astro:689",
+      "fact": "Search tracking passes query text to optional window.trackEvent; shared helper forwards to optional Umami. No traffic sent by this measurement."
+    },
+    {
+      "id": "D08",
+      "kind": "measurement limit",
+      "source": "marketplace/tests/T7-explore-plugin-flows.spec.ts:66",
+      "fact": "Existing broad card/body assertions and fixed waits do not establish ranking correctness, payload-failure recovery, performance SLOs or accessibility compliance; suites not rerun here"
+    }
+  ],
+  "governed_memory": {
+    "citation": "qmd://kb-guides/ea6e2e59-35f9-5596-9817-96fa44de67f5.md",
+    "retrieval": "marketplace discovery search,curated",
+    "scope": "Historical Astro5.16/244skills/259plugins snippet; excluded from current numerical authority"
+  },
+  "not_measured": [
+    "production deployment identity",
+    "HTTP compression/cache headers",
+    "cold-device timing or p50/p95/p99 latency",
+    "screen-reader/keyboard runtime outcomes",
+    "real visitor search or analytics events",
+    "recommendation efficacy"
+  ],
+  "pilot_authorized": false,
+  "source_changes": false
+}
