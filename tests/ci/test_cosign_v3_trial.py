@@ -1,6 +1,9 @@
 """The opt-in signing trial cannot publish or replace production signing."""
 
+import itertools
+import json
 import pathlib
+import subprocess
 import unittest
 
 import yaml
@@ -21,13 +24,54 @@ class CosignTrialContract(unittest.TestCase):
         option = events["workflow_dispatch"]["inputs"]["cosign_v3_trial"]
         self.assertEqual(option["type"], "boolean")
         self.assertIs(option["default"], False)
-        opt_in = "github.event_name == 'workflow_dispatch' && inputs.cosign_v3_trial"
-        self.assertEqual(self.trial["if"], "github.ref == 'refs/heads/main' && " + opt_in)
-        self.assertEqual(self.production["if"], "github.ref == 'refs/heads/main' && !(" + opt_in + ")")
-        self.assertEqual(
-            self.workflow["concurrency"]["group"],
-            "${{ " + opt_in + " && format('cosign-v3-trial-{0}', github.run_id) || 'emit-evidence' }}",
+        # These expressions use the shared JS/GitHub boolean/string subset.
+        # Exercise actual workflow expressions, including absent dispatch inputs.
+        evaluate = r"""
+const fs = require('node:fs');
+const {expressions, cases} = JSON.parse(fs.readFileSync(0, 'utf8'));
+const format = (pattern, value) => pattern.replace('{0}', value);
+const functions = expressions.map(expression => new Function(
+  'github', 'inputs', 'format',
+  'return (' + expression.replace(/^\$\{\{\s*|\s*\}\}$/g, '') + ')'
+));
+process.stdout.write(JSON.stringify(cases.map(({github, inputs}) =>
+  functions.map(fn => fn(github, inputs, format) ?? false))));
+"""
+        cases = []
+        for ref, event, choice, run_id in itertools.product(
+            ["refs/heads/main", "refs/heads/feature"],
+            ["push", "workflow_dispatch", "pull_request"],
+            [None, False, True],
+            ["100", "101"],
+        ):
+            cases.append(
+                {
+                    "github": {"ref": ref, "event_name": event, "run_id": run_id},
+                    "inputs": {} if choice is None else {"cosign_v3_trial": choice},
+                }
+            )
+        result = subprocess.run(
+            ["node", "-e", evaluate],
+            input=json.dumps(
+                {
+                    "expressions": [self.production["if"], self.trial["if"], self.workflow["concurrency"]["group"]],
+                    "cases": cases,
+                }
+            ),
+            text=True,
+            capture_output=True,
+            check=True,
         )
+        for case, (production, trial, group) in zip(cases, json.loads(result.stdout)):
+            with self.subTest(case=case):
+                context = case["github"]
+                opted_in = context["event_name"] == "workflow_dispatch" and case["inputs"].get("cosign_v3_trial", False)
+                main = context["ref"] == "refs/heads/main"
+                self.assertEqual(bool(production), main and not opted_in)
+                self.assertEqual(bool(trial), main and opted_in)
+                self.assertFalse(production and trial)
+                expected_group = "cosign-v3-trial-" + context["run_id"] if opted_in else "emit-evidence"
+                self.assertEqual(group, expected_group)
 
     def test_trial_has_no_write_or_publish_step(self):
         self.assertEqual(
