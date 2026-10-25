@@ -6,6 +6,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await page.addInitScript((value: string) => localStorage.setItem('theme', value), theme);
     await page.goto('/grading/');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
     const links = page.locator('.grading__subtitle a');
     await expect(links).toHaveCount(3);
     const checkContrast = async () => {
@@ -14,6 +15,8 @@ for (const theme of ['light', 'dark'] as const) {
         .withRules(['color-contrast'])
         .analyze();
       expect(result.violations).toEqual([]);
+      expect(result.incomplete).toEqual([]);
+      expect(result.passes.some((rule) => rule.id === 'color-contrast')).toBe(true);
     };
     await checkContrast();
     for (const link of await links.all()) {
