@@ -5,6 +5,7 @@ import json
 import os
 import pathlib
 import subprocess
+import tempfile
 import unittest
 
 import yaml
@@ -132,6 +133,86 @@ process.stdout.write(JSON.stringify(cases.map(({github, inputs}) =>
                 self.assertEqual(trial[name], production[name])
         self.assertIn('--certificate-identity "$cert_identity"', trial[names[3]]["run"])
         self.assertNotIn("--insecure", trial[names[3]]["run"])
+
+    def test_waiters_retry_inconsistent_pages_and_fail_after_the_bound(self):
+        publication = yaml.safe_load((ROOT / ".github/workflows/emit-publication-evidence.yml").read_text())
+        cases = [("production", self.production), ("publication", publication["jobs"]["emit"])]
+        for kind, job in cases:
+            steps = job["steps"]
+            waiter = next(step for step in steps if step["name"].startswith("Await"))
+            if kind == "publication":
+                source = next(step for step in steps if step["name"] == "Check out the exact publication source")
+                controls = next(step for step in steps if step["name"].startswith("Check out workflow controls"))
+                self.assertEqual(source["with"]["ref"], "${{ inputs.source_sha }}")
+                self.assertEqual(controls["with"]["ref"], "${{ github.sha }}")
+                runtime = next(i for i, step in enumerate(steps) if step["name"] == "Setup Node.js")
+                self.assertLess(runtime, steps.index(waiter))
+            for mode in ["valid", "transient", "always_bad"]:
+                with (
+                    self.subTest(kind=kind, mode=mode),
+                    tempfile.TemporaryDirectory(prefix="cosign-waiter-") as directory,
+                ):
+                    work = pathlib.Path(directory)
+                    binary = work / "bin"
+                    binary.mkdir()
+                    helper = pathlib.Path("ci/emit-evidence/merge-check-pages.mjs")
+                    if kind == "publication":
+                        helper = pathlib.Path(controls["with"]["path"]) / controls["with"]["sparse-checkout"]
+                        self.assertFalse((work / "ci/emit-evidence/merge-check-pages.mjs").exists())
+                    (work / helper).parent.mkdir(parents=True)
+                    (work / helper).write_text((ROOT / "ci/emit-evidence/merge-check-pages.mjs").read_text())
+                    mock = r"""#!/usr/bin/env python3
+import json, os, sys
+from pathlib import Path
+root = Path(os.environ['CHECK_FIXTURE_DIR'])
+count = root / 'count'
+n = int(count.read_text()) + 1 if count.exists() else 1
+count.write_text(str(n))
+assert '--slurp' in sys.argv
+assert os.environ['EXPECTED_ENDPOINT'] in sys.argv
+checks = [{'name': name, 'status': 'completed', 'conclusion': 'success'} for name in ['ci-required', 'gitleaks', 'skill-conform']]
+second_total = 4 if os.environ['CHECK_MODE'] == 'always_bad' or (os.environ['CHECK_MODE'] == 'transient' and n == 1) else 3
+print(json.dumps([{'total_count': 3, 'check_runs': checks[:1]}, {'total_count': second_total, 'check_runs': checks[1:]}]))
+"""
+                    (binary / "gh").write_text(mock)
+                    (binary / "gh").chmod(0o700)
+                    (binary / "sleep").write_text(r"""#!/usr/bin/env python3
+import os, sys
+from pathlib import Path
+assert sys.argv[1:] == ['20']
+with (Path(os.environ['CHECK_FIXTURE_DIR']) / 'sleeps').open('a') as stream:
+    stream.write('20\n')
+""")
+                    (binary / "sleep").chmod(0o700)
+                    source_sha = "e" * 40 if kind == "publication" else "f" * 40
+                    environment = {
+                        "PATH": str(binary) + os.pathsep + os.environ["PATH"],
+                        "GITHUB_REPOSITORY": "example/repo",
+                        "GITHUB_SHA": "f" * 40,
+                        "SOURCE_SHA": "e" * 40,
+                        "CHECK_FIXTURE_DIR": str(work),
+                        "CHECK_MODE": mode,
+                        "EXPECTED_ENDPOINT": "repos/example/repo/commits/" + source_sha + "/check-runs?per_page=100",
+                    }
+                    output = work / "required-checks.json"
+                    script = waiter["run"].replace("/tmp/required-checks.json", str(output))
+                    result = subprocess.run(
+                        ["bash", "-c", script], cwd=work, env=environment, text=True, capture_output=True, timeout=30
+                    )
+                    attempts = int((work / "count").read_text())
+                    if mode == "always_bad":
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertEqual(attempts, 30)
+                        self.assertNotIn("all three required contexts completed", result.stdout)
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        self.assertEqual(attempts, 2 if mode == "transient" else 1)
+                        report = json.loads(output.read_text())
+                        self.assertEqual(len(report["check_runs"]), 3)
+                        self.assertIn("all three required contexts completed", result.stdout)
+                    sleep_file = work / "sleeps"
+                    sleeps = len(sleep_file.read_text().splitlines()) if sleep_file.exists() else 0
+                    self.assertEqual(sleeps, 30 if mode == "always_bad" else 1 if mode == "transient" else 0)
 
     def test_both_production_installers_remain_v2_and_trial_pins_v3(self):
         def pin(job):

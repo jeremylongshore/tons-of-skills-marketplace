@@ -74,3 +74,21 @@ reports hub's trust policy to make a trial pass.
 - `check-trial-approval.mjs`: validates configuration and this run's owner review.
 - `merge-check-pages.mjs`: combines all check-run pages before producer validation.
 - `emit-evidence.ts`: validates complete required-context reports and builds rows.
+
+Trial bundles use the production workflow identity and have no signed trial
+marker. Keep them out of `evidence-latest` and production ingestion until the
+separate adoption review; unsigned artifact labels do not make that distinction
+cryptographic. Signature-verification output remains in workflow logs, under
+the repository's log-retention policy.
+
+The required-check waiters retry unavailable, incomplete or changing paginated
+reports within the existing 30-attempt bound; exhaustion fails before signing.
+The publication workflow obtains its merger from the workflow-run commit in a
+separate checkout, while retaining the payload's exact source checkout. Current
+callers invoke that reusable workflow locally from the same workflow commit.
+
+Cosign v3.0.6 still defines `--new-bundle-format` for both
+[signing](https://github.com/sigstore/cosign/blob/v3.0.6/cmd/cosign/cli/options/sign.go)
+and [verification](https://github.com/sigstore/cosign/blob/v3.0.6/cmd/cosign/cli/options/verify.go).
+A CLI failure still fails the trial and remains diagnostic evidence, never an
+excuse to weaken identity, transparency or consumer checks.

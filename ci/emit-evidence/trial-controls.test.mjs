@@ -5,6 +5,9 @@ import { assertTrialApproval } from './check-trial-approval.mjs';
 import { mergeCheckPages } from './merge-check-pages.mjs';
 import { requiredCheckOutcomes } from './emit-evidence.ts';
 
+// GitHub documents the approvals response with user + environments (plural):
+// https://docs.github.com/en/rest/actions/workflow-runs#get-the-review-history-for-a-workflow-run
+// This is a contract fixture, not a captured live approval or activation proof.
 function approved() {
   return [
     {

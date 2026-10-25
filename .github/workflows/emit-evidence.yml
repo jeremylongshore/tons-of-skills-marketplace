@@ -72,6 +72,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -109,7 +111,11 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 30); do
-            gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100" | node ci/emit-evidence/merge-check-pages.mjs > /tmp/required-checks.json
+            if ! gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100" | node ci/emit-evidence/merge-check-pages.mjs > /tmp/required-checks.json; then
+              echo "::warning::Incomplete check-run report; retrying (attempt $attempt/30)"
+              sleep 20
+              continue
+            fi
             missing=$(jq -r '
               .check_runs as $runs |
               ["ci-required", "gitleaks", "skill-conform"] |
@@ -274,6 +280,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -306,7 +314,11 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 30); do
-            gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100" | node ci/emit-evidence/merge-check-pages.mjs > /tmp/required-checks.json
+            if ! gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100" | node ci/emit-evidence/merge-check-pages.mjs > /tmp/required-checks.json; then
+              echo "::warning::Incomplete check-run report; retrying (attempt $attempt/30)"
+              sleep 20
+              continue
+            fi
             missing=$(jq -r '
               .check_runs as $runs |
               ["ci-required", "gitleaks", "skill-conform"] |
