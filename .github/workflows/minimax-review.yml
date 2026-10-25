@@ -45,7 +45,7 @@ name: 'MiniMax Code Review'
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited, ready_for_review]
+    types: [opened, synchronize, reopened, edited, ready_for_review, converted_to_draft]
     branches: [main]
 
 # Token budget: the MiniMax Token Plan is shared by every estate repo, and on
@@ -53,7 +53,8 @@ on:
 # heads since 10-23; 43 re-reviewed unchanged code). So: no lane runs on a draft
 # (it runs once on ready_for_review), and an `edited` event re-runs only the
 # adversarial lane, the one that reads the title and description, unless the
-# base branch changed.
+# base branch changed. `converted_to_draft` starts a run whose lanes all skip; it
+# exists to cancel, through the shared `code` group, a review already in flight.
 
 permissions:
   contents: read
@@ -148,6 +149,12 @@ jobs:
     name: Adversarial review
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Both the code and the edit run can start this lane; one group per PR keeps
+    # a single adversarial review in flight, the newest. Only this lane gets a
+    # job group: the others are skipped in edit runs and must not be cancelled.
+    concurrency:
+      group: 'minimax-adversarial-${{ github.event.pull_request.number }}'
+      cancel-in-progress: true
     # Same guards as the defect lane, plus its own opt-out. On by default once
     # ENABLE_MINIMAX_REVIEW is true; set ENABLE_MINIMAX_ADVERSARIAL=false to
     # drop only this lane.
