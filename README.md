@@ -98,7 +98,7 @@ Across **382 published packages** in the [claude-code-plugins](https://www.npmjs
 | 9   | [`@intentsolutionsio/clickhouse-pack`](https://www.npmjs.com/package/@intentsolutionsio/clickhouse-pack)                 |      180 |
 | 10  | [`@intentsolutionsio/jeremy-adk-orchestrator`](https://www.npmjs.com/package/@intentsolutionsio/jeremy-adk-orchestrator) |      164 |
 
-<sub>Last refreshed 2026-10-24T22:48:11.785Z.</sub>
+<sub>Last refreshed 2026-10-26T05:20:04.592Z.</sub>
 
 <!-- NPM-STATS:END -->
 
