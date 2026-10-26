@@ -372,6 +372,105 @@
     },
     "/skills/gamma-webhooks-events": {
       "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/plugins/apple-notes-pack": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/learn/apple-notes": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-advanced-troubleshooting": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-ci-integration": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-common-errors": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-core-feature": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-core-workflow-a": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-core-workflow-b": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-cost-tuning": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-data-handling": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-debug-bundle": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-deploy-integration": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-deploy-pipeline": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-enterprise-rbac": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-hello-world": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-incident-runbook": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-install-auth": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-known-pitfalls": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-load-scale": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-local-dev-loop": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-migration-deep-dive": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-multi-env-setup": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-observability": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-performance-tuning": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-primary-workflow": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-prod-checklist": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-rate-limits": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-reference-architecture": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-reliability-patterns": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-sdk-patterns": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-security-basics": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-upgrade-migration": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-webhooks-events": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
     }
   }
 }

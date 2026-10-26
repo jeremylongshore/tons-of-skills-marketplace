@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-26
+
+- **fix(apple-notes):** retire the 24-skill Apple Notes tutorial pack after its
+  source and value review found unsupported automation and overlap with native
+  Notes import/export. Remove active installation entries and legacy scaffolds;
+  keep retired plugin, vendor, and skill URLs at 404 without claiming a verified
+  replacement. Historical source remains in Git at
+  `ac45dee05e8c08854a4864142dd1f4d0834886fa`.
+  Refs bead `claude-juoz.3.11.56`.
+
 ## 2026-10-24
 
 - **fix(gamma):** retire the 24-skill Gamma tutorial pack after reviewing its

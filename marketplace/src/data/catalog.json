@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 431,
-    "totalSkills": 2785,
+    "totalPlugins": 430,
+    "totalSkills": 2761,
     "totalCommands": 82,
-    "pluginsWithSkills": 397,
+    "pluginsWithSkills": 396,
     "byCategory": {
       "productivity": 28,
       "security": 28,
@@ -26,7 +26,7 @@
       "business-tools": 4,
       "community": 19,
       "examples": 5,
-      "saas-packs": 99,
+      "saas-packs": 98,
       "analytics": 1,
       "design": 2
     },
@@ -8909,33 +8909,6 @@
       "commandCount": 0,
       "installCommand": "/plugin install apify-pack",
       "sourcePath": "./plugins/saas-packs/apify-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "apple-notes-pack",
-      "name": "apple-notes-pack",
-      "displayName": "apple notes pack",
-      "description": "Claude Code skill pack for Apple Notes (24 skills)",
-      "version": "1.6.0",
-      "category": "saas-packs",
-      "keywords": [
-        "apple-notes",
-        "apple notes",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "hasSkills": true,
-      "skillCount": 24,
-      "commandCount": 0,
-      "installCommand": "/plugin install apple-notes-pack",
-      "sourcePath": "./plugins/saas-packs/apple-notes-pack",
       "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",

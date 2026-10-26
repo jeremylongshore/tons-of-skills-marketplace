@@ -99,6 +99,6 @@ speak,Speak,pro,18,@intentsolutionsio/speak-skill-md-pack,reserved,ccpi-speak,18
 openevidence,OpenEvidence,pro,18,@intentsolutionsio/openevidence-skill-md-pack,reserved,ccpi-openevidence,18,0,not_started,not_added,Extended #100
 documenso,Documenso,pro,18,@intentsolutionsio/documenso-skill-md-pack,reserved,ccpi-documenso,18,0,not_started,not_added,open-source document signing - DocuSign alternative
 evernote,Evernote,flagship,24,@intentsolutionsio/evernote-skill-md-pack,reserved,ccpi-evernote,24,0,not_started,not_added,note-taking - 15.9% market share
-apple-notes,Apple Notes,flagship,24,@intentsolutionsio/apple-notes-skill-md-pack,reserved,ccpi-apple-notes,24,0,not_started,not_added,note-taking - 15.5% market share
+apple-notes,Apple Notes,retired,0,@intentsolutionsio/apple-notes-skill-md-pack,retired,ccpi-apple-notes,24,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.56); registry disposition tracked in bead
 obsidian,Obsidian,pro,18,@intentsolutionsio/obsidian-skill-md-pack,reserved,ccpi-obsidian,18,0,not_started,not_added,note-taking - 8.7% market share
 onenote,OneNote,pro,18,@intentsolutionsio/onenote-skill-md-pack,reserved,ccpi-onenote,18,0,not_started,not_added,note-taking - 7.9% market share
