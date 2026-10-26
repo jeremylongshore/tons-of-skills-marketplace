@@ -251,7 +251,7 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "candidate_count": 33,
+        "candidate_count": 34,
         "mismatch_count": 0,
         "mismatch_paths": []
       }

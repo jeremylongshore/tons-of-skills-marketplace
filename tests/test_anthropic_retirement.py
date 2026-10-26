@@ -88,6 +88,16 @@ class AnthropicRetirementTests(unittest.TestCase):
                 self.assertIn("generation is retired", result.stderr)
                 self.assertEqual(list(Path(folder).iterdir()), [])
 
+    def test_cowork_cards_reference_published_downloads(self):
+        editorial = json.loads((ROOT / "marketplace/src/data/cowork-packs.json").read_text())
+        published = {
+            row["name"] for row in json.loads((ROOT / ".claude-plugin/marketplace.json").read_text())["plugins"]
+        }
+        self.assertEqual(editorial["meta"]["totalPacks"], len(editorial["packs"]))
+        for card in editorial["packs"]:
+            if card.get("isSaasPack"):
+                self.assertIn(card["packName"], published, card["id"])
+
     def test_every_reviewed_route_stays_404_in_the_real_policy(self):
         script = """
 import assert from 'node:assert/strict';
