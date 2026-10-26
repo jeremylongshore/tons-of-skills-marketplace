@@ -363,7 +363,7 @@
       ],
       "status": 404,
       "rule": "reviewed-keep-404",
-      "note": "The Framer tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+      "note": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
     },
     {
       "from": "/learn/glean",
