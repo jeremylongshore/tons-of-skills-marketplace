@@ -172,11 +172,20 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
         [PORTABLE_INSTALL_RECEIPT_FILE, 'SKILL.md'].sort(),
       );
       expect(await fs.readFile(path.join(target, 'SKILL.md'), 'utf8')).toBe(before.source);
-      const evidence = await fs.readFile(
-        path.join(targetRoot, '.ccpi-evidence', `${result.evidence[0].sha256.slice(7)}.json`),
+      const savedReceipt = await fs.readFile(
+        path.join(target, PORTABLE_INSTALL_RECEIPT_FILE),
         'utf8',
       );
-      for (const serialized of [JSON.stringify(result), evidence]) {
+      expect(JSON.parse(savedReceipt)).toEqual(result);
+      const evidenceRoot = path.join(targetRoot, '.ccpi-evidence');
+      const evidenceFiles = await fs.readdir(evidenceRoot);
+      expect(evidenceFiles.sort()).toEqual(
+        result.evidence.map((entry) => `${entry.sha256.slice(7)}.json`).sort(),
+      );
+      const evidence = await Promise.all(
+        evidenceFiles.map((file) => fs.readFile(path.join(evidenceRoot, file), 'utf8')),
+      );
+      for (const serialized of [JSON.stringify(result), savedReceipt, ...evidence]) {
         expect(serialized).not.toContain(marker);
         expect(serialized).not.toContain(root);
         for (const relative of privateState) expect(serialized).not.toContain(relative);
@@ -196,6 +205,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
       for (const diagnosis of [pristineDiagnosis, driftDiagnosis]) {
         // destination is intentionally public diagnostic context; private contents are not.
         const serialized = JSON.stringify(diagnosis);
+        expect(serialized).toContain(target);
         expect(serialized).not.toContain(marker);
         for (const relative of privateState) expect(serialized).not.toContain(relative);
       }
