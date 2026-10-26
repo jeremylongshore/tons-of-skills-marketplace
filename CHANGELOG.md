@@ -2,6 +2,14 @@
 
 ## 2026-10-26
 
+- **fix(framer):** retire the 18-skill Framer tutorial pack after its source and
+  value review found broken API contracts, unsafe write examples, and overlap
+  with maintained Framer documentation and native features. Remove active install
+  entries and legacy scaffolds; keep retired URLs at 404 without claiming a
+  verified replacement. Historical source remains in Git at
+  `572e8b1781a49ce89e6347bfea9faad541b0ebf3`.
+  Refs bead `claude-juoz.3.11.57`.
+
 - **fix(apple-notes):** retire the 24-skill Apple Notes tutorial pack after its
   source and value review found unsupported automation and overlap with native
   Notes import/export. Remove active installation entries and legacy scaffolds;

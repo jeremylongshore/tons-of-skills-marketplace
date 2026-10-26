@@ -31,7 +31,7 @@ clickhouse,ClickHouse,flagship,24,@intentsolutionsio/clickhouse-skill-md-pack,re
 fondo,Fondo,pro,18,@intentsolutionsio/fondo-skill-md-pack,reserved,ccpi-fondo,18,0,not_started,not_added,Brex #31
 anima,Anima,pro,18,@intentsolutionsio/anima-skill-md-pack,reserved,ccpi-anima,18,0,not_started,not_added,Brex #32
 flyio,Fly.io,pro,18,@intentsolutionsio/flyio-skill-md-pack,reserved,ccpi-flyio,18,0,not_started,not_added,Brex #34
-framer,Framer,pro,18,@intentsolutionsio/framer-skill-md-pack,reserved,ccpi-framer,18,0,not_started,not_added,Brex #35
+framer,Framer,retired,0,@intentsolutionsio/framer-skill-md-pack,retired,ccpi-framer,18,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.57); registry disposition tracked in bead
 stackblitz,StackBlitz,pro,18,@intentsolutionsio/stackblitz-skill-md-pack,reserved,ccpi-stackblitz,18,0,not_started,not_added,Brex #36
 elevenlabs,ElevenLabs,pro,18,@intentsolutionsio/elevenlabs-skill-md-pack,reserved,ccpi-elevenlabs,18,0,not_started,not_added,Brex #37
 assemblyai,AssemblyAI,pro,18,@intentsolutionsio/assemblyai-skill-md-pack,reserved,ccpi-assemblyai,18,0,not_started,not_added,Brex #38

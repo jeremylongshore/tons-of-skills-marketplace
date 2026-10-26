@@ -649,8 +649,6 @@ importers:
 
   plugins/saas-packs/fondo-pack: {}
 
-  plugins/saas-packs/framer-pack: {}
-
   plugins/saas-packs/ga4-pack: {}
 
   plugins/saas-packs/grammarly-pack: {}
