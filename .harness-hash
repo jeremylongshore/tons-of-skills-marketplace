@@ -1,7 +1,7 @@
 181ad71536c6b751af173e89a4335812442b01c3c6b54c48b4b9303bab2c49cf  .github/workflows/actionlint.yml
 dd8e8fd8229088d5c2d350b8a02da7889f89b3b9dff15faae016d34d35ec6795  .github/workflows/auto-bump-on-pr.yml
 52a89f82e6c7aa9b9dd3962488bd203938392a913444cc56f0b7957168b2dd22  .github/workflows/auto-bump-test.yml
-c4650d44f0941289f7e470469dd4a2ee4dd0c4770414a86bed25ac456f588a80  .github/workflows/capture-marketplace-compliance-baseline.yml
+0f16b188d99eaa24da439b94d7f4a663cb4f24fec0601bf74ad51d54e72a3abe  .github/workflows/capture-marketplace-compliance-baseline.yml
 ea15a17c3286d8d06923aa4b7c8e2696320c2399d9a3d2cfc89bde20a7c17bbd  .github/workflows/certification-expiry.yml
 9753aed4171cf906ad022fd4de53d81c154ae55267b61df45e5147ba141e3044  .github/workflows/check-issue-body-links.yml
 8a8ee29cb91fd2a04de2008d12c1ed36af5558eda7cb212c505462567fb3d3e6  .github/workflows/check-links.yml

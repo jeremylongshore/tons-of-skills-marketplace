@@ -369,10 +369,26 @@ def corpus_shrink_evidence(
     provenance = baseline.get("generated_from")
     if not all(isinstance(value, dict) for value in (baseline_corpus, current_corpus, provenance)):
         raise ValueError("R3 requires baseline/live corpus objects and baseline generated_from provenance")
+    corpus_source_sha = provenance.get("sha")
+    if "corpus_source_sha" in baseline:
+        migration = baseline.get("identity_migration")
+        original = migration.get("prior_generated_from") if isinstance(migration, dict) else None
+        corpus_source_sha = baseline["corpus_source_sha"]
+        if (
+            type(baseline.get("finding_identity_version")) is not int
+            or baseline["finding_identity_version"] != 2
+            or not isinstance(migration, dict)
+            or migration.get("kind") != "historical-required-sections-v1-to-v2"
+            or not isinstance(original, dict)
+            or not isinstance(corpus_source_sha, str)
+            or not re.fullmatch(r"[0-9a-f]{40}", corpus_source_sha)
+            or original.get("sha") != corpus_source_sha
+        ):
+            raise ValueError("R3 historical corpus source must match the version-2 section migration provenance")
     payload = {
         "baseline_count": baseline_corpus.get("skill_files"),
         "current_count": current_corpus.get("skill_files"),
-        "baseline_sha": provenance.get("sha"),
+        "baseline_sha": corpus_source_sha,
     }
     if checkout_sha:
         payload["checkout_sha"] = checkout_sha
