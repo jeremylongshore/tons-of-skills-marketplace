@@ -578,14 +578,16 @@ async function makeRepro(args: z.infer<typeof MakeReproSchema>) {
         throw new Error('Header names must be HTTP tokens');
       }
     }
+    const body = requestBodyText(log);
     const parts: string[] = ['curl'];
-    if (log.method && log.method !== 'GET') parts.push('-X', shellQuote(log.method));
+    if (body !== undefined || (log.method && log.method !== 'GET')) {
+      parts.push('-X', shellQuote(log.method || 'GET'));
+    }
     for (const [key, value] of Object.entries(log.requestHeaders || {})) {
       if (!['host', 'content-length', 'connection'].includes(key.toLowerCase())) {
         parts.push('-H', shellQuote(`${key}: ${value}`));
       }
     }
-    const body = requestBodyText(log);
     // --data-raw keeps a leading @ as data instead of loading a local file.
     if (body !== undefined) parts.push('--data-raw', shellQuote(body));
     // The explicit option also keeps an option-like URL out of curl's option parser.
@@ -607,7 +609,7 @@ async function makeRepro(args: z.infer<typeof MakeReproSchema>) {
 function generateHTTPie(log: Partial<HTTPLog>): string {
   const parts: string[] = ['http', '--ignore-stdin'];
   const body = requestBodyText(log);
-  if (body !== undefined) parts.push('--raw', shellQuote(body));
+  if (body !== undefined) parts.push(shellQuote(`--raw=${body}`));
   parts.push('--', shellQuote(log.method || 'GET'), shellQuote(log.url || ''));
   for (const [key, value] of Object.entries(log.requestHeaders || {})) {
     // HTTPie treats :@ as a file import. Escape that operator for literal headers.

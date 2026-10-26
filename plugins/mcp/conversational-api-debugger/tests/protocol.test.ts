@@ -74,7 +74,7 @@ it.skipIf(process.platform === 'win32')('renders literal shell arguments and Jav
     for (const pretty of [true, false]) {
       const value = await call({ log, pretty });
       expect(await argv(value.curl)).toEqual(['-X', log.method, '-H', `X-Fixture: ${text}`, '-H', 'X-File: @not-a-file', '--data-raw', log.requestBody, '--url', log.url]);
-      expect(await argv(value.alternative.httpie)).toEqual(['--ignore-stdin', '--raw', log.requestBody, '--', log.method, log.url, `X-Fixture:${text}`, 'X-File:\\@not-a-file']);
+      expect(await argv(value.alternative.httpie)).toEqual(['--ignore-stdin', `--raw=${log.requestBody}`, '--', log.method, log.url, `X-Fixture:${text}`, 'X-File:\\@not-a-file']);
       let observed: unknown;
       const result = runInNewContext(value.alternative.javascript, {
         fetch: (url: string, options: unknown) => { observed = JSON.parse(JSON.stringify({ url, options })); return Promise.resolve({ json: () => Promise.resolve({}) }); },
@@ -87,15 +87,17 @@ it.skipIf(process.platform === 'win32')('renders literal shell arguments and Jav
     const hidden = await call({ log, includeHeaders: false });
     expect(hidden.headerCount).toBe(0);
     expect(await argv(hidden.curl)).not.toContain('-H');
-    expect(await argv(hidden.alternative.httpie)).toEqual(['--ignore-stdin', '--raw', log.requestBody, '--', log.method, log.url]);
+    expect(await argv(hidden.alternative.httpie)).toEqual(['--ignore-stdin', `--raw=${log.requestBody}`, '--', log.method, log.url]);
     expect(hidden.alternative.javascript).not.toContain('X-Fixture');
-    for (const body of [false, 0, '', null, { nested: { text }, literal: '@not-a-file' }]) {
+    for (const body of [false, 0, '', null, '--option-like-body', { nested: { text }, literal: '@not-a-file' }]) {
       const value = await call({ log: { method: 'POST', url: '--option-like-url', requestBody: body } });
       const encoded = typeof body === 'string' ? body : JSON.stringify(body);
       expect(await argv(value.curl)).toEqual(['-X', 'POST', '--data-raw', encoded, '--url', '--option-like-url']);
-      expect(await argv(value.alternative.httpie)).toEqual(['--ignore-stdin', '--raw', encoded, '--', 'POST', '--option-like-url']);
+      expect(await argv(value.alternative.httpie)).toEqual(['--ignore-stdin', `--raw=${encoded}`, '--', 'POST', '--option-like-url']);
       expect(value.hasBody).toBe(true);
     }
+    expect(await argv((await call({ log: { method: 'GET', url: 'https://example.invalid/health', requestBody: '--body' } })).curl))
+      .toEqual(['-X', 'GET', '--data-raw', '--body', '--url', 'https://example.invalid/health']);
     expect(await argv((await call({ log: { method: 'GET', url: 'https://example.invalid/health' } })).curl))
       .toEqual(['--url', 'https://example.invalid/health']);
     await expect(call({ log: { method: 'GET', url: 'contains\0NUL' } })).rejects.toThrow(/NUL/);
