@@ -164,6 +164,39 @@ class MarketplaceComplianceBaselineTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("requires a full --marketplace corpus run", result.stderr)
 
+    def test_identity_version_flag_requires_baseline_mode_and_known_contract(self):
+        for arguments in (
+            ["--baseline-identity-version", "2"],
+            ["--emit-baseline", "--baseline-identity-version", "3"],
+        ):
+            with self.subTest(arguments=arguments):
+                result = subprocess.run([sys.executable, str(SCRIPT), *arguments], capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, "")
+
+    def test_version_two_empty_emitter_declares_zero_occurrences(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "plugins").mkdir()
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--emit-baseline",
+                    "--baseline-identity-version",
+                    "2",
+                    "--repo-root",
+                    str(root),
+                ],
+                capture_output=True,
+                text=True,
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["finding_identity_version"], 2)
+        self.assertEqual(payload["totals"]["raw_error_occurrences"], 0)
+        self.assertEqual(payload["entries"], [])
+
     def test_emit_baseline_is_json_when_run_against_an_empty_marketplace_fixture(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

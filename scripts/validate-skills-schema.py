@@ -5689,6 +5689,17 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--baseline-identity-version",
+        type=int,
+        choices=(1, 2),
+        default=None,
+        help=(
+            "Finding identity contract for --emit-baseline only (default: legacy version 1). "
+            "Version 2 preserves complete required-section labels; changing pinned debt "
+            "still requires the owner-authorized migration transaction."
+        ),
+    )
+    parser.add_argument(
         "--populate-db",
         type=str,
         default=None,
@@ -5741,6 +5752,10 @@ def main() -> int:
     repo_root = args.repo_root.resolve()
     verbose = args.verbose
     machine_output = args.json or args.emit_baseline
+    if args.baseline_identity_version is not None and not args.emit_baseline:
+        print("ERROR: --baseline-identity-version requires --emit-baseline", file=sys.stderr)
+        return 1
+    baseline_identity_version = args.baseline_identity_version or 1
 
     # Kernel shadow (DR-049, advisory): the comparison block is always embedded
     # in --json output; the human-readable startup print is opt-in via
@@ -6074,6 +6089,7 @@ def main() -> int:
                 agent_files=0,
                 grade_a_plus_b=0,
                 repo_root=repo_root,
+                finding_identity_version=baseline_identity_version,
             )
             print(json_module.dumps(baseline, indent=2, sort_keys=True))
             return 0
@@ -6128,7 +6144,11 @@ def main() -> int:
                 }
             )
             if args.emit_baseline:
-                baseline_findings.append(baseline_finding_triple(str(rel), f"[fatal] {result['fatal']}"))
+                baseline_findings.append(
+                    baseline_finding_triple(
+                        str(rel), f"[fatal] {result['fatal']}", identity_version=baseline_identity_version
+                    )
+                )
             continue
 
         has_issues = False
@@ -6174,7 +6194,10 @@ def main() -> int:
             files_with_errors.append(str(rel))
             has_issues = True
             if args.emit_baseline:
-                baseline_findings.extend(baseline_finding_triple(str(rel), error) for error in result["errors"])
+                baseline_findings.extend(
+                    baseline_finding_triple(str(rel), error, identity_version=baseline_identity_version)
+                    for error in result["errors"]
+                )
 
         if result["warnings"]:
             if not machine_output:
@@ -6219,7 +6242,11 @@ def main() -> int:
             total_errors += 1
             files_with_errors.append(str(rel))
             if args.emit_baseline:
-                baseline_findings.append(baseline_finding_triple(str(rel), f"[fatal] {result['fatal']}"))
+                baseline_findings.append(
+                    baseline_finding_triple(
+                        str(rel), f"[fatal] {result['fatal']}", identity_version=baseline_identity_version
+                    )
+                )
             continue
 
         if result["errors"]:
@@ -6230,7 +6257,10 @@ def main() -> int:
             total_errors += len(result["errors"])
             files_with_errors.append(str(rel))
             if args.emit_baseline:
-                baseline_findings.extend(baseline_finding_triple(str(rel), error) for error in result["errors"])
+                baseline_findings.extend(
+                    baseline_finding_triple(str(rel), error, identity_version=baseline_identity_version)
+                    for error in result["errors"]
+                )
         elif result["warnings"]:
             if not machine_output:
                 print(f"⚠️  {rel} (command):")
@@ -6256,7 +6286,11 @@ def main() -> int:
             files_with_errors.append(str(rel))
             json_agent_results.append({"path": str(agent), "errors": 1, "warnings": 0})
             if args.emit_baseline:
-                baseline_findings.append(baseline_finding_triple(str(rel), f"[fatal] {result['fatal']}"))
+                baseline_findings.append(
+                    baseline_finding_triple(
+                        str(rel), f"[fatal] {result['fatal']}", identity_version=baseline_identity_version
+                    )
+                )
             continue
 
         err_count = len(result["errors"])
@@ -6271,7 +6305,10 @@ def main() -> int:
             total_errors += len(result["errors"])
             files_with_errors.append(str(rel))
             if args.emit_baseline:
-                baseline_findings.extend(baseline_finding_triple(str(rel), error) for error in result["errors"])
+                baseline_findings.extend(
+                    baseline_finding_triple(str(rel), error, identity_version=baseline_identity_version)
+                    for error in result["errors"]
+                )
         elif result["warnings"]:
             if not machine_output:
                 print(f"⚠️  {rel} (agent):")
@@ -6300,7 +6337,10 @@ def main() -> int:
             total_errors += len(result["errors"])
             files_with_errors.append(str(rel))
             if args.emit_baseline:
-                baseline_findings.extend(baseline_finding_triple(str(rel), error) for error in result["errors"])
+                baseline_findings.extend(
+                    baseline_finding_triple(str(rel), error, identity_version=baseline_identity_version)
+                    for error in result["errors"]
+                )
         elif result["warnings"]:
             if not machine_output:
                 print(f"⚠️  {rel} (plugin.json):")
@@ -6322,6 +6362,7 @@ def main() -> int:
             agent_files=len(agents),
             grade_a_plus_b=grade_counts["A"] + grade_counts["B"],
             repo_root=repo_root,
+            finding_identity_version=baseline_identity_version,
         )
         print(json_module.dumps(baseline, indent=2, sort_keys=True))
         return 0
