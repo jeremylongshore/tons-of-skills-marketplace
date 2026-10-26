@@ -2,6 +2,14 @@
 
 ## 2026-10-26
 
+- **fix(anthropic):** retire the 30-skill Anthropic tutorial pack after its source
+  and value review found duplicate examples, broken cost and retry controls,
+  and overlap with maintained official resources. Remove active install entries
+  and legacy scaffolds; keep retired URLs at 404 with no automatic replacement
+  in this marketplace. Historical source remains in Git at
+  `95d9c91736284c2209fed3af74f3f82d9f534b9f`.
+  Refs bead `claude-juoz.3.11.58`.
+
 - **fix(framer):** retire the 18-skill Framer tutorial pack after its source and
   value review found broken API contracts, unsafe write examples, and overlap
   with maintained Framer documentation and native features. Remove active install

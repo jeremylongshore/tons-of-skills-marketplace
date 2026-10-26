@@ -540,6 +540,192 @@
     },
     "/skills/framer-webhooks-events": {
       "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/learn/anthropic": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/plugins/anthropic-pack": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-advanced-troubleshooting": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-architecture-variants": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-ci-integration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-common-errors": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-core-workflow-a": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-core-workflow-b": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-cost-tuning": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-data-handling": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-debug-bundle": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-deploy-integration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-enterprise-rbac": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-hello-world": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-incident-runbook": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-install-auth": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-known-pitfalls": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-load-scale": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-local-dev-loop": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-migration-deep-dive": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-multi-env-setup": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-observability": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-performance-tuning": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-policy-guardrails": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-prod-checklist": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-rate-limits": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-reference-architecture": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-reliability-patterns": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-sdk-patterns": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-security-basics": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-upgrade-migration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-webhooks-events": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-advanced-troubleshooting": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-architecture-variants": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-ci-integration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-common-errors": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-core-feature": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-cost-tuning": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-data-handling": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-debug-bundle": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-deploy-pipeline": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-enterprise-rbac": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-hello-world": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-incident-runbook": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-install-auth": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-known-pitfalls": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-load-scale": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-local-dev-loop": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-migration-deep-dive": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-multi-env-setup": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-observability": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-performance-tuning": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-policy-guardrails": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-primary-workflow": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-prod-checklist": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-rate-limits": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-reference-architecture": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-reliability-patterns": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-sdk-patterns": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-security-basics": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-upgrade-migration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-webhooks-events": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
     }
   }
 }

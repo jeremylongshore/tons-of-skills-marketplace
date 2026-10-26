@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 429,
-    "totalSkills": 2743,
+    "totalPlugins": 428,
+    "totalSkills": 2713,
     "totalCommands": 82,
-    "pluginsWithSkills": 395,
+    "pluginsWithSkills": 394,
     "byCategory": {
       "productivity": 28,
       "security": 28,
@@ -26,7 +26,7 @@
       "business-tools": 4,
       "community": 19,
       "examples": 5,
-      "saas-packs": 97,
+      "saas-packs": 96,
       "analytics": 1,
       "design": 2
     },
@@ -8857,32 +8857,6 @@
       "commandCount": 0,
       "installCommand": "/plugin install anima-pack",
       "sourcePath": "./plugins/saas-packs/anima-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "anthropic-pack",
-      "name": "anthropic-pack",
-      "displayName": "anthropic pack",
-      "description": "Claude Code skill pack for Anthropic (30 skills)",
-      "version": "1.7.0",
-      "category": "saas-packs",
-      "keywords": [
-        "anthropic",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "hasSkills": true,
-      "skillCount": 30,
-      "commandCount": 0,
-      "installCommand": "/plugin install anthropic-pack",
-      "sourcePath": "./plugins/saas-packs/anthropic-pack",
       "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",

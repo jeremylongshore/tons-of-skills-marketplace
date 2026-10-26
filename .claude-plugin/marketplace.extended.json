@@ -8487,33 +8487,6 @@
       }
     },
     {
-      "name": "anthropic-pack",
-      "source": "./plugins/saas-packs/anthropic-pack",
-      "description": "Claude Code skill pack for Anthropic (30 skills)",
-      "version": "1.7.0",
-      "category": "saas-packs",
-      "keywords": [
-        "anthropic",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "components": {
-        "skills": 30
-      },
-      "verification": {
-        "score": 88,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
-      }
-    },
-    {
       "name": "apify-pack",
       "source": "./plugins/saas-packs/apify-pack",
       "description": "Claude Code skill pack for Apify (18 skills)",

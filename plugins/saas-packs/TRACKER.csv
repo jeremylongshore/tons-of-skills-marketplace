@@ -47,7 +47,7 @@ apify,Apify,pro,18,@intentsolutionsio/apify-skill-md-pack,reserved,ccpi-apify,18
 finta,Finta,pro,18,@intentsolutionsio/finta-skill-md-pack,reserved,ccpi-finta,18,0,not_started,not_added,Brex #48
 mistral,Mistral AI,pro,18,@intentsolutionsio/mistral-skill-md-pack,reserved,ccpi-mistral,18,0,not_started,not_added,Brex #49
 wispr,Wispr,pro,18,@intentsolutionsio/wispr-skill-md-pack,reserved,ccpi-wispr,18,0,not_started,not_added,Brex #50
-anthropic,Anthropic,flagship+,30,@intentsolutionsio/anthropic-skill-md-pack,reserved,ccpi-anthropic,30,0,not_started,not_added,Extended #51 - Claude maker
+anthropic,Anthropic,retired,0,@intentsolutionsio/anthropic-skill-md-pack,retired,ccpi-anthropic,30,0,retired,removed,Retired tutorial pack after source and value review (claude-juoz.3.11.58); registry disposition tracked in bead
 databricks,Databricks,flagship+,30,@intentsolutionsio/databricks-skill-md-pack,reserved,ccpi-databricks,30,0,not_started,not_added,Extended #52
 coreweave,CoreWeave,flagship,23,@intentsolutionsio/coreweave-skill-md-pack,reserved,ccpi-coreweave,23,0,not_started,not_added,Extended #53; pruned 4 filler skills + added CoreWeave non-affiliation notice (v1.1.0); added coreweave-gpu-cost-leak-hunter heavy-hitter v2 pilot (v1.2.0); added coreweave-gpu-node-forensics heavy-hitter #2 (v1.3.0); added coreweave-fabric-diagnostics GPUDirect-RDMA fallback detector (v1.4.0)
 glean,Glean,retired,0,@intentsolutionsio/glean-skill-md-pack,retired,ccpi-glean,24,0,retired,removed,Retired unsafe tutorial pack after source and value review (claude-juoz.3.11.54); registry disposition tracked in bead
