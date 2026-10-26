@@ -188,6 +188,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
       for (const serialized of [JSON.stringify(result), savedReceipt, ...evidence]) {
         expect(serialized).not.toContain(marker);
         expect(serialized).not.toContain(root);
+        expect(serialized).not.toContain(JSON.stringify(root).slice(1, -1));
         for (const relative of privateState) expect(serialized).not.toContain(relative);
       }
       const diagnose = () =>
@@ -205,7 +206,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
       for (const diagnosis of [pristineDiagnosis, driftDiagnosis]) {
         // destination is intentionally public diagnostic context; private contents are not.
         const serialized = JSON.stringify(diagnosis);
-        expect(serialized).toContain(target);
+        expect(diagnosis.destination).toBe(target);
         expect(serialized).not.toContain(marker);
         for (const relative of privateState) expect(serialized).not.toContain(relative);
       }
