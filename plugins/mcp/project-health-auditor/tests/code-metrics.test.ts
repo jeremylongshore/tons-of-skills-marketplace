@@ -265,7 +265,14 @@ describe('shipped inventory pagination', () => {
       expect(sources).toEqual(files.filter(file => file.startsWith('src/')));
       expect(Object.keys(covered)).toHaveLength(63); expect(missing).toHaveLength(63);
       expect(missing).toContain('src/classify.ts');
-      expect(covered['src/item_0000.ts']).toEqual(['tests/item_0000.test.ts']);
+      const expectedMissing = ['src/classify.ts', ...Array.from({ length: 62 }, (_,i) =>
+        `src/item_${String(2 * i + 1).padStart(4, '0')}.ts`)].sort();
+      expect(missing).toEqual(expectedMissing);
+      const expectedCovered = Object.fromEntries(Array.from({ length: 63 }, (_,i) => {
+        const name = `item_${String(2 * i).padStart(4, '0')}`;
+        return [`src/${name}.ts`, [`tests/${name}.test.ts`]];
+      }));
+      expect(covered).toEqual(expectedCovered);
     } finally { await client.close(); await transport.close(); }
   }, 20000);
 });

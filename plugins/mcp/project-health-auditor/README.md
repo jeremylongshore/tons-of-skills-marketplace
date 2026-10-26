@@ -133,9 +133,10 @@ Which files are missing tests in this project?
 For both inventory tools, advance `offset` by `showing` while `hasMore` is true,
 keeping the same repository and filters. Pages are sorted and reflect current
 files, so repository changes between calls can shift offsets. Invalid paging
-values return an argument error. `totalFiles` and `map_tests.summary` cover the
-whole repository; `files`, `sourceFiles`, `coverage`, and `missingTests` contain
-only the current page. `map_tests` pages source files, including both matched and
+values return an argument error. `totalFiles` covers all files matching the
+active list filters; `map_tests.summary` covers its complete unpaginated source
+and test scan. `files`, `sourceFiles`, `coverage`, and `missingTests` contain only
+the current page. `map_tests` pages source files, including both matched and
 unmatched files, so missing tests beyond the old 50-file preview are reachable.
 Individual paths and matching-test arrays remain intact; item limits do not
 bound serialized characters or analysis time. Test mapping uses filename
