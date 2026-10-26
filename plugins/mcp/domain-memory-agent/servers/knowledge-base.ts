@@ -72,7 +72,8 @@ const StoreDocumentSchema = z.object({
 
 const SemanticSearchSchema = z.object({
   query: z.string().describe('Search query'),
-  limit: z.number().optional().default(10).describe('Maximum results to return'),
+  limit: z.number().int().min(1).max(100).optional().default(10).describe('Results per page (1-100)'),
+  offset: z.number().int().min(0).optional().default(0).describe('Zero-based result offset'),
   tags: z.array(z.string()).optional().describe('Filter by tags'),
   minScore: z.number().optional().default(0).describe('Minimum relevance score (0-1)')
 });
@@ -87,8 +88,8 @@ const SummarizeSchema = z.object({
 const ListDocumentsSchema = z.object({
   tags: z.array(z.string()).optional().describe('Filter by tags'),
   sortBy: z.enum(['created', 'updated', 'title']).optional().default('updated'),
-  limit: z.number().optional().default(50).describe('Maximum documents to return'),
-  offset: z.number().optional().default(0).describe('Offset for pagination')
+  limit: z.number().int().min(1).max(100).optional().default(50).describe('Documents per page (1-100)'),
+  offset: z.number().int().min(0).optional().default(0).describe('Zero-based result offset')
 });
 
 const GetDocumentSchema = z.object({
@@ -333,11 +334,11 @@ async function storeDocument(args: z.infer<typeof StoreDocumentSchema>) {
  * Search documents using TF-IDF semantic search
  */
 async function semanticSearch(args: z.infer<typeof SemanticSearchSchema>) {
-  const { query, limit, tags: filterTags, minScore } = args;
+  const { query, limit, offset, tags: filterTags, minScore } = args;
 
   const queryTokens = tokenize(query);
   if (queryTokens.length === 0) {
-    return { results: [], totalResults: 0, query };
+    return { results: [], totalResults: 0, query, showing: 0, offset, hasMore: false };
   }
 
   // Calculate scores for all documents
@@ -366,7 +367,7 @@ async function semanticSearch(args: z.infer<typeof SemanticSearchSchema>) {
   results.sort((a, b) => b.score - a.score);
 
   // Limit results
-  const limitedResults = results.slice(0, limit);
+  const limitedResults = results.slice(offset, offset + limit);
 
   return {
     results: limitedResults.map(r => ({
@@ -380,7 +381,9 @@ async function semanticSearch(args: z.infer<typeof SemanticSearchSchema>) {
     })),
     totalResults: results.length,
     query,
-    showing: limitedResults.length
+    showing: limitedResults.length,
+    offset,
+    hasMore: offset + limitedResults.length < results.length
   };
 }
 
