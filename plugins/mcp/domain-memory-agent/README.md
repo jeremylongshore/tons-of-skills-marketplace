@@ -85,9 +85,9 @@ nonnegative integer and defaults to 0. Invalid paging arguments return a tool
 error. Advance the offset by `showing` while `hasMore` is true, keeping the same
 query, filters, and sort order. Pages reflect the current in-memory collection.
 
-These limits count items. Individual document content, metadata, and search
-excerpts remain complete and can be large; clients retain their normal handling
-of large results.
+These limits count items. Document content and metadata remain intact. Search
+excerpts keep their existing sentence extraction behavior and can be large;
+clients retain their normal handling of large results.
 
 ### 5. `get_document`
 
