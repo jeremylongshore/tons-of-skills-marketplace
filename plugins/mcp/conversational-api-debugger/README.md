@@ -120,8 +120,9 @@ and body values stay literal; JavaScript uses serialized string/object values.
 Bodies use raw-data options, including JSON serialization for non-string values,
 so a leading `@` is body text. `false`, `0`, empty strings, and `null` remain bodies.
 `includeHeaders: false` suppresses headers in every generated alternative without
-changing stored logs. Header names must be HTTP tokens, and shell arguments
-containing NUL are rejected because an argv argument cannot represent that byte.
+changing stored logs. When headers are included, their names must be HTTP
+tokens; suppressed headers are not validated. Shell arguments containing NUL are
+rejected because an argv argument cannot represent that byte.
 HTTPie escapes a leading `@` in header values to avoid its file-import operator.
 These snippets do not run automatically. Review the target and request before
 running them; quoting does not redact credentials or make a request read-only.
