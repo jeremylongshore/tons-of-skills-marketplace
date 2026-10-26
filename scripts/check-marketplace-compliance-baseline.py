@@ -49,6 +49,25 @@ def metadata_drift(baseline: dict[str, Any], current: dict[str, Any]) -> list[st
     ratchet until the dedicated baseline-capture transaction has been reviewed.
     """
     errors: list[str] = []
+    identity_versions = {}
+    for label, payload in (("baseline", baseline), ("live", current)):
+        version = payload.get("finding_identity_version", 1)
+        if type(version) is not int or version not in (1, 2):
+            errors.append(f"{label} has unsupported finding_identity_version")
+            continue
+        identity_versions[label] = version
+        if version == 2 and any(
+            len(parts := entry.split(" :: ", 2)) == 3
+            and parts[1] == "E-MISSING-REQUIRED-SECTION"
+            and parts[2].strip() in ("", "##")
+            for entry in entries(payload)
+        ):
+            errors.append(f"{label} finding_identity_version=2 contains an unnamed required-section entry")
+    if len(identity_versions) == 2 and identity_versions["baseline"] != identity_versions["live"]:
+        errors.append(
+            "finding_identity_version drift: "
+            f"baseline={identity_versions['baseline']}, live={identity_versions['live']}"
+        )
     baseline_schema = baseline.get("schema_version")
     current_schema = current.get("schema_version")
     if not isinstance(baseline_schema, str) or not isinstance(current_schema, str):

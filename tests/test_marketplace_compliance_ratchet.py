@@ -69,6 +69,42 @@ class MarketplaceComplianceRatchetTests(unittest.TestCase):
             ["schema_version drift: baseline=4.1.0, live=4.2.0"],
         )
 
+    def test_finding_identity_version_cannot_silently_change(self):
+        baseline = {"schema_version": "4.1.0", "rule_inventory": ["E-ONE"], "entries": []}
+        current = {**baseline, "finding_identity_version": 2}
+        self.assertEqual(
+            self.ratchet.metadata_drift(baseline, current),
+            ["finding_identity_version drift: baseline=1, live=2"],
+        )
+        self.assertTrue(self.ratchet.capture_required_reasons(baseline, current))
+        self.assertIn(
+            "owner-dispatched capture artifact",
+            self.ratchet.baseline_growth_error(
+                baseline,
+                current,
+                {self.ratchet.BASELINE_PATH},
+                "automation/compliance-baseline-123",
+            ),
+        )
+
+    def test_version_two_rejects_collapsed_or_unknown_identity_contracts(self):
+        baseline = {"schema_version": "4.1.0", "rule_inventory": ["E-ONE"], "entries": []}
+        for version in (True, 0, 3, "2"):
+            with self.subTest(version=version):
+                self.assertIn(
+                    "live has unsupported finding_identity_version",
+                    self.ratchet.metadata_drift(baseline, {**baseline, "finding_identity_version": version}),
+                )
+        collapsed = {
+            **baseline,
+            "finding_identity_version": 2,
+            "entries": ["a/SKILL.md :: E-MISSING-REQUIRED-SECTION :: ##"],
+        }
+        self.assertIn(
+            "live finding_identity_version=2 contains an unnamed required-section entry",
+            self.ratchet.metadata_drift(collapsed, collapsed),
+        )
+
     def test_monotone_metrics_allow_equal_or_improved_values(self):
         baseline = {
             "totals": {"errors": 10, "grade_A_plus_B_pct": 75.0},
