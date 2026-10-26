@@ -107,7 +107,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     expect(await fs.readdir(destinationRoot)).toEqual(['.ccpi-evidence', 'demo-skill']);
   });
 
-  test('contributing-clanker source excludes adjacent private state and never absorbs installed drift', async () => {
+  test('synthetic contributing-clanker source excludes private neighbors and refuses installed source', async () => {
     const canonical = 'plugins/community/contributing-clanker/skills/contribute';
     const selected = path.join(root, canonical);
     await fs.mkdir(selected, { recursive: true });
@@ -117,7 +117,7 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     );
     git('add', '--', canonical);
     git('commit', '--quiet', '-m', 'test: canonical contributing-clanker fixture');
-    const privateState = [
+    const privateNames = [
       '.claude/hooks/private.json',
       'dossiers/private.md',
       'logs/private.log',
@@ -127,14 +127,16 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
       'personal/home/notes.md',
       'private.env',
     ];
+    const pluginDirectory = path.dirname(path.dirname(canonical));
+    const privateState = privateNames.flatMap((relative) => [
+      relative,
+      path.posix.join(pluginDirectory, relative),
+    ]);
     const marker = 'FIXTURE_ONLY_PRIVATE_STATE_1321';
     for (const relative of privateState) {
       await fs.mkdir(path.dirname(path.join(root, relative)), { recursive: true });
       await fs.writeFile(path.join(root, relative), `${marker}:${relative}`);
     }
-    const installedLink = path.join(root, 'installed', 'contribute');
-    await fs.mkdir(path.dirname(installedLink), { recursive: true });
-    await fs.symlink(selected, installedLink, 'dir');
     const before = {
       head: git('rev-parse', 'HEAD'),
       tree: git('rev-parse', 'HEAD^{tree}'),
@@ -166,6 +168,10 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
       });
       expect(result.source.path).toBe(canonical);
       expect(result.tree.entries.map((entry) => entry.path)).toEqual(['SKILL.md']);
+      expect((await fs.readdir(target)).sort()).toEqual(
+        [PORTABLE_INSTALL_RECEIPT_FILE, 'SKILL.md'].sort(),
+      );
+      expect(await fs.readFile(path.join(target, 'SKILL.md'), 'utf8')).toBe(before.source);
       const evidence = await fs.readFile(
         path.join(targetRoot, '.ccpi-evidence', `${result.evidence[0].sha256.slice(7)}.json`),
         'utf8',
@@ -182,9 +188,28 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
           harness: harness.id,
           scope: 'project',
         });
-      expect((await diagnose()).integrity).toBe('verified');
+      const pristineDiagnosis = await diagnose();
+      expect(pristineDiagnosis.integrity).toBe('verified');
       await fs.writeFile(path.join(target, 'local-private.md'), marker);
-      expect((await diagnose()).integrity).toBe('locally-modified');
+      const driftDiagnosis = await diagnose();
+      expect(driftDiagnosis.integrity).toBe('locally-modified');
+      for (const diagnosis of [pristineDiagnosis, driftDiagnosis]) {
+        // destination is intentionally public diagnostic context; private contents are not.
+        const serialized = JSON.stringify(diagnosis);
+        expect(serialized).not.toContain(marker);
+        for (const relative of privateState) expect(serialized).not.toContain(relative);
+      }
+      await expect(
+        installPortableTree({
+          ...options(),
+          sourceDirectory: target,
+          destinationRoot: targetRoot,
+          harness: harness.id,
+          registryVersion: registry.schemaVersion,
+        }),
+      ).rejects.toThrow(/source\.path must identify/);
+      const installedLink = path.join(root, 'consumer', `${harness.id}-installed-link`);
+      await fs.symlink(target, installedLink, 'dir');
       await expect(
         installPortableTree({
           ...options(),
