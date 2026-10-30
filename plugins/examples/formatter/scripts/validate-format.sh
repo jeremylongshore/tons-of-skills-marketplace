@@ -14,12 +14,30 @@ PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 DEBUG="${FORMATTER_DEBUG:-false}"
 LOG_FILE="${PLUGIN_ROOT}/logs/validate.log"
 
+# This optional native hook is disabled by default. Claude tolerates but does
+# not enforce group-level enabled metadata, so skip before logs or npx calls.
+# Explicit filename / CLAUDE_FILE_PATH invocations remain manual checks.
+if [[ $# -eq 0 && -z "${CLAUDE_FILE_PATH:-}" ]]; then
+    if ! command -v jq >/dev/null 2>&1 || ! jq -e \
+        '[.hooks.PreToolUse[]? | select(.matcher == "Edit") | .enabled] | length > 0 and all(. == true)' \
+        "$PLUGIN_ROOT/hooks/hooks.json" >/dev/null 2>&1; then
+        exit 0
+    fi
+    if ! FILE_TO_VALIDATE=$(jq -er '
+        select(.hook_event_name == "PreToolUse" and .tool_name == "Edit") |
+        .tool_input.file_path | select(type == "string" and length > 0)
+    '); then
+        exit 0
+    fi
+    set -- "$FILE_TO_VALIDATE"
+fi
+
 # Color codes for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+COLOR_RESET='\033[0m' # No Color
 
 # Ensure log directory exists
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -33,25 +51,25 @@ debug() {
 
 # Info logging
 info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}[INFO]${COLOR_RESET} $1"
     echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
 # Success logging
 success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}[SUCCESS]${COLOR_RESET} $1"
     echo "[SUCCESS] $(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
 # Warning logging
 warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
+    echo -e "${YELLOW}[WARN]${COLOR_RESET} $1"
     echo "[WARN] $(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
 # Error logging
 error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}[ERROR]${COLOR_RESET} $1"
     echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
@@ -78,9 +96,9 @@ check_prettier() {
         debug "Found global prettier"
         echo "prettier"
     elif command -v npx > /dev/null 2>&1; then
-        if npx prettier --version > /dev/null 2>&1; then
-            debug "Using npx prettier"
-            echo "npx prettier"
+        if npx --no-install prettier --version > /dev/null 2>&1; then
+            debug "Using npx --no-install prettier"
+            echo "npx --no-install prettier"
         else
             debug "Prettier not found via npx"
             echo ""
