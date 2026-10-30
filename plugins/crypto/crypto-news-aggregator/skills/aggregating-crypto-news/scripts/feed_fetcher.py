@@ -15,6 +15,13 @@ import feedparser
 import requests
 
 
+class _ExplicitRedirectSession(requests.Session):
+    def resolve_redirects(self, *args, **kwargs):
+        # Requests otherwise prepares Response.next by consuming a redirect's
+        # body, even with allow_redirects=False. Only our bounded loop redirects.
+        return iter(())
+
+
 class FeedFetcher:
     """Fetch enabled sources, retaining failures rather than hiding partial coverage."""
 
@@ -129,7 +136,7 @@ class FeedFetcher:
     def _read_bounded_feed(self, url):
         # Configured hosts are operator-trusted; this is not a DNS/egress sandbox.
         deadline = time.monotonic() + self.timeout
-        with requests.Session() as client:
+        with _ExplicitRedirectSession() as client:
             # Never load .netrc, environment proxies or environment CA overrides.
             client.trust_env = False
             for redirect in range(self.max_redirects + 1):

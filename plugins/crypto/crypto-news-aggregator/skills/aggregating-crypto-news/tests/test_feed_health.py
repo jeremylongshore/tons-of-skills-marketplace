@@ -22,6 +22,9 @@ from formatters import NewsFormatter
 import news_aggregator
 
 
+REAL_SESSION_SEND = requests.sessions.Session.send
+
+
 GOOD = {"name": "Good", "url": "https://good.example/feed", "quality": 8, "category": "market"}
 BAD = {"name": "Bad", "url": "https://bad.example/feed"}
 DISABLED = {
@@ -159,6 +162,29 @@ class FeedHealthTests(unittest.TestCase):
             self.assertIn("Good", self.fetcher.fetch_all([GOOD]))
         self.assertEqual([c.args[0] for c in network.call_args_list], [GOOD["url"], "https://good.example/rss"])
         self.assertTrue(all(c.kwargs["allow_redirects"] is False for c in network.call_args_list))
+
+    def test_real_requests_redirect_path_does_not_preload_an_unbounded_body(self):
+        class ForbiddenBody:
+            closed = False
+
+            def stream(self, *args, **kwargs):
+                raise AssertionError("Redirect body was read before the bounded reader")
+
+            def close(self):
+                self.closed = True
+
+        redirect = requests.Response()
+        redirect.status_code = 302
+        redirect.headers["Location"] = "/rss"
+        redirect.url = GOOD["url"]
+        redirect.raw = ForbiddenBody()
+        with (
+            patch("requests.sessions.Session.send", REAL_SESSION_SEND),
+            patch("requests.adapters.HTTPAdapter.send", side_effect=[redirect, response(rss())]) as transport,
+        ):
+            self.assertIn("Good", self.fetcher.fetch_all([GOOD]))
+        self.assertEqual(transport.call_count, 2)
+        self.assertTrue(redirect.raw.closed)
 
     def test_unsafe_redirect_is_not_requested(self):
         for target in (
