@@ -289,6 +289,14 @@ jobs:
 
 The plugin includes a **PreToolUse** hook that validates workflow files **before** they're written:
 
+The hook reads native JSON on stdin and checks the proposed `Write` content or
+the result of an `Edit`, scoped to `.github/workflows/*.yml` and `*.yaml` in the
+event's working directory. It does not write the workflow. A policy violation or
+unverifiable proposed edit exits **2**, which is the native blocking signal.
+An explicit filename remains a manual audit and exits **1** on failure.
+Python 3.10+ is required. These are lexical checks, not a YAML parser or a complete
+credential/deployment security review.
+
 ```text
 # Automatically runs on .github/workflows/*.yml files
 

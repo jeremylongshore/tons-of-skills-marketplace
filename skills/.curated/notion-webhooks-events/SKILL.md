@@ -4,7 +4,7 @@ description: >-
   Implement verified Notion connection-webhook intake with deduplication, bounded processing, and fetch-current reconciliation. Use when reacting to workspace change signals. Trigger with "handle Notion webhooks", "verify Notion signature", or "reconcile Notion events".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<subscription> <event-scope> <processor>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, webhooks]

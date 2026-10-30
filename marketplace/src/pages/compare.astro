@@ -2,8 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import searchIndex from '../data/unified-search-index.json';
 
-// Build lookup map for quick access
-const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, item]));
+import { buildComparisonLookup } from '../lib/comparison.mjs';
+
+const comparisonLookup = buildComparisonLookup(searchIndex.items);
 ---
 
 <BaseLayout
@@ -33,6 +34,22 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
     .page-description {
       color: var(--brand-mid-gray);
       font-size: 1rem;
+    }
+
+    .comparison-choices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .comparison-choices :global(button) {
+      min-height: 44px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--brand-mid-gray);
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      font: inherit;
+      cursor: pointer;
     }
 
     /* Empty State */
@@ -358,6 +375,9 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
       <p class="page-description">Side-by-side comparison of selected plugins and skills</p>
     </header>
 
+    <p id="comparison-notice" role="status" hidden></p>
+    <div id="comparison-choices" class="comparison-choices"></div>
+
     <div id="empty-state" class="empty-state">
       <h2 class="empty-title">No plugins selected</h2>
       <p class="empty-text">Browse the explore page and add plugins to compare them side-by-side.</p>
@@ -448,10 +468,14 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
   {/* Catalog data travels as a non-executable JSON block so the executable inline
       script below has stable bytes for the CSP inline inventory (bead claude-i076).
       `<` is escaped so data can never terminate the <script> element. */}
-  <script type="application/json" id="compare-items-data" set:html={JSON.stringify(Object.fromEntries(searchIndex.items.map(item => [item.id || item.name, item]))).replace(/</g, '\\u003c')} />
+  <script type="application/json" id="compare-items-data" set:html={JSON.stringify(comparisonLookup.items).replace(/</g, '\\u003c')} />
+  <script type="application/json" id="compare-ambiguous-data" set:html={JSON.stringify(comparisonLookup.ambiguous).replace(/</g, '\\u003c')} />
   <script>
+  import { comparisonKey, resolveComparison, savedComparisonReferences } from '../lib/comparison.mjs';
   (function () {
     const itemsMap = JSON.parse(document.getElementById('compare-items-data').textContent);
+
+    const ambiguous = JSON.parse(document.getElementById('compare-ambiguous-data').textContent);
 
     // Catalog fields include third-party plugin text; escape before innerHTML.
     const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -467,7 +491,7 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
       try {
         const saved = localStorage.getItem('compare-items');
         if (saved) {
-          return JSON.parse(saved).map(item => item.id);
+          return savedComparisonReferences(JSON.parse(saved));
         }
       } catch (e) {}
       return [];
@@ -479,11 +503,26 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
         itemIds = getItemsFromStorage();
       }
 
+      const selection = resolveComparison(itemIds, { items: itemsMap, ambiguous });
+      const notice = document.getElementById('comparison-notice');
+      notice.hidden = selection.rejected.length === 0;
+      notice.textContent = selection.rejected.some(entry => entry.reason === 'ambiguous')
+        ? 'This older comparison link contains an ID shared by a plugin and a skill. Choose which one to compare.'
+        : 'Some comparison items could not be found. Select those items again.';
+      const choices = document.getElementById('comparison-choices');
+      choices.innerHTML = selection.rejected.filter(entry => entry.reason === 'ambiguous')
+        .flatMap(({ reference }) => ['plugin', 'skill'].map(type => {
+          const key = comparisonKey({ id: reference, type });
+          const item = itemsMap[key];
+          if (!item || typeof item !== 'object') return '';
+          return `<button type="button" class="compare-btn secondary" data-choose-reference="${esc(reference)}" data-choice="${esc(key)}">Use ${esc(type)}: ${esc(item.displayName || item.name)}</button>`;
+        })).join('');
+
       const emptyState = document.getElementById('empty-state');
       const content = document.getElementById('compare-content');
       const actions = document.getElementById('compare-actions');
 
-      if (itemIds.length === 0) {
+      if (selection.items.length === 0) {
         emptyState.style.display = 'block';
         content.style.display = 'none';
         actions.style.display = 'none';
@@ -496,8 +535,7 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
 
       // Render each column
       for (let i = 1; i <= 4; i++) {
-        const id = itemIds[i - 1];
-        const item = id ? itemsMap[id] : null;
+        const item = selection.items[i - 1];
 
         renderColumn(i, item);
       }
@@ -537,7 +575,7 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
         return;
       }
 
-      const id = item.id || item.name;
+      const id = comparisonKey(item);
       const displayName = item.displayName || item.name;
       const detailUrl = item.type === 'plugin' ? `/plugins/${item.name}/` : `/skills/${item.slug}/`;
 
@@ -601,7 +639,7 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
       try {
         const saved = localStorage.getItem('compare-items');
         if (saved) {
-          const items = JSON.parse(saved).filter(item => item.id !== id);
+          const items = JSON.parse(saved).filter(item => comparisonKey(item) !== id);
           localStorage.setItem('compare-items', JSON.stringify(items));
         }
       } catch (e) {}
@@ -611,7 +649,8 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
       if (itemIds.length === 0) {
         itemIds = getItemsFromStorage();
       }
-      itemIds = itemIds.filter(i => i !== id);
+      itemIds = resolveComparison(itemIds, { items: itemsMap, ambiguous }).items
+        .map(comparisonKey).filter(key => key !== id);
 
       if (itemIds.length > 0) {
         const newUrl = `/compare/?items=${encodeURIComponent(itemIds.join(','))}`;
@@ -654,6 +693,15 @@ const itemsMap = new Map(searchIndex.items.map(item => [item.id || item.name, it
     }
 
     // Event listeners
+    document.getElementById('comparison-choices')?.addEventListener('click', (e) => {
+      const button = e.target.closest('[data-choose-reference]');
+      if (!button) return;
+      const references = getItemsFromURL().map(reference =>
+        reference === button.dataset.chooseReference ? button.dataset.choice : reference);
+      window.history.replaceState({}, '', `/compare/?items=${encodeURIComponent(references.join(','))}`);
+      renderComparison();
+    });
+
     // Remove and Copy buttons are rendered at runtime inside this IIFE, so an
     // inline onclick could not reach removeItem/copyToClipboard; delegate.
     document.getElementById('compare-content')?.addEventListener('click', (e) => {

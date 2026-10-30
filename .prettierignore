@@ -73,3 +73,7 @@ tests/e2e/
 # Misc generated
 *.log
 asset_generation*.log
+
+# Preserve historical bytes moved from the already excluded plugins/ tree.
+000-docs/816-MS-OLDV-jeremy-plugin-summary.md
+000-docs/817-MS-OLDV-jeremy-plugin-readme.md

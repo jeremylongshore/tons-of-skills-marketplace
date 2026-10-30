@@ -1,394 +1,128 @@
 ---
-title: "SaaS Skill Packs: Platform Integrations"
-description: "Learn how SaaS skill packs provide platform-specific Claude Code integrations. Covers available packs, anatomy, usage, and how to create custom SaaS packs for any platform API."
-section: "guides"
+title: 'SaaS Skill Packs: Platform Integrations'
+description: 'Learn how SaaS skill packs provide platform-specific Claude Code integrations. Covers available packs, anatomy, usage, and how to create custom SaaS packs for any platform API.'
+section: 'guides'
 order: 4
 keywords:
-  - "SaaS pack"
-  - "skill pack"
-  - "platform integration"
-  - "API skills"
-  - "Stripe"
-  - "GitHub"
-  - "Slack"
-  - "Vercel"
-  - "SaaS integration"
-  - "Claude Code integrations"
+  - 'SaaS pack'
+  - 'skill pack'
+  - 'platform integration'
+  - 'API skills'
+  - 'Stripe'
+  - 'GitHub'
+  - 'Slack'
+  - 'Vercel'
+  - 'SaaS integration'
+  - 'Claude Code integrations'
 officialLinks:
-  - title: "Anthropic Claude Code Documentation"
-    url: "https://code.claude.com/docs/en/"
-  - title: "Tons of Skills Marketplace"
-    url: "https://tonsofskills.com/explore"
+  - title: 'Anthropic Claude Code Documentation'
+    url: 'https://code.claude.com/docs/en/'
+  - title: 'Tons of Skills Marketplace'
+    url: 'https://tonsofskills.com/explore'
 relatedDocs:
-  - "concepts/plugins"
-  - "concepts/skills"
-  - "ecosystem/marketplace-overview"
+  - 'concepts/plugins'
+  - 'concepts/skills'
+  - 'ecosystem/marketplace-overview'
 ---
 
-## What Are SaaS Skill Packs?
+## What a SaaS pack contains
 
-SaaS skill packs are collections of Claude Code skills designed for a specific platform or service. Instead of a general-purpose plugin that covers many topics, a SaaS pack focuses entirely on one platform -- its API, CLI, configuration, best practices, and common workflows.
+A SaaS pack groups instructions for one provider's real operator workflows: authentication, common operations, errors, deployment, security, and recovery. It is still an instruction artifact unless it separately ships a runtime integration. Describing an API is not the same as executing it or certifying a deployment.
 
-Each pack bundles multiple skills that work together to provide comprehensive coverage of that platform. A Stripe pack, for example, might include skills for payment integration, webhook handling, subscription management, and Stripe CLI operations. A GitHub pack might cover Actions workflows, repository management, issue automation, and PR review patterns.
+Repository packs live under `plugins/saas-packs/`; matching `*-pack` directories are included by the repository workspace configuration. Their Node package metadata may be generated or explicitly custom-owned. Do not overwrite custom metadata or assume every pack is a private npm package.
 
-SaaS packs are pnpm workspace members that live in the `plugins/saas-packs/` directory. They follow the same plugin structure as regular plugins but are organized by platform and contain domain-specific knowledge that goes deeper than a generic plugin could.
+## Find current packs
 
-## How SaaS Packs Differ from Regular Plugins
+Use [Explore](/explore) and the current catalog's `saas-packs` entries. Do not copy an old table of hypothetical integrations into an availability claim.
 
-| Aspect | Regular Plugin | SaaS Pack |
-|--------|---------------|-----------|
-| **Scope** | A workflow or task type (testing, deployment) | A specific platform (Stripe, GitHub, Slack) |
-| **Skills** | General-purpose instructions | Platform API-specific guidance |
-| **Knowledge** | Broad best practices | Deep platform documentation |
-| **Naming** | `my-plugin` | `platform-pack` (e.g., `stripe-pack`) |
-| **Location** | `plugins/[category]/` | `plugins/saas-packs/` |
-| **Dependencies** | Usually none | May reference platform SDKs or CLIs |
+For example, `apollo-pack` describes Apollo sales engagement and prospecting, not Apollo GraphQL. `claude-pack` describes the Claude API and Anthropic SDK, not a promise to cover all Claude Code plugin authoring. Provider names can refer to different products; read the actual entry and source.
 
-The key advantage of SaaS packs is depth. A regular plugin might tell Claude to "make an API call." A SaaS pack teaches Claude the specific API endpoints, authentication patterns, error codes, rate limits, and idiomatic usage for that platform.
+Examples such as `stripe-pack`, `github-pack`, `netlify-pack`, and `square-pack` in older versions of this page were not registered identities at the reviewed snapshot. A hypothetical tutorial name must not be presented as an installable pack.
 
-## Available SaaS Packs
+## Install a registered pack
 
-The Tons of Skills marketplace includes over 60 SaaS packs covering platforms across categories. Here is a representative sample:
+After reviewing the actual pack, use native marketplace installation. For a registered example:
 
-### Developer Tools
-
-| Pack | Platform | Skills |
-|------|----------|--------|
-| `anthropic-pack` | Anthropic API | Claude API integration, prompt engineering, model selection |
-| `github-pack` | GitHub | Actions, repository management, PR automation, Issues |
-| `vercel-pack` | Vercel | Deployment, serverless functions, edge config |
-| `netlify-pack` | Netlify | Deploy, forms, functions, identity |
-| `claude-pack` | Claude Code | Plugin development, skill writing, agent creation |
-
-### Payments and Commerce
-
-| Pack | Platform | Skills |
-|------|----------|--------|
-| `stripe-pack` | Stripe | Payments, subscriptions, webhooks, Stripe CLI |
-| `shopify-pack` | Shopify | Storefront API, admin API, theme development |
-| `square-pack` | Square | Payments, catalog, inventory |
-
-### Communication
-
-| Pack | Platform | Skills |
-|------|----------|--------|
-| `slack-pack` | Slack | Bot development, Bolt framework, Block Kit, webhooks |
-| `twilio-pack` | Twilio | SMS, voice, WhatsApp, Verify |
-
-### Data and Analytics
-
-| Pack | Platform | Skills |
-|------|----------|--------|
-| `algolia-pack` | Algolia | Search implementation, indexing, analytics |
-| `apollo-pack` | Apollo GraphQL | Client setup, schema design, caching |
-
-### Infrastructure
-
-| Pack | Platform | Skills |
-|------|----------|--------|
-| `castai-pack` | CAST AI | Kubernetes optimization, cost management |
-| `brightdata-pack` | Bright Data | Web scraping, proxy management |
-
-Browse all available packs on the [Explore](/explore) page by filtering for the "saas-packs" category.
-
-## Anatomy of a SaaS Pack
-
-A SaaS pack follows standard plugin structure with platform-specific content. Here is the structure of a typical pack:
-
-```
-plugins/saas-packs/stripe-pack/
-├── .claude-plugin/
-│   └── plugin.json
-├── README.md
-├── LICENSE
-├── package.json                      # pnpm workspace member
-├── skills/
-│   ├── stripe-payments/
-│   │   ├── SKILL.md                  # Payment integration skill
-│   │   ├── reference.md              # API reference
-│   │   └── examples/
-│   │       └── checkout-session.ts
-│   ├── stripe-webhooks/
-│   │   ├── SKILL.md                  # Webhook handling skill
-│   │   └── reference.md
-│   ├── stripe-subscriptions/
-│   │   ├── SKILL.md                  # Subscription management
-│   │   └── reference.md
-│   └── stripe-cli/
-│       └── SKILL.md                  # Stripe CLI operations
-├── commands/
-│   └── stripe-setup.md              # Initial Stripe configuration
-└── agents/
-    └── stripe-debugger.md           # Autonomous payment debugging
+```bash
+claude plugin marketplace add jeremylongshore/tons-of-skills-marketplace
+claude plugin install claude-pack@claude-code-plugins-plus --scope project
 ```
 
-### The plugin.json
+Adding the marketplace does not install every pack. Native scope, enablement, and reload behavior still apply. Use namespaced commands or skills from the actual installed artifact; an imagined `/stripe-setup` command is not evidence of a real installed component.
+
+See [installation](/docs/getting-started/installation) for companion-versus-native differences and [the current native guide](https://code.claude.com/docs/en/discover-plugins) for supported management commands.
+
+## Design a coherent pack
+
+Start with real, evidence-backed outcomes rather than a target number of skills. A provider with three distinct workflows and one with thirty need different structures; there is no universal3–8 skill acceptance rule here.
+
+A useful inventory records each identity's purpose, current primary sources, credential scope, input/output contract, destructive or costly actions, failure handling, and test evidence. Treat mutable provider facts such as quotas, API versions, SDK floors, and prices as versioned facts to verify, not generic boilerplate.
+
+```text
+plugins/saas-packs/example-provider-pack/
+  .claude-plugin/plugin.json
+  README.md
+  LICENSE
+  skills/provider-read-only-review/
+    SKILL.md
+    references/api-contract.md
+    references/reviewed-cases.md
+```
+
+This is an illustrative layout, not an existing provider integration or an executable scaffold.
+
+## Use the current authoring contract
+
+The plugin manifest uses an author object and the marketplace envelope described in [the manifest reference](/docs/reference/plugin-json-schema). Skills require the unchanged eight marketplace fields, including `compatibility` and `tags`; `compatible-with` is deprecated.
+
+Use [the complete skill example](/docs/guides/write-a-skill) as an authoring starting point, then replace the generic review behavior with the provider's actual supported workflow. Do not label an incomplete payment snippet “PCI-compliant” or assume an old SDK lower bound accepts a later pinned API version. Pin and test the selected SDK/API combination against its primary documentation.
+
+## Provider reference fragment
+
+The following is an intentionally partial API-reference format, not a live request or complete Stripe integration. The endpoint and chosen parameters must be verified against the selected API version before use:
+
+````markdown
+# Reviewed Checkout Contract
+
+Record the provider API version, SDK version, required credentials, and the
+approved operation before implementing a request.
 
 ```json
 {
-  "name": "stripe-pack",
-  "version": "1.0.0",
-  "description": "Comprehensive Stripe integration skills: payments, subscriptions, webhooks, CLI, and Connect platform",
-  "author": "Your Name <you@example.com>",
-  "repository": "https://github.com/username/claude-code-plugins",
-  "license": "MIT",
-  "keywords": ["stripe", "payments", "subscriptions", "webhooks", "fintech", "saas-pack"]
+  "example_response_id": "synthetic-only",
+  "scope": "illustrative response shape, not a provider receipt"
 }
 ```
 
-### The package.json
+Document success, validation errors, authorization failures, retries, and
+partial-operation recovery using the actual provider contract.
+````
 
-SaaS packs are pnpm workspace members. The `package.json` is minimal:
+Keep secret credentials server-side. User/session authorization, provider API authentication, webhook verification, data minimization, and legal/compliance review are separate boundaries. A client library or payment widget alone does not certify the whole application.
 
-```json
-{
-  "name": "@plugins/stripe-pack",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Stripe integration skills for Claude Code"
-}
-```
+## Write useful supporting material
 
-### A Typical Pack Skill
+Each retained instruction should link to actual local references. Include dated primary sources where facts can change, exact supported request/response examples, approved credential handling, and meaningful failure cases. Do not defer core runtime behavior to mutable upstream-main instructions without a reviewed provenance boundary.
 
-Each skill in a SaaS pack provides deep, platform-specific instructions. Here is what a Stripe payments skill looks like:
+Separate read-only diagnostics from changes that create accounts, alter billing, delete data, send messages, deploy code, or invoke paid APIs. A tool grant or installed CLI does not itself authorize those actions.
 
-```yaml
----
-name: stripe-payments
-description: |
-  Implement Stripe payment processing in web applications. Covers
-  Checkout Sessions, Payment Intents, payment methods, error handling,
-  and PCI compliance. Trigger phrases: "add Stripe payments", "integrate
-  Stripe checkout", "set up payment processing", "handle Stripe errors".
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Glob, Grep
-version: 1.0.0
-author: Your Name <you@example.com>
-license: MIT
-compatibility: "Node.js >= 18"
-compatible-with: claude-code
-tags: [stripe, payments, checkout, fintech, saas-pack]
----
+## Validate without inventing a quality policy
 
-# Stripe Payments
-
-Implement Stripe payment processing with Checkout Sessions and
-Payment Intents.
-
-## Overview
-
-This skill helps integrate Stripe payments into web applications
-using the official Stripe Node.js SDK. It covers the full payment
-flow from client-side setup through server-side processing and
-webhook verification.
-
-## Prerequisites
-
-- Stripe account with API keys
-- Node.js 18+ project
-- `stripe` npm package installed
-
-## Current Project State
-
-!`cat package.json | jq '.dependencies.stripe // "not installed"' 2>/dev/null`
-!`ls .env* 2>/dev/null | head -3 || echo "no .env files found"`
-
-## Instructions
-
-1. Check if the Stripe SDK is installed:
-   - If not: `npm install stripe`
-   - Verify version is 14.0.0+
-
-2. Set up server-side Stripe initialization:
-   ```typescript
-   import Stripe from 'stripe';
-
-   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-     apiVersion: '2024-12-18.acacia',
-   });
-   ```
-
-1. Implement the Checkout Session flow:
-   - Create a POST endpoint for session creation
-   - Configure line items, mode (payment/subscription)
-   - Set success and cancel URLs
-   - Handle the response on the client
-
-2. Add webhook endpoint for payment confirmation:
-   - Verify webhook signature with `stripe.webhooks.constructEvent()`
-   - Handle `checkout.session.completed` event
-   - Handle `payment_intent.succeeded` event
-
-3. Implement error handling:
-   - `StripeCardError` for declined cards
-   - `StripeInvalidRequestError` for bad parameters
-   - `StripeAPIError` for Stripe-side failures
-
-## Error Handling
-
-- If STRIPE_SECRET_KEY is not set, warn the user and provide setup instructions
-- If the Stripe SDK version is below 14.0, recommend upgrading
-- If webhook signature verification fails, check the endpoint secret
-
-## Security Notes
-
-- Never expose the secret key in client-side code
-- Always verify webhook signatures
-- Use Stripe.js or Stripe Elements for PCI compliance
-- Store only Stripe customer/subscription IDs, not card details
-
-```
-
-## Using SaaS Packs in Your Workflow
-
-### Installation
-
-Install a SaaS pack the same way as any plugin:
+From the repository root, replacing the illustrative path:
 
 ```bash
-claude /plugin add jeremylongshore/claude-code-plugins --path plugins/saas-packs/stripe-pack
+python3 scripts/validate-skills-schema.py --standard --verbose plugins/saas-packs/example-provider-pack/
+python3 scripts/validate-skills-schema.py --marketplace --verbose plugins/saas-packs/example-provider-pack/
 ```
 
-Or install the entire Tons of Skills collection to get all packs at once:
+The current rubric's B band starts at80, but a rubric band is not an automatic acceptance decision. There is no universal500-word minimum or requirement to manufacture one-pagers. Preserve actual operator value, current sources, valid metadata, meaningful examples, and honest evidence; do not pad content to satisfy a retired tutorial rule.
 
-```bash
-claude /plugin add jeremylongshore/claude-code-plugins
-```
+Do not run an unbounded `batch-remediate.py --all --execute` to “upgrade” a pack. Any fixer requires an authorized finite scope, selected supported fixes, a reviewed preview, and preservation of upstream mirror ownership. It does not supply missing product behavior or certify provider correctness.
 
-### Activation
+Once authored changes are approved, follow the canonical verification, catalog, search, curated, and measurement producers that actually apply. Do not hand-edit generated packages or mirrors, and do not treat a successful sync as proof of every projection.
 
-SaaS pack skills auto-activate based on context. When you say "add Stripe payments to my app" or "set up Slack notifications", Claude Code matches the request against skill descriptions and loads the relevant pack skills.
+## Next steps
 
-You can also invoke pack commands explicitly:
-
-```
-/stripe-setup
-```
-
-### Combining Packs
-
-SaaS packs compose naturally. You might use the Stripe pack for payment processing, the Slack pack for sending payment notifications, and the Vercel pack for deploying the application. Each pack's skills activate independently when their domain is relevant.
-
-## Creating a Custom SaaS Pack
-
-### Step 1: Scaffold the Pack
-
-```bash
-mkdir -p plugins/saas-packs/myplatform-pack/.claude-plugin
-mkdir -p plugins/saas-packs/myplatform-pack/skills
-mkdir -p plugins/saas-packs/myplatform-pack/commands
-mkdir -p plugins/saas-packs/myplatform-pack/agents
-```
-
-### Step 2: Identify Core Skills
-
-Map the platform's API surface to individual skills. Each skill should cover one coherent area:
-
-| API Area | Skill Name | Purpose |
-|----------|-----------|---------|
-| Authentication | `myplatform-auth` | OAuth, API keys, token management |
-| Core resource | `myplatform-items` | CRUD operations on the primary resource |
-| Webhooks | `myplatform-webhooks` | Event handling and webhook setup |
-| CLI | `myplatform-cli` | Platform CLI tool operations |
-
-Aim for 3-8 skills per pack. Fewer than 3 suggests the pack is too narrow. More than 8 suggests it should be split.
-
-### Step 3: Write Platform-Specific Skills
-
-Each skill should encode deep platform knowledge:
-
-- **API patterns:** Exact endpoint URLs, request/response shapes, pagination styles
-- **Authentication:** How to initialize the SDK, manage tokens, handle refresh
-- **Error codes:** Platform-specific error codes and their meaning
-- **Rate limits:** Known limits and how to handle 429 responses
-- **Best practices:** Official recommendations from the platform's documentation
-- **Common pitfalls:** Known gotchas and how to avoid them
-
-### Step 4: Add Supporting References
-
-Create `reference.md` files alongside each SKILL.md with detailed API documentation. Claude Code reads these on demand when it needs deeper information:
-
-```markdown
-# Stripe Payments API Reference
-
-## Checkout Sessions
-
-### Create a Session
-
-POST /v1/checkout/sessions
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `line_items` | array | Yes | Items the customer is purchasing |
-| `mode` | string | Yes | `payment`, `subscription`, or `setup` |
-| `success_url` | string | Yes | Redirect URL after success |
-| `cancel_url` | string | Yes | Redirect URL after cancellation |
-
-### Response
-
-```json
-{
-  "id": "cs_test_...",
-  "url": "https://checkout.stripe.com/...",
-  "status": "open",
-  "payment_status": "unpaid"
-}
-```
-
-```
-
-### Step 5: Add a package.json
-
-```json
-{
-  "name": "@plugins/myplatform-pack",
-  "version": "1.0.0",
-  "private": true,
-  "description": "MyPlatform integration skills for Claude Code"
-}
-```
-
-### Step 6: Validate and Test
-
-```bash
-# Validate the pack structure
-python3 scripts/validate-skills-schema.py --enterprise --verbose \
-  plugins/saas-packs/myplatform-pack/
-
-# Run quick test
-pnpm run sync-marketplace && ./scripts/quick-test.sh
-```
-
-## Pack Quality Standards
-
-SaaS packs in the Tons of Skills marketplace are held to enterprise quality standards:
-
-| Criterion | Requirement |
-|-----------|-------------|
-| Frontmatter completeness | All required fields present, description > 100 chars |
-| Body depth | 500+ words per skill with structured sections |
-| Code examples | At least one working code example per skill |
-| Error handling | Documented error scenarios and recovery steps |
-| Supporting docs | Reference files for API details |
-| Validation score | B grade (70+) on the 100-point rubric |
-
-### Upgrading Pack Quality
-
-The Tons of Skills repository includes batch remediation tools for upgrading skill quality:
-
-```bash
-# Preview compliance fixes
-python3 freshie/scripts/batch-remediate.py --dry-run
-
-# Apply all auto-fixes
-python3 freshie/scripts/batch-remediate.py --all --execute
-```
-
-Auto-fixes cover common issues like missing `compatible-with` fields, incorrect tag formats, and missing `version` fields.
-
-## Next Steps
-
-- Browse available packs on the [Skills](/skills) page
-- [Build a plugin](/docs/guides/build-a-plugin) to understand the full plugin structure
-- [Publish your pack](/docs/guides/publish-to-marketplace) to the Tons of Skills marketplace
-- Check the [Explore](/explore) page for packs in your platform's category
+- [Build the enclosing plugin](/docs/guides/build-a-plugin)
+- [Review skills and their frontmatter](/docs/reference/skill-frontmatter)
+- [Publish through the current review process](/docs/guides/publish-to-marketplace)

@@ -4,7 +4,7 @@ description: >-
   Define data classification, minimization, retention, and deletion controls for a Notion integration. Use when workspace content or user data crosses a system boundary. Trigger with "govern Notion data", "review Notion PII", or "design Notion retention".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<data-flow> <jurisdiction> <retention-objective>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, privacy]

@@ -1,6 +1,6 @@
 {
   "name": "notion-pack",
-  "version": "1.40.0",
+  "version": "1.41.0",
   "description": "Operator-grade Notion pack with 32 current access, data-source, content, webhook, security, reliability, and migration workflows",
   "author": {
     "name": "Jeremy Longshore",
@@ -16,5 +16,7 @@
     "security",
     "integration",
     "governance"
-  ]
+  ],
+  "homepage": "https://tonsofskills.com/plugins/notion-pack/",
+  "commands": []
 }

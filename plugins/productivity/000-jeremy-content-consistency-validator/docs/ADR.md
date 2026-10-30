@@ -122,3 +122,28 @@ contract).
 | `Glob` | Inventory documentation artifacts; index-vs-filesystem and dead-reference checks (3.1, 3.4, 3.8)                        |
 | `Grep` | Deterministic extraction of versions, claims, stale-phase language, and banned-coinage hits across surfaces             |
 | `Bash` | Read-only probes the checks require: `git` tag/remote reads and `diff` — scoped invocations (`Bash(git:*)`, `Bash(diff:*)`, `Bash(echo:*)`), never mutation, no network probes (`live_host` rows are adjudicated by the operator running `dig` themselves; the skill only reports the registered expectation) |
+
+## Local report filing addendum — 2026-10-24
+
+The separately requested `claude-flwe.3` work adds durable local reports while
+preserving the Phase-1 audit and registry behavior above. A bundled Python helper
+uses the destination Intent OS C8 `evidence-ingest` adapter before writing a
+plain dated `NNN-AA-AUDR` record and appending its existing index. The skill adds
+`Bash(python3:*)` for that helper as a workflow instruction, not a process
+sandbox. Its required `--audited-root` guard refuses report/index destinations
+inside the declared audited tree. The writer does not repair source or registry
+content, contact providers, ingest into the brain or schedule work. The
+destination-owned adapter is trusted policy code reviewed by that checkout.
+
+Accepted payloads and content-free receipts must agree; a successful process
+exit alone cannot authorize persistence. Rejected or unavailable policy holds
+the write. Repair notes remain caller-reported and require supplied evidence;
+the helper does not independently certify them. Separate report and index writes
+can leave an accepted record needing indexing if the append fails; that result
+is explicit and evidence is retained. Plain Markdown plus content-free digests
+does not resolve the deferred hash-chain substrate or multi-agent decisions.
+
+The unchanged golden fixture gate still checks audit behavior. Focused portable
+tests cover filing and adapter transport; separately selected integration tests
+exercise the real unvendored C8 policy copied into scratch destinations. No real Intent OS
+record is needed to run those tests.

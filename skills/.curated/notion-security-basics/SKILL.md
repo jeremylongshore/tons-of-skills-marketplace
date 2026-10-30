@@ -4,7 +4,7 @@ description: >-
   Establish a security baseline for Notion credentials, capabilities, content access, webhooks, writes, logs, and tenant isolation. Use when designing, reviewing, or hardening an integration. Trigger with "secure Notion integration", "audit Notion security", or "review Notion token handling".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<connection-model> <data-classification> <environment>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, security]

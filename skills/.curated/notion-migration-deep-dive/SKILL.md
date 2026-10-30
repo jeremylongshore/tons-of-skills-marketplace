@@ -4,7 +4,7 @@ description: >-
   Design and execute a reversible Notion content or schema migration with identity maps, checkpoints, and reconciliation. Use when moving data between schemas, workspaces, versions, or external systems. Trigger with "migrate Notion data", "upgrade Notion schema", or "backfill Notion pages".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<source> <destination> <migration-window>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, migration]

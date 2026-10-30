@@ -1,6 +1,6 @@
 # Content Consistency Validator (v3)
 
-**Universal document consistency auditor. Deterministic drift checks across docs, code, tests, and CI — conflicts resolved through a per-fact-class authority registry, never a global ranking. Read-only: it reports, it never fixes.**
+**Universal document consistency auditor. Deterministic drift checks across docs, code, tests, and CI — conflicts resolved through a per-fact-class authority registry, never a global ranking. The audited project stays read-only; local reports pass the Intent OS disclosure boundary before filing.**
 
 ## What Changed in v3
 
@@ -70,9 +70,23 @@ Or naturally: "check consistency", "validate docs", "audit documentation", "doc 
 
 Also invoked automatically by `/release` during Phase 1.6 — deterministic 🔴 Critical findings feed the release blocking gate; advisory findings are surfaced for review and never block.
 
-## Read-Only Guarantee
+## Read-Only Audit and Durable Reports
 
-The skill's tool grant is `Read, Glob, Grep, Bash(echo:*), Bash(git:*), Bash(diff:*)` — no Write, no Edit, no WebSearch, no WebFetch. It reports discrepancies with file paths and line numbers; you decide what to fix.
+The audit reports discrepancies with file paths and line numbers; it never fixes
+the audited project or writes the authority registry. Its existing read and
+read-only shell probes remain. `Bash(python3:*)` is added for the bundled report
+persistence helper, whose required `--audited-root` guard keeps report/index
+writes outside the declared audited tree. It screens the local report through Intent OS's
+existing disclosure adapter before creating a dated audit record and appending
+its index entry. The Python permission is a workflow scope, not an OS sandbox.
+The writer adds no network research, brain ingestion, mutating Git action or
+scheduler; existing read-only Git probes remain.
+
+See [report persistence](skills/validate-consistency/references/report-persistence.md)
+for JSON input, filing and recovery. A missing or rejecting policy means HELD;
+printing a report does not mean it was saved. Caller-reported repairs need
+evidence and remain distinct from independent adjudication. The original
+multi-agent and broader ecosystem scope remains deferred.
 
 ## Scope (Phase 1)
 

@@ -1,0 +1,77 @@
+{
+  "observed_at": "2026-10-23T18:48:36.196754+00:00",
+  "results": [
+    {
+      "captured_tool_count": 13,
+      "declared_aliases": {
+        "get_workspace_members": {
+          "action": "list_workspace",
+          "tool": "member"
+        },
+        "list_cycles": {
+          "action": "list",
+          "tool": "cycle"
+        },
+        "list_modules": {
+          "action": "list",
+          "tool": "module"
+        },
+        "list_states": {
+          "action": "list",
+          "tool": "state"
+        }
+      },
+      "explicitly_unmapped": [],
+      "missing_tools": [
+        "get_cycle",
+        "get_issue_comments",
+        "get_issue_using_readable_identifier",
+        "get_issue_worklogs",
+        "get_total_worklogs",
+        "list_cycle_issues",
+        "list_module_issues",
+        "list_project_issues",
+        "transfer_cycle_issues"
+      ],
+      "plugin": "plugins/productivity/plane",
+      "research_sha256": "47e2f7a0e9b385d6e2269308db78d40c3d25b57a426b3281aa000537c12b382d",
+      "source_sha256": {
+        "plane_mcp/tools/collection.py": "5be69c5cc30da8830ca6c351283630fde54d1e896b33243dbc37714363d9cc54",
+        "plane_mcp/tools/customer.py": "2a1c2ba6aacb9e386afc8a23063740a85069e08ec44ace12c60cd5c31f6badc4",
+        "plane_mcp/tools/customer_property.py": "78752c971741df1a07d0ed5f16120969ac008a47b5751a8ab111adb496ea184f",
+        "plane_mcp/tools/customer_request.py": "69202b797e578494b8b7d4b46105bff8dd4cf45a6d10a6b7f6662a680c536f63",
+        "plane_mcp/tools/cycle.py": "a47a52764c72c877399740acd287a8a458aab84cd0984abf8c502278c5a875fa",
+        "plane_mcp/tools/get_pql_reference.py": "3d6378cad2a20ca01af6de9950eda0983b76b325059cb3948b52362a2afba1de",
+        "plane_mcp/tools/initiative.py": "7b6ea5ef3a301cb66aa107e34498fed1ccb8bd70887a00cfb9fc8f6cda4c5bfe",
+        "plane_mcp/tools/intake.py": "b1312c3a5ec9d90cc18cf641ed64a641aac14ecd78aa266c6d71257366b4f69a",
+        "plane_mcp/tools/label.py": "2d1bba558f30e0af42366e897baa97d2d47228baf9c42c01908c7f28503cc55e",
+        "plane_mcp/tools/member.py": "5b4a4a816a6676630842a1f4f114f6603dd97f678a460ebed2ccb583a0a08f30",
+        "plane_mcp/tools/milestone.py": "2d812812bb340d0cbb20d0f7d3c94ac807fa1f15cd51dc063ca287ce4a514461",
+        "plane_mcp/tools/module.py": "a61964f95464b598ec5ac45610c1801ec3c12caa7298cf1453bfc7695758657f",
+        "plane_mcp/tools/page.py": "f2a6c60ba82f68efb11175a90ee4e4e252fbf4dbf7105a8eedd22c07299bbe66",
+        "plane_mcp/tools/project.py": "c243d5eddaf7b9f4f2181f519ec94adefeeb6fc43ed98d14f7ac621b9d5a5a1f",
+        "plane_mcp/tools/project_estimate.py": "31b4d5a3ba0b866c0636848cbdab88fdc8acabe1042dc3ba04d44c1508be5644",
+        "plane_mcp/tools/registry.py": "3b16218eb6eb3072cbaa0c8fa2efe2c8b11ba61940e0b510d925afa778c9b113",
+        "plane_mcp/tools/release.py": "096d5d9242c6fb0309b2246966e11139ba896c67b6f735eaaf5be0ecdd60c0b1",
+        "plane_mcp/tools/release_label.py": "1ffb23f38bf4fab881e236c66a21b926977b19875831351342c2d01371d7ab77",
+        "plane_mcp/tools/release_tag.py": "9daec1e49adae13323c5abd1245ff697f0c8368e58d46df76fa9fa584cf67f7e",
+        "plane_mcp/tools/state.py": "a732151675dce7f6bfe3e6e8ef373281adb7e3bd98152d8b64915d8be98acefe",
+        "plane_mcp/tools/template.py": "7b1b00b369e3dd684222174eb65609248ed749d2218d1a8138ae479b9c908c84",
+        "plane_mcp/tools/work_log.py": "ce45f126e8e9191a389c048bcf5ad8c6332cf5a7bf7c222130eacefab42a09dc",
+        "plane_mcp/tools/workitem.py": "b8fee878b9ab81fdb534d00d32995633913e5f31a310e237f9eb8b21111aadad",
+        "plane_mcp/tools/workitem_activity.py": "6341c0bb62e66c2bf3bf4a6737e823071ddd543d4eed00db9810b9855de6aeae",
+        "plane_mcp/tools/workitem_attachment.py": "af161122338c00c0130b48f041102e8f29997b4be425bba6fbe1213999200679",
+        "plane_mcp/tools/workitem_comment.py": "272de585697bb3b4c32e72173d059912a8a4b7755735526d60616e2d0e6935fb",
+        "plane_mcp/tools/workitem_link.py": "38a248d5c08004c6d4e07488385842e1c27bc8a332710ad76fd79db903bbb69c",
+        "plane_mcp/tools/workitem_property.py": "fb20101b3492b773d53cdc11b94754c3391dc6a9f52d2b80fe95504f20546dd6",
+        "plane_mcp/tools/workitem_relation.py": "08286005e1a9142135699059838271a2c8580189b499254b5b2a334f5d0abaa1",
+        "plane_mcp/tools/workitem_type.py": "ce40504c5257a77a0d5bf6a205b970eac94da611bc9adbb31acfa573fae6e817",
+        "plane_mcp/tools/workspace.py": "c9534c97406b5432241671e08911dbc5d71a9d570710ab8aad28bf6d187cc1e8"
+      },
+      "status": "NAME_DRIFT",
+      "upstream_commit": "dc7cfd9f3c305891909e2372f0cc507291353801"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "public source tool-name catalogue; not live API execution or parameter compatibility"
+}

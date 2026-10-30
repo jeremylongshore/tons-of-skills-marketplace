@@ -5,7 +5,7 @@
 > **Generated — do not edit.** Stage newly filed documents, then run
 > `node scripts/generate-docs-index.mjs`.
 
-Covers the **tracked** documentation estate (256 files). Local-only working
+Covers the **tracked** documentation estate (276 files). Local-only working
 documents are counted in doc 720 but deliberately not listed here. The inventory excludes only this
 index and `000-docs/.gitignore`.
 
@@ -238,6 +238,26 @@ index and `000-docs/.gitignore`.
 - [813-RA-AUDT-saas-tutorial-lattice.md](813-RA-AUDT-saas-tutorial-lattice.md)
 - [814-DR-STND-node-runtime-contract.md](814-DR-STND-node-runtime-contract.md)
 - [815-AA-AACR-tonsofskills-security-warnings-incident-2026-09-27.md](815-AA-AACR-tonsofskills-security-warnings-incident-2026-09-27.md)
+- [816-MS-OLDV-jeremy-plugin-summary.md](816-MS-OLDV-jeremy-plugin-summary.md)
+- [817-MS-OLDV-jeremy-plugin-readme.md](817-MS-OLDV-jeremy-plugin-readme.md)
+- [818-MS-OLDV-jeremy-plugin-installer.sh](818-MS-OLDV-jeremy-plugin-installer.sh)
+- [819-RA-DATA-ci-run-volume.json](819-RA-DATA-ci-run-volume.json)
+- [820-RA-REPT-ci-run-volume.md](820-RA-REPT-ci-run-volume.md)
+- [821-RL-RSRC-claude-mods-impact.md](821-RL-RSRC-claude-mods-impact.md)
+- [822-RL-PROP-risk-tiered-ci-cadence.md](822-RL-PROP-risk-tiered-ci-cadence.md)
+- [823-RA-DATA-ci-cadence-evidence.json](823-RA-DATA-ci-cadence-evidence.json)
+- [824-DR-GUID-forge-api-surface-watch.md](824-DR-GUID-forge-api-surface-watch.md)
+- [825-RA-DATA-forge-api-surface-probe.json](825-RA-DATA-forge-api-surface-probe.json)
+- [826-RA-REPT-plane-versioned-surface-review.md](826-RA-REPT-plane-versioned-surface-review.md)
+- [827-RA-REPT-orphan-triage-first20.md](827-RA-REPT-orphan-triage-first20.md)
+- [828-RA-DATA-orphan-triage-frozen-cohorts.json](828-RA-DATA-orphan-triage-frozen-cohorts.json)
+- [829-RA-REPT-orphan-triage-next30.md](829-RA-REPT-orphan-triage-next30.md)
+- [830-RA-AUDT-security-source-review.md](830-RA-AUDT-security-source-review.md)
+- [831-RA-DATA-security-source-evidence.json](831-RA-DATA-security-source-evidence.json)
+- [832-RA-AUDT-discovery-baseline.md](832-RA-AUDT-discovery-baseline.md)
+- [832a-RA-DATA-discovery-baseline.json](832a-RA-DATA-discovery-baseline.json)
+- [833-RA-REPT-tonone-bundle-disposition.md](833-RA-REPT-tonone-bundle-disposition.md)
+- [833a-RA-DATA-tonone-bundle-evidence.json](833a-RA-DATA-tonone-bundle-evidence.json)
 - [20260131-RL-REPT-claude-code-plugins-v4.14.0.md](20260131-RL-REPT-claude-code-plugins-v4.14.0.md)
 - [6767-a-SPEC-DR-STND-claude-code-plugins-standard.md](6767-a-SPEC-DR-STND-claude-code-plugins-standard.md)
 - [6767-b-SPEC-DR-STND-claude-skills-standard.md](6767-b-SPEC-DR-STND-claude-skills-standard.md)

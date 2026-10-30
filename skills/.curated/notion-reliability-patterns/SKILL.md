@@ -4,7 +4,7 @@ description: >-
   Analyze and apply retry, idempotency, checkpoint, circuit, dead-letter, and reconciliation patterns to a specific Notion operation. Use when hardening failure recovery. Trigger with "harden Notion reliability", "make Notion writes idempotent", or "design Notion recovery".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<operation> <failure-model> <recovery-objective>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, reliability]

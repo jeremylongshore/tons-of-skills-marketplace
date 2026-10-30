@@ -4,7 +4,7 @@ description: >-
   Analyze and coordinate a Notion integration incident with bounded mitigation, evidence custody, communications, and recovery verification. Use when availability, correctness, privacy, or credential safety is at risk. Trigger with "run Notion incident", "triage Notion outage", or "contain Notion sync failure".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<severity> <environment> <incident-window>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, incident]
@@ -28,6 +28,8 @@ Analyze and coordinate a Notion integration incident with bounded mitigation, ev
 
 Separate Notion service health, authentication, access, version shape, application defects, queues, downstream systems, and data correctness. Availability recovery does not prove data reconciliation. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
+Opaque cursors are only for the next `start_cursor` request; never parse them or retain them as durable checkpoints or incident evidence.
+
 ## Authentication
 
 If compromise is suspected, freeze token use and follow the approved secret-rotation lane; never expose credentials in the incident channel.
@@ -35,10 +37,10 @@ If compromise is suspected, freeze token use and follow the approved secret-rota
 ## Instructions
 
 1. Name the incident commander, severity, affected tenants, operations, data classes, and start time.
-2. Freeze unsafe writes and retries while preserving queue, cursor, request-ID, and deployment evidence.
+2. Freeze unsafe writes and retries while preserving content-safe queue progress, acknowledged record IDs, request-ID, and deployment evidence.
 3. Classify the fault domain and compare official status with application telemetry.
 4. Choose the smallest reversible mitigation with an owner and rollback trigger.
-5. Restore service in stages, then reconcile pages, cursors, webhook signals, duplicates, and missed work.
+5. Restore service in stages, then reconcile pages, fresh queries, webhook signals, duplicates, and missed work.
 6. Close only after security, data correctness, communications, and follow-up ownership are evidenced.
 
 ## Tool Discipline
@@ -78,4 +80,5 @@ Exercise and record these paths with expected and observed results:
 ## Resources
 
 - [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- [Cursor lifetime and versioning](https://developers.notion.com/reference/versioning).
 - Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

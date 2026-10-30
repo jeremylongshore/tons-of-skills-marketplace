@@ -1,4 +1,4 @@
-# Snowflake v2 retired-skill redirects — generated from skill-redirects.json.
+# Retired-skill redirects — generated from skill-redirects.json.
 # Import this fragment from the tonsofskills.com Caddy site block.
 # Each matcher covers both slash forms and `permanent` emits HTTP 301.
 
@@ -62,3 +62,61 @@ redir @redir111 /skills/snowflake-access-guardian/ permanent
 redir @redir112 /skills/snowflake-deploy-medic/ permanent
 @redir113 path /skills/snowflake-webhooks-events /skills/snowflake-webhooks-events/
 redir @redir113 /skills/snowflake-pipeline-guardian/ permanent
+@redir114 path /skills/ga4-auth-setup /skills/ga4-auth-setup/
+redir @redir114 /skills/ga4-report-forensics/ permanent
+@redir115 path /skills/ga4-data-api-query /skills/ga4-data-api-query/
+redir @redir115 /skills/ga4-report-forensics/ permanent
+@redir116 path /skills/ga4-common-reports /skills/ga4-common-reports/
+redir @redir116 /skills/ga4-report-forensics/ permanent
+@redir117 path /skills/ga4-realtime-api /skills/ga4-realtime-api/
+redir @redir117 /skills/ga4-measurement-verifier/ permanent
+@redir118 path /skills/ga4-bigquery-export /skills/ga4-bigquery-export/
+redir @redir118 /skills/ga4-export-guardian/ permanent
+@redir119 path /skills/langfuse-ci-integration /skills/langfuse-ci-integration/
+redir @redir119 /skills/langfuse-experiment-guardian/ permanent
+@redir120 path /skills/langfuse-common-errors /skills/langfuse-common-errors/
+redir @redir120 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir121 path /skills/langfuse-core-workflow-a /skills/langfuse-core-workflow-a/
+redir @redir121 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir122 path /skills/langfuse-core-workflow-b /skills/langfuse-core-workflow-b/
+redir @redir122 /skills/langfuse-experiment-guardian/ permanent
+@redir123 path /skills/langfuse-cost-tuning /skills/langfuse-cost-tuning/
+redir @redir123 /skills/langfuse-cost-forensics/ permanent
+@redir124 path /skills/langfuse-data-handling /skills/langfuse-data-handling/
+redir @redir124 /skills/langfuse-data-boundary-auditor/ permanent
+@redir125 path /skills/langfuse-debug-bundle /skills/langfuse-debug-bundle/
+redir @redir125 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir126 path /skills/langfuse-deploy-integration /skills/langfuse-deploy-integration/
+redir @redir126 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir127 path /skills/langfuse-enterprise-rbac /skills/langfuse-enterprise-rbac/
+redir @redir127 /skills/langfuse-data-boundary-auditor/ permanent
+@redir128 path /skills/langfuse-hello-world /skills/langfuse-hello-world/
+redir @redir128 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir129 path /skills/langfuse-incident-runbook /skills/langfuse-incident-runbook/
+redir @redir129 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir130 path /skills/langfuse-install-auth /skills/langfuse-install-auth/
+redir @redir130 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir131 path /skills/langfuse-local-dev-loop /skills/langfuse-local-dev-loop/
+redir @redir131 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir132 path /skills/langfuse-migration-deep-dive /skills/langfuse-migration-deep-dive/
+redir @redir132 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir133 path /skills/langfuse-multi-env-setup /skills/langfuse-multi-env-setup/
+redir @redir133 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir134 path /skills/langfuse-observability /skills/langfuse-observability/
+redir @redir134 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir135 path /skills/langfuse-performance-tuning /skills/langfuse-performance-tuning/
+redir @redir135 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir136 path /skills/langfuse-prod-checklist /skills/langfuse-prod-checklist/
+redir @redir136 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir137 path /skills/langfuse-rate-limits /skills/langfuse-rate-limits/
+redir @redir137 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir138 path /skills/langfuse-reference-architecture /skills/langfuse-reference-architecture/
+redir @redir138 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir139 path /skills/langfuse-sdk-patterns /skills/langfuse-sdk-patterns/
+redir @redir139 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir140 path /skills/langfuse-security-basics /skills/langfuse-security-basics/
+redir @redir140 /skills/langfuse-data-boundary-auditor/ permanent
+@redir141 path /skills/langfuse-upgrade-migration /skills/langfuse-upgrade-migration/
+redir @redir141 /skills/langfuse-trace-ingestion-medic/ permanent
+@redir142 path /skills/langfuse-webhooks-events /skills/langfuse-webhooks-events/
+redir @redir142 /skills/langfuse-prompt-release-guardian/ permanent

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "plugins": [
+    {
+      "plugin": "plugins/productivity/plane",
+      "research_sha256": "47e2f7a0e9b385d6e2269308db78d40c3d25b57a426b3281aa000537c12b382d",
+      "captured_tools": [
+        "list_project_issues",
+        "list_cycles",
+        "get_cycle",
+        "list_cycle_issues",
+        "transfer_cycle_issues",
+        "list_modules",
+        "list_module_issues",
+        "get_issue_using_readable_identifier",
+        "get_issue_comments",
+        "list_states",
+        "get_workspace_members",
+        "get_total_worklogs",
+        "get_issue_worklogs"
+      ],
+      "probe": {
+        "kind": "plane-python-catalogue",
+        "repository": "makeplane/plane-mcp-server",
+        "branch": "main",
+        "registry": "plane_mcp/tools/registry.py"
+      }
+    }
+  ]
+}

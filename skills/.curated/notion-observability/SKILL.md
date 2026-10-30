@@ -4,7 +4,7 @@ description: >-
   Design content-safe metrics, logs, traces, alerts, and reconciliation signals for a Notion integration. Use when making operations diagnosable without leaking workspace data. Trigger with "instrument Notion integration", "monitor Notion sync", or "design Notion alerts".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workload> <service-objectives> <data-classification>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, observability]

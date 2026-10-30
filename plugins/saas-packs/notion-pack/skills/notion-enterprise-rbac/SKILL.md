@@ -4,7 +4,7 @@ description: >-
   Map Notion connection capabilities, content access, user context, and application roles into an auditable authorization model. Use when designing multi-workspace or enterprise controls. Trigger with "review Notion RBAC", "map Notion permissions", or "audit Notion tenant access".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<connection-model> <workspace-scope> <role-model>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, authorization]

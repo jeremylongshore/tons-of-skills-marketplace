@@ -1,0 +1,4 @@
+# Local interpreter caches are not distributed skill evidence.
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/

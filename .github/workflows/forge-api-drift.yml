@@ -1,0 +1,105 @@
+name: Forge API Surface Watch
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/forge-api-drift*'
+      - 'scripts/forge-api-surfaces.json'
+      - 'tests/test_forge_api_drift.py'
+      - 'plugins/**/.forge/research.md'
+      - '.github/workflows/forge-api-drift.yml'
+  schedule:
+    - cron: '20 7 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Advisory maintenance, separate from ci-required; never cancel a live probe.
+concurrency:
+  group: forge-api-surface-${{ github.event_name == 'pull_request' && github.ref || 'maintenance' }}
+  cancel-in-progress: false
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Exercise parser and negative paths without credentials or network
+        run: |
+          python3 -m unittest discover -s tests -p test_forge_api_drift.py -v
+          node --test scripts/forge-api-drift-issues.test.mjs
+
+  probe:
+    needs: offline-contract
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      verdict: ${{ steps.probe.outputs.verdict }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Inspect bounded public source without an API key
+        id: probe
+        shell: bash
+        run: |
+          if python3 scripts/forge-api-drift.py --output forge-api-report.json; then
+            verdict=0
+          else
+            verdict=$?
+          fi
+          case "$verdict" in
+            0|1|2) ;;
+            *) exit "$verdict" ;;
+          esac
+          test -s forge-api-report.json
+          echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: forge-api-report
+          path: forge-api-report.json
+          if-no-files-found: error
+          retention-days: 90
+
+  report:
+    needs: probe
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    permissions:
+      contents: read
+      issues: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v8
+        with:
+          name: forge-api-report
+          path: probe-report
+      - name: Reconcile bot-owned review issues from validated report fields
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/forge-api-drift-issues.mjs probe-report/forge-api-report.json
+      - name: Keep drift and incomplete probes visible in the workflow result
+        if: needs.probe.outputs.verdict != '0'
+        run: |
+          echo 'Forge API surface drift or an unverified probe requires review; see the retained report and issue.'
+          exit 1

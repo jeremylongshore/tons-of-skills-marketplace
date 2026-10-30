@@ -1,7 +1,7 @@
 {
   "name": "arbitrage-opportunity-finder",
-  "version": "1.27.0",
-  "description": "Find and analyze arbitrage opportunities across exchanges and DeFi protocols",
+  "version": "2.0.0",
+  "description": "Compare live bid/ask for a crypto pair across exchanges and show spreads net of stated fees; read-only",
   "author": {
     "name": "Intent Solutions IO",
     "email": "jeremy@intentsolutions.ai",
@@ -11,9 +11,9 @@
   "license": "MIT",
   "keywords": [
     "arbitrage",
-    "trading",
-    "defi",
-    "mev",
-    "profit"
+    "crypto",
+    "spreads",
+    "order-book",
+    "bid-ask"
   ]
 }

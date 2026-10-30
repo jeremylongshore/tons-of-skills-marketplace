@@ -10,7 +10,7 @@ import {
   ListToolsRequestSchema,
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import { z } from "zod";
 import type { DatabricksClient } from "./client.js";
 import { toStructuredError } from "./errors.js";
 import { allTools, toolsByName } from "./tools/index.js";
@@ -91,8 +91,8 @@ export function createServer(getClient: ClientProvider): Server {
     tools: allTools.map((t) => ({
       name: t.name,
       description: t.description,
-      // zod-to-json-schema's types target zod 3; we run zod 4. Cast at this single boundary.
-      inputSchema: zodToJsonSchema(t.schema as never, { target: "jsonSchema7" }) as Tool["inputSchema"],
+      // Publish the input view so defaulted arguments remain optional for MCP clients.
+      inputSchema: z.toJSONSchema(t.schema, { target: "draft-07", io: "input" }) as Tool["inputSchema"],
     })),
   }));
 

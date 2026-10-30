@@ -1,145 +1,78 @@
-# Finding Arbitrage Opportunities - Implementation Reference
+# Implementation Reference
 
-## Supported Exchanges
+## Design
 
-### Centralized Exchanges (CEX)
+- **Public data only.** Unauthenticated GET requests to each exchange's order-book or ticker endpoint. No order, account, withdrawal or signing code; `tests/` checks that.
+- **Like for like.** A scan compares one exact pair. BTC/USD and BTC/USDT are different markets: the gap between them is the USDT/USD rate.
+- **No invented values.** A venue that fails, refuses the connection or does not list the pair is named with the reason. Spreads use only venues that answered.
+- **Fees are stated, not hidden.** Every quote carries the fee assumed for it and where that number came from.
+- **Standard library only.** `urllib` and a thread pool.
+- **Recorded data is labelled.** `--demo` replays `assets/demo-recording.json` (real responses) through the same parsers; every console line starts with `[DEMO]`.
 
-| Exchange | Maker Fee | Taker Fee | Withdrawal |
-|----------|-----------|-----------|------------|
-| Binance | 0.10% | 0.10% | Variable |
-| Coinbase | 0.40% | 0.60% | Variable |
-| Kraken | 0.16% | 0.26% | Variable |
-| KuCoin | 0.10% | 0.10% | Variable |
-| OKX | 0.08% | 0.10% | Variable |
+## Modules
 
-### Decentralized Exchanges (DEX)
+| File | Role |
+|------|------|
+| `scripts/http_client.py` | Requests, failure reasons (with error bodies), recording and replay |
+| `scripts/spot_venues.py` | Nine top-of-book adapters, fee assumptions with sources |
+| `scripts/spreads.py` | Cross-venue spread arithmetic and the triangular search |
+| `scripts/arb_finder.py` | Command line, console tables, JSON envelope |
+| `scripts/record_demo.py` | Maintainer tool that refreshes the demo recording |
 
-| DEX | Fee Range | Gas (ETH) | Chains |
-|-----|-----------|-----------|--------|
-| Uniswap V3 | 0.01-1% | ~150k | ETH, Polygon, Arbitrum |
-| SushiSwap | 0.30% | ~150k | Multi-chain |
-| Curve | 0.04% | ~200k | ETH, Polygon, Arbitrum |
-| Balancer | 0.01-10% | ~180k | ETH, Polygon, Arbitrum |
+## Formulas
 
-## Configuration
+Cross-venue, buying at venue A's best ask and selling at venue B's best bid, with taker fees `fA`, `fB` as fractions:
 
-Configure price sources in `${CLAUDE_SKILL_DIR}/config/settings.yaml`:
-
-```yaml
-# Primary data sources
-data_sources:
-  coingecko:
-    enabled: true
-    base_url: "https://api.coingecko.com/api/v3"
-    rate_limit: 10  # calls per minute (free tier)
-
-exchanges:
-  - binance
-  - coinbase
-  - kraken
-  - kucoin
-  - okx
+```text
+gross % = (bid_B / ask_A - 1) x 100
+net %   = (bid_B x (1 - fB) / (ask_A x (1 + fA)) - 1) x 100
+size    = min(ask size at A, bid size at B)          (base units)
 ```
 
-Environment variables for API keys:
+Triangular, starting in asset S on one venue: for each pair X/Y the tool can sell X for Y at the bid, or buy X with Y at the ask (rate `1 / ask`). A cycle S → A → B → S multiplies the three rates; the net applies the taker fee to every leg, `× (1 − f)³`. Only pairs whose 24-hour volume, converted to USD through the venue's own USDT prices, is at least `--min-volume-usd` are used.
+
+## Venue endpoints
+
+| Venue | Endpoint | Symbol form |
+|-------|----------|-------------|
+| Kraken | `api.kraken.com/0/public/Ticker` | `XBTUSDT` (BTC is XBT) |
+| Coinbase | `api.exchange.coinbase.com/products/{symbol}/book?level=1` | `BTC-USDT` |
+| KuCoin | `api.kucoin.com/api/v1/market/orderbook/level1` | `BTC-USDT` |
+| Gate | `api.gateio.ws/api/v4/spot/tickers` | `BTC_USDT` |
+| OKX | `www.okx.com/api/v5/market/ticker` | `BTC-USDT` |
+| Bitfinex | `api-pub.bitfinex.com/v2/ticker/{symbol}` | `tBTCUST` (USDT is UST, USDC is UDC) |
+| Crypto.com | `api.crypto.com/exchange/v1/public/get-book?depth=1` | `BTC_USDT` |
+| Binance | `api.binance.com/api/v3/ticker/bookTicker` | `BTCUSDT` |
+| Bybit | `api.bybit.com/v5/market/tickers?category=spot` | `BTCUSDT` |
+
+Triangular search reads full ticker lists: OKX `market/tickers?instType=SPOT`, KuCoin `market/allTickers`, Gate `spot/tickers`.
+
+## Fee assumptions (checked 2026-10-25)
+
+| Venue | Taker | Source |
+|-------|-------|--------|
+| Kraken | 0.80% | kraken.com/features/fee-schedule, Tier 1 ($0+ 30-day volume) |
+| OKX | 0.35% | okx.com/fees, Regular user, as served to a US network; other regions may differ |
+| Binance | 0.10% | binance.com/en/fee/schedule, VIP 0 without BNB discount |
+| Bybit | 0.10% | bybit.com/en/fee/spot, Regular user, crypto pairs |
+| Bitfinex | 0% | bitfinex.com/fees, spot taker "Zero" |
+| Crypto.com | 0.50% | crypto.com/exchange/document/fees-limits, Level 1 without CRO balance |
+| Gate | live | `fee` field of `api.gateio.ws/api/v4/spot/currency_pairs/{pair}` |
+| KuCoin | unknown | base tier not shown without login; pass `--fee kucoin=PERCENT` |
+| Coinbase | unknown | schedule needs a login; pass `--fee coinbase=PERCENT` |
+
+Your fee depends on your tier, region and any token discount. Pass `--fee` for accurate net figures.
+
+## Not covered, on purpose
+
+- **Order execution of any kind.** The tool reads prices; it never trades.
+- **DEX and cross-chain prices.** Reliable keyless DEX quotes need subgraph or RPC providers with keys; v1 listed them but returned a hard-coded table.
+- **Withdrawal, network and transfer costs, transfer time, depth beyond the top of the book.** Stated in every report.
+
+## Refreshing the demo recording
 
 ```bash
-export BINANCE_API_KEY="your-key"
-export COINBASE_API_KEY="your-key"
+cd scripts && python3 record_demo.py
 ```
 
-## Advanced Arbitrage Types
-
-### Triangular Arbitrage
-
-Find profitable circular paths within a single exchange:
-
-```bash
-python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py triangular binance --min-profit 0.5
-```
-
-Example output:
-
-```
-Path: ETH -> BTC -> USDT -> ETH
-Gross: +0.82%
-Fees:  -0.30% (3 x 0.10%)
------------------------
-Net:   +0.52%
-```
-
-### Cross-Chain Opportunities
-
-Compare prices across different blockchains:
-
-```bash
-python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py cross-chain USDC \
-  --chains ethereum,polygon,arbitrum
-```
-
-Shows:
-
-- Price on each chain
-- Bridge fees and times
-- Net profit after bridging
-
-### Real-Time Monitoring
-
-Continuously monitor for opportunities:
-
-```bash
-python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py monitor ETH USDC \
-  --threshold 0.5 \
-  --interval 5
-```
-
-Alert format:
-
-```
-[ALERT] ETH/USDC spread 0.62% (Binance -> Coinbase)
-        Buy: $2,541.20 | Sell: $2,556.98
-        Net Profit: +$12.34 (after fees)
-```
-
-### Profit Calculator
-
-Calculate exact profit for a trade:
-
-```bash
-python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py calc \
-  --buy-exchange binance \
-  --sell-exchange coinbase \
-  --pair ETH/USDC \
-  --amount 10
-```
-
-Shows detailed breakdown:
-
-- Gross profit
-- Trading fees (both exchanges)
-- Withdrawal fees
-- Net profit
-- Breakeven spread
-
-## Educational Disclaimer
-
-**FOR EDUCATIONAL PURPOSES ONLY**
-
-Arbitrage trading involves significant risks:
-
-- Opportunities may disappear before execution
-- Price data may be delayed or inaccurate
-- Fees can exceed profits on small trades
-- Market conditions change rapidly
-
-This tool provides analysis only. Do not trade without understanding the risks.
-
-## Data Sources
-
-- [CoinGecko API](https://www.coingecko.com/en/api) - Free price data
-- [CCXT Library](https://github.com/ccxt/ccxt) - Unified exchange API
-- Uniswap Subgraph - DEX data
-- [Gas Tracker](https://etherscan.io/gastracker) - Ethereum gas prices
-
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+Records `scan BTC USDT`, `scan ETH USD` and `triangular okx` through one client and trims OKX's ticker list to assets with a liquid USDT market. Run the tests afterwards.

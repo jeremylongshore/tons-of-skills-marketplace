@@ -45,12 +45,14 @@ Search using TF-IDF relevance scoring.
 {
   "query": "machine learning algorithms",
   "limit": 10,
+  "offset": 0,
   "tags": ["ai"],
   "minScore": 0.1
 }
 ```
 
-**Returns**: Ranked results with relevance scores and excerpts.
+**Returns**: Ranked results with relevance scores and excerpts, plus `totalResults`,
+`showing`, `offset`, and `hasMore` for pagination.
 
 ### 3. `summarize`
 
@@ -76,6 +78,16 @@ Browse knowledge base with filtering.
   "offset": 0
 }
 ```
+
+For `list_documents` and `semantic_search`, `limit` is an integer from 1 to 100.
+Defaults remain 50 documents for listing and 10 results for search. `offset` is a
+nonnegative integer and defaults to 0. Invalid paging arguments return a tool
+error. Advance the offset by `showing` while `hasMore` is true, keeping the same
+query, filters, and sort order. Pages reflect the current in-memory collection.
+
+These limits count items. Document content and metadata remain intact. Search
+excerpts keep their existing sentence extraction behavior and can be large;
+clients retain their normal handling of large results.
 
 ### 5. `get_document`
 

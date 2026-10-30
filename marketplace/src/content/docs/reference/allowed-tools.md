@@ -1,356 +1,102 @@
 ---
-title: "Allowed Tools Reference"
-description: "Complete reference for all valid tools in the Claude Code plugin system, including tool descriptions, scoped Bash patterns, least-privilege principles, and recommended tool combinations for common skill types."
-section: "reference"
+title: 'Allowed Tools Reference'
+description: 'Complete reference for all valid tools in the Claude Code plugin system, including tool descriptions, scoped Bash patterns, least-privilege principles, and recommended tool combinations for common skill types.'
+section: 'reference'
 order: 4
-keywords: ["allowed-tools", "tools", "permissions", "Bash", "Read", "Write", "Edit", "Glob", "Grep", "security", "least privilege"]
+keywords:
+  - "allowed-tools"
+  - "tools"
+  - "permissions"
+  - "Bash"
+  - "Read"
+  - "Write"
+  - "Edit"
+  - "Glob"
+  - "Grep"
+  - "security"
+  - "least privilege"
 officialLinks:
-  - title: "Claude Code Skills Documentation"
-    url: "https://code.claude.com/docs/en/skills"
-  - title: "Claude Code Tool Use"
-    url: "https://code.claude.com/docs/en/overview"
+  - title: 'Claude Code Skills Documentation'
+    url: 'https://code.claude.com/docs/en/skills'
+  - title: 'Claude Code Tool Use'
+    url: 'https://code.claude.com/docs/en/overview'
 relatedDocs:
-  - "concepts/skills"
-  - "guides/write-a-skill"
-  - "reference/skill-frontmatter"
+  - 'concepts/skills'
+  - 'guides/write-a-skill'
+  - 'reference/skill-frontmatter'
 ---
 
-## Overview
+## Pre-approval is not an exclusive tool list
 
-> **Correction, 2026-10-03:** An earlier version of this page said Claude Code enforces `allowed-tools` and blocks any tool not listed. That is not the documented behavior. Per the [Claude Code skills documentation](https://code.claude.com/docs/en/skills) (checked 2026-10-03), `allowed-tools` pre-approves the listed tools so Claude can use them without asking, and it does not restrict which tools are available. To remove tools while a skill is active, use `disallowed-tools`. The text below has been corrected.
+A skill's `allowed-tools` grants pre-approval for the listed tools during the turn that invokes it. It does not remove unlisted tools: the user's permission settings still govern them. The grant clears on the next user message, even though the skill's instructions remain in context. Managed settings can further restrict which grants apply.
 
-The `allowed-tools` field in SKILL.md frontmatter lists tools Claude can use without asking for permission during the turn that invokes the skill. It does not restrict which tools are available: every tool remains callable, and the user's permission settings still govern tools that are not listed. The grant clears when the user sends the next message. Listing only the tools a skill actually needs keeps that pre-approval narrow, which is the principle of least privilege applied to this field.
+To remove tools while the skill is active, use the documented `disallowed-tools` field. Skills use kebab-case; agents use `disallowedTools` and also have a separate `tools` allowlist. Read the current [native skills reference](https://code.claude.com/docs/en/skills) and [subagent reference](https://code.claude.com/docs/en/sub-agents) for runtime semantics.
 
-To remove tools from Claude's available pool while a skill is active, list them in `disallowed-tools` (see [Restricting Tools with disallowed-tools](#restricting-tools-with-disallowed-tools)).
+## Common tools
 
-The `allowed-tools` field accepts a space- or comma-separated string, or a YAML list. Tool names are case-sensitive and must match exactly.
+This table is illustrative, not an exhaustive runtime or validator registry:
+
+| Tool                    | Typical use                                   | Boundary to review                                                                  |
+| ----------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `Read`, `Glob`, `Grep`  | Inspect selected files and locate evidence    | Reads can still expose secrets or private data                                      |
+| `Write`, `Edit`         | Author or modify files                        | Review intended paths and preserve unrelated work                                   |
+| `Bash`                  | Run commands                                  | Shell commands can write files, contact networks, or invoke other interpreters      |
+| `WebFetch`, `WebSearch` | Fetch a known URL or search documentation     | A known URL need not require a search; avoid sending sensitive content              |
+| `Agent`                 | Delegate a bounded task                       | Review the delegated tools, context, and ownership; `Task` is a compatibility alias |
+| `Skill`                 | Invoke another skill                          | Review that skill's instructions and pre-approvals too                              |
+| `AskUserQuestion`       | Obtain missing input                          | Do not use it as a substitute for an actual permission policy                       |
+| `NotebookEdit`          | Modify notebook cells                         | Notebook code and outputs can contain sensitive data                                |
+| `TodoWrite`             | Runtime task-list integration where available | Repository work tracking still follows this project's Beads requirements            |
+
+Consult the installed runtime's tools and `scripts/validate-skills-schema.py` for recognized names. Tool names are case-sensitive. A name accepted by a static validator is not proof the runtime exposes it in every host.
+
+## Scoped Bash pre-approval
 
 ```yaml
-allowed-tools: Read, Glob, Grep
+allowed-tools: Read, Glob, Grep, Bash(npm:*), Bash(git status:*)
 ```
 
-## Complete Tool Reference
+This narrows which Bash calls are pre-approved; it does not create a sandbox or ban other shell commands. Other commands can still be permitted by the user's settings or a separate grant. Prefix patterns and shell parsing require care; do not describe a short prefix as a complete security boundary.
 
-The following table lists every valid tool name that can appear in the `allowed-tools` field.
+Do not use unscoped `Bash` merely because a guide includes shell snippets. Review the commands actually needed, their input and output paths, credentials, and possible network or destructive effects. Listing only read-oriented tools does not by itself establish a read-only process if other permissions remain available.
 
-### File System Tools
+## Denying tools
 
-| Tool | Description | Use When |
-|------|-------------|----------|
-| `Read` | Read file contents from the filesystem. Returns file content with line numbers. Can read text files, images, PDFs, and Jupyter notebooks. | The skill needs to examine existing files, analyze code, or review documentation. |
-| `Write` | Create new files or completely overwrite existing files. | The skill generates new files (scaffolding, templates, configs) or performs complete file rewrites. |
-| `Edit` | Perform targeted string replacements within existing files. Finds an exact string and replaces it with a new string. | The skill modifies specific sections of existing files without rewriting the entire file. Preferred over Write for partial updates. |
-| `Glob` | Search for files matching glob patterns (e.g., `**/*.ts`, `src/**/*.test.js`). Returns matching file paths sorted by modification time. | The skill needs to discover files by name pattern before reading or processing them. |
-| `Grep` | Search file contents using regular expressions. Supports filtering by file type and glob patterns. Built on ripgrep. | The skill needs to find specific patterns, function definitions, imports, or text across a codebase. |
-
-### Execution Tools
-
-| Tool | Description | Use When |
-|------|-------------|----------|
-| `Bash` | Execute shell commands. Can run any CLI tool, build system, package manager, or script available on the user's system. | The skill needs to run commands (npm, git, docker, make, curl, etc.) or execute scripts. See [Bash Scoping](#bash-scoping) for scoped patterns. |
-
-### Web Tools
-
-| Tool | Description | Use When |
-|------|-------------|----------|
-| `WebFetch` | Fetch content from a URL. Retrieves web page content, API responses, or remote files. | The skill needs to download documentation, check API endpoints, or fetch remote resources. |
-| `WebSearch` | Perform a web search and return results. | The skill needs to look up current information, find documentation, or research solutions not available locally. |
-
-### Agent and Task Tools
-
-| Tool | Description | Use When |
-|------|-------------|----------|
-| `Task` | Create and manage subagent tasks. Spawns a separate agent instance to handle a portion of work. | The skill needs to delegate complex subtasks or parallelize work across multiple agent instances. |
-| `Skill` | Invoke another skill by name. Enables skill composition and chaining. | The skill orchestrates other skills or depends on another skill's output as input. |
-| `AskUserQuestion` | Prompt the user for input during skill execution. Pauses execution and waits for a response. | The skill requires user decisions, confirmations, or input that cannot be inferred from context. |
-
-### Workspace Tools
-
-| Tool | Description | Use When |
-|------|-------------|----------|
-| `TodoWrite` | Create and manage to-do items in the workspace. | The skill tracks pending tasks, generates checklists, or manages work items. |
-| `NotebookEdit` | Edit Jupyter notebook cells. Can modify code cells, markdown cells, and cell outputs. | The skill works with `.ipynb` files and needs to create or modify notebook content. |
-
-## Restricting Tools with disallowed-tools
-
-`disallowed-tools` removes the listed tools from Claude's available pool while the skill is active. Use it for skills that must never call certain tools, such as `AskUserQuestion` in a background loop. Like `allowed-tools`, it accepts a space- or comma-separated string, or a YAML list, and the restriction clears when the user sends the next message.
+This is a field fragment for a skill, not a complete marketplace skill:
 
 ```yaml
 disallowed-tools: AskUserQuestion
 ```
 
-## Bash Scoping
-
-The `Bash` tool supports scoped patterns that narrow which commands are pre-approved. This provides finer-grained pre-approval than a blanket `Bash` entry; commands outside the pattern still go through the user's normal permission settings.
-
-### Syntax
+This is an agent tuning fragment, not the full required agent envelope:
 
 ```yaml
-allowed-tools: Read, Bash(prefix:*)
+tools: Read, Glob, Grep
+disallowedTools: [Write, Edit, Bash]
 ```
 
-The pattern `Bash(prefix:*)` pre-approves any bash command that starts with the specified prefix. The `*` wildcard matches any characters after the prefix.
+A deny entry containing a Bash specifier in an agent can remove the whole Bash tool, not just that command. For command-level restrictions, use the actual documented permission policy or an independently tested guard; do not invent a partial denylist contract.
 
-### Common Bash Scoping Patterns
+## Choose permissions from the workflow
 
-| Pattern | Allows | Example Commands |
-|---------|--------|-----------------|
-| `Bash(npm:*)` | npm commands | `npm install`, `npm run build`, `npm test` |
-| `Bash(git:*)` | git commands | `git status`, `git diff`, `git log` |
-| `Bash(docker:*)` | Docker commands | `docker build`, `docker run`, `docker ps` |
-| `Bash(kubectl:*)` | Kubernetes commands | `kubectl get pods`, `kubectl describe`, `kubectl apply` |
-| `Bash(terraform:*)` | Terraform commands | `terraform plan`, `terraform apply`, `terraform validate` |
-| `Bash(python3:*)` | Python execution | `python3 script.py`, `python3 -m pytest` |
-| `Bash(cargo:*)` | Rust cargo commands | `cargo build`, `cargo test`, `cargo clippy` |
-| `Bash(pnpm:*)` | pnpm commands | `pnpm install`, `pnpm build`, `pnpm test` |
+| Workflow               | Candidate pre-approvals                  | Additional review                                                    |
+| ---------------------- | ---------------------------------------- | -------------------------------------------------------------------- |
+| Local evidence review  | `Read`, `Glob`, `Grep`                   | Selected paths, private data, and inherited permissions              |
+| Code authoring         | Needed file tools                        | Exact files, overwrite behavior, and generated ownership             |
+| Build or test          | Narrow command scopes                    | Scripts may install dependencies, spawn children, or use the network |
+| Documentation research | `WebFetch` and, when needed, `WebSearch` | Source trust, outbound data, and current primary authority           |
+| Orchestration          | `Agent` and/or `Skill` when needed       | Child context, scope, capabilities, and completion evidence          |
 
-### Multiple Bash Scopes
+These are design starting points, not a certification ladder. Bash already permits network-capable programs when allowed; adding a web tool is not the only way network access becomes possible. `Edit` does not technically require a `Read` grant, although reading the actual file before changing it is sound authoring practice.
 
-You can include multiple scoped Bash entries to allow several command families:
+## Validate without overstating the result
 
-```yaml
-allowed-tools: Read, Write, Bash(npm:*), Bash(git:*), Bash(docker:*)
-```
-
-### Unscoped Bash
-
-Using `Bash` without a pattern pre-approves every shell command:
-
-```yaml
-allowed-tools: Read, Bash
-```
-
-This lets Claude run any shell command without asking while the skill is active. Use unscoped `Bash` only when the skill genuinely needs broad command access (e.g., a debugging skill that may need to run arbitrary diagnostic commands).
-
-## Principle of Least Privilege
-
-Every skill should pre-approve the minimum set of tools required to accomplish its task. Over-listing removes permission prompts the user would otherwise see, which creates several risks:
-
-- **Accidental side effects.** A skill that pre-approves `Write` when it only needs to read files lets Claude overwrite data without asking.
-- **Security surface.** A skill that pre-approves unscoped `Bash` lets Claude run any command on the user's system without a prompt.
-- **User trust.** Users reviewing installed plugins can see the `allowed-tools` list. Minimal permissions signal that the skill is well-scoped and safe.
-
-### Pre-approval Levels
-
-Think of the tools a skill pre-approves in terms of ascending risk:
-
-| Level | Tools | Risk Profile |
-|-------|-------|-------------|
-| **Read-only** | `Read`, `Glob`, `Grep` | No modifications to the filesystem or external state. Safest level. |
-| **Read + Search** | `Read`, `Glob`, `Grep`, `WebFetch`, `WebSearch` | Adds network access but no local modifications. |
-| **Read + Write** | `Read`, `Write`, `Edit`, `Glob`, `Grep` | Can modify local files. Moderate risk. |
-| **Full local** | `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` | Pre-approves filesystem changes and shell commands. Higher risk. |
-| **Full + Network** | All tools | Pre-approves every local and network action. Use only when necessary. |
-
-### Auditing Permissions
-
-When reviewing a plugin before installation, check the `allowed-tools` field in each SKILL.md to see what Claude can do without asking while the skill runs (use `disallowed-tools` for what it must not do):
+From the repository root, substituting an actual authored plugin directory:
 
 ```bash
-# Find all SKILL.md files and show their allowed-tools
-grep -r "allowed-tools:" plugins/category/plugin-name/skills/
+python3 scripts/validate-skills-schema.py --marketplace --verbose plugins/category/my-plugin/
 ```
 
-## Recommended Tool Combinations
+The current validator can report malformed or unknown tool entries and advisory body-versus-declaration mismatches. Such warnings are not evidence that a tool ran, that omitted tools were blocked, or that provider authorization was verified. The eight-field marketplace contract and the runtime permission model are separate facts.
 
-The following sections provide recommended `allowed-tools` configurations for common skill types. These represent best practices and are not exhaustive.
-
-### Read-Only Analysis Skill
-
-Skills that analyze code, review configurations, or audit files without making changes.
-
-```yaml
-allowed-tools: Read, Glob, Grep
-```
-
-**Examples:** Code complexity analyzer, dependency auditor, license checker, style guide validator.
-
-### Code Generation Skill
-
-Skills that create new files based on templates, specifications, or user input.
-
-```yaml
-allowed-tools: Read, Write, Glob, Grep
-```
-
-Add `Edit` if the skill also modifies existing files (e.g., updating an index file after generating a component):
-
-```yaml
-allowed-tools: Read, Write, Edit, Glob, Grep
-```
-
-**Examples:** Component scaffolder, test generator, boilerplate creator, migration generator.
-
-### Code Modification Skill
-
-Skills that refactor, fix, or transform existing code.
-
-```yaml
-allowed-tools: Read, Write, Edit, Glob, Grep
-```
-
-**Examples:** Refactoring assistant, code formatter, import organizer, deprecation migrator.
-
-### Build and Test Skill
-
-Skills that run build systems, test suites, or validation commands.
-
-```yaml
-allowed-tools: Read, Glob, Grep, Bash(npm:*), Bash(git:*)
-```
-
-Include `Write` or `Edit` if the skill also fixes issues it discovers:
-
-```yaml
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(npm:*), Bash(git:*)
-```
-
-**Examples:** CI pipeline runner, test executor, lint fixer, build optimizer.
-
-### Web Research Skill
-
-Skills that fetch external documentation, check APIs, or research solutions.
-
-```yaml
-allowed-tools: Read, Glob, Grep, WebFetch, WebSearch
-```
-
-Add file modification tools if the skill also applies what it finds:
-
-```yaml
-allowed-tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
-```
-
-**Examples:** Documentation fetcher, API compatibility checker, upgrade guide researcher.
-
-### DevOps / Infrastructure Skill
-
-Skills that manage infrastructure, containers, or cloud resources.
-
-```yaml
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(docker:*), Bash(kubectl:*), Bash(terraform:*)
-```
-
-**Examples:** Terraform plan reviewer, Kubernetes manifest generator, Docker Compose optimizer.
-
-### Orchestration Skill
-
-Skills that coordinate multiple sub-tasks or invoke other skills.
-
-```yaml
-allowed-tools: Read, Glob, Grep, Task, Skill
-```
-
-Add `AskUserQuestion` if the skill needs user input at decision points:
-
-```yaml
-allowed-tools: Read, Glob, Grep, Task, Skill, AskUserQuestion
-```
-
-**Examples:** Multi-step workflow orchestrator, plugin pipeline runner, skill composer.
-
-### Interactive Skill
-
-Skills that require user input or confirmation during execution.
-
-```yaml
-allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion
-```
-
-**Examples:** Guided setup wizard, interactive migration tool, configuration interviewer.
-
-### Data Science / Notebook Skill
-
-Skills that work with Jupyter notebooks and data analysis workflows.
-
-```yaml
-allowed-tools: Read, Write, NotebookEdit, Glob, Grep, Bash(python3:*)
-```
-
-**Examples:** Notebook linter, cell executor, data pipeline scaffolder.
-
-## Tool Interaction Patterns
-
-Understanding how tools work together helps you design efficient skills.
-
-### Discovery Pattern
-
-Use `Glob` to find files, then `Read` to examine them, then `Grep` to search across them:
-
-```
-1. Glob("**/*.config.ts") → find config files
-2. Read(each file) → examine contents
-3. Grep("deprecated") → find specific patterns
-```
-
-Required tools: `Read, Glob, Grep`
-
-### Find-and-Fix Pattern
-
-Discover issues with read-only tools, then fix them with modification tools:
-
-```
-1. Grep("console.log") → find debug statements
-2. Read(each file) → verify context
-3. Edit(remove statement) → fix each occurrence
-```
-
-Required tools: `Read, Edit, Glob, Grep`
-
-### Generate-and-Validate Pattern
-
-Create files, then verify them with build tools:
-
-```
-1. Write(new files) → generate code
-2. Bash("npm run typecheck") → verify types
-3. Bash("npm test") → run tests
-4. Edit(fix issues) → address failures
-```
-
-Required tools: `Read, Write, Edit, Glob, Grep, Bash(npm:*)`
-
-### Research-and-Apply Pattern
-
-Fetch external information, then apply it locally:
-
-```
-1. WebSearch("react 19 breaking changes") → research
-2. WebFetch(migration guide URL) → get details
-3. Grep("deprecated API") → find usage in codebase
-4. Edit(update code) → apply changes
-```
-
-Required tools: `Read, Edit, Glob, Grep, WebFetch, WebSearch`
-
-## Validation
-
-The `allowed-tools` field is validated at multiple levels:
-
-1. **YAML parsing.** The field must be a valid string or YAML list. Syntax errors in YAML prevent the skill from loading.
-
-2. **Tool name validation.** The universal validator (`validate-skills-schema.py`) checks that every tool name in the `allowed-tools` list is a recognized tool. Invalid tool names produce warnings or errors depending on the validation tier.
-
-3. **Enterprise compliance.** The 100-point enterprise rubric scores skills partially based on `allowed-tools` appropriateness. Skills that request excessive permissions receive lower scores.
-
-Run validation locally:
-
-```bash
-# Standard validation (checks tool names)
-python3 scripts/validate-skills-schema.py --verbose plugins/category/your-plugin/
-
-# Enterprise validation (scores permission appropriateness)
-python3 scripts/validate-skills-schema.py --enterprise --verbose plugins/category/your-plugin/
-```
-
-## Common Mistakes
-
-| Mistake | Impact | Fix |
-|---------|--------|-----|
-| Using `bash` (lowercase) instead of `Bash` | Tool name not recognized | Tool names are case-sensitive: use `Bash` |
-| Listing tools the skill never uses | Unnecessary permission scope | Audit the skill body and remove unused tools |
-| Using unscoped `Bash` when only npm is needed | Over-permissioning | Use `Bash(npm:*)` instead of `Bash` |
-| Omitting `Read` when `Edit` is listed | Edit requires reading first | Always include `Read` alongside `Edit` |
-| Forgetting `Glob` for file discovery | Claude has to ask permission before using `Glob` | Add `Glob` if the skill searches for files |
-| Using `WebFetch` without `WebSearch` (or vice versa) for research | Incomplete research capability | Include both if the skill does general web research |
-| Typos in tool names (e.g., `Readfile`, `Search`) | Tool not recognized | Check this reference for exact names |
+Use [the frontmatter reference](/docs/reference/skill-frontmatter) for complete examples and [STANDARDS.md](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/main/STANDARDS.md) for the canonical ownership and approval boundaries.

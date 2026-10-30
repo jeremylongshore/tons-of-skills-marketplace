@@ -1,463 +1,127 @@
 ---
-title: "ccpi CLI Quick Reference"
-description: "Complete command reference for the ccpi CLI -- install, list, search, upgrade, validate, and diagnose Claude Code plugins from your terminal."
-section: "getting-started"
+title: 'ccpi CLI Quick Reference'
+description: 'The delivered ccpi command surface, portable skill commands, plugin guidance, placeholders, and current JSON and scope limitations.'
+section: 'getting-started'
 order: 4
-keywords: ["ccpi CLI", "ccpi commands", "Claude Code CLI", "plugin management CLI", "ccpi install", "ccpi validate", "ccpi doctor"]
+keywords:
+  - "ccpi CLI"
+  - "ccpi commands"
+  - "Claude Code CLI"
+  - "plugin management CLI"
+  - "ccpi install"
+  - "ccpi validate"
+  - "ccpi doctor"
 officialLinks:
-  - title: "ccpi on npm"
-    url: "https://www.npmjs.com/package/@intentsolutionsio/ccpi"
-  - title: "Claude Code CLI Reference"
-    url: "https://code.claude.com/docs/en/cli-reference"
+  - title: 'ccpi on npm'
+    url: 'https://www.npmjs.com/package/@intentsolutionsio/ccpi'
+  - title: 'Claude Code CLI Reference'
+    url: 'https://code.claude.com/docs/en/cli-reference'
 relatedDocs:
-  - "getting-started/installation"
-  - "reference/cli-commands"
+  - 'getting-started/installation'
+  - 'reference/cli-commands'
 ---
 
 ## Overview
 
-The `ccpi` CLI (`@intentsolutionsio/ccpi`) is the command-line companion for managing Claude Code plugins. It runs in your regular terminal -- outside of Claude Code sessions -- and handles marketplace connections, plugin installation guidance, upgrade tracking, structural validation, and system diagnostics.
+The `ccpi` helper and the native `claude` CLI are separate programs. Some `ccpi` commands inspect or install portable skill trees; others display plugin-management guidance. Several registered commands are still placeholders. This page describes the tracked implementation, not an assumed feature roadmap.
 
-Install it globally via npm:
+Install and version checks, after reviewing the package and its prerequisites:
 
 ```bash
 npm install -g @intentsolutionsio/ccpi
+ccpi --version
+ccpi --help
 ```
 
-Or run on demand without installing:
+Repository-level commands follow the runtime contract in `AGENTS.md`; independently consumable packages can have their own documented floor. Do not infer a package's supported runtime from an old website example.
+
+## Delivered command surface
+
+| Command                                       | Current behavior and boundary                                                            |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `ccpi install [plugin]`                       | Catalog lookup and installation guidance; not a general native transaction engine        |
+| `ccpi upgrade`                                | Upgrade guidance; does not apply a complete plugin upgrade transaction                   |
+| `ccpi list`                                   | Inspect installed plugins; `--all` requests available catalog entries                    |
+| `ccpi doctor`                                 | Diagnostics; `--fix` can create directories and refresh catalogs                         |
+| `ccpi marketplace`                            | Marketplace connection guidance; supports `--verify`                                     |
+| `ccpi marketplace-add` / `marketplace-remove` | Marketplace management helpers                                                           |
+| `ccpi validate [path]`                        | Legacy validation entry point with `--skills`, `--frontmatter`, `--strict`, and `--json` |
+| `ccpi skills list-harnesses`                  | Read the shipped portable harness registry                                               |
+| `ccpi skills doctor`                          | Diagnose installed portable skill receipt/source integrity                               |
+| `ccpi skills install <source>`                | Bounded local portable skill installation with a receipt                                 |
+
+There are no delivered `ccpi update`, `remove`, `info`, or `init` commands. `ccpi search <query>` currently prints a coming-soon message rather than searching names or descriptions. Use the website [Explore](/explore) and search interface. `ccpi analytics` and the `ccpi install --skills` flag are also placeholders; the delivered `ccpi skills` subtree is separate.
+
+## Plugin guidance versus native installation
+
+This is a real current catalog name:
 
 ```bash
-npx @intentsolutionsio/ccpi <command>
+ccpi install api-test-automation
 ```
 
-## Quick command table
-
-| Command | Description |
-|---|---|
-| `ccpi install <plugin>` | Guided install of a single plugin |
-| `ccpi install --all` | Print install commands for all 418 plugins |
-| `ccpi install --pack <name>` | Install a curated plugin pack |
-| `ccpi install --category <name>` | Install all plugins in a category |
-| `ccpi list` | List installed plugins |
-| `ccpi list --all` | List all available plugins in the marketplace |
-| `ccpi search <query>` | Search the marketplace by keyword |
-| `ccpi upgrade` | Show available updates with upgrade guidance |
-| `ccpi upgrade --check` | Check for updates without upgrading |
-| `ccpi upgrade --all` | Guide upgrade of all outdated plugins |
-| `ccpi upgrade --plugin <name>` | Guide upgrade of a specific plugin |
-| `ccpi validate [path]` | Validate plugin structure and frontmatter |
-| `ccpi validate --strict` | Validate with strict mode (fail on warnings) |
-| `ccpi doctor` | Run system diagnostics |
-| `ccpi doctor --fix` | Run diagnostics and auto-fix safe issues |
-| `ccpi marketplace` | Show marketplace status |
-| `ccpi marketplace --verify` | Verify marketplace installation |
-| `ccpi marketplace-add` | Add the Tons of Skills marketplace |
-| `ccpi marketplace-remove` | Remove the marketplace |
-| `ccpi analytics` | View plugin usage analytics (coming soon) |
-| `ccpi --version` | Print the ccpi version |
-| `ccpi --help` | Show help for all commands |
-
-## Command details
-
-### ccpi install
-
-The install command guides you through adding plugins to Claude Code. It does not install plugins directly -- it validates the plugin name against the marketplace catalog and outputs the `/plugin install` slash command you run inside Claude Code.
+The helper currently prints legacy native scope flags. Do not copy those flags as authoritative current Claude syntax. The native route is:
 
 ```bash
-ccpi install code-reviewer
+claude plugin marketplace add jeremylongshore/tons-of-skills-marketplace
+claude plugin install api-test-automation@claude-code-plugins-plus --scope project
 ```
 
-**Output:**
+Native scopes are `user`, `project`, and `local`; see the [current platform reference](https://code.claude.com/docs/en/discover-plugins). Claude also has native update support. `ccpi upgrade` is not a substitute for that complete operation, and uninstall/reinstall is not a required universal update procedure.
 
-```
-Found: code-reviewer v1.2.0
-  Automated code review with quality scoring and actionable feedback
+`ccpi install` registers `--yes`, `--global`, `--all`, `--pack`, and `--category`. These describe the helper's own options, not current native flags. Built-in pack guidance can contain historical plugin names: check each member against the current catalog instead of assuming an advertised pack is a verified runnable set. Avoid broad `--all` installation merely to follow a tutorial.
 
-Installation Command:
+## Portable skills
 
-Open Claude Code and run:
-
-   /plugin install code-reviewer@claude-code-plugins-plus --project
-```
-
-**Flags:**
-
-| Flag | Description |
-|---|---|
-| `-y, --yes` | Skip confirmation prompts |
-| `--global` | Output install command with `--global` scope |
-| `--all` | Print install commands for every plugin in the catalog |
-| `--pack <name>` | Install a curated pack (see pack list below) |
-| `--category <name>` | Install all plugins in a marketplace category |
-| `--skills` | Install standalone skills (coming soon) |
-
-**Available packs:**
-
-| Pack | Plugin count | Included plugins |
-|---|---|---|
-| `devops` | 6 | terraform-specialist, kubernetes-architect, deployment-engineer, devops-troubleshooter, hybrid-cloud-architect, docker-pro |
-| `security` | 4 | security-auditor, backend-security-coder, frontend-security-coder, mobile-security-coder |
-| `api` | 3 | backend-architect, graphql-architect, fastapi-pro |
-| `ai-ml` | 4 | ai-engineer, ml-engineer, mlops-engineer, prompt-engineer |
-| `frontend` | 4 | frontend-developer, flutter-expert, mobile-developer, ui-ux-designer |
-| `backend` | 10 | python-pro, golang-pro, rust-pro, java-pro, typescript-pro, csharp-pro, ruby-pro, php-pro, elixir-pro, scala-pro |
-| `database` | 4 | database-optimizer, database-admin, sql-pro, data-engineer |
-| `testing` | 4 | test-automator, debugger, error-detective, performance-engineer |
-
-**Examples:**
+Inspect the registry before choosing a harness:
 
 ```bash
-# Install a single plugin (project scope, default)
-ccpi install debugger
-
-# Install with global scope
-ccpi install debugger --global
-
-# Install the DevOps pack
-ccpi install --pack devops
-
-# Install all security plugins
-ccpi install --category security
-
-# Install every plugin in the marketplace
-ccpi install --all
+ccpi skills list-harnesses --json
+ccpi skills doctor --harness claude-code --scope project --json
 ```
 
-### ccpi list
+The shipped registry distinguishes verified-native, standard-compatible, native-extension, research-required, and unsupported concepts; not every classification implies a usable install target. Current public support is narrower than the full set of recorded harnesses. A standard-compatible row is not evidence that all Claude-specific behavior is supported.
 
-List plugins that are currently installed, or browse the full marketplace catalog.
+The following writes only if a reviewed local source and supported destination pass validation. Start with the dry run:
 
 ```bash
-# Installed plugins only
-ccpi list
-
-# All available plugins (grouped by category)
-ccpi list --all
+ccpi skills install /absolute/path/to/review-diff --harness claude-code --scope project --dry-run --json
+ccpi skills install /absolute/path/to/review-diff --harness claude-code --scope project --json
+ccpi skills doctor --harness claude-code --scope project --source-repo /absolute/path/to/trusted/source-repository --skill review-diff --json
 ```
 
-**Flags:**
+The source must be a skill directory containing `SKILL.md` (or that file's path). Review the destination and project working directory before removing `--dry-run`. Receipts and doctor checks address installed-tree/source integrity; they do not prove a quality grade, successful provider behavior, or native activation in every harness. Staged update, repair, rollback, and quality-evidence binding are not delivered by these commands.
 
-| Flag | Description |
-|---|---|
-| `-a, --all` | Show all available plugins, not just installed ones |
+## Validation and JSON limitations
 
-The installed list includes plugin name, version, description, and install location (global or local). The `--all` view groups plugins by category and shows the full catalog count.
-
-### ccpi search
-
-Search the marketplace catalog by keyword. Matches against plugin names, descriptions, and keywords.
+Use the repository's canonical validator for repository skill checks:
 
 ```bash
-ccpi search kubernetes
+python3 scripts/validate-skills-schema.py --standard /absolute/path/to/review-diff/SKILL.md
+python3 scripts/validate-skills-schema.py --marketplace --verbose /absolute/path/to/review-diff/SKILL.md
 ```
 
-This command searches the locally cached marketplace catalog. If no results appear, ensure the marketplace is added with `ccpi marketplace-add`.
+The Python validator defaults to standard outside CI; CI auto-selects marketplace unless a tier is explicit. Marketplace mode requires all eight metadata fields. Choose the tier deliberately rather than relying on stale CLI help wording.
 
-### ccpi upgrade
+The legacy `ccpi validate` currently emits a deprecation banner **before** its result, including with `--json`. Redirecting its stdout is therefore not guaranteed to yield a single parseable JSON document. Its strict handling also differs by mode: frontmatter strict can promote warnings, while skill paths do not uniformly fail for every warning. Do not build a security gate around a claimed uniform strict/JSON behavior that the implementation does not provide.
 
-Check for and apply plugin updates. The upgrade workflow uninstalls the current version and reinstalls the latest from the catalog.
+The Python validator's existing `--fail-on-warn` is an explicit warning policy. Default warning diagnostics are distinct from errors. This documentation does not change either program's exit-code policy.
 
-```bash
-# Show available updates with guidance
-ccpi upgrade
+## Helper paths and catalog source
 
-# Check only (no upgrade guidance)
-ccpi upgrade --check
+The current `detectClaudePaths` implementation uses these helper paths:
 
-# Guide upgrade of all outdated plugins
-ccpi upgrade --all
+| Host           | CCPI configuration root         |
+| -------------- | ------------------------------- |
+| Linux or macOS | `~/.claude`                     |
+| Windows        | `<home>/AppData/Roaming/Claude` |
 
-# Guide upgrade of a specific plugin
-ccpi upgrade --plugin terraform-specialist
-```
+The helper uses `plugins` and `marketplaces` below that root and recognizes a current-directory `.claude-plugin` directory for its project detection. It does not currently implement an XDG override. These are CCPI implementation facts, not a replacement for native Claude's configuration reference.
 
-**Flags:**
+Its catalog source is the canonical repository's raw `.claude-plugin/marketplace.json`, not an assumed website `/catalog.json` endpoint. Source, cache, deployment, and installed state can differ.
 
-| Flag | Description |
-|---|---|
-| `--check` | List available updates without showing upgrade steps |
-| `--all` | Show upgrade steps for every outdated plugin |
-| `--plugin <name>` | Show upgrade steps for a specific plugin |
+## Diagnostics and safe scripting
 
-**How upgrades work:**
+`ccpi doctor --json` is useful for diagnostics; review output before sharing it. `ccpi doctor --fix` is a writing operation, not a read-only inspection. Keep credentials and private paths out of public bug reports.
 
-Claude Code does not have a native upgrade command yet. The ccpi upgrade flow generates a pair of commands for each update:
-
-```bash
-# Step 1: Uninstall current version
-/plugin uninstall terraform-specialist@claude-code-plugins-plus
-
-# Step 2: Install latest version
-/plugin install terraform-specialist@claude-code-plugins-plus
-```
-
-Run these inside your Claude Code session. Plugin configuration is preserved across the uninstall/reinstall cycle.
-
-### ccpi validate
-
-Validate the structure and frontmatter of plugins, skills, commands, and agents. Useful for plugin authors and for diagnosing issues with installed plugins.
-
-```bash
-# Validate everything in the current directory
-ccpi validate
-
-# Validate a specific path
-ccpi validate plugins/devops/terraform-specialist/
-
-# Validate a single SKILL.md file
-ccpi validate skills/pr-review/SKILL.md
-
-# Strict mode (fail on warnings, used in CI)
-ccpi validate --strict
-
-# JSON output for programmatic consumption
-ccpi validate --json
-```
-
-**Flags:**
-
-| Flag | Description |
-|---|---|
-| `--skills` | Validate skills only |
-| `--frontmatter` | Validate frontmatter only |
-| `--strict` | Exit with non-zero code on warnings (for CI pipelines) |
-| `--json` | Output results as JSON |
-
-**What it checks:**
-
-- **Plugin structure** -- `plugin.json` exists with required fields (`name`, `version`, `description`, `author`).
-- **Skill frontmatter** -- SKILL.md files have valid YAML with required fields, allowed-tools syntax is correct, version follows semver.
-- **Command frontmatter** -- command markdown files have properly structured YAML metadata.
-- **Agent frontmatter** -- agent definitions include required fields (`name`, `description`).
-
-For the authoritative, enterprise-grade validation with 100-point scoring, use the universal validator directly:
-
-```bash
-python3 scripts/validate-skills-schema.py --enterprise --verbose
-```
-
-The universal validator is the source of truth for the Tons of Skills marketplace. The ccpi validator covers structural basics and is optimized for speed.
-
-### ccpi doctor
-
-Run comprehensive diagnostics on your Claude Code installation, plugin directory, and marketplace connection.
-
-```bash
-# Standard diagnostics
-ccpi doctor
-
-# Auto-fix safe issues
-ccpi doctor --fix
-
-# JSON output
-ccpi doctor --json
-```
-
-**Flags:**
-
-| Flag | Description |
-|---|---|
-| `--fix` | Automatically remediate safe issues (create missing directories, refresh stale catalogs) |
-| `--json` | Output diagnostic results as JSON |
-
-**Diagnostic categories:**
-
-| Category | Checks |
-|---|---|
-| System | Node.js version, npm version, OS compatibility |
-| Claude Code | Config directory exists, plugins directory exists, authentication status |
-| Marketplace | Catalog file present, catalog parseable, plugin count valid |
-| Plugins | Installed plugin structure, plugin.json validity |
-
-The doctor command is the first thing to run when something is not working. Its output includes specific remediation steps for every warning and failure.
-
-### ccpi marketplace
-
-Manage the connection between ccpi and the Tons of Skills marketplace catalog.
-
-```bash
-# Show marketplace status
-ccpi marketplace
-
-# Verify marketplace installation
-ccpi marketplace --verify
-
-# Add the marketplace (first-time setup)
-ccpi marketplace-add
-
-# Remove the marketplace
-ccpi marketplace-remove
-```
-
-The marketplace is identified by the slug `claude-code-plugins-plus` and the repository `jeremylongshore/claude-code-plugins`. Adding the marketplace downloads the catalog JSON from GitHub and stores it in Claude Code's config directory.
-
-## Common workflows
-
-### First-time setup
-
-```bash
-# 1. Install ccpi
-npm install -g @intentsolutionsio/ccpi
-
-# 2. Add the marketplace
-ccpi marketplace-add
-
-# 3. Verify everything works
-ccpi doctor
-
-# 4. Browse available plugins
-ccpi list --all
-
-# 5. Install your first plugin
-ccpi install code-reviewer
-```
-
-### Daily plugin management
-
-```bash
-# Check for updates
-ccpi upgrade --check
-
-# Upgrade everything
-ccpi upgrade --all
-
-# Search for a new plugin
-ccpi search "database migration"
-
-# Install it
-ccpi install database-migration-manager
-```
-
-### Plugin development
-
-```bash
-# Validate your plugin during development
-ccpi validate .
-
-# Strict validation before committing
-ccpi validate --strict
-
-# Check a single skill file
-ccpi validate skills/my-skill/SKILL.md
-
-# Run doctor to verify environment
-ccpi doctor
-```
-
-### CI/CD integration
-
-Add ccpi validation to your CI pipeline to catch plugin issues before they ship:
-
-```yaml
-# GitHub Actions example
-- name: Validate plugins
-  run: |
-    npm install -g @intentsolutionsio/ccpi
-    ccpi validate --strict --json > validation-results.json
-```
-
-The `--strict` flag causes ccpi to exit with a non-zero code if any warnings are found, which fails the CI step. The `--json` flag produces machine-readable output for further processing.
-
-## Configuration and cache
-
-### Cache location
-
-The marketplace catalog is cached in Claude Code's config directory. The exact path depends on your operating system:
-
-| OS | Config directory |
-|---|---|
-| macOS | `~/Library/Application Support/claude-code/` |
-| Linux | `~/.config/claude-code/` or `$XDG_CONFIG_HOME/claude-code/` |
-| Windows | `%APPDATA%/claude-code/` |
-
-Within the config directory:
-
-```
-claude-code/
-  marketplaces/
-    claude-code-plugins-plus/
-      .claude-plugin/
-        marketplace.json      # Cached catalog
-  plugins/
-    installed_plugins.json    # Installed plugin registry
-```
-
-### Refreshing the cache
-
-If the catalog seems stale (missing recently added plugins), refresh it:
-
-```bash
-ccpi marketplace-remove
-ccpi marketplace-add
-```
-
-Or from inside Claude Code:
-
-```bash
-/plugin marketplace add jeremylongshore/claude-code-plugins
-```
-
-### Environment variables
-
-| Variable | Description |
-|---|---|
-| `ANTHROPIC_API_KEY` | Anthropic API key for Claude Code authentication |
-| `XDG_CONFIG_HOME` | Override the default config directory on Linux |
-
-## Relationship to Claude Code slash commands
-
-The ccpi CLI and Claude Code's built-in `/plugin` slash commands serve complementary roles:
-
-| Task | ccpi CLI (your terminal) | /plugin (Claude Code session) |
-|---|---|---|
-| Add marketplace | `ccpi marketplace-add` | `/plugin marketplace add ...` |
-| Install plugin | `ccpi install <name>` (outputs command) | `/plugin install <name>@slug` (executes) |
-| List plugins | `ccpi list` | `/plugin list` |
-| Uninstall plugin | -- | `/plugin uninstall <name>@slug` |
-| Validate | `ccpi validate` | -- |
-| Diagnostics | `ccpi doctor` | -- |
-| Search | `ccpi search <query>` | -- |
-| Upgrade | `ccpi upgrade` | -- |
-
-The ccpi CLI is a planning and management tool. It tells you what to do and validates that things are correct. The `/plugin` commands inside Claude Code are the execution layer that actually installs and removes plugins.
-
-## Troubleshooting
-
-### ccpi command not found after installation
-
-Ensure the npm global bin directory is on your `PATH`:
-
-```bash
-# Find the directory
-npm config get prefix
-
-# Add to PATH (add to ~/.bashrc or ~/.zshrc for persistence)
-export PATH="$(npm config get prefix)/bin:$PATH"
-```
-
-### Catalog shows 0 plugins
-
-The marketplace is not connected. Add it:
-
-```bash
-ccpi marketplace-add
-```
-
-### Validation reports false positives
-
-The ccpi validator checks structural basics. For authoritative validation with the 100-point enterprise rubric, use the universal validator:
-
-```bash
-python3 scripts/validate-skills-schema.py --enterprise --verbose
-```
-
-### Doctor reports failures in fix mode
-
-Some issues cannot be auto-fixed (e.g., missing authentication, incompatible Node.js version). Follow the remediation steps in the doctor output to resolve these manually.
-
-## Next steps
-
-- [Install Claude Code Plugins](/docs/getting-started/installation) -- full setup walkthrough if you have not installed yet.
-- [Install Your First Plugin](/docs/getting-started/first-plugin) -- hands-on plugin installation guide.
-- [Your First Agent Skill](/docs/getting-started/first-skill) -- build a skill from scratch.
-- [Browse the Marketplace](/explore) -- discover plugins on the web.
+Inspect `--help` for the installed version and record the exact command and source revision when reporting behavior. No command examples here certify that an installer, provider, or native server was executed successfully.

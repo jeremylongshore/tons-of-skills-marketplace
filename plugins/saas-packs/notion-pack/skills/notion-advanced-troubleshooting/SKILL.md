@@ -4,7 +4,7 @@ description: >-
   Diagnose difficult Notion integration failures from redacted evidence without trial-and-error writes. Use when ordinary error handling has not isolated the fault. Trigger with "trace Notion failure", "analyze Notion request ID", or "debug Notion permissions".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<environment> <symptom> <request-id-or-window>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, troubleshooting]

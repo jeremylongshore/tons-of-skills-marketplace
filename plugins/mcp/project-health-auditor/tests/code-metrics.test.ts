@@ -210,6 +210,73 @@ describe('MCP handlers', () => {
   });
 });
 
+describe('shipped inventory pagination', () => {
+  it('traverses matched and unmatched sources with unchanged global summaries', async () => {
+    for (let i = 0; i < 125; i++) {
+      const name = `item_${String(i).padStart(4, '0')}`;
+      await write(`src/${name}.ts`);
+      if (i % 2 === 0) await write(`tests/${name}.test.ts`);
+    }
+    const transport = new StdioClientTransport({
+      command: process.execPath, args: [path.join(packageRoot, 'dist/servers/code-metrics.js')],
+      cwd: repoPath, stderr: 'pipe',
+    });
+    const client = new Client({ name: 'inventory-pages', version: '1.0.0' });
+    const call = async (name: string, args: Record<string, unknown> = {}) => {
+      const result = await client.callTool({ name, arguments: { repoPath, ...args } });
+      return JSON.parse((result.content as Array<{ type: 'text'; text: string }>)[0].text);
+    };
+    try {
+      await client.connect(transport);
+      for (const tool of (await client.listTools()).tools.filter(t => ['list_repo_files', 'map_tests'].includes(t.name))) {
+        expect(tool.inputSchema.properties).toMatchObject({
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 100 },
+          offset: { type: 'integer', minimum: 0, default: 0 },
+        });
+        expect(await call(tool.name)).toMatchObject({ offset: 0, limit: 100, showing: 100, hasMore: true });
+        for (const args of [{ limit: 0 }, { limit: -1 }, { limit: 1.5 }, { limit: 101 }, { offset: -1 }, { offset: 0.5 }]) {
+          await expect(call(tool.name, args)).rejects.toThrow(/Invalid arguments/);
+        }
+      }
+      const files: string[] = [], sources: string[] = [], missing: string[] = [];
+      const covered: Record<string, string[]> = {};
+      for (const name of ['list_repo_files', 'map_tests']) {
+        let offset = 0;
+        while (true) {
+          const page = await call(name, { limit: 37, offset, ...(name === 'list_repo_files' ? { globs: ['**/*.ts', 'src/**/*.ts'] } : {}) });
+          if (name === 'list_repo_files') {
+            expect(page.totalFiles).toBe(189); files.push(...page.files);
+          } else {
+            expect(page.summary).toEqual({ totalSourceFiles: 126, totalTestFiles: 63, testedFiles: 63, coverageRatio: 50 });
+            expect([...Object.keys(page.coverage), ...page.missingTests].sort()).toEqual([...page.sourceFiles].sort());
+            Object.assign(covered, page.coverage); sources.push(...page.sourceFiles); missing.push(...page.missingTests);
+          }
+          if (!page.hasMore) break;
+          expect(page.showing).toBeGreaterThan(0); offset += page.showing;
+        }
+        expect(await call(name, { offset: 1000 })).toMatchObject({ showing: 0, hasMore: false });
+        const empty = await fs.mkdtemp(path.join(os.tmpdir(), 'empty-health-page-'));
+        try { expect(await call(name, { repoPath: empty })).toMatchObject({ showing: 0, hasMore: false }); }
+        finally { await fs.rm(empty, { recursive: true, force: true }); }
+      }
+      expect(files).toHaveLength(189); expect(new Set(files).size).toBe(189);
+      expect(files).toEqual([...files].sort());
+      expect(sources).toHaveLength(126); expect(new Set(sources).size).toBe(126);
+      expect(sources).toEqual(files.filter(file => file.startsWith('src/')));
+      expect(Object.keys(covered)).toHaveLength(63); expect(missing).toHaveLength(63);
+      expect(missing).toContain('src/classify.ts');
+      const expectedMissing = ['src/classify.ts', ...Array.from({ length: 62 }, (_,i) =>
+        `src/item_${String(2 * i + 1).padStart(4, '0')}.ts`)].sort();
+      expect(missing).toEqual(expectedMissing);
+      const expectedCovered = Object.fromEntries(Array.from({ length: 63 }, (_,i) => {
+        const name = `item_${String(2 * i).padStart(4, '0')}`;
+        return [`src/${name}.ts`, [`tests/${name}.test.ts`]];
+      }));
+      expect(covered).toEqual(expectedCovered);
+    } finally { await client.close(); await transport.close(); }
+  }, 20000);
+});
+
 describe('server lifecycle', () => {
   it.each(['servers/code-metrics.ts', 'dist/servers/code-metrics.js'])(
     'imports %s without starting stdio or keeping the process alive', async (entry) => {

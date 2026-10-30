@@ -4,7 +4,7 @@ description: >-
   Create a repeatable local Notion development loop using fixtures, mocks, and an explicitly shared sandbox. Use when implementing or debugging without touching production content. Trigger with "develop Notion locally", "mock Notion API", or "set up Notion sandbox".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<repository> <feature> <sandbox-workspace>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, development]

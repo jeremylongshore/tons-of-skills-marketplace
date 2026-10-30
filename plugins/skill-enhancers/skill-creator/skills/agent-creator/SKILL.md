@@ -16,9 +16,9 @@ description: 'Create production-grade agent .md files aligned with the current A
   use.
 
   '
-allowed-tools: Read,Write,Edit,Glob,Grep,Bash(python:*),AskUserQuestion,Agent
+allowed-tools: Read,Write,Edit,Glob,Grep,Bash(python:*),Bash(python3:*),AskUserQuestion,Agent
 argument-hint: "<create|validate> [agent path or requirements]"
-version: 5.24.0
+version: 5.25.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -49,7 +49,8 @@ Key difference from skill-creator: **agents support both `tools` (allowlist) AND
 (denylist)**. Skills use `allowed-tools` (allowlist) and, since schema 3.7.0, an optional
 kebab-case `disallowed-tools` denylist — a parallel field, not a unification. Agents also support
 `effort`, `maxTurns`, `skills`, `memory`, `isolation`, `permissionMode`, `background`, `color`, and
-`initialPrompt` — fields that don't exist for skills. Claude Code also recognizes a separately
+`initialPrompt`. These controls have context-specific support; `effort` also exists on skills.
+Do not assume agent field spellings or constraints apply to skills. Claude Code also recognizes a separately
 labeled runtime `experimental` object; do not present it as part of the public 16-field table.
 The agent body becomes the **system prompt** that drives the subagent — it does NOT receive the
 full Claude Code system prompt.
@@ -57,6 +58,12 @@ full Claude Code system prompt.
 **Field-naming warning:** Agents use camelCase `disallowedTools:` (canonical sub-agents spec);
 skills use kebab-case `disallowed-tools:` (schema 3.7.0+). The validator rejects either mismatch —
 never copy-paste between agent and skill frontmatter without renaming.
+
+## Authentication
+
+Authoring and static validation do not require provider credentials. Generated
+workflows have their own authentication requirements. Use only the requested
+scope and existing authorization for any model/provider execution.
 
 ## Prerequisites
 
@@ -75,7 +82,7 @@ Determine user intent from their prompt:
 
 ### Step 1: Understand Requirements
 
-Ask the user with AskUserQuestion:
+Use known requirements; use AskUserQuestion only for missing decisions:
 
 **Agent Identity:**
 
@@ -139,6 +146,7 @@ All production agents should follow this body structure:
 
 Generate the agent .md using the template from
 `${CLAUDE_SKILL_DIR}/../skill-creator/templates/agent-template.md`.
+Resolve the template MODEL placeholder from the requested model or target profile.
 Use `Write` for a new definition and `Edit` for a targeted remediation of an
 existing definition; do not replace unrelated project content.
 
@@ -199,6 +207,7 @@ experimental:              # Claude Code v2.1.248+; optional
 - `expertise_level` — invented, not in Anthropic spec
 - `activation_priority` — invented, not in Anthropic spec
 - `activation_triggers`, `type`, `category` — not in spec
+- `compatible-with`, `when_to_use` — rejected by the IS agent gate; put activation context in `description` or the body
 - `allowed-tools` — that's the skill-only syntax; agents use `tools` or `disallowedTools`
 - `disallowed-tools` (kebab-case) — skill-only spelling (schema 3.7.0+); agents use camelCase `disallowedTools`
 
@@ -226,15 +235,18 @@ experimental:              # Claude Code v2.1.248+; optional
 
 ### Step 4: Validate the Agent
 
-Run validation against the documented Anthropic schema and the runtime extension allowlist:
+Run the target's current canonical IS validator as well as the runtime checks.
+Its existing gate requires eleven live fields on plugin agents and fourteen on
+standalone agents; upstream-minimum examples do not satisfy this overlay.
 
 **Manual checklist:**
 
 | Check | Rule |
 |-------|------|
+| Complete IS fields | All eleven plugin fields, plus the three standalone fields where applicable |
 | `name` present | 1-64 chars, kebab-case |
 | `description` present | 20-1536 chars under the IS contract; concise and selection-specific |
-| No invalid fields | None of: capabilities, expertise_level, activation_priority, type, category |
+| No invalid fields | None of: capabilities, expertise_level, activation_priority, type, category, compatible-with, when_to_use |
 | No skill-only fields | No `allowed-tools`, no kebab-case `disallowed-tools` (agents use `tools` / camelCase `disallowedTools`) |
 | Plugin restrictions | No hooks/mcpServers/permissionMode if plugin agent |
 | Body has Role section | Clear domain + boundaries |
@@ -243,15 +255,20 @@ Run validation against the documented Anthropic schema and the runtime extension
 | Body has Guidelines | Do/don't rules |
 | Body under 300 lines | Offload to references if longer (prevents context bloat) |
 
-**Automated validation:**
+**Automated validation:** resolve `validator` to the target's canonical
+`scripts/validate-skills-schema.py` and `target_root` to its repository root.
+A plugin fixture needs its actual `.claude-plugin/plugin.json`; a folder name
+alone does not establish plugin context. Missing tooling is UNVERIFIED.
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/../skill-creator/scripts/validate-skill.py --agents-only {plugin-dir}/
+python3 "$validator" --repo-root "$target_root" --agents-only --json
 ```
 
 ### Step 5: Test the Agent
 
-Test the agent by spawning it via the `Agent` tool:
+When behavioral testing is requested and covered by existing model/provider
+authorization, exercise the agent via the `Agent` tool. Otherwise report SKIPPED;
+a static pass does not establish behavioral success. For an authorized run:
 
 1. Write a test prompt that exercises the agent's core capability
 2. Spawn the agent with that prompt
@@ -278,9 +295,10 @@ When the user wants to validate an existing agent:
 1. Locate the agent .md file
 2. Parse YAML frontmatter
 3. Check against the documented Anthropic schema and runtime extension allowlist:
+   - All eleven plugin fields or fourteen standalone fields present?
    - `name` present and valid (1-64 chars, kebab-case)?
    - `description` present and valid (20-1536 chars; concise and selection-specific)?
-   - Any invalid fields? (capabilities, expertise_level, activation_priority, etc.)
+   - Any invalid fields? (capabilities, expertise_level, activation_priority, compatible-with, when_to_use, etc.)
    - Any skill-only fields? (`allowed-tools`, kebab-case `disallowed-tools`)
    - Plugin restrictions respected?
 4. Check body content:
@@ -310,7 +328,15 @@ When the user wants to validate an existing agent:
 ```yaml
 name: risk-assessor
 description: "Score contract clauses for legal and financial risk on a 1-10 scale"
+tools: [Read, Glob, Grep]
 model: sonnet
+color: blue
+version: 1.0.0
+author: "Example Maintainer <maintainer@example.com>"
+tags: [review, risk]
+disallowedTools: []
+skills: []
+background: false
 effort: high
 maxTurns: 10
 ```
@@ -329,6 +355,18 @@ cite clause text, use 4-factor scoring methodology).
 ```yaml
 name: code-reviewer
 description: "Review code for bugs, performance issues, and security vulnerabilities"
+tools: [Read, Glob, Grep]
+model: inherit
+color: blue
+version: 1.0.0
+author: "Example Maintainer <maintainer@example.com>"
+tags: [review, quality]
+disallowedTools: [Write, Edit, Bash, Agent]
+skills: []
+background: false
+hooks: {}
+mcpServers: []
+permissionMode: default
 effort: high
 ```
 

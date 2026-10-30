@@ -4,7 +4,7 @@ description: >-
   Reduce Notion integration waste across requests, workers, storage, and downstream processing without inventing API pricing. Use when a workload is noisy, slow, or infrastructure-heavy. Trigger with "reduce Notion cost", "audit Notion request waste", or "tune Notion polling".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<workload> <measurement-window> <objective>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, cost]
@@ -28,6 +28,8 @@ Reduce Notion integration waste across requests, workers, storage, and downstrea
 
 Notion publishes operational limits, not a universal per-request price contract. Measure application infrastructure, queue, storage, observability, and downstream processor costs separately from Notion plan terms. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
+Opaque cursors are only for the next `start_cursor` request; never parse them or retain them as durable checkpoints or incident evidence.
+
 ## Authentication
 
 Use read-only telemetry and redacted request classes. Do not expose content or tokens to cost-analysis systems.
@@ -37,7 +39,7 @@ Use read-only telemetry and redacted request classes. Do not expose content or t
 1. Establish the workload owner, measurement window, freshness objective, and current cost allocation.
 2. Count requests by operation, outcome, tenant, retry, page, and bytes without high-cardinality content labels.
 3. Identify full scans, duplicate reads, unused fields, failed retries, polling overlap, and repeated transformations.
-4. Model filtered queries, cursor checkpoints, webhook signals plus reconciliation, caching, and batching.
+4. Model filtered queries, acknowledged record/time-window progress, webhook signals plus reconciliation, caching, and batching.
 5. Rank changes by saved work, correctness risk, implementation effort, and rollback speed.
 6. Pilot one change with freshness, completeness, error, and cost guardrails.
 
@@ -61,7 +63,7 @@ Return the baseline, cost boundaries, waste ledger, ranked changes, expected ran
 
 ## Examples
 
-- Replace redundant full scans with cursor-based reconciliation.
+- Replace redundant full scans with fresh-query reconciliation with record-ID deduplication.
 - Reduce retries that repeat permanent validation failures.
 
 ## Validation
@@ -78,4 +80,5 @@ Exercise and record these paths with expected and observed results:
 ## Resources
 
 - [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- [Cursor lifetime and versioning](https://developers.notion.com/reference/versioning).
 - Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.source_sha }}
+          persist-credentials: false
 
       - name: Validate inputs before any signing operation
         env:
@@ -44,6 +45,22 @@ jobs:
           printf '%s' "$PUBLICATION_REPORT" > /tmp/publication-report.json
           jq -e '.schema_version == "publication-report/v1" and (.publications | type == "array" and length > 0)' /tmp/publication-report.json >/dev/null
 
+      # All current callers use this reusable workflow locally at github.sha.
+      # Keep controls from that workflow commit separate from an older payload SHA.
+      - name: Check out workflow controls independently of publication source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: .evidence-controls
+          persist-credentials: false
+          sparse-checkout: ci/emit-evidence/merge-check-pages.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
       - name: Await all protected-branch contexts for the exact source SHA
         env:
           GH_TOKEN: ${{ github.token }}
@@ -51,7 +68,11 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 30); do
-            gh api --paginate "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/check-runs?per_page=100" > /tmp/required-checks.json
+            if ! gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/check-runs?per_page=100" | node .evidence-controls/ci/emit-evidence/merge-check-pages.mjs > /tmp/required-checks.json; then
+              echo "::warning::Incomplete check-run report; retrying (attempt $attempt/30)"
+              sleep 20
+              continue
+            fi
             missing=$(jq -r '
               .check_runs as $runs |
               ["ci-required", "gitleaks", "skill-conform"] |
@@ -70,11 +91,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 22
 
       - name: Install cosign
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2

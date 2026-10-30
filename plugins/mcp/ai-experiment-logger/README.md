@@ -391,3 +391,16 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 **Built with ❤️ for the Claude Code community**
+
+
+## Data safety and recovery
+
+The manual stdio server stores plaintext JSON under the current user's home directory. New directories use mode0700 and new/replaced files use0600 on POSIX; review permissions on older existing directories separately. This does not encrypt data or protect it from another process running as the same user.
+
+Malformed JSON, unsupported stored shapes, symlinked storage targets and disappeared initialized data fail closed. Existing data is preserved instead of being reset. Writes use a private temporary file, file fsync and atomic replacement; filesystem and power-loss guarantees remain platform dependent. In-process writes are queued. Cooperating instances take an exclusive short-lived writer lock and reload the latest committed state before changing it. Reads reload committed data. Stop older logger processes before upgrading; they do not participate in this locking protocol.
+
+A busy request has not written data. Stop all writers and inspect a stale `.experiments.lock` before recovering it; never delete `experiments.json` to repair startup. A cleanup warning after a completed replacement may leave a lock requiring recovery. Retrying after an uncertain transport result can still create duplicate records; this is not an exactly-once service.
+
+CSV output quotes textual fields, escapes quotes and prefixes common formula-leading text with an apostrophe. Stored prompts/results remain unchanged. Exported text still requires appropriate handling by its downstream consumer.
+
+The standalone bundle uses main's pinned Zod4.6.6 dependency. Its bundled SDK still includes Ajv's schema compiler; the application registers only the seven listed tools, parses tool arguments with local Zod schemas and never calls elicitation or accepts compiler options. This is an application boundary review, not a universal SDK security certification. The optional web dashboard's separate limitations remain; this repair does not start or certify an Express listener or add native MCP registration.

@@ -4,7 +4,7 @@ description: >-
   Build a version-aware Notion SDK boundary with typed operations, pagination, error classification, and test seams. Use when writing or reviewing client code. Trigger with "design Notion SDK wrapper", "review Notion client code", or "update Notion SDK patterns".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<language> <operations> <api-version>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, sdk]

@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/notion-pack",
-  "version": "1.40.0",
+  "version": "1.40.1",
   "description": "Operator-grade Notion pack with 32 current access, data-source, content, webhook, security, reliability, and migration workflows",
   "main": "README.md",
   "type": "module",
@@ -31,7 +31,7 @@
     "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
     "directory": "plugins/saas-packs/notion-pack"
   },
-  "homepage": "https://tonsofskills.com/learn/notion/",
+  "homepage": "https://tonsofskills.com/plugins/notion-pack/",
   "publishConfig": {
     "access": "public"
   }

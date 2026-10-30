@@ -1,0 +1,54 @@
+spec_version: '1.0'
+skill_name: langfuse-experiment-guardian
+description: Assess case-level experiment comparison on supplied private receipts.
+criteria:
+  - id: pins-comparison
+    description: Requires explicit reviewed baseline, dataset/case content and evaluator identities.
+    method: judge
+    blocker: true
+  - id: blocks-critical-regressions
+    description: Does not let an improved average hide a required critical-case regression.
+    method: judge
+    blocker: true
+  - id: preserves-missing-evidence
+    description: Keeps empty, missing, errored and incomplete evidence inconclusive rather than passing.
+    method: judge
+    blocker: true
+  - id: respects-policy
+    description: Uses exact reviewed exceptions and never changes policy or runs paid evaluators to get a pass.
+    method: judge
+    blocker: true
+test_cases:
+  - id: average-hides-critical
+    prompt:
+      Our supplied Langfuse candidate mean improved but a required critical case fell below threshold. Review
+      release readiness without running models.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - pins-comparison
+      - blocks-critical-regressions
+      - respects-policy
+  - id: missing-evaluator
+    prompt:
+      One evaluator result is absent from an existing Langfuse experiment result. Baseline passed that case.
+      Can we count the missing result as passing?
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - preserves-missing-evidence
+      - respects-policy
+  - id: changed-case
+    prompt:
+      Two Langfuse runs reuse case IDs but the candidate inputs changed. Compare them to our explicit reviewed
+      baseline.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - pins-comparison
+      - preserves-missing-evidence
+  - id: unrelated-webhook
+    prompt: Configure a payment webhook.
+    trigger_expectation: should_not_trigger
+    criteria_ids: []
+tags:
+  - langfuse
+  - supplied-data
+  - operator-review

@@ -4,7 +4,7 @@ description: >-
   Create or update Notion pages and blocks with an idempotency key, semantic diff, and read-back verification. Use when an integration must write approved content. Trigger with "create Notion record", "update Notion page", or "append Notion blocks".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<parent-or-page-id> <write-intent> <idempotency-key>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, writes]

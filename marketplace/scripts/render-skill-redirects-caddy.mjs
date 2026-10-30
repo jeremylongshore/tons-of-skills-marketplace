@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 export function renderSkillRedirects(redirects, start = 84) {
   const lines = [
-    '# Snowflake v2 retired-skill redirects — generated from skill-redirects.json.',
+    '# Retired-skill redirects — generated from skill-redirects.json.',
     '# Import this fragment from the tonsofskills.com Caddy site block.',
     '# Each matcher covers both slash forms and `permanent` emits HTTP 301.',
     '',

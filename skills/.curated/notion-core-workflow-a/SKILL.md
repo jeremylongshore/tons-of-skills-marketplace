@@ -4,7 +4,7 @@ description: >-
   Analyze and query a Notion data source with version-correct filters, pagination, and completeness evidence. Use when retrieving structured workspace records. Trigger with "query Notion data source", "filter Notion records", or "paginate Notion data".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<data-source-id> <filter-intent> <output-scope>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, query]
@@ -28,6 +28,8 @@ Analyze and query a Notion data source with version-correct filters, pagination,
 
 Modern Notion APIs separate the database container from each data source schema. Query operations take a data-source ID; filters and sorts must match that data source's current property schema. Recheck the dated evidence map before relying on mutable fields, endpoints, versions, limits, or delivery behavior.
 
+Opaque cursors are only for the next `start_cursor` request; never parse them or retain them as durable checkpoints or incident evidence.
+
 ## Authentication
 
 Use read-content capability and explicit access to the target content. Record the connection alias, not its bearer value.
@@ -37,9 +39,9 @@ Use read-content capability and explicit access to the target content. Record th
 1. Retrieve database metadata and resolve the intended data-source ID by evidence, not name alone.
 2. Retrieve the data-source schema and map requested fields to stable property IDs where practical.
 3. Compile and review filters, sorts, page size, and output minimization.
-4. Paginate until the contract says complete while preserving cursors and page counts.
+4. Pass each cursor verbatim to the next request and record page counts. Check every response for `request_status.type: incomplete`; `has_more: false` alone does not prove completeness at the 10,000-result query cap.
 5. Normalize page property values without assuming every property is populated or returned inline.
-6. Reconcile row counts, duplicate IDs, missing pages, and the extraction watermark.
+6. Reconcile row counts, duplicate IDs, missing pages, and acknowledged output. For full exports, use stable `created_time` windows with inclusive boundaries and record-ID deduplication; refuse nonadvancing or saturated tied boundaries and split further using the official large-source guide. Mutable `last_edited_time` is not a universal full-export checkpoint.
 
 ## Tool Discipline
 
@@ -62,7 +64,7 @@ Return the resolved IDs, schema revision evidence, filter plan, page ledger, nor
 ## Examples
 
 - Retrieve all approved task pages with a reviewed status filter.
-- Resume a paginated extraction from the last acknowledged cursor.
+- Restart an extraction with a fresh query from acknowledged record/time-window progress and deduplicate IDs.
 
 ## Validation
 
@@ -73,9 +75,10 @@ Exercise and record these paths with expected and observed results:
 - schema drift
 - missing property
 - duplicate page
-- cursor restart
+- fresh-query restart and nonadvancing window refusal
 
 ## Resources
 
 - [Current first-party evidence map](references/official-docs.md) — recheck dated sources before relying on mutable behavior.
+- [Cursor lifetime and versioning](https://developers.notion.com/reference/versioning).
 - Treat observed tenant behavior as environment-specific evidence, never a universal Notion guarantee.

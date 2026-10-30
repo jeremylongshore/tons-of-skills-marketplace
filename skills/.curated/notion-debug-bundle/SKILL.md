@@ -4,7 +4,7 @@ description: >-
   Assemble a reproducible, secret-free Notion integration diagnostic bundle for engineering or support. Use when an incident needs portable evidence. Trigger with "collect Notion debug bundle", "redact Notion diagnostics", or "prepare Notion support case".
 allowed-tools: Read,Glob,Grep,Write,Edit
 argument-hint: "<environment> <incident-window> <operation>"
-version: 1.40.0
+version: 1.41.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags: [saas, notion, diagnostics]

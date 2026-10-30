@@ -8,7 +8,6 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema, Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 interface Task {
   id: string;
@@ -155,10 +154,10 @@ const server = new Server({ name: 'workflow-engine', version: '1.0.0' }, { capab
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
-    { name: 'create_workflow', description: 'Create DAG workflow', inputSchema: zodToJsonSchema(CreateWorkflowSchema as any) as Tool['inputSchema'] },
-    { name: 'execute_workflow', description: 'Execute workflow', inputSchema: zodToJsonSchema(ExecuteWorkflowSchema as any) as Tool['inputSchema'] },
-    { name: 'get_workflow', description: 'Get workflow status', inputSchema: zodToJsonSchema(GetWorkflowSchema as any) as Tool['inputSchema'] },
-    { name: 'list_workflows', description: 'List workflows', inputSchema: zodToJsonSchema(ListWorkflowsSchema as any) as Tool['inputSchema'] }
+    { name: 'create_workflow', description: 'Create DAG workflow', inputSchema: z.toJSONSchema(CreateWorkflowSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema'] },
+    { name: 'execute_workflow', description: 'Execute workflow', inputSchema: z.toJSONSchema(ExecuteWorkflowSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema'] },
+    { name: 'get_workflow', description: 'Get workflow status', inputSchema: z.toJSONSchema(GetWorkflowSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema'] },
+    { name: 'list_workflows', description: 'List workflows', inputSchema: z.toJSONSchema(ListWorkflowsSchema, { target: 'draft-07', io: 'input' }) as Tool['inputSchema'] }
   ]
 }));
 
