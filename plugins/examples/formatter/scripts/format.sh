@@ -200,8 +200,8 @@ get_prettier_command() {
         prettier_cmd="prettier"
         log_debug "Using global prettier"
     elif command -v npx &> /dev/null; then
-        prettier_cmd="npx prettier"
-        log_debug "Using npx prettier"
+        prettier_cmd="npx --no-install prettier"
+        log_debug "Using npx --no-install prettier"
     else
         log_error "Prettier not found"
         return 1
@@ -259,6 +259,14 @@ main() {
     log_info "Formatter hook started"
     log_debug "Working directory: $(pwd)"
 
+    # Native Claude does not interpret this plugin's enabled metadata. The
+    # script makes the documented switch an actual application control.
+    if command -v jq >/dev/null 2>&1 && ! jq -e \
+        '[.hooks.PostToolUse[]? | select(.matcher == "Write|Edit") | .enabled] | length > 0 and all(. == true)' \
+        "$PLUGIN_ROOT/hooks/hooks.json" >/dev/null 2>&1; then
+        exit 0
+    fi
+
     # Check dependencies
     check_dependencies
 
@@ -269,15 +277,21 @@ main() {
         exit 1
     fi
 
-    log_debug "Received hook data: ${hook_data:0:200}..."  # Log first 200 chars
+    log_debug "Received formatter hook event"
 
-    # Extract file path from hook data
+    # Read the native event first; retain legacy payloads for manual callers.
     local file
-    file=$(echo "$hook_data" | jq -r '.toolOutput.file // .toolOutput.path // .toolOutput.file_path // empty' 2>/dev/null)
-
-    if [[ -z "$file" ]]; then
-        # Try alternative extraction patterns
-        file=$(echo "$hook_data" | jq -r '.file // .path // .filename // empty' 2>/dev/null)
+    if ! file=$(printf '%s' "$hook_data" | jq -er '
+        if has("hook_event_name") then
+            if .hook_event_name == "PostToolUse" and
+               (.tool_name == "Write" or .tool_name == "Edit") then
+                (.tool_input.file_path // .tool_response.filePath // empty)
+            else empty end
+        else
+            (.toolOutput.file // .toolOutput.path // .toolOutput.file_path // .file // .path // .filename // empty)
+        end | select(type == "string" and length > 0)
+    ' 2>/dev/null); then
+        exit 0
     fi
 
     if [[ -z "$file" ]]; then

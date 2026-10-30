@@ -24,7 +24,7 @@ A comprehensive code formatting plugin for Claude Code that automatically format
 
 ## 📋 Prerequisites
 
-The plugin requires Node.js and npm/npx to be installed:
+The plugin requires Node.js, npm/npx, and `jq` for native hook-event parsing:
 
 ```bash
 # Check if Node.js is installed
@@ -142,7 +142,18 @@ The plugin's hooks are configured in `hooks/hooks.json`:
 - **PostToolUse** - Runs after Write/Edit operations
 - **PreToolUse** - Optional validation before editing (disabled by default)
 
-To disable automatic formatting, edit the hooks.json and set `"enabled": false`.
+The scripts read the matching group's `enabled` flag in `hooks/hooks.json`.
+To disable automatic formatting, set the **PostToolUse** group's `enabled` to
+`false`. The optional **PreToolUse** validation stays inert while its flag is
+`false`, before checking Prettier or attempting an `npx` call. These flags are
+controls implemented by this plugin's scripts; Claude Code does not enforce
+individual-hook disablement through group-level `enabled` metadata.
+
+Automatic formatting reads native `tool_input.file_path`, with
+`tool_response.filePath` as a fallback, only for successful Write/Edit events.
+Legacy payload paths remain supported for manual callers. Explicit filename
+invocations of `validate-format.sh` remain available regardless of the optional
+hook's enable flag.
 
 ## 🔧 Scripts
 
