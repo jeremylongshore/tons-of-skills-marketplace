@@ -12,6 +12,7 @@ License: MIT
 import sys
 import re
 import html
+import io
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import List, Dict, Any, Optional
@@ -49,7 +50,8 @@ class FeedParser:
         articles = []
 
         try:
-            feed = feedparser.parse(content)
+            # Keep fetched/cache content as data, never a URL or filename.
+            feed = feedparser.parse(io.BytesIO(content.encode("utf-8")))
 
             for entry in feed.entries:
                 article = self._parse_entry(

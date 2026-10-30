@@ -2,6 +2,7 @@
 """Fetch RSS feeds concurrently with a per-source health receipt and UTC cache."""
 
 import hashlib
+import io
 import json
 import math
 import time
@@ -85,7 +86,8 @@ class FeedFetcher:
     @staticmethod
     def _is_feed(content: str) -> bool:
         """A 200 HTML error page is not a successful feed, including when cached."""
-        feed = feedparser.parse(content)
+        # A bare string can be interpreted as another URL or local filename.
+        feed = feedparser.parse(io.BytesIO(content.encode("utf-8")))
         return bool(feed.version and (not feed.bozo or feed.entries))
 
     def _fetch_one(self, source):

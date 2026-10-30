@@ -147,6 +147,21 @@ class FeedHealthTests(unittest.TestCase):
         self.assertIn("byte limit", self.fetcher.diagnostics[0]["reason"])
         self.assertFalse(self.fetcher._get_cache_path(GOOD["url"]).exists())
 
+    def test_feed_content_cannot_trigger_secondary_url_or_local_file_reads(self):
+        local_feed = Path(self.scratch.name) / "not-an-input-file.xml"
+        local_feed.write_text(rss())
+        with patch("feed_fetcher.feedparser.http.get", side_effect=AssertionError("Secondary fetch")) as secondary:
+            for content in (
+                str(local_feed),
+                local_feed.as_uri(),
+                "https://other.example/feed",
+                "ftp://other.example/feed",
+            ):
+                with self.subTest(content=content):
+                    self.assertFalse(FeedFetcher._is_feed(content))
+                    self.assertEqual(FeedParser().parse_feed(content), [])
+        secondary.assert_not_called()
+
     def test_cache_read_is_bounded_and_oversized_content_is_not_used(self):
         self.fetcher.max_response_bytes = 16
         path = self.fetcher._get_cache_path(GOOD["url"])
