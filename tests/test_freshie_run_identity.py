@@ -186,6 +186,19 @@ class PolicyTests(unittest.TestCase):
             ):
                 identity.remote_rows("fixture", "inventory", "main", "SELECT 1")
 
+    def test_slow_authority_query_has_a_bounded_allowance_and_timeouts_stay_fail_closed(self):
+        def slow_valid_query(url, timeout):
+            self.assertLessEqual(timeout, 60)
+            if timeout <= 21:
+                raise TimeoutError("Fixture authority requires more than 21 seconds")
+            return io.BytesIO(b'{"query_execution_status":"Success","rows":[{"verified":true}]}')
+
+        with mock.patch.object(identity.urllib.request, "urlopen", side_effect=slow_valid_query):
+            self.assertEqual(identity.remote_rows("fixture", "inventory", "main", "SELECT 1"), [{"verified": True}])
+        with mock.patch.object(identity.urllib.request, "urlopen", side_effect=TimeoutError("unavailable")):
+            with self.assertRaises(identity.IdentityError):
+                identity.remote_rows("fixture", "inventory", "main", "SELECT 1")
+
     def test_public_census_uses_named_api_ref_and_immutable_sql_revision(self):
         captured_head = "a" * 32
         queries = []
