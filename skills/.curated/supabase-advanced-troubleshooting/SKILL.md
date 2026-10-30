@@ -11,7 +11,7 @@ description: |
   contention", "supabase connection leak", "supabase RLS conflict", "supabase
   cold start".
 allowed-tools: Read, Grep, Bash(npx supabase:*), Bash(supabase:*), Bash(curl:*), Bash(psql:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -36,7 +36,7 @@ When basic debugging does not reveal the root cause, you need deep PostgreSQL di
 - Supabase project with `pg_stat_statements` extension enabled
 - Direct database access via SQL Editor or `psql`
 - `@supabase/supabase-js` v2+ installed in your project
-- Supabase CLI for Edge Function logs
+- Dashboard access to the selected Edge Function’s Logs and Invocations panels
 - Familiarity with PostgreSQL system catalogs
 
 ## Authentication
@@ -50,8 +50,9 @@ project-scoped credentials, never a shared key:
 - **SDK (`createClient`)** — pass the **service-role key** (`SUPABASE_SERVICE_ROLE_KEY`)
   for the diagnostic RPCs below, since they read `pg_stat_activity` and system
   catalogs that the anon key cannot. Load it from the environment; never commit it.
-- **`supabase` CLI** — run `supabase login` once (stores a personal access token),
-  then `supabase link --project-ref <ref>` for Edge Function logs.
+- **Remote Edge Function logs** — use the selected project’s Dashboard Logs and
+  Invocations panels with approved project access. The CLI has no remote
+  `functions logs` command; local `functions serve` output is not remote evidence.
 
 ## Instructions
 

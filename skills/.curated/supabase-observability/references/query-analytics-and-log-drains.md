@@ -49,28 +49,13 @@ select pg_stat_statements_reset();
 
 **Log drains** forward Supabase logs to external aggregation tools:
 
-```bash
-# Add a Datadog log drain
-npx supabase log-drains add \
-  --name datadog-drain \
-  --type datadog \
-  --datadog-api-key "$DATADOG_API_KEY" \
-  --datadog-region us1 \
-  --linked
+1. In the project Dashboard, open **Project Settings > Log Drains**.
+2. Choose a supported destination and provision its credentials through the approved secret-management flow.
+3. Review source data, destination region, retention, cost, and access before enabling the drain.
+4. Send a synthetic event and verify arrival and parsing at the destination; inspect status in the Dashboard.
+5. Disable or remove the drain in the Dashboard when no longer required, then verify forwarding stopped.
 
-# Add a custom HTTP log drain (Logflare, Axiom, etc.)
-npx supabase log-drains add \
-  --name custom-drain \
-  --type webhook \
-  --url "https://api.logflare.app/logs/supabase" \
-  --linked
-
-# List active drains
-npx supabase log-drains list --linked
-
-# Remove a drain
-npx supabase log-drains remove <drain-id> --linked
-```
+See the [current log-drain guide](https://supabase.com/docs/guides/observability/log-drains) for supported integrations and eligibility. No CLI log-drain subcommand is assumed.
 
 Log drain events include API requests, Auth events, Postgres logs, Storage
 operations, and Edge Function invocations.

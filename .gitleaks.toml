@@ -108,6 +108,9 @@ regexes = [
     '''(prod|dev|stag(e|ing))[-_]secret[-_]\d+''',
     # Model identifiers matched by the generic rule are not credentials.
     '''claude-[0-9a-z.-]+-\d{8}''',
+    # Exact public prose listing API-key categories; not a credential.
+    # Keep neighboring real values scanned; do not suppress this file/rule.
+    '''^publishable/secret$''',
     # Prose fragment "GCP/AWS/Vault" captured by the generic rule.
     '''GCP/AWS/Vault''',
     # Base64 of "tok:abcdefghijklmnopqrstuvwxyz" / "tok:staging_token" /

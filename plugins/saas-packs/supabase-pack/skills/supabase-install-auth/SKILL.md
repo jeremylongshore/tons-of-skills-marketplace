@@ -13,7 +13,7 @@ description: 'Install and configure Supabase SDK, CLI, and project authenticatio
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Bash(pnpm:*), Bash(pip:*),
   Bash(supabase:*), Grep, Glob
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -40,7 +40,7 @@ Install the Supabase SDK, CLI, and project credentials from scratch — covering
 
 ## Prerequisites
 
-- Node.js 18+ (for JS/TS) or Python 3.8+ (for Python)
+- Node.js 22+ for current JS SDK releases, or Python 3.9+ for the Python SDK
 - Package manager: npm, pnpm, or yarn (JS) / pip (Python)
 - A Supabase project created at https://supabase.com/dashboard
 - Docker Desktop (only if using local development via `supabase start`)
@@ -70,11 +70,13 @@ npm install -D supabase
 # Install the SDK
 pip install supabase
 
-# Install the CLI (alternative: brew install supabase/tap/supabase)
-npm install -g supabase
+# Optional CLI through project Node tooling (requires Node.js 20+)
+npm install --save-dev supabase
 ```
 
-Verify the CLI is available:
+For a global CLI command, use the official Homebrew or Scoop installation for your platform instead of global npm installation. Pin the project dependency for team reproducibility. See the [CLI installation guide](https://supabase.com/docs/guides/local-development/cli/getting-started).
+
+Verify the installed CLI is available:
 
 ```bash
 npx supabase --version
@@ -153,17 +155,18 @@ key = os.environ["SUPABASE_KEY"]
 supabase = create_client(url, key)
 ```
 
-**Verify the connection:**
+**Verify an approved existing diagnostic table and query scope:**
+
+The `_health_check` table below must already exist with the reviewed grants and RLS policy. This step does not create it or prove broader service health.
 
 ```typescript
 // Quick connectivity check
 const { data, error } = await supabase.from('_health_check').select('*').limit(1)
-if (error && error.code !== 'PGRST116') {
-  // PGRST116 = relation does not exist (expected if table doesn't exist yet)
-  throw new Error(`Supabase connection failed: ${error.message}`)
-}
-console.log('Supabase connected successfully')
+if (error) throw new Error(`Approved query failed: ${error.code}`)
+console.log('Approved table query accepted; broader health and RLS remain unverified')
 ```
+
+`PGRST116` means a singular response returned zero or multiple rows (HTTP 406), not a missing table. Missing-relation/table errors include `42P01` and `PGRST205`; none is a successful health probe. See [PostgREST errors](https://docs.postgrest.org/en/stable/references/errors.html).
 
 **Optional — generate TypeScript types from the database schema:**
 
@@ -210,6 +213,7 @@ Full TypeScript and Python examples with auth sign-up, sign-in, session manageme
 
 ## Resources
 
+- [SDK runtime support](https://github.com/supabase/supabase-js#nodejs) and [Python package requirements](https://pypi.org/project/supabase/) — recheck the selected release before installing
 - [Supabase JS Client Reference](https://supabase.com/docs/reference/javascript/initializing) — `createClient` options, auth, database, storage, realtime
 - [Supabase Python Client Reference](https://supabase.com/docs/reference/python/initializing) — Python SDK setup and usage
 - [Supabase CLI Reference](https://supabase.com/docs/reference/cli/introduction) — local dev, migrations, type generation

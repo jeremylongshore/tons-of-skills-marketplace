@@ -8,7 +8,7 @@ description: |
   Trigger with "supabase environments", "supabase staging", "supabase dev prod",
   "supabase multi-project", "supabase env config", "database branching".
 allowed-tools: Read, Write, Edit, Bash(npx supabase:*), Bash(supabase:*), Bash(vercel:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -37,9 +37,9 @@ environments with database branching.
 ## Prerequisites
 
 - Three separate Supabase projects created at [supabase.com/dashboard](https://supabase.com/dashboard) (dev, staging, production)
-- Supabase CLI installed: `npm install -g supabase` or `npx supabase --version`
+- Supabase CLI installed: `npm install --save-dev supabase` or `npx supabase --version`
 - `@supabase/supabase-js` v2+ installed in your project
-- Node.js 18+ with a framework that supports `.env` files (Next.js, Nuxt, SvelteKit, etc.)
+- Node.js 22+ for current SDK releases, with a framework that supports `.env` files (Next.js, Nuxt, SvelteKit, etc.)
 - A secret management solution for CI (GitHub Actions Secrets, Vercel env vars, etc.)
 
 ## Instructions
@@ -52,14 +52,14 @@ verbatim.
 ### Step 1: Environment Files and Project Layout
 
 Keep one Supabase CLI project with **shared migrations** and one `.env.*` file per
-environment. Each file points at a different Supabase project; only `.env.local` is safe to
-commit.
+environment. Credential-bearing files, including `.env.local`, stay gitignored. Commit only a reviewed `.env.example` containing placeholders, never real local or hosted credentials.
 
 ```
 supabase/migrations/   # shared schema — every env applies the same migrations
-.env.local             # supabase start defaults (safe to commit)
+.env.local             # local credentials (gitignored)
 .env.staging           # staging project creds  (gitignored)
 .env.production        # production project creds (gitignored — NEVER commit)
+.env.example           # reviewed placeholders only (may be committed)
 ```
 
 The CLI links **one project at a time**. Before any `db push` or `functions deploy`,

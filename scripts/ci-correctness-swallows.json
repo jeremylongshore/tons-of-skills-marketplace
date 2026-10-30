@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "45aaf8d372b563e83bc42061b81b1e83ed594c562b15a1a6d4b87cf033dd8fb4"
+      "sha256": "547880efdb2380b0c4be116d3cc3091c5949735ca481fc3070d4d77acaedd28e"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -42,10 +42,10 @@
     "site_containers": 17,
     "workflows": 3,
     "jobs": 28,
-    "containers": 237,
-    "run_containers": 164,
+    "containers": 238,
+    "run_containers": 165,
     "opaque_actions": 73,
-    "conditional_envelopes": 44
+    "conditional_envelopes": 45
   },
   "sites": [
     {
@@ -130,9 +130,9 @@
       "id": "test-status-accumulator",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 9,
+      "step": 10,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "e9f706b04649c111cefb3b9db02e0d5e46a570d7a691be6390c6ae9143e7c116",
       "run_sha256": "0dcfbc304f8ac40a710d9f608d0aace39c58181aa769349bff1dbd3977817052",
       "anchor": {
@@ -146,7 +146,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 960,
+          "line": 965,
           "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
         }
       ],
@@ -239,9 +239,9 @@
       "id": "python-test-discovery",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 17,
+      "step": 18,
       "step_name": "Run Python tests",
-      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "84d634f64c05089931a10f8d658c32adc00033838d084019727135c2f0b4b639",
       "run_sha256": "1f3d09305dde4e29d0ab05ef255ed72204d231ad36a6c7a61d4118c03ca656c5",
       "anchor": {
@@ -255,7 +255,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 1165,
+          "line": 1170,
           "text": "          # Normalize only grep's no-match status, never a find traversal error."
         },
         {
@@ -393,9 +393,9 @@
       "id": "python-dependency-install",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 14,
+      "step": 15,
       "step_name": "Install Python test dependencies",
-      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "7f1f3d1d0ca6936e80a9343a1685132283528c086779b30a0bcc8635aa419c1b",
       "run_sha256": "53cd91fd8cf412a2c5ec2b754f75bd99c83b1c418f1a61039d73517b48bc2e72",
       "anchor": {
@@ -413,9 +413,9 @@
       "id": "enterprise-validator-advisory",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 23,
+      "step": 24,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -433,9 +433,9 @@
       "id": "cli-strict-advisory",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 23,
+      "step": 24,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -448,7 +448,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 1263,
+        "line": 1268,
         "sha256": "bc0bb0c3f03adb8e4cfe7c48574c54154d1c17f1f641b4445c6173502e78e054"
       }
     },
@@ -556,9 +556,9 @@
       "id": "package-test-script-discovery",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 9,
+      "step": 10,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "e9f706b04649c111cefb3b9db02e0d5e46a570d7a691be6390c6ae9143e7c116",
       "run_sha256": "0dcfbc304f8ac40a710d9f608d0aace39c58181aa769349bff1dbd3977817052",
       "anchor": {

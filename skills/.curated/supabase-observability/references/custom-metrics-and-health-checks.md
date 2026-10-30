@@ -2,113 +2,54 @@
 
 ## Custom Metrics via Edge Functions
 
-Emit structured events for business-level monitoring:
+Collect bounded observations only from a reviewed existing table and bucket. Keep the deployed function's JWT verification enabled and restrict its invocation to approved monitoring identities; this example also verifies the request's user. It grants no monitoring entitlement by itself. Do not expose admin data or credentials. Storage listing is a root-entry sample, not a recursive object count or quota measurement.
 
 ```typescript
-// supabase/functions/collect-metrics/index.ts
 import { createClient } from '@supabase/supabase-js';
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
-serve(async () => {
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  );
-
-  // Collect quota-relevant metrics
-  const { count: userCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true });
-
-  const { count: storageObjects } = await supabase
-    .storage.from('uploads')
-    .list('', { limit: 1, offset: 0 })
-    .then(({ data }) => ({ count: data?.length ?? 0 }));
-
-  const { data: dbSize } = await supabase
-    .rpc('get_database_size');
-
-  const metrics = {
-    timestamp: new Date().toISOString(),
-    user_count: userCount,
-    db_size_mb: dbSize,
-    storage_objects: storageObjects,
-  };
-
-  // Store metrics for trend analysis
-  await supabase.from('app_metrics').insert(metrics);
-
-  // Alert on quota thresholds
-  const DB_LIMIT_MB = 8000; // 8GB Pro plan limit
-  if (dbSize > DB_LIMIT_MB * 0.85) {
-    console.warn(`[QUOTA_ALERT] Database at ${Math.round(dbSize / DB_LIMIT_MB * 100)}% capacity`);
-    // Send alert via webhook, email, or Slack
-  }
-
-  return new Response(JSON.stringify(metrics), {
-    headers: { 'Content-Type': 'application/json' },
+Deno.serve(async (request) => {
+  const reply = (status: number, body: object) => new Response(JSON.stringify(body), {
+    status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' },
   });
+  try {
+    const authorization = request.headers.get('authorization');
+    if (!authorization?.startsWith('Bearer ')) return reply(401, { error: 'Authentication required' });
+    const client = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!, {
+      global: { headers: { Authorization: authorization } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data: { user }, error: authError } = await client.auth.getUser();
+    if (authError || !user) return reply(401, { error: 'User verification failed' });
+    const table = Deno.env.get('APPROVED_METRICS_TABLE');
+    const bucket = Deno.env.get('APPROVED_METRICS_BUCKET');
+    if (!table || !bucket) return reply(503, { error: 'Approved probe configuration required' });
+    const { count, error: queryError } = await client.from(table).select('id', { count: 'exact', head: true });
+    if (queryError || typeof count !== 'number' || !Number.isSafeInteger(count) || count < 0)
+      return reply(503, { error: 'Approved table query failed' });
+    const { data: entries, error: storageError } = await client.storage.from(bucket).list('', { limit: 20, offset: 0 });
+    if (storageError || !Array.isArray(entries) || entries.length > 20)
+      return reply(503, { error: 'Storage sample failed' });
+    return reply(200, { status: 'observed', visible_table_rows: count, root_entries_sampled: entries.length, sample_limit: 20 });
+  } catch {
+    return reply(503, { error: 'Probe failed' });
+  }
 });
 ```
 
-Schedule it with a cron trigger in `supabase/config.toml`:
+These user-scoped observations are not total users, total stored objects, database size, plan capacity, or overall platform health. No metrics write or undefined RPC is required. Use approved Dashboard/database monitoring for separately authorized capacity measurements.
 
-```toml
-[functions.collect-metrics]
-schedule = "*/15 * * * *"  # Every 15 minutes
-```
+Schedule through the [official Edge Function scheduling workflow](https://supabase.com/docs/guides/functions/schedule-functions):
+
+1. Deploy and authorize the collector, then enable the required `pg_cron` and `pg_net` extensions.
+2. Provision its project URL and appropriate invocation credential in Vault through an approved secret-management path; never commit plaintext credentials.
+3. Create a reviewed `cron.schedule` job that invokes `net.http_post`, reading connection values from Vault. Match the function's authentication mode to the documented scheduler flow rather than disabling verification to silence errors.
+4. Verify a synthetic authorized invocation and rejection of unauthorized calls. Inspect cron execution and function logs; scheduling an HTTP request alone does not prove successful metrics collection.
+
+There is no function-level TOML schedule setting in this workflow.
 
 ## Health Check Endpoint
 
-For uptime monitoring (Uptime Robot, Pingdom, etc.):
-
-```typescript
-// supabase/functions/health/index.ts
-import { createClient } from '@supabase/supabase-js';
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-
-serve(async () => {
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  );
-
-  const checks: Record<string, { status: string; latency_ms: number; detail?: string }> = {};
-
-  // Database check
-  const dbStart = Date.now();
-  const { error: dbErr } = await supabase.rpc('version');
-  checks.database = {
-    status: dbErr ? 'unhealthy' : 'healthy',
-    latency_ms: Date.now() - dbStart,
-    ...(dbErr && { detail: dbErr.message }),
-  };
-
-  // Auth check
-  const authStart = Date.now();
-  const { error: authErr } = await supabase.auth.admin.listUsers({ perPage: 1 });
-  checks.auth = {
-    status: authErr ? 'unhealthy' : 'healthy',
-    latency_ms: Date.now() - authStart,
-  };
-
-  // Storage check
-  const storageStart = Date.now();
-  const { error: storageErr } = await supabase.storage.listBuckets();
-  checks.storage = {
-    status: storageErr ? 'unhealthy' : 'healthy',
-    latency_ms: Date.now() - storageStart,
-  };
-
-  const overall = Object.values(checks).every(c => c.status === 'healthy');
-  const statusCode = overall ? 200 : 503;
-
-  return new Response(
-    JSON.stringify({ status: overall ? 'healthy' : 'degraded', checks, timestamp: new Date().toISOString() }),
-    { status: statusCode, headers: { 'Content-Type': 'application/json' } }
-  );
-});
-```
+Use the authenticated bounded collector above as a probe of those specific operations only, with the same private, no-store responses and approved monitoring access. Treat authentication, query, storage, configuration, and thrown errors as failed probes; never report success on a returned error. A successful probe does not establish global service health. Do not invent `version` or `get_database_size` RPCs: database functions must be explicitly deployed and authorized before use.
 
 ## Real-time Connection Monitoring
 

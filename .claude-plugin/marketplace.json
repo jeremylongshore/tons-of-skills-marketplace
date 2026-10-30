@@ -5204,7 +5204,7 @@
       "name": "supabase-pack",
       "source": "./plugins/saas-packs/supabase-pack",
       "description": "Complete Supabase integration skill pack with 30 skills covering authentication, database, storage, realtime, edge functions, and production operations. Flagship+ tier vendor pack.",
-      "version": "1.54.0",
+      "version": "1.55.0",
       "category": "saas-packs",
       "keywords": [
         "supabase",

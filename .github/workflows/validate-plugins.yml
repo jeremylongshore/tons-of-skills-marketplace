@@ -921,6 +921,11 @@ jobs:
         if: matrix.test-type == 'mcp-plugins'
         run: pnpm install --frozen-lockfile
 
+      - name: Test Supabase documentation examples offline
+        timeout-minutes: 2
+        if: matrix.test-type == 'mcp-plugins'
+        run: node --test scripts/supabase-pack-examples.test.mjs
+
       - name: Build MCP plugins
         if: matrix.test-type == 'mcp-plugins'
         env:

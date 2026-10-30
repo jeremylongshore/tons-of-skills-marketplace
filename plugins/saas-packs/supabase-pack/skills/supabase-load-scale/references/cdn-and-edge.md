@@ -2,23 +2,9 @@
 
 ## Compute Size Selection Guide
 
-| Tier | vCPU | RAM | Max Connections | Best For |
-| ------ | ------ | ----- | ---------------- | ---------- |
-| Micro (Free) | 2 shared | 1 GB | 60 | Development, prototypes |
-| Small (Pro) | 2 dedicated | 2 GB | 90 | Low-traffic production |
-| Medium | 2 dedicated | 4 GB | 120 | Growing apps, moderate traffic |
-| Large | 4 dedicated | 8 GB | 160 | High-traffic, complex queries |
-| XL | 8 dedicated | 16 GB | 240 | Large datasets, concurrent users |
-| 2XL | 16 dedicated | 32 GB | 380 | Enterprise, heavy analytics |
-| 4XL | 32 dedicated | 64 GB | 480 | Mission-critical, max throughput |
+Use the project's current **Compute and Disk** settings and the [provider compute guide](https://supabase.com/docs/guides/platform/compute-and-disk) to review available sizes, CPU/RAM, connection budgets, storage performance, billing, and change impact. Record the selected configuration and observation date. Do not infer a current entitlement or connection guarantee from a fixed historical tier table.
 
-```bash
-# Upgrade compute via CLI (requires Pro plan)
-supabase projects update --experimental --compute-size small  # or medium, large, xl, 2xl, 4xl
-
-# Check current compute size
-supabase projects list
-```
+Make approved compute changes in the Dashboard and validate the workload afterward; project listing is not a compute-change API.
 
 ## CDN Caching for Storage Buckets
 
@@ -84,49 +70,38 @@ async function uploadVersionedAsset(bucket: string, file: Buffer, ext: string) {
 }
 ```
 
-## Edge Function Regional Deployment
+## Edge Function Regional Invocation
 
-```bash
-# Deploy to a specific region (closer to your users)
-supabase functions deploy my-function --region us-east-1
-supabase functions deploy my-function --region eu-west-1
-supabase functions deploy my-function --region ap-southeast-1
-
-# List available regions
-supabase functions list
-
-# Deploy all functions to a region
-supabase functions deploy --region us-east-1
-```
+Deploy functions using the documented deployment workflow. Execution-region selection is an invocation option (`region` in the SDK or the documented request header), not a deployment flag. Measure latency relative to both users and the database; explicit region pinning also changes outage fallback behavior. Use the [regional invocation guide](https://supabase.com/docs/guides/functions/regional-invocation) for supported values and response metadata.
 
 ```typescript
 // supabase/functions/geo-router/index.ts
-// Edge Function that runs in the region closest to the user
+// Application-level product filtering; not execution-region selection.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 Deno.serve(async (req) => {
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
-
-  // Edge Functions automatically run in the nearest region
-  // Use this for latency-sensitive operations
-  const { data, error } = await supabase
-    .from('products')
-    .select('id, name, price')
-    .eq('region', req.headers.get('x-region') ?? 'us')
-    .limit(20)
-
-  if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 })
-  }
-
-  return new Response(JSON.stringify(data), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=60',  // CDN caches the response
-    },
+  const reply = (status: number, body: unknown) => new Response(JSON.stringify(body), {
+    status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' },
   })
+  try {
+    const authorization = req.headers.get('authorization')
+    if (!authorization?.startsWith('Bearer ')) return reply(401, { error: 'Authentication required' })
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!, {
+        global: { headers: { Authorization: authorization } },
+        auth: { persistSession: false, autoRefreshToken: false },
+      }
+    )
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) return reply(401, { error: 'User verification failed' })
+    // Ordinary untrusted product filter: RLS authorizes rows, not this header.
+    // It does not select the function's execution region.
+    const { data, error } = await supabase.from('products').select('id, name, price')
+      .eq('region', req.headers.get('x-region') ?? 'us').limit(20)
+    if (error || !Array.isArray(data)) return reply(500, { error: 'Product query failed' })
+    return reply(200, data)
+  } catch {
+    return reply(500, { error: 'Request failed' })
+  }
 })
 ```

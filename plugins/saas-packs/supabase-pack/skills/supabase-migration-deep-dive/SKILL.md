@@ -11,7 +11,7 @@ description: |
   downtime", "supabase rollback", "supabase db push", "supabase migration new".
 allowed-tools: Read, Write, Edit, Bash(npx supabase:*), Bash(supabase:*), Bash(psql:*),
   Grep, Glob
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -34,7 +34,7 @@ Supabase migrations are timestamped SQL files managed by the CLI that track sche
 
 ## Prerequisites
 
-- Supabase CLI installed: `npm install -g supabase` or `npx supabase --version`
+- Supabase CLI installed: `npm install --save-dev supabase` or `npx supabase --version`
 - `@supabase/supabase-js` v2+ installed in your project
 - Local Supabase running: `npx supabase start`
 - Understanding of PostgreSQL DDL and transaction behavior

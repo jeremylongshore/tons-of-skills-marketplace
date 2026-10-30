@@ -1,6 +1,6 @@
 {
   "name": "supabase-pack",
-  "version": "1.54.0",
+  "version": "1.55.0",
   "description": "Claude Code skill pack for Supabase (30 skills)",
   "author": {
     "name": "Jeremy Longshore",
@@ -13,5 +13,7 @@
     "saas",
     "sdk",
     "integration"
-  ]
+  ],
+  "homepage": "https://tonsofskills.com/learn/supabase/",
+  "commands": []
 }

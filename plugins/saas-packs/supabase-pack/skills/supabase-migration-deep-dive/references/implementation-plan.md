@@ -1,80 +1,56 @@
 # Implementation Plan
 
-## Implementation Plan
+## 1. Establish a Reviewed Migration Boundary
 
-### Phase 1: Setup (Week 1-2)
+Install a reviewed compatible SDK version through the project's lockfile. The SDK
+has no package-level `ping()` method. Validate configuration locally, then run a
+separately authorized read against a known fixture table to test connectivity.
+Never infer successful RLS or authentication from construction alone.
 
-```bash
-# Install Supabase SDK
-npm install @supabase/supabase-js
+Record source/destination project identities, schema revision, approved fields,
+retention rules, backup/restore evidence, and rollback ownership. Do not migrate
+production data from an unreviewed shell one-liner.
 
-# Configure credentials
-cp .env.example .env.supabase
-# Edit with new credentials
+## 2. Use Real Database Operations
 
-# Verify connectivity
-node -e "require('@supabase/supabase-js').ping()"
-```
-
-### Phase 2: Adapter Layer (Week 3-4)
-
-```typescript
-// src/adapters/supabase.ts
-interface ServiceAdapter {
-  create(data: CreateInput): Promise<Resource>;
-  read(id: string): Promise<Resource>;
-  update(id: string, data: UpdateInput): Promise<Resource>;
-  delete(id: string): Promise<void>;
-}
-
-class SupabaseAdapter implements ServiceAdapter {
-  async create(data: CreateInput): Promise<Resource> {
-    const supabaseData = this.transform(data);
-    return supabaseClient.create(supabaseData);
-  }
-
-  private transform(data: CreateInput): SupabaseInput {
-    // Map from old format to Supabase format
-  }
-}
-```
-
-### Phase 3: Data Migration (Week 5-6)
+This adapter assumes an existing `products(id, name)` schema with a unique `id` and
+an explicitly authorized migration client. It accepts only the mapped fields and
+checks the SDK's returned error. `create()` and `batchCreate()` are not generic
+Supabase client methods.
 
 ```typescript
-async function migrateSupabaseData(): Promise<MigrationResult> {
-  const batchSize = 100;
-  let processed = 0;
-  let errors: MigrationError[] = [];
+import type { SupabaseClient } from '@supabase/supabase-js';
+type Product = { id: string; name: string };
 
-  for await (const batch of oldSystem.iterateBatches(batchSize)) {
-    try {
-      const transformed = batch.map(transform);
-      await supabaseClient.batchCreate(transformed);
-      processed += batch.length;
-    } catch (error) {
-      errors.push({ batch, error });
-    }
-
-    // Progress update
-    console.log(`Migrated ${processed} records`);
-  }
-
-  return { processed, errors };
+export async function insertProducts(client: SupabaseClient, products: Product[]) {
+  if (products.length === 0 || products.length > 100) throw new Error('Expected 1–100 rows');
+  const rows = products.map(({ id, name }) => ({ id, name }));
+  const { error } = await client.from('products').insert(rows);
+  if (error) throw error;
+  return { submitted: rows.length };
 }
 ```
 
-### Phase 4: Traffic Shift (Week 7-8)
+The receipt means the insert returned success, not that the whole migration is
+complete. Do not blindly retry a timed-out insert. Reconcile immutable source IDs
+against destination IDs before deciding whether to retry; choose upsert semantics
+only after reviewing conflict keys and whether overwrites are authorized.
 
-```typescript
-// Feature flag controlled traffic split
-function getServiceAdapter(): ServiceAdapter {
-  const supabasePercentage = getFeatureFlag('supabase_migration_percentage');
+## 3. Batch, Reconcile, and Pause on Failure
 
-  if (Math.random() * 100 < supabasePercentage) {
-    return new SupabaseAdapter();
-  }
+Read the source with bounded stable pagination or a reviewed snapshot. Record each
+batch's source IDs and checksum in protected migration evidence, not stdout. Stop
+on any read/write/transform error; retain an explicit partial receipt rather than
+silently skipping a failed batch. Compare counts, approved field checksums, RLS,
+and representative reads before traffic shifts. Redact personal data from reports.
 
-  return new LegacyAdapter();
-}
-```
+## 4. Shift Traffic Without Splitting an Identity's Writes
+
+Use a persisted, deterministic tenant/user cohort assignment, not a fresh random
+choice on every request. Define source of truth and write ownership per cohort,
+reconciliation, a tested rollback boundary, and how already-written records are
+handled. Restore schema/data only through a separately reviewed restore plan;
+changing an application feature flag does not undo a data migration.
+
+[Insert](https://supabase.com/docs/reference/javascript/insert)
+[Upsert](https://supabase.com/docs/reference/javascript/upsert)

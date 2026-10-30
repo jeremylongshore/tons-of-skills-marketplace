@@ -11,7 +11,7 @@ description: |
   Trigger with phrases like "supabase CI", "supabase GitHub Actions",
   "supabase deploy pipeline", "CI supabase migrations", "supabase preview branches".
 allowed-tools: Write, Bash(npx:*), Bash(gh:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -41,7 +41,7 @@ The pull-request CI pipeline runs these stages, all detailed in [ci-workflows.md
 - GitHub repository with Actions enabled
 - Supabase project created at [supabase.com/dashboard](https://supabase.com/dashboard)
 - Supabase CLI initialized locally (`npx supabase init`)
-- Node.js 18+ in your project
+- Node.js 22+ for the current SDK application and CI examples
 - `@supabase/supabase-js` installed:
 
 ```bash

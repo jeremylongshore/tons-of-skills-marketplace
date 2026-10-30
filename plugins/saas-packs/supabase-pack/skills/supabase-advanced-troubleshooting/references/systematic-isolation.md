@@ -1,56 +1,45 @@
 # Systematic Isolation
 
-## Systematic Isolation
+## Layer-by-Layer Testing
 
-### Layer-by-Layer Testing
+Separate transport, authentication, and application authorization failures. Record the
+project URL's hostname (not a key), operation, error code, and timestamp. Investigate
+DNS/TLS for that project's hostname; `api.supabase.com` is the Management API, not
+the project's Data API. Do not print authorization headers, sessions, or full rows.
 
-```typescript
-// Test each layer independently
-async function diagnoseSupabaseIssue(): Promise<DiagnosisReport> {
-  const results: DiagnosisResult[] = [];
+1. Confirm the configured project URL and runtime/dependency versions locally.
+2. Inspect DNS/TLS or proxy failures for that URL using an explicitly approved diagnostic.
+3. Check the operation's returned error before interpreting its data.
+4. Distinguish a successful empty RLS-filtered result from a failed request. An empty
+   result does not establish that a table has no rows.
+5. Compare only authorized test identities. Do not substitute a privileged key merely
+   to make a user request succeed. Catalog diagnostics require a separately authorized
+   administrative connection; see [the diagnostic workflow](../SKILL.md).
 
-  // Layer 1: Network connectivity
-  results.push(await testNetworkConnectivity());
+## Minimal Read Reproduction
 
-  // Layer 2: DNS resolution
-  results.push(await testDNSResolution('api.supabase.com'));
-
-  // Layer 3: TLS handshake
-  results.push(await testTLSHandshake('api.supabase.com'));
-
-  // Layer 4: Authentication
-  results.push(await testAuthentication());
-
-  // Layer 5: API response
-  results.push(await testAPIResponse());
-
-  // Layer 6: Response parsing
-  results.push(await testResponseParsing());
-
-  return { results, firstFailure: results.find(r => !r.success) };
-}
-```
-
-### Minimal Reproduction
+This example assumes your migration defines `public.profiles(id)` and grants this
+identity SELECT access. Adapt the table/columns to an existing approved fixture;
+this is not a built-in health endpoint or `ping()` method.
 
 ```typescript
-// Strip down to absolute minimum
-async function minimalRepro(): Promise<void> {
-  // 1. Fresh client, no customization
-  const client = new SupabaseClient({
-    apiKey: process.env.SUPABASE_API_KEY!,
+import { createClient } from '@supabase/supabase-js';
+
+export async function minimalRepro(url: string, publishableKey: string) {
+  const client = createClient(url, publishableKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
-
-  // 2. Simplest possible call
-  try {
-    const result = await client.ping();
-    console.log('Ping successful:', result);
-  } catch (error) {
-    console.error('Ping failed:', {
-      message: error.message,
-      code: error.code,
-      stack: error.stack,
-    });
+  const { data, error } = await client.from('profiles').select('id').limit(1);
+  if (error) {
+    // Return only an error code; redact any additional diagnostic evidence separately.
+    return { ok: false as const, code: error.code };
   }
+  return { ok: true as const, returnedRows: data.length };
 }
 ```
+
+Use a separate, request-scoped cookie-aware `@supabase/ssr` client when reproducing
+an authenticated SSR operation. This stateless public-key probe does not reproduce
+that user's session, validate every service, or prove service availability globally.
+
+[Client initialization](https://supabase.com/docs/reference/javascript/initializing)

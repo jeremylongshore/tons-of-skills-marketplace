@@ -13,7 +13,7 @@ description: 'Collect Supabase diagnostic info for troubleshooting and support t
   '
 allowed-tools: Read, Bash(npx:*), Bash(node:*), Bash(curl:*), Bash(supabase:*), Bash(tar:*),
   Grep, Glob
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -28,20 +28,25 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Collect a comprehensive, redacted diagnostic bundle from a Supabase project. Tests connectivity, auth, Realtime, Storage, RLS policy behavior, and database health — then packages everything into a single archive safe for sharing with Supabase support.
+Collect approved diagnostic observations into a local candidate bundle. Record query/authentication outcomes and inconclusive results without claiming complete service-health or RLS verification. Minimize and sanitize the evidence, then obtain owner review before any sharing with support.
 
-## Current State
+## Manual Environment Diagnostics
 
-!`node --version 2>/dev/null || echo 'Node.js not found'`
-!`npx supabase --version 2>/dev/null || echo 'Supabase CLI not found'`
-!`npm list @supabase/supabase-js 2>/dev/null | grep supabase || echo '@supabase/supabase-js not installed'`
+These commands are shown for an operator to run after approval, not executed when the skill loads. Use the project's installed CLI; a missing dependency is not a successful check.
+
+```text
+node --version
+npx supabase --version
+npm list @supabase/supabase-js
+```
 
 ## Prerequisites
 
-- **Node.js 18+** with `@supabase/supabase-js` v2 installed in the project
-- **Supabase CLI** installed (`npm i -g supabase` or `npx supabase`)
+- **Node.js 22+** with `@supabase/supabase-js` v2 installed in the project
+- **Supabase CLI** installed (`npm install --save-dev supabase` or `npx supabase`)
 - **Environment variables** set: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (minimum); `SUPABASE_SERVICE_ROLE_KEY` for full diagnostics
-- Project linked via `supabase link --project-ref <ref>` (for CLI commands)
+- Project linked and target verified before approved CLI diagnostics
+- An explicitly approved existing diagnostic table with an `id` column, selected through `SUPABASE_DIAGNOSTIC_TABLE`; no automatic table discovery or creation
 
 ## Instructions
 
@@ -84,53 +89,61 @@ diagnostics.rest_api = {
   ok: restRes.ok,
 }
 
-// 1c — Auth health
-const authStart = Date.now()
+// 1c — Local auth storage is not an Auth-server availability/identity check.
 const { data: sessionData, error: sessionErr } = await supabase.auth.getSession()
-diagnostics.auth = {
-  status: sessionErr ? `error: ${sessionErr.message}` : 'ok',
+diagnostics.auth_storage = {
+  status: sessionErr ? 'local_storage_error' : 'local_storage_read',
   has_session: !!sessionData?.session,
-  latency_ms: Date.now() - authStart,
+  identity_verified: false,
 }
 
-// 1d — Database connectivity probe
-const dbStart = Date.now()
-const { error: dbErr } = await supabase.from('_test_ping').select('*').limit(1)
-diagnostics.database = {
-  // 42P01 = table doesn't exist, which proves the connection works
-  status: (!dbErr || dbErr.code === '42P01') ? 'connected' : `error: ${dbErr.code}`,
-  latency_ms: Date.now() - dbStart,
+// 1d — Query only an approved table; never turn a missing-table error into success.
+const probeTable = process.env.SUPABASE_DIAGNOSTIC_TABLE
+if (!probeTable) {
+  diagnostics.database = { status: 'not_run', detail: 'No approved diagnostic table' }
+} else {
+  const dbStart = Date.now()
+  const { error } = await supabase.from(probeTable).select('id', { head: true }).limit(1)
+  diagnostics.database = {
+    status: error ? 'query_failed' : 'query_accepted',
+    error_code: error?.code ?? null,
+    latency_ms: Date.now() - dbStart,
+    scope: 'approved table only; not overall health or RLS verification',
+  }
 }
 
 console.log(JSON.stringify(diagnostics, null, 2))
 ```
 
-**What to check:** REST API should return `200`. Auth should return `ok`. Database probe returning `42P01` (relation not found) is normal — it confirms the PostgREST connection works.
+**What to check:** Record the actual REST status. Local session storage is not a verified identity or platform-health signal. A successful table probe establishes only that approved query; missing tables (`42P01` or `PGRST205`), authorization failures, and all other returned errors remain failures. Provision or review the diagnostic table separately; do not fabricate a health RPC.
 
 ### Step 2: Test Realtime, Storage, and RLS
 
 Probe the three subsystems that cause the most support tickets.
 
 ```typescript
-// 2a — Realtime subscription test
-const realtimeResult = await new Promise<Record<string, unknown>>((resolve) => {
-  const timeout = setTimeout(() => {
-    resolve({ status: 'timeout', detail: 'No SUBSCRIBED event within 5s' })
-  }, 5000)
-
-  const channel = supabase.channel('debug-probe')
-  channel.subscribe((status) => {
-    if (status === 'SUBSCRIBED') {
-      clearTimeout(timeout)
-      channel.unsubscribe()
-      resolve({ status: 'ok', detail: 'Channel subscribed successfully' })
-    } else if (status === 'CHANNEL_ERROR') {
-      clearTimeout(timeout)
-      channel.unsubscribe()
-      resolve({ status: 'error', detail: 'CHANNEL_ERROR on subscribe' })
-    }
+// 2a — Realtime subscription observation with checked channel cleanup
+const channel = supabase.channel('debug-probe')
+let timeout: ReturnType<typeof setTimeout> | undefined
+let realtimeResult: Record<string, unknown>
+try {
+  realtimeResult = await new Promise<Record<string, unknown>>((resolve) => {
+    timeout = setTimeout(() => {
+      resolve({ status: 'timeout', detail: 'No SUBSCRIBED event within 5s' })
+    }, 5000)
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        resolve({ status: 'ok', detail: 'Channel subscribed successfully' })
+      } else if (status === 'CHANNEL_ERROR') {
+        resolve({ status: 'error', detail: 'CHANNEL_ERROR on subscribe' })
+      }
+    })
   })
-})
+} finally {
+  if (timeout !== undefined) clearTimeout(timeout)
+  const cleanup = await supabase.removeChannel(channel)
+  if (cleanup !== 'ok') throw new Error('Realtime probe cleanup failed')
+}
 diagnostics.realtime = realtimeResult
 
 // 2b — Storage bucket listing
@@ -141,46 +154,33 @@ diagnostics.storage = {
   buckets: buckets?.map((b) => ({ name: b.name, public: b.public })) ?? [],
 }
 
-// 2c — RLS comparison: anon vs service_role
-// Query the same table with both key types to detect RLS misconfiguration
-if (serviceKey) {
+// 2c — Counts are observations, not an RLS verdict. Both probes require approval.
+if (serviceKey && probeTable) {
   const anonClient = createClient(url, anonKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
-  // Pick the first public table from pg_tables (or fall back)
-  const { data: tables } = await supabase
-    .from('information_schema.tables' as any)
-    .select('table_name')
-    .eq('table_schema', 'public')
-    .limit(1)
-
-  const testTable = tables?.[0]?.table_name
-  if (testTable) {
-    const { count: anonCount } = await anonClient
-      .from(testTable)
-      .select('*', { count: 'exact', head: true })
-    const { count: serviceCount } = await supabase
-      .from(testTable)
-      .select('*', { count: 'exact', head: true })
-    diagnostics.rls = {
-      table: testTable,
-      anon_visible_rows: anonCount ?? 0,
-      service_role_visible_rows: serviceCount ?? 0,
-      rls_active: (anonCount ?? 0) !== (serviceCount ?? 0),
-    }
-  } else {
-    diagnostics.rls = { status: 'skipped', detail: 'No public tables found' }
+  const [anonResult, adminResult] = await Promise.all([
+    anonClient.from(probeTable).select('id', { count: 'exact', head: true }),
+    supabase.from(probeTable).select('id', { count: 'exact', head: true }),
+  ])
+  diagnostics.rls_comparison = {
+    status: anonResult.error || adminResult.error ? 'query_failed' : 'inconclusive',
+    anon_error_code: anonResult.error?.code ?? null,
+    admin_error_code: adminResult.error?.code ?? null,
+    anon_visible_rows: anonResult.count,
+    admin_visible_rows: adminResult.count,
+    scope: 'Counts alone cannot establish RLS status or correctness',
   }
 } else {
-  diagnostics.rls = { status: 'skipped', detail: 'No service_role key — cannot compare' }
+  diagnostics.rls_comparison = { status: 'not_run', detail: 'Requires approved table and admin probe' }
 }
 ```
 
-**What to check:** Realtime should reach `SUBSCRIBED` within 5 seconds. Storage should list buckets without error. RLS comparison showing identical row counts for anon and service_role on a table you expect to be protected means RLS policies may be missing.
+**What to check:** Realtime should reach `SUBSCRIBED` within 5 seconds. Storage should list buckets without error. Equal or different counts are inconclusive: empty tables, grants, data, and policy scope can all affect results. Separately authorize SQL catalog inspection and seeded multi-user access tests; `information_schema` is not assumed to be exposed as a Data API table.
 
 ### Step 3: Collect Database Health and Package the Bundle
 
-Pull database statistics via the Supabase CLI inspect commands and the platform status page, then archive everything.
+Collect only approved database statistics and platform-status evidence. The script below creates a local candidate archive; its example masking is incomplete and does not approve the result for export.
 
 ```bash
 #!/bin/bash
@@ -192,34 +192,40 @@ mkdir -p "$BUNDLE_DIR"
 # 3a — Supabase CLI status (local dev)
 npx supabase status > "$BUNDLE_DIR/cli-status.txt" 2>&1 || echo "CLI status unavailable (not linked or no local dev)" > "$BUNDLE_DIR/cli-status.txt"
 
-# 3b — Database inspection via CLI
-npx supabase inspect db table-sizes   > "$BUNDLE_DIR/table-sizes.txt"   2>&1 || true
-npx supabase inspect db index-usage   > "$BUNDLE_DIR/index-usage.txt"   2>&1 || true
-npx supabase inspect db cache-hit     > "$BUNDLE_DIR/cache-hit.txt"     2>&1 || true
-npx supabase inspect db seq-scans     > "$BUNDLE_DIR/seq-scans.txt"     2>&1 || true
-npx supabase inspect db long-running-queries > "$BUNDLE_DIR/long-queries.txt" 2>&1 || true
-npx supabase inspect db bloat         > "$BUNDLE_DIR/bloat.txt"         2>&1 || true
-npx supabase inspect db replication-slots > "$BUNDLE_DIR/replication.txt" 2>&1 || true
+# 3b — Approved database inspections; preserve individual exit statuses.
+# A captured output file can contain an error, not a successful observation.
+STATUS_FILE="$BUNDLE_DIR/inspect-status.tsv"
+printf 'inspection\texit_status\n' > "$STATUS_FILE"
+for inspection in table-sizes index-usage cache-hit seq-scans long-running-queries bloat replication-slots; do
+  if npx supabase inspect db "$inspection" > "$BUNDLE_DIR/$inspection.txt" 2>&1; then
+    probe_status=0
+  else
+    probe_status=$?
+  fi
+  printf '%s\t%s\n' "$inspection" "$probe_status" >> "$STATUS_FILE"
+done
+# Fail if receipt creation fails; nonzero probe statuses remain explicit partial evidence.
+cat "$STATUS_FILE"
 
 # 3c — Platform status page
 curl -sf https://status.supabase.com/api/v2/status.json \
   | python3 -m json.tool > "$BUNDLE_DIR/platform-status.json" 2>/dev/null \
   || echo '{"error": "Could not reach status.supabase.com"}' > "$BUNDLE_DIR/platform-status.json"
 
-# 3d — Redact secrets from all collected files
+# 3d — Partial example masking only; inspect and sanitize the candidate manually
 find "$BUNDLE_DIR" -type f -exec sed -i \
   -e 's/eyJ[A-Za-z0-9_-]\{20,\}\(\.[A-Za-z0-9_-]*\)*/[JWT_REDACTED]/g' \
   -e 's/sbp_[A-Za-z0-9]\{20,\}/[SBP_KEY_REDACTED]/g' \
   -e 's/[A-Za-z0-9._%+-]\+@[A-Za-z0-9.-]\+\.[A-Za-z]\{2,\}/[EMAIL_REDACTED]/g' {} +
 
-# 3e — Package
+# 3e — Local candidate only; owner-reviewed minimization/sanitization required before sharing
 tar czf "${BUNDLE_DIR}.tar.gz" "$BUNDLE_DIR"
 echo "Debug bundle created: ${BUNDLE_DIR}.tar.gz"
 echo "Contents:"
 ls -lh "$BUNDLE_DIR"/
 ```
 
-**What to check:** Review `cache-hit.txt` — index and table hit rates below 99% indicate memory pressure. `bloat.txt` values above 50% on large tables warrant a `VACUUM`. `seq-scans.txt` highlights tables needing indexes.
+**What to check:** Inspect `inspect-status.tsv` first: a nonzero exit status means that inspection failed, even when an output file was archived. Treat the bundle as partial evidence. Cache ratios, estimated bloat, and sequential scans depend on workload, table size, measurement interval, and query plans; they do not by themselves establish memory pressure, a missing index, or a need for `VACUUM` or larger compute. Review approved baselines and execution plans before proposing separately authorized remediation.
 
 ## Output
 
@@ -231,29 +237,30 @@ The skill produces `supabase-debug-YYYYMMDD-HHMMSS.tar.gz` containing:
 | `table-sizes.txt` | All tables with row counts and disk usage |
 | `index-usage.txt` | Index scan frequency — unused indexes are candidates for removal |
 | `cache-hit.txt` | Buffer cache and index cache hit ratios |
-| `seq-scans.txt` | Tables with high sequential scan counts (missing indexes) |
-| `long-queries.txt` | Currently running queries over the duration threshold |
+| `seq-scans.txt` | Sequential-scan observations; not proof of missing indexes |
+| `long-running-queries.txt` | Captured long-running-query inspection output; check its exit status |
 | `bloat.txt` | Table and index bloat percentages |
-| `replication.txt` | Replication slot status (relevant for Realtime) |
-| `platform-status.json` | Supabase platform health from status.supabase.com |
+| `replication-slots.txt` | Captured replication-slot inspection output; check its exit status |
+| `inspect-status.tsv` | Per-inspection exit statuses; failures remain failed observations |
+| `platform-status.json` | Published platform-status observation or explicit fetch error |
 
 Plus the TypeScript diagnostics output (connectivity, auth, Realtime, Storage, RLS) printed to stdout.
 
-All JWT tokens, Supabase project keys (`sbp_*`), and email addresses are automatically redacted before archiving.
+The example masks only text matching its `eyJ...` token, `sbp_...`, and email patterns. It does not guarantee removal of `sb_secret_...` keys, other opaque credentials, SQL/query contents, personal data, or secrets embedded in arbitrary output. Review and minimize every included file, apply the required sanitization, and obtain owner approval for the resulting artifact before sharing. A generated archive is not a safe-to-share certification.
 
 ## Error Handling
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| REST API returns `401` | Invalid or expired `anon` key | Regenerate key in Dashboard > Settings > API |
-| REST API returns `000` or times out | Wrong `SUPABASE_URL` or project paused | Verify URL; unpause project in Dashboard |
-| Realtime returns `CHANNEL_ERROR` | WebSocket blocked by firewall/proxy | Check corporate proxy; try from a different network |
-| Realtime times out (5s) | Realtime addon not enabled or quota hit | Enable Realtime on the table in Dashboard > Database > Replication |
-| Storage `listBuckets` returns `403` | RLS enabled on storage without policy | Add a storage policy or use `service_role` key |
-| `supabase inspect db` fails | CLI not linked to remote project | Run `supabase link --project-ref <ref>` first |
-| `cache-hit` below 95% | Database instance too small for workload | Upgrade compute size or optimize queries |
-| RLS shows identical counts | No RLS policies on the table | Add policies via `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` |
-| `pg_stat_statements` not available | Extension not enabled | Enable in Dashboard > Database > Extensions |
+| REST API returns `401` | Request identity or credential rejected; cause not established by status alone | Check the actual request, key type, and approved Auth evidence; rotate credentials only through a reviewed cutover |
+| REST fetch throws or request times out | Transport, URL, availability, or intermediary failure | Record the exception/status actually observed (`fetch` has no HTTP `000` response); inspect approved network and project evidence |
+| Realtime returns `CHANNEL_ERROR` | Channel subscription failed; cause unproven | Review approved identity, channel, network and service evidence; retain the failed observation and checked cleanup outcome |
+| Realtime times out (5s) | No subscribed event within the probe window | Check cleanup and approved subscription/network/service evidence; timeout alone does not justify enabling replication or changing quotas |
+| Storage `listBuckets` returns `403` | Requested operation denied; identity, grants, or Storage policy may differ | Check the actual credential and intended operation under approved access; do not switch to a privileged key or broaden policy to silence the denial |
+| `supabase inspect db` fails | Target, credentials, connectivity, command support, or database permission may differ | Preserve the exact nonzero command receipt; verify the intended target and approved access before any linking or privilege change |
+| Low observed cache-hit ratio | Workload, working set, measurement window, or query-plan effects | Compare approved workload baselines and plans; do not infer undersized compute or apply automatic remediation |
+| RLS comparison counts match or differ | Inconclusive by itself | Review approved catalog evidence and multi-user fixture results before deciding whether policies are correct |
+| `pg_stat_statements` unavailable | Extension availability, grants, schema, or query context may differ | Inspect approved catalog evidence; extension or privilege changes require separate review |
 
 ## Examples
 
@@ -264,12 +271,15 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!)
 
+const table = process.env.SUPABASE_DIAGNOSTIC_TABLE
+if (!table) throw new Error('An approved diagnostic table is required')
 const start = Date.now()
-const { error } = await supabase.from('any_table').select('*').limit(1)
+const { error } = await supabase.from(table).select('id', { head: true }).limit(1)
 console.log({
-  connected: !error || error.code === '42P01',
+  query_accepted: !error,
   latency_ms: Date.now() - start,
-  error: error?.message ?? null,
+  error_code: error?.code ?? null,
+  scope: 'approved table only; not overall health or RLS verification',
 })
 ```
 
@@ -281,14 +291,15 @@ curl -s -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
   -H "apikey: $SUPABASE_ANON_KEY"
 ```
 
-**Check auth session from a running app:**
+**Verify the current user from an approved running app's user client:**
 
 ```typescript
-const { data, error } = await supabase.auth.getSession()
-if (error) console.error('Auth error:', error.message)
-else if (!data.session) console.log('No active session (user not logged in)')
-else console.log('Session valid, expires:', data.session.expires_at)
+const { data: { user }, error } = await supabase.auth.getUser()
+if (error || !user) console.log('No server-verified authenticated user', error?.code ?? null)
+else console.log('Current user verified by Auth server')
 ```
+
+This is a fresh user lookup, not a complete Auth-platform health check. Do not use an admin client's absence of a user session to diagnose an outage, and never include session tokens in the bundle.
 
 ## Resources
 
