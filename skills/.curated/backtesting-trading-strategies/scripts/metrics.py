@@ -5,7 +5,8 @@ Performance and Risk Metrics for Backtesting
 
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+from math import isfinite
 from dataclasses import dataclass
 
 
@@ -65,7 +66,7 @@ class BacktestResult:
     # Trade statistics
     total_trades: int = 0
     win_rate: float = 0.0
-    profit_factor: float = 0.0
+    profit_factor: Optional[float] = None  # No observed losses: ratio is undefined.
     avg_win: float = 0.0
     avg_loss: float = 0.0
     expectancy: float = 0.0
@@ -198,7 +199,7 @@ def calculate_trade_stats(trades: List[Trade]) -> Dict[str, Any]:
         return {
             "total_trades": 0,
             "win_rate": 0.0,
-            "profit_factor": 0.0,
+            "profit_factor": None,
             "avg_win": 0.0,
             "avg_loss": 0.0,
             "expectancy": 0.0,
@@ -215,7 +216,7 @@ def calculate_trade_stats(trades: List[Trade]) -> Dict[str, Any]:
 
     gross_profit = sum(t.pnl for t in wins) if wins else 0
     gross_loss = abs(sum(t.pnl for t in losses)) if losses else 0
-    profit_factor = gross_profit / gross_loss if gross_loss > 0 else float("inf")
+    profit_factor = gross_profit / gross_loss if gross_loss > 0 else None
 
     avg_win = np.mean([t.pnl for t in wins]) if wins else 0
     avg_loss = np.mean([t.pnl for t in losses]) if losses else 0
@@ -291,32 +292,39 @@ def calculate_all_metrics(result: BacktestResult) -> BacktestResult:
     return result
 
 
+def format_metric(value: Optional[float], spec: str = ".2f") -> str:
+    """Render an unavailable/non-finite metric without suggesting a numerical result."""
+    return format(value, spec) if value is not None and isfinite(value) else "N/A"
+
+
 def format_results(result: BacktestResult) -> str:
     """Format backtest results as ASCII table."""
 
     params_str = ", ".join(f"{k}={v}" for k, v in result.parameters.items())
 
     return f"""
+Historical simulation only; results describe the supplied data and assumptions.
+Profit factor is N/A without observed losses; zero/one-trade samples are insufficient for inference.
 ╔══════════════════════════════════════════════════════════════════════╗
 ║            BACKTEST RESULTS: {result.strategy.upper():^20}              ║
 ║            {result.symbol} | {result.start_date.strftime("%Y-%m-%d")} to {result.end_date.strftime("%Y-%m-%d")}             ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║ PERFORMANCE                          │ RISK                          ║
 ║ ─────────────────────────────────────┼─────────────────────────────  ║
-║ Total Return:     {result.total_return:>+10.2f}%         │ Max Drawdown:   {result.max_drawdown:>+10.2f}%    ║
-║ CAGR:             {result.cagr:>+10.2f}%         │ VaR (95%):      {result.var_95:>+10.2f}%    ║
-║ Sharpe Ratio:     {result.sharpe_ratio:>10.2f}          │ Volatility:     {result.volatility:>10.2f}%    ║
-║ Sortino Ratio:    {result.sortino_ratio:>10.2f}          │ Ulcer Index:    {result.ulcer_index:>10.2f}     ║
-║ Calmar Ratio:     {result.calmar_ratio:>10.2f}          │ CVaR (95%):     {result.cvar_95:>+10.2f}%    ║
+║ Total Return:     {format_metric(result.total_return, "+.2f"):>10}%         │ Max Drawdown:   {format_metric(result.max_drawdown, "+.2f"):>10}%    ║
+║ CAGR:             {format_metric(result.cagr, "+.2f"):>10}%         │ VaR (95%):      {format_metric(result.var_95, "+.2f"):>10}%    ║
+║ Sharpe Ratio:     {format_metric(result.sharpe_ratio, ".2f"):>10}          │ Volatility:     {format_metric(result.volatility, ".2f"):>10}%    ║
+║ Sortino Ratio:    {format_metric(result.sortino_ratio):>10}          │ Ulcer Index:    {format_metric(result.ulcer_index, ".2f"):>10}     ║
+║ Calmar Ratio:     {format_metric(result.calmar_ratio, ".2f"):>10}          │ CVaR (95%):     {format_metric(result.cvar_95, "+.2f"):>10}%    ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║ TRADE STATISTICS                                                     ║
 ║ ─────────────────────────────────────────────────────────────────────║
-║ Total Trades:     {result.total_trades:>10}          │ Profit Factor:  {result.profit_factor:>10.2f}     ║
-║ Win Rate:         {result.win_rate:>10.1f}%         │ Expectancy:     ${result.expectancy:>10.2f}    ║
-║ Avg Win:          ${result.avg_win:>10.2f}         │ Max Consec. Losses: {result.max_consecutive_losses:>5}    ║
-║ Avg Loss:         ${result.avg_loss:>10.2f}         │ Avg Duration:   {result.avg_trade_duration:>10}     ║
+║ Total Trades:     {result.total_trades:>10}          │ Profit Factor:  {format_metric(result.profit_factor):>10}     ║
+║ Win Rate:         {format_metric(result.win_rate, ".1f"):>10}%         │ Expectancy:     ${format_metric(result.expectancy, ".2f"):>10}    ║
+║ Avg Win:          ${format_metric(result.avg_win, ".2f"):>10}         │ Max Consec. Losses: {result.max_consecutive_losses:>5}    ║
+║ Avg Loss:         ${format_metric(result.avg_loss, ".2f"):>10}         │ Avg Duration:   {result.avg_trade_duration:>10}     ║
 ╠══════════════════════════════════════════════════════════════════════╣
-║ Capital: ${result.initial_capital:,.0f} → ${result.final_capital:,.0f}                                  ║
+║ Capital: ${format_metric(result.initial_capital, ",.0f")} → ${format_metric(result.final_capital, ",.0f")}                                  ║
 ║ Parameters: {params_str:<56} ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """

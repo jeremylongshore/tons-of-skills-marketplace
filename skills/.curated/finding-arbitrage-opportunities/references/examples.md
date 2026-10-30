@@ -1,538 +1,298 @@
 # Examples
 
-Comprehensive usage examples for arbitrage opportunity detection.
+Real output, captured live from a US network on 2026-10-25 16:33 UTC. Binance and Bybit refuse US connections, so they appear under **Unavailable**; from other regions they appear in the tables. Prices change by the second; these show the format, not current values.
 
----
+## `arb_finder.py scan BTC USDT --amount 0.5`
 
-## Example 1: Basic Spread Scan
+```text
+============================================================================
+ SCAN BTC USDT
+ Live public data fetched 2026-10-25 16:33:55 UTC
+============================================================================
 
-Scan for ETH/USDC arbitrage across all enabled exchanges.
+BTC/USDT best bid and ask by venue
+Venue      Symbol                  Bid            Ask  Book spread  Taker fee
+----------------------------------------------------------------------------
+bitfinex   tBTCUST              80,589         80,600      0.0136%      0.00%
+kraken     XBTUSDT            80,597.6       80,598.8      0.0015%      0.80%
+okx        BTC-USDT           80,599.9         80,600      0.0001%      0.35%
+cryptocom  BTC_USDT             80,600         80,600      0.0000%      0.50%
+gate       BTC_USDT           80,602.5       80,602.6      0.0001%      0.20%
+kucoin     BTC-USDT           80,603.4       80,603.5      0.0001%    unknown
+coinbase   BTC-USDT           80,599.5       80,608.8      0.0116%    unknown
 
-### Command
+Cross-venue spreads (buy at ask, sell at bid), top 10 by gross
+Buy        Sell            Gross  Net of fees   Size at best
+------------------------------------------------------------
+kraken     kucoin       +0.0057%          n/a   0.219994 BTC
+kraken     gate         +0.0046%     -0.9875%          1 BTC
+okx        kucoin       +0.0042%          n/a   0.219994 BTC
+bitfinex   kucoin       +0.0042%          n/a   0.219994 BTC
+cryptocom  kucoin       +0.0042%          n/a     0.0552 BTC
+okx        gate         +0.0031%     -0.5450%   0.658508 BTC
+bitfinex   gate         +0.0031%     -0.1969%    1.89121 BTC
+cryptocom  gate         +0.0031%     -0.6934%     0.0552 BTC
+kraken     cryptocom    +0.0015%     -1.2882%    0.31215 BTC
+kraken     okx          +0.0014%     -1.1395%   0.572447 BTC
+
+For 0.5 BTC on kraken -> gate: net -397.96 USDT after assumed taker fees (before transfer costs).
+
+Widest gross spread: buy kraken at 80,598.8, sell kucoin at 80,603.4 (+0.0057%).
+No venue pair stays positive after assumed taker fees.
+Net uses each venue's assumed taker fee (`venues` lists them); n/a means the fee is unknown,
+set it with --fee VENUE=PERCENT. Not included: withdrawal and network fees, time to move funds between venues, price moves meanwhile, and depth beyond the best bid and ask.
+
+Unavailable:
+  binance: refused from this network (HTTP 451, region restriction)
+  bybit: refused from this network (HTTP 403, likely a region restriction)
+
+Sources:
+  https://api.kraken.com/0/public/Ticker?pair=XBTUSDT
+  https://api.exchange.coinbase.com/products/BTC-USDT/book?level=1
+  https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=BTC-USDT
+  https://api.gateio.ws/api/v4/spot/tickers?currency_pair=BTC_USDT
+  https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT
+  https://api-pub.bitfinex.com/v2/ticker/tBTCUST
+  https://api.crypto.com/exchange/v1/public/get-book?instrument_name=BTC_USDT&depth=1
+
+Research output only. Not financial advice. This tool places no trades.
+```
+
+## `arb_finder.py scan ETH USD --fee coinbase=0.6 --top 5`
+
+```text
+============================================================================
+ SCAN ETH USD
+ Live public data fetched 2026-10-25 16:34:07 UTC
+============================================================================
+
+ETH/USD best bid and ask by venue
+Venue      Symbol                  Bid            Ask  Book spread  Taker fee
+----------------------------------------------------------------------------
+coinbase   ETH-USD             2,342.4       2,342.41      0.0004%      0.60%
+kraken     ETHUSD             2,342.59        2,342.6      0.0004%      0.80%
+gate       ETH_USD            2,343.04       2,343.06      0.0009%      0.20%
+cryptocom  ETH_USD            2,343.34       2,343.35      0.0004%      0.50%
+bitfinex   tETHUSD             2,344.6        2,344.9      0.0128%      0.00%
+
+Cross-venue spreads (buy at ask, sell at bid), top 5 by gross
+Buy        Sell            Gross  Net of fees   Size at best
+------------------------------------------------------------
+coinbase   bitfinex     +0.0935%     -0.5035% 0.00013437 ETH
+kraken     bitfinex     +0.0854%     -0.7090%         26 ETH
+gate       bitfinex     +0.0657%     -0.1340%    39.6125 ETH
+cryptocom  bitfinex     +0.0533%     -0.4444%     0.7508 ETH
+coinbase   cryptocom    +0.0397%     -1.0542% 0.00013437 ETH
+
+Widest gross spread: buy coinbase at 2,342.41, sell bitfinex at 2,344.6 (+0.0935%).
+No venue pair stays positive after assumed taker fees.
+Net uses each venue's assumed taker fee (`venues` lists them); n/a means the fee is unknown,
+set it with --fee VENUE=PERCENT. Not included: withdrawal and network fees, time to move funds between venues, price moves meanwhile, and depth beyond the best bid and ask.
+
+Unavailable:
+  kucoin: ETH-USD not listed
+  okx: ETH-USD not listed
+  binance: refused from this network (HTTP 451, region restriction)
+  bybit: refused from this network (HTTP 403, likely a region restriction)
+
+Sources:
+  https://api.kraken.com/0/public/Ticker?pair=ETHUSD
+  https://api.exchange.coinbase.com/products/ETH-USD/book?level=1
+  https://api.gateio.ws/api/v4/spot/tickers?currency_pair=ETH_USD
+  https://api-pub.bitfinex.com/v2/ticker/tETHUSD
+  https://api.crypto.com/exchange/v1/public/get-book?instrument_name=ETH_USD&depth=1
+
+Research output only. Not financial advice. This tool places no trades.
+```
+
+## `arb_finder.py triangular okx`
+
+```text
+============================================================================
+ TRIANGULAR okx
+ Live public data fetched 2026-10-25 16:34:09 UTC
+============================================================================
+
+Triangles on okx starting and ending in USDT
+Pairs with at least $1,000,000 of 24h volume; taker fee 0.35% per leg (https://www.okx.com/fees (Regular user, as served to a US network))
+Evaluated 16 triangles.
+
+Path                                Gross  Net of fees
+------------------------------------------------------
+USDT -> USDC -> HYPE -> USDT     +0.0120%     -1.0345%
+USDT -> ETH -> USDC -> USDT      +0.0072%     -1.0392%
+USDT -> BTC -> USDC -> USDT      +0.0053%     -1.0411%
+USDT -> USDC -> BTC -> USDT      -0.0066%     -1.0528%
+USDT -> USDC -> ETH -> USDT      -0.0090%     -1.0553%
+USDT -> USDC -> XRP -> USDT      -0.0139%     -1.0600%
+USDT -> SOL -> USDC -> USDT      -0.0152%     -1.0614%
+USDT -> USDC -> SOL -> USDT      -0.0154%     -1.0615%
+USDT -> HYPE -> USDC -> USDT     -0.0168%     -1.0630%
+USDT -> USDC -> ZEC -> USDT      -0.0174%     -1.0635%
+
+No triangle stays positive after three taker fees.
+Uses the best bid and ask of each pair at one moment; depth and latency are not included.
+
+Sources:
+  https://www.okx.com/api/v5/market/tickers?instType=SPOT
+
+Research output only. Not financial advice. This tool places no trades.
+```
+
+## `arb_finder.py triangular kucoin --fee kucoin=0.1 --min-volume-usd 250000 --top 5`
+
+```text
+============================================================================
+ TRIANGULAR kucoin
+ Live public data fetched 2026-10-25 16:34:09 UTC
+============================================================================
+
+Triangles on kucoin starting and ending in USDT
+Pairs with at least $250,000 of 24h volume; taker fee 0.10% per leg (set with --fee)
+Evaluated 26 triangles.
+
+Path                                Gross  Net of fees
+------------------------------------------------------
+USDT -> BTC -> USDC -> USDT      +0.0193%     -0.2805%
+USDT -> ETH -> USDC -> USDT      +0.0177%     -0.2820%
+USDT -> XRP -> USDC -> USDT      +0.0084%     -0.2913%
+USDT -> SOL -> USDC -> USDT      +0.0018%     -0.2979%
+USDT -> XMR -> USDC -> USDT      -0.0019%     -0.3016%
+
+No triangle stays positive after three taker fees.
+Uses the best bid and ask of each pair at one moment; depth and latency are not included.
+
+Sources:
+  https://api.kucoin.com/api/v1/market/allTickers
+
+Research output only. Not financial advice. This tool places no trades.
+```
+
+## `arb_finder.py venues`
+
+```text
+============================================================================
+ VENUES
+ Live public data fetched 2026-10-25 16:34:10 UTC
+============================================================================
+Spot venues and assumed base-tier taker fees (checked 2026-10-25):
+  kraken             0.80%  https://www.kraken.com/features/fee-schedule (Tier 1, $0+ 30-day volume)
+  coinbase         unknown  not confirmed: Coinbase's schedule needs a login; pass --fee coinbase=PCT
+  kucoin           unknown  not confirmed: KuCoin's base tier is not shown without login; pass --fee kucoin=PCT
+  gate       live from API  https://api.gateio.ws/api/v4/spot/currency_pairs/{pair} (fee field, read live)
+  okx                0.35%  https://www.okx.com/fees (Regular user, as served to a US network)
+  bitfinex           0.00%  https://www.bitfinex.com/fees (spot taker: zero)
+  cryptocom          0.50%  https://crypto.com/exchange/document/fees-limits (Level 1, no CRO balance)
+  binance            0.10%  https://www.binance.com/en/fee/schedule (VIP 0, no BNB discount)
+  bybit              0.10%  https://www.bybit.com/en/fee/spot (Regular user, crypto pairs)
+
+Your real fee depends on your tier, region and token discounts; set it with --fee VENUE=PERCENT.
+Binance and Bybit refuse US networks. Triangular search supports okx, kucoin and gate.
+```
+
+## `arb_finder.py monitor BTC USDT --interval 10 --count 3 --threshold 0`
+
+```text
+Scanning BTC/USDT every 10s, 3 times
+Time (UTC) Venues  Widest gross (buy > sell)          Best net (buy > sell)              Flag
+16:34:10        7  +0.0217% bitfinex > okx            -0.1790% bitfinex > gate
+16:34:22        7  +0.0128% kucoin > cryptocom        -0.1960% bitfinex > gate
+16:34:37        7  +0.0050% cryptocom > okx           -0.2010% bitfinex > gate
+
+ABOVE marks a net spread at or above 0.0% after assumed taker fees.
+Not included: withdrawal and network fees, time to move funds between venues, price moves meanwhile, and depth beyond the best bid and ask.
+Research output only. Not financial advice. This tool places no trades.
+```
+
+## JSON output
 
 ```bash
-python arb_finder.py scan ETH USDC
+arb_finder.py scan BTC USDT --format json --top 2
 ```
-
-### Output
-
-```
-======================== ARBITRAGE SCAN RESULTS ========================
-
-Pair: ETH/USDC
-Exchanges scanned: 9
-Opportunities found: 3
-
-----------------------------------------------------------------------
-CURRENT PRICES
-----------------------------------------------------------------------
-Exchange        Bid             Ask         Spread
-----------------------------------------------------------------------
-Coinbase        $2,543.80       $2,544.10   0.012%
-Uniswap V3      $2,543.50       $2,544.00   0.020%
-Kraken          $2,542.30       $2,542.80   0.020%
-Binance         $2,541.20       $2,541.50   0.012%
-KuCoin          $2,541.00       $2,541.40   0.016%
-OKX             $2,540.80       $2,541.20   0.016%
-SushiSwap       $2,540.50       $2,541.00   0.020%
-Curve           $2,540.20       $2,540.60   0.016%
-Balancer        $2,539.80       $2,540.30   0.020%
-
-----------------------------------------------------------------------
-OPPORTUNITIES
-----------------------------------------------------------------------
-Buy On          Sell On         Gross    Net      Risk
-----------------------------------------------------------------------
-Balancer        Coinbase        +0.157%  +0.037%  🟢 LOW
-Curve           Uniswap V3      +0.130%  +0.026%  🟡 MEDIUM
-SushiSwap       Kraken          +0.071%  -0.029%  🟡 MEDIUM
-
-----------------------------------------------------------------------
-BEST OPPORTUNITY
-----------------------------------------------------------------------
-Buy on Balancer at $2,540.30
-Sell on Coinbase at $2,543.80
-
-Gross spread: +0.1378%
-Buy fee: -0.10%
-Sell fee: -0.60%
-Gas cost: ~$11.25
-----------------------------------------------------------------------
-Net spread: +0.0368%
-Risk: 🟢 LOW
-
-Notes:
-  • DEX-to-CEX trade requires bridging
-  • Consider gas costs for DEX execution
-
-✓ PROFITABLE - Consider execution
-```
-
----
-
-## Example 2: CEX-Only Scan
-
-Scan only centralized exchanges (faster, no gas costs).
-
-### Command
-
-```bash
-python arb_finder.py scan BTC USDT --cex-only --min-profit 0.05
-```
-
-### Output
-
-```
-======================== ARBITRAGE SCAN RESULTS ========================
-
-Pair: BTC/USDT
-Exchanges scanned: 5
-Opportunities found: 1
-
-----------------------------------------------------------------------
-CURRENT PRICES
-----------------------------------------------------------------------
-Exchange        Bid             Ask         Spread
-----------------------------------------------------------------------
-Coinbase        $67,920.00      $67,950.00  0.044%
-Binance         $67,850.00      $67,865.00  0.022%
-Kraken          $67,830.00      $67,860.00  0.044%
-KuCoin          $67,820.00      $67,850.00  0.044%
-OKX             $67,810.00      $67,840.00  0.044%
-
-----------------------------------------------------------------------
-OPPORTUNITIES
-----------------------------------------------------------------------
-Buy On          Sell On         Gross    Net      Risk
-----------------------------------------------------------------------
-OKX             Coinbase        +0.118%  +0.052%  🟢 LOW
-
-----------------------------------------------------------------------
-BEST OPPORTUNITY
-----------------------------------------------------------------------
-Buy on OKX at $67,840.00
-Sell on Coinbase at $67,920.00
-
-Gross spread: +0.1179%
-Buy fee: -0.10%
-Sell fee: -0.60%
-----------------------------------------------------------------------
-Net spread: +0.0519%
-Risk: 🟢 LOW
-
-✓ PROFITABLE - Consider execution
-```
-
----
-
-## Example 3: Specific Exchange Comparison
-
-Compare prices between specific exchanges only.
-
-### Command
-
-```bash
-python arb_finder.py scan ETH USDC --exchanges binance,coinbase,kraken
-```
-
-### Output
-
-```
-======================== ARBITRAGE SCAN RESULTS ========================
-
-Pair: ETH/USDC
-Exchanges scanned: 3
-Opportunities found: 1
-
-----------------------------------------------------------------------
-CURRENT PRICES
-----------------------------------------------------------------------
-Exchange        Bid             Ask         Spread
-----------------------------------------------------------------------
-Coinbase        $2,543.80       $2,544.10   0.012%
-Kraken          $2,542.30       $2,542.80   0.020%
-Binance         $2,541.20       $2,541.50   0.012%
-
-----------------------------------------------------------------------
-OPPORTUNITIES
-----------------------------------------------------------------------
-Buy On          Sell On         Gross    Net      Risk
-----------------------------------------------------------------------
-Binance         Coinbase        +0.091%  +0.021%  🟢 LOW
-
-----------------------------------------------------------------------
-BEST OPPORTUNITY
-----------------------------------------------------------------------
-Buy on Binance at $2,541.50
-Sell on Coinbase at $2,543.80
-
-Gross spread: +0.0905%
-Buy fee: -0.10%
-Sell fee: -0.60%
-----------------------------------------------------------------------
-Net spread: +0.0205%
-Risk: 🟢 LOW
-
-✓ PROFITABLE - Consider execution
-```
-
----
-
-## Example 4: Triangular Arbitrage Scan
-
-Find triangular arbitrage paths on a single exchange.
-
-### Command
-
-```bash
-python arb_finder.py triangular binance --min-profit 0.0
-```
-
-### Output
-
-```
-======================== TRIANGULAR ARBITRAGE ========================
-
-Found 6 paths
-
-Path                           Gross      Fees       Net
-----------------------------------------------------------------------
-ETH → BTC → USDT → ETH        +0.3520%   -0.3000%   +0.0520%
-BNB → ETH → USDT → BNB        +0.2850%   -0.3000%   -0.0150%
-BNB → BTC → USDT → BNB        +0.2410%   -0.3000%   -0.0590%
-ETH → USDC → USDT → ETH       +0.1800%   -0.3000%   -0.1200%
-BTC → USDC → USDT → BTC       +0.1500%   -0.3000%   -0.1500%
-BNB → BTC → ETH → BNB         +0.1200%   -0.3000%   -0.1800%
-
-----------------------------------------------------------------------
-BEST PATH
-----------------------------------------------------------------------
-Path: ETH → BTC → USDT → ETH
-Exchange: binance
-
-Execution Steps:
-  1. Sell ETH for BTC at 0.03745
-  2. Sell BTC for USDT at 67850.00
-  3. Buy ETH with USDT at 2541.50
-
-Gross Profit: +0.3520%
-Total Fees: -0.3000%
-Net Profit: +0.0520%
-
-✓ PROFITABLE - Consider execution
-```
-
----
-
-## Example 5: Real-Time Monitoring
-
-Monitor for opportunities with alerts.
-
-### Command
-
-```bash
-python arb_finder.py monitor ETH USDC --threshold 0.3 --interval 5
-```
-
-### Output
-
-```
-Monitoring ETH/USDC for spreads > 0.3%
-Interval: 5s | Press Ctrl+C to stop
-
-[1] Best: Binance → Coinbase (+0.021%) - below threshold
-[2] Best: Binance → Coinbase (+0.019%) - below threshold
-[3] Best: Binance → Coinbase (+0.025%) - below threshold
-
-============================================================
-🚨 ARBITRAGE ALERT
-============================================================
-
-ETH/USDC spread +0.342%
-Buy on OKX at $2,535.20
-Sell on Coinbase at $2,543.88
-
-Risk: 🟢 LOW
-============================================================
-
-[5] Best: OKX → Coinbase (+0.342%) - ALERT TRIGGERED
-[6] Best: OKX → Coinbase (+0.285%) - below threshold
-^C
-Monitoring stopped
-```
-
----
-
-## Example 6: Profit Calculation
-
-Calculate exact profit for a specific trade.
-
-### Command
-
-```bash
-python arb_finder.py calc \
-  --buy-exchange binance \
-  --sell-exchange coinbase \
-  --pair ETH/USDC \
-  --amount 10
-```
-
-### Output
-
-```
-======================== PROFIT BREAKDOWN ========================
-
-Trade: 10 ETH
-Buy on binance at $2,541.50
-Sell on coinbase at $2,543.80
-
-Gross Profit: $23.00 (+0.090%)
-
-Costs:
-  Buy fee:        -$2.54
-  Sell fee:       -$15.26
-  Withdrawal:     -$1.27
-  Gas:            -$0.00
-  Slippage:       -$2.54
-  ------------------------------
-  Total:          -$21.62
-
-Net Profit: $1.38 (+0.005%)
-Breakeven spread: 0.085%
-
-✓ PROFITABLE
-```
-
----
-
-## Example 7: Manual Price Entry
-
-Calculate with specific buy/sell prices.
-
-### Command
-
-```bash
-python arb_finder.py calc \
-  --buy-exchange binance \
-  --sell-exchange coinbase \
-  --pair ETH/USDC \
-  --amount 50 \
-  --buy-price 2500.00 \
-  --sell-price 2510.00
-```
-
-### Output
-
-```
-======================== PROFIT BREAKDOWN ========================
-
-Trade: 50 ETH
-Buy on binance at $2,500.00
-Sell on coinbase at $2,510.00
-
-Gross Profit: $500.00 (+0.400%)
-
-Costs:
-  Buy fee:        -$12.50
-  Sell fee:       -$75.30
-  Withdrawal:     -$6.25
-  Gas:            -$0.00
-  Slippage:       -$12.50
-  ------------------------------
-  Total:          -$106.55
-
-Net Profit: $393.45 (+0.315%)
-Breakeven spread: 0.085%
-
-✓ PROFITABLE
-```
-
----
-
-## Example 8: JSON Output
-
-Export results in JSON format for programmatic use.
-
-### Command
-
-```bash
-python arb_finder.py scan ETH USDC --output json
-```
-
-### Output
 
 ```json
 {
-  "pair": "ETH/USDC",
-  "timestamp": 1705968000,
-  "quotes_count": 9,
-  "opportunities_count": 3,
-  "quotes": [
+  "skill": "finding-arbitrage-opportunities",
+  "version": "2.0.0",
+  "command": "scan",
+  "subject": [
+    "BTC",
+    "USDT"
+  ],
+  "generated_at": "2026-10-25T16:34:47.655100Z",
+  "mode": "live",
+  "sources": [
+    "https://api.kraken.com/0/public/Ticker?pair=XBTUSDT",
+    "https://api.exchange.coinbase.com/products/BTC-USDT/book?level=1",
+    "..."
+  ],
+  "failures": [
     {
-      "exchange": "coinbase",
-      "exchange_type": "cex",
-      "bid": 2543.80,
-      "ask": 2544.10,
-      "spread_pct": 0.012,
-      "volume_24h": 125000000.0
+      "venue": "binance",
+      "reason": "refused from this network (HTTP 451, region restriction)"
+    },
+    {
+      "venue": "bybit",
+      "reason": "refused from this network (HTTP 403, likely a region restriction)"
     }
   ],
-  "opportunities": [
-    {
-      "buy_exchange": "balancer",
-      "sell_exchange": "coinbase",
-      "buy_price": 2540.30,
-      "sell_price": 2543.80,
-      "gross_spread_pct": 0.1378,
-      "net_spread_pct": 0.0368,
-      "risk_level": "low",
-      "is_profitable": true
-    }
-  ],
-  "best_opportunity": {
-    "buy_exchange": "balancer",
-    "sell_exchange": "coinbase",
-    "buy_price": 2540.30,
-    "sell_price": 2543.80,
-    "net_spread_pct": 0.0368,
-    "risk_level": "low"
-  }
+  "data": {
+    "pair": "BTC/USDT",
+    "quotes": [
+      {
+        "venue": "kucoin",
+        "symbol": "BTC-USDT",
+        "bid": 80627.9,
+        "ask": 80628.0,
+        "bid_size": 1.11068018,
+        "ask_size": 0.49358235,
+        "book_spread_pct": 0.0001240264697363889,
+        "taker_fee_pct": null,
+        "fee_source": "not confirmed: KuCoin's base tier is not shown without login; pass --fee kucoin=PCT",
+        "latency_ms": 472,
+        "source": "https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=BTC-USDT"
+      },
+      {
+        "venue": "gate",
+        "symbol": "BTC_USDT",
+        "bid": 80629.2,
+        "ask": 80629.3,
+        "bid_size": 3.743787,
+        "ask_size": 3.092296,
+        "book_spread_pct": 0.00012402447003515569,
+        "taker_fee_pct": 0.2,
+        "fee_source": "https://api.gateio.ws/api/v4/spot/currency_pairs/BTC_USDT (fee field, read live)",
+        "latency_ms": 1323,
+        "source": "https://api.gateio.ws/api/v4/spot/tickers?currency_pair=BTC_USDT"
+      },
+      "... one object per venue ..."
+    ],
+    "spreads": [
+      {
+        "buy_venue": "kucoin",
+        "buy_ask": 80628.0,
+        "sell_venue": "okx",
+        "sell_bid": 80635.0,
+        "gross_pct": 0.008681847497138406,
+        "net_pct": null,
+        "size_at_best_prices": 0.49358235
+      },
+      {
+        "buy_venue": "gate",
+        "buy_ask": 80629.3,
+        "sell_venue": "okx",
+        "sell_bid": 80635.0,
+        "gross_pct": 0.007069390407710152,
+        "net_pct": -0.5418716092402298,
+        "size_at_best_prices": 1.5662543
+      }
+    ],
+    "notes": [
+      "Widest gross spread: buy kucoin at 80,628, sell okx at 80,635 (+0.0087%).",
+      "No venue pair stays positive after assumed taker fees."
+    ]
+  },
+  "not_included": "Not included: withdrawal and network fees, time to move funds between venues, price moves meanwhile, and depth beyond the best bid and ask.",
+  "disclaimer": "Research output only. Not financial advice. This tool places no trades."
 }
 ```
-
----
-
-## Example 9: DEX-Only Scan
-
-Scan only decentralized exchanges.
-
-### Command
-
-```bash
-python arb_finder.py scan ETH USDC --dex-only
-```
-
-### Output
-
-```
-======================== ARBITRAGE SCAN RESULTS ========================
-
-Pair: ETH/USDC
-Exchanges scanned: 4
-Opportunities found: 2
-
-----------------------------------------------------------------------
-CURRENT PRICES
-----------------------------------------------------------------------
-Exchange        Bid             Ask         Spread
-----------------------------------------------------------------------
-Uniswap V3      $2,543.50       $2,544.00   0.020%
-SushiSwap       $2,540.50       $2,541.00   0.020%
-Curve           $2,540.20       $2,540.60   0.016%
-Balancer        $2,539.80       $2,540.30   0.020%
-
-----------------------------------------------------------------------
-OPPORTUNITIES
-----------------------------------------------------------------------
-Buy On          Sell On         Gross    Net      Risk
-----------------------------------------------------------------------
-Balancer        Uniswap V3      +0.126%  +0.062%  🟢 LOW
-Curve           Uniswap V3      +0.114%  +0.050%  🟢 LOW
-
-----------------------------------------------------------------------
-BEST OPPORTUNITY
-----------------------------------------------------------------------
-Buy on Balancer at $2,540.30
-Sell on Uniswap V3 at $2,543.50
-
-Gross spread: +0.1260%
-Buy fee: -0.10%
-Sell fee: -0.30%
-Gas cost: ~$22.50 (2 swaps)
-----------------------------------------------------------------------
-Net spread: +0.0620%
-Risk: 🟢 LOW
-
-Notes:
-  • Both DEX - can execute atomically via flash loan
-  • Gas costs for 2 swap operations included
-
-✓ PROFITABLE - Consider execution
-```
-
----
-
-## Example 10: Custom Gas Price
-
-Adjust calculations for different gas conditions.
-
-### Command
-
-```bash
-python arb_finder.py scan ETH USDC --dex-only --gas-price 100 --eth-price 3000
-```
-
-### Output
-
-```
-======================== ARBITRAGE SCAN RESULTS ========================
-
-Pair: ETH/USDC
-Exchanges scanned: 4
-Opportunities found: 0
-
-----------------------------------------------------------------------
-CURRENT PRICES
-----------------------------------------------------------------------
-Exchange        Bid             Ask         Spread
-----------------------------------------------------------------------
-Uniswap V3      $2,543.50       $2,544.00   0.020%
-SushiSwap       $2,540.50       $2,541.00   0.020%
-Curve           $2,540.20       $2,540.60   0.016%
-Balancer        $2,539.80       $2,540.30   0.020%
-
-No profitable opportunities found (market is efficient)
-
-Note: High gas price ($45.00 per swap) makes small spreads unprofitable.
-      Consider waiting for lower gas or targeting larger spreads.
-```
-
----
-
-## Common Patterns
-
-### Morning Scan Routine
-
-```bash
-# Quick overview of major pairs
-python arb_finder.py scan BTC USDT --cex-only
-python arb_finder.py scan ETH USDC --cex-only
-python arb_finder.py scan ETH BTC --cex-only
-```
-
-### Continuous Monitoring
-
-```bash
-# Run in tmux/screen for persistent monitoring
-python arb_finder.py monitor ETH USDC --threshold 0.2 --interval 10
-```
-
-### Export for Analysis
-
-```bash
-# Save to file for later analysis
-python arb_finder.py scan ETH USDC --output json > arb_$(date +%Y%m%d).json
-```
-
-### Triangular Sweep
-
-```bash
-# Check all major exchanges for triangular opportunities
-for exchange in binance coinbase kraken; do
-  echo "=== $exchange ==="
-  python arb_finder.py triangular $exchange --min-profit 0.0
-done
-```
-
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*

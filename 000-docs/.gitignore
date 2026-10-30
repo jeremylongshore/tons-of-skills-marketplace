@@ -123,3 +123,7 @@
 !829-RA-REPT-orphan-triage-next30.md
 !830-RA-AUDT-security-source-review.md
 !831-RA-DATA-security-source-evidence.json
+!832-RA-AUDT-discovery-baseline.md
+!832a-RA-DATA-discovery-baseline.json
+!833-RA-REPT-tonone-bundle-disposition.md
+!833a-RA-DATA-tonone-bundle-evidence.json

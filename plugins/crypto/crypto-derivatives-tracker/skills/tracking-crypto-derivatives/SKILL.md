@@ -1,149 +1,158 @@
 ---
 name: tracking-crypto-derivatives
-description: 'Track cryptocurrency futures, options, and perpetual swaps with funding
-  rates, open interest, liquidations, and comprehensive derivatives market analysis.
+description: 'Research crypto perpetual swaps, dated futures and options from live public
+  exchange data: funding rates, open interest, basis, liquidations, put/call ratios
+  and max pain. Read-only, no API keys.
 
-  Use when monitoring derivatives markets, analyzing funding rates, tracking open
-  interest, finding liquidation levels, or researching options flow.
+  Use when checking funding across exchanges, comparing open interest, reading the
+  futures term structure, reviewing recent liquidations, or summarizing the options
+  market for BTC or ETH.
 
   Trigger with phrases like "funding rate", "open interest", "perpetual swap", "futures
-  basis", "liquidation levels", "options flow", "put call ratio", "derivatives analysis",
-  or "BTC perps".
+  basis", "liquidations", "put call ratio", "max pain", "derivatives analysis", or
+  "BTC perps".
 
   '
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:derivatives-*)
-version: 1.30.0
+allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py:*)
+argument-hint: "<funding|oi|basis|liquidations|options|dashboard> <SYMBOL>"
+version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
 - crypto
-- monitoring
-- tracking-crypto
+- derivatives
+- futures
 compatibility: Designed for Claude Code
 ---
 # Tracking Crypto Derivatives
 
 ## Overview
 
-Aggregate funding rates, open interest, liquidations, and options data across CEX and DEX derivatives exchanges to produce actionable trading insights.
+Pull funding rates, open interest, dated-futures basis, liquidations and options data from public, keyless exchange endpoints, normalize them to common units, and report each figure with its source. When a venue fails, it is named with the reason; no value is ever invented.
 
-**Supported Markets**: Perpetual Swaps (Binance, Bybit, OKX, Deribit, BitMEX), Quarterly Futures, Options (Deribit, OKX, Bybit), DEX Perpetuals (dYdX, GMX, Drift Protocol).
+| Data | Venues |
+|------|--------|
+| Funding, open interest | OKX, Deribit, Hyperliquid, Kraken Futures, KuCoin Futures, Gate, dYdX, Binance, Bybit |
+| 24h open interest change, account long share | OKX, Binance, Bybit |
+| Dated-futures basis | Deribit, OKX |
+| Filled liquidations | OKX |
+| Options (put/call, max pain, ATM IV, DVOL, large trades) | Deribit (BTC, ETH) |
+
+Binance and Bybit refuse connections from US networks (HTTP 451/403). The tracker reports that and carries on with the other venues.
 
 ## Prerequisites
 
-- Python 3.8+ installed
-- Network access to exchange APIs
-- Optional: API keys for higher rate limits
-- Understanding of derivatives concepts (funding, OI, basis)
+- Python 3.9 or newer. Standard library only: no packages to install, no API keys.
+- Network access to the exchanges' public endpoints.
 
 ## Instructions
 
-1. **Check funding rates** across exchanges to identify sentiment and arbitrage opportunities:
+All commands run `python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py`. Every command accepts `--format json`, `--demo` (replays bundled recorded BTC data, marked on every line) and `--timeout SECONDS`.
+
+1. **Funding rates** per venue, scaled to an 8-hour equivalent and a simple annual rate:
 
    ```bash
-   python derivatives_tracker.py funding BTC
-   python derivatives_tracker.py funding BTC ETH SOL
-   python derivatives_tracker.py funding BTC --history 7d
+   python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py funding BTC ETH
+   python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py funding SOL --venues okx,hyperliquid,kraken
    ```
 
-   - Positive funding (>0.01%): Longs pay shorts, bullish sentiment
-   - Negative funding (<-0.01%): Shorts pay longs, bearish sentiment
-   - Extreme funding (>0.1%): Potential contrarian opportunity
+   Positive funding means longs pay shorts. Hourly venues (Hyperliquid, Kraken, dYdX) are multiplied by 8 so they compare with 8-hourly venues.
 
-2. **Analyze open interest** to gauge market positioning and trend strength:
+2. **Open interest** per venue, counted on one side, with 24-hour change in coins where the venue publishes hourly history:
 
    ```bash
-   python derivatives_tracker.py oi BTC
-   python derivatives_tracker.py oi BTC --changes
-   python derivatives_tracker.py oi BTC --divergence
+   python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py oi BTC
    ```
 
-   - Rising OI + Rising Price = strong bullish trend
-   - Rising OI + Falling Price = strong bearish trend
-   - Falling OI + Rising Price = short covering rally
-   - Falling OI + Falling Price = long liquidations
-
-3. **Monitor liquidations** to find support/resistance clusters:
+3. **Basis** for every dated future against the same venue's index:
 
    ```bash
-   python derivatives_tracker.py liquidations BTC
-   python derivatives_tracker.py liquidations BTC --recent
-   python derivatives_tracker.py liquidations BTC --min-size 100000  # 100000 = minimum USD liquidation size filter
+   python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py basis BTC
    ```
 
-4. **Analyze options market** for IV, put/call ratio, and max pain:
+4. **Liquidations** filled on OKX over a look-back window (default 24 hours):
 
    ```bash
-   python derivatives_tracker.py options BTC
-   python derivatives_tracker.py options BTC --pcr
-   python derivatives_tracker.py options BTC --expiry 2025-01-31  # 2025 = target expiry year
+   python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py liquidations BTC --hours 12
    ```
 
-5. **Calculate basis** for spot-futures arbitrage opportunities:
+5. **Options** on Deribit: per-expiry put/call ratios, max pain and ATM IV, DVOL rank, and optionally large recent trades:
 
    ```bash
-   python derivatives_tracker.py basis BTC
-   python derivatives_tracker.py basis BTC --quarterly
-   python derivatives_tracker.py basis --all
+   python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py options BTC
+   python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py options ETH --expiry 27NOV26 --large-trades 1000000  # 1000000 = minimum trade notional in USD
    ```
 
-6. **Run full dashboard** for comprehensive derivatives overview:
+6. **Dashboard** with funding, open interest and a reference basis for several coins:
 
    ```bash
-   python derivatives_tracker.py dashboard BTC
-   python derivatives_tracker.py dashboard BTC ETH SOL
-   python derivatives_tracker.py dashboard BTC --output json
+   python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py dashboard BTC ETH SOL
    ```
+
+7. **List venues** and what each provides: `derivatives_tracker.py venues`.
+
+When summarizing results for the user, describe the data (for example "funding is positive on 6 of 7 venues") and keep the source and fetch time. Do not turn the figures into buy, sell or hold advice.
 
 ## Output
 
-The skill produces structured reports per market type:
+Console tables by default, ending with the sources used and the line "Research output only. Not financial advice. This tool places no trades." With `--format json`, every command returns one envelope:
 
-- **Funding Rate Report**: Current, 24h avg, 7d avg rates per exchange with annualized yield and sentiment
-- **Open Interest Report**: OI per exchange with 24h/7d changes, share %, and long/short ratio
-- **Liquidation Heatmap**: Long/short liquidation clusters by price level with USD density
-- **Options Overview**: Put/call ratio, IV rank, max pain, and large flow alerts
-- **Basis Report**: Spot-perp and quarterly basis with annualized carry rates
+```json
+{"skill": "tracking-crypto-derivatives", "version": "2.0.0", "command": "funding",
+ "symbols": ["BTC"], "generated_at": "2026-10-25T16:11:51Z", "mode": "live",
+ "sources": ["https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP", "..."],
+ "failures": [{"venue": "binance", "reason": "refused from this network (HTTP 451, region restriction)"}],
+ "data": [...], "disclaimer": "Research output only. Not financial advice. This tool places no trades."}
+```
 
-See [`references/implementation.md`](references/implementation.md) for detailed output format examples.
+See [`references/implementation.md`](references/implementation.md) for units, formulas and per-venue field mapping, and [`references/examples.md`](references/examples.md) for real output.
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `ERR_RATE_LIMIT` | Too many API requests | Reduce frequency or add API key |
-| `ERR_EXCHANGE_DOWN` | Exchange API unavailable | Try alternative exchange |
-| `ERR_SYMBOL_INVALID` | Wrong symbol format | Use BTC, ETH (not BTCUSDT) |
+| Message | Cause | What to do |
+|---------|-------|------------|
+| `refused from this network (HTTP 451/403 ...)` | The venue blocks your region (Binance, Bybit from the US) | Nothing; the other venues still report. Use `--venues` to skip it. |
+| `rate limited (HTTP 429)` | Too many requests | Wait a minute and retry |
+| `... not listed` | The venue has no market for that coin | Expected for smaller coins |
+| `timed out after Ns` | Slow network or venue | Retry, or raise `--timeout` |
+| `the bundled demo recording covers BTC only` | `--demo` with another coin | Run without `--demo` |
+| Exit code 2 | No venue returned data | Check the "Unavailable" list |
+
+More in [`references/errors.md`](references/errors.md).
 
 ## Examples
 
-**Morning derivatives check** - Scan funding, OI, and liquidations for top assets:
+**Cross-venue funding check** (an excerpt of captured live output; full runs with their capture time are in `references/examples.md`, and live figures change every minute):
 
 ```bash
-python derivatives_tracker.py dashboard BTC ETH SOL
+python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py funding BTC
 ```
 
-**Funding rate arbitrage** - Alert when funding exceeds threshold for cash-and-carry:
-
-```bash
-python derivatives_tracker.py funding BTC --alert-threshold 0.08
+```
+kraken       PF_XBTUSD              +0.0015%     1h   +0.0119%   +13.08%      0h 49m
+kucoin       XBTUSDTM               +0.0100%     8h   +0.0100%   +10.95%      7h 49m
+okx          BTC-USDT-SWAP          +0.0054%     8h   +0.0054%    +5.97%      7h 49m
+deribit      BTC-PERPETUAL          +0.0035%     8h   +0.0035%    +3.84%  continuous
+dydx         BTC-USD                -0.0001%     1h   -0.0006%    -0.60%      0h 49m
+Of 7 venues, funding is positive on 6, negative on 1.
 ```
 
-**Pre-expiry options analysis** - Check max pain and IV before Friday expiry:
+**Term structure as JSON for further analysis:**
 
 ```bash
-python derivatives_tracker.py options BTC --expiry friday
+python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py basis ETH --format json
 ```
 
-**Basis trading scan** - Find all pairs with annualized yield above 5%:
+**Try it offline:**
 
 ```bash
-python derivatives_tracker.py basis --all --min-yield 5  # 5 = minimum annualized yield %
+python3 ${CLAUDE_SKILL_DIR}/scripts/derivatives_tracker.py dashboard BTC --demo
 ```
 
 ## Resources
 
-- **Coinglass**: Aggregated derivatives data
-- **Exchange APIs**: Binance, Bybit, OKX, Deribit
-- **The Graph**: DEX perpetuals data
-- [`references/implementation.md`](references/implementation.md) - Detailed output formats, options/basis guides, key concepts
+- [`references/implementation.md`](references/implementation.md): endpoints, units, formulas, what is not covered
+- [`references/examples.md`](references/examples.md): real output for every command
+- [`references/errors.md`](references/errors.md): error messages and fixes
+- Tests: `python3 -m unittest discover -s tests -v` (offline, replays recorded responses)
+- Refresh the demo recording: `python3 scripts/record_demo.py`

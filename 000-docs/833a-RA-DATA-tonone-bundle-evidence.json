@@ -1,0 +1,1247 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-10-25",
+  "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+  "analysis_tree": "1fb967fef051731addc40ab7cfe50cb3f168d7c5",
+  "frozen_receipt": "000-docs/828-RA-DATA-orphan-triage-frozen-cohorts.json",
+  "frozen_source_sha": "2ee558af51cc66ae3a7613053c6c77915371bf38",
+  "decision_lane": "Retention/exclusion permitted by claude-rx0s.1 acceptance criteria; effective after normal PR acceptance. No publication or source transition.",
+  "source_posture": {
+    "name": "tonone",
+    "repository": "tonone-ai/tonone",
+    "curated": true,
+    "verified": false,
+    "explicit_file_membership": false
+  },
+  "cohorts": {
+    "graded": 3376,
+    "marketplace_visible": 2785,
+    "curriculum": 500,
+    "plugin_candidates": 91,
+    "E1": 20,
+    "E2": 30
+  },
+  "upstream": {
+    "repository": "tonone-ai/tonone",
+    "commit": "1ceec80367a4e846e2f209cc87eea9d7544bd978",
+    "tree": "1ceec80367a4e846e2f209cc87eea9d7544bd978",
+    "tree_entries": 4437,
+    "truncated": false,
+    "catalog_entries": 112,
+    "inputs": {
+      ".claude-plugin/marketplace.json": {
+        "git_blob": "5eab6ccdf6354d77b2f1987aa21254255b1da945",
+        "sha256": "8026ad1039ad4084303e15950ba23afa5982e71e92ee059d4410520c9f6be1df",
+        "bytes": 38151
+      },
+      "LICENSE": {
+        "git_blob": "48d2036bfa55407295165497e614597d484167d5",
+        "sha256": "68cb5d411f60ed009bfe5796bf1b01f6b7b9234e15a7789d1d05d70c113f5568",
+        "bytes": 1066
+      },
+      "bundle/marketing-team/.claude-plugin/plugin.json": {
+        "git_blob": "8b898b42609cdd23e88111bafa8c5f711844850b",
+        "sha256": "f2ae50fd33224e0f4b6d87072815528ca130fb86ad32be05b082eb1b7de77d01",
+        "bytes": 327
+      },
+      "bundle/marketing-team/skills/buzz-devrel/SKILL.md": {
+        "git_blob": "396e607939db12435329cc74be25a61dd2111c93",
+        "sha256": "1cdccf1d9bc7700f0272a2279f0a552b332e8a2d5fbca687c1a3d5a548516a6c",
+        "bytes": 7715
+      },
+      "bundle/marketing-team/skills/buzz-hn/SKILL.md": {
+        "git_blob": "450740705a11a065f25a25b0fe67e835bde8f88f",
+        "sha256": "bd2ca3902f2c20eb6c096363f3a56c26f530d4addfbb7c0f382ba812a0a2ad76",
+        "bytes": 8210
+      },
+      "bundle/marketing-team/skills/buzz-outreach/SKILL.md": {
+        "git_blob": "85364d560940316cfbf56b17ff52708bf7228711",
+        "sha256": "eb8e842403bc58a563cf58f3f771329fd1feaa3932b3afb9a2623a5639625c39",
+        "bytes": 7934
+      },
+      "bundle/marketing-team/skills/ink-brief/SKILL.md": {
+        "git_blob": "9fad96deb78ed595d7817a8fe183618a89e841bf",
+        "sha256": "0e54290aea47e74dfd62f83a8c98f0604bc43786fdd8f0c4e82d7a25be97f81f",
+        "bytes": 5196
+      },
+      "bundle/marketing-team/skills/ink-cluster/SKILL.md": {
+        "git_blob": "f810e1a7642efa0d571a8e7922eaaa9881c576d6",
+        "sha256": "b5491f4ba33316ba8e87a285eaa9532fd39a234c7879ab9fbff3e372f602fddd",
+        "bytes": 7015
+      },
+      "bundle/marketing-team/skills/ink-distribute/SKILL.md": {
+        "git_blob": "10d08be3f6004b5eadbfe18851dad5e445426c9f",
+        "sha256": "22081f4a2eb24c75de64d7c0700c2f86d2d72219a6a640b64fbf05f57f58cceb",
+        "bytes": 7022
+      },
+      "bundle/revenue-team/.claude-plugin/plugin.json": {
+        "git_blob": "8d596a0500fb10e7255e47e0940496fc40a4b788",
+        "sha256": "635f68cc5e7ee0b0dfd8508a364d7bab59c826dfcdff288918535a4d03fadf21",
+        "bytes": 322
+      },
+      "bundle/revenue-team/skills/deal-outreach/SKILL.md": {
+        "git_blob": "cfa6724a37f2890b44d673b8ee4dc14f05af2d6f",
+        "sha256": "d16994e6fc6fd026b399f120ea0e1025d6a6af7e561675a153b947a96b113c83",
+        "bytes": 12862
+      },
+      "bundle/revenue-team/skills/deal-proposal/SKILL.md": {
+        "git_blob": "24f0be3a33c2a0d31862835aff2f7077a3c70841",
+        "sha256": "24f61f7e2522f65a1e7b99b7d3371c5eff9a94cfa5e05ad8c72ffc5d91409454",
+        "bytes": 4694
+      },
+      "bundle/revenue-team/skills/deal-qualify/SKILL.md": {
+        "git_blob": "537a51727a4ddbc7d63a3e7fab05fda6bf64d7cf",
+        "sha256": "567f3f6df2f83b8d120124eb56c3de4262da60ee5e6fae383d52f1093b302f20",
+        "bytes": 5619
+      },
+      "bundle/revenue-team/skills/keep-churn/SKILL.md": {
+        "git_blob": "d34deadd2c0324376b986a134a3411ceffd18d45",
+        "sha256": "6ae74c3bb10ff8a05d00df4f38df2b4c50631c79c89d24d3b92bde45c2672358",
+        "bytes": 6620
+      },
+      "bundle/revenue-team/skills/keep-qbr/SKILL.md": {
+        "git_blob": "d6ce5bfc78d546c72fd6de3ee21ffc87b06b228d",
+        "sha256": "6a52421634b94ad582af4c952784d62dd5fcc1a9d2cd079f26b3cdea921773ad",
+        "bytes": 5485
+      },
+      "bundle/revenue-team/skills/keep-segment/SKILL.md": {
+        "git_blob": "ce7f0d23450c98e789a8fce3a5a282a4928bfa14",
+        "sha256": "37a605d1357aa64c69b2a222cf184c43fdf87f99c0ceeb1a6c9252f9f1fbcb01",
+        "bytes": 6674
+      },
+      "docs/output-kit.md": {
+        "git_blob": "c8c053eead6d6bd1d972b02275cb3b942803a400",
+        "sha256": "c9634946aaa64eb4a07b35690d393058ff2f227cb30ad659ee23d027b1786086",
+        "bytes": 8612
+      },
+      "skills/buzz-devrel/SKILL.md": {
+        "git_blob": "396e607939db12435329cc74be25a61dd2111c93",
+        "sha256": "1cdccf1d9bc7700f0272a2279f0a552b332e8a2d5fbca687c1a3d5a548516a6c",
+        "bytes": 7715
+      },
+      "skills/buzz-hn/SKILL.md": {
+        "git_blob": "450740705a11a065f25a25b0fe67e835bde8f88f",
+        "sha256": "bd2ca3902f2c20eb6c096363f3a56c26f530d4addfbb7c0f382ba812a0a2ad76",
+        "bytes": 8210
+      },
+      "skills/buzz-outreach/SKILL.md": {
+        "git_blob": "85364d560940316cfbf56b17ff52708bf7228711",
+        "sha256": "eb8e842403bc58a563cf58f3f771329fd1feaa3932b3afb9a2623a5639625c39",
+        "bytes": 7934
+      },
+      "skills/deal-outreach/SKILL.md": {
+        "git_blob": "cfa6724a37f2890b44d673b8ee4dc14f05af2d6f",
+        "sha256": "d16994e6fc6fd026b399f120ea0e1025d6a6af7e561675a153b947a96b113c83",
+        "bytes": 12862
+      },
+      "skills/deal-proposal/SKILL.md": {
+        "git_blob": "24f0be3a33c2a0d31862835aff2f7077a3c70841",
+        "sha256": "24f61f7e2522f65a1e7b99b7d3371c5eff9a94cfa5e05ad8c72ffc5d91409454",
+        "bytes": 4694
+      },
+      "skills/deal-qualify/SKILL.md": {
+        "git_blob": "537a51727a4ddbc7d63a3e7fab05fda6bf64d7cf",
+        "sha256": "567f3f6df2f83b8d120124eb56c3de4262da60ee5e6fae383d52f1093b302f20",
+        "bytes": 5619
+      },
+      "skills/ink-brief/SKILL.md": {
+        "git_blob": "9fad96deb78ed595d7817a8fe183618a89e841bf",
+        "sha256": "0e54290aea47e74dfd62f83a8c98f0604bc43786fdd8f0c4e82d7a25be97f81f",
+        "bytes": 5196
+      },
+      "skills/ink-cluster/SKILL.md": {
+        "git_blob": "f810e1a7642efa0d571a8e7922eaaa9881c576d6",
+        "sha256": "b5491f4ba33316ba8e87a285eaa9532fd39a234c7879ab9fbff3e372f602fddd",
+        "bytes": 7015
+      },
+      "skills/ink-distribute/SKILL.md": {
+        "git_blob": "10d08be3f6004b5eadbfe18851dad5e445426c9f",
+        "sha256": "22081f4a2eb24c75de64d7c0700c2f86d2d72219a6a640b64fbf05f57f58cceb",
+        "bytes": 7022
+      },
+      "skills/keep-churn/SKILL.md": {
+        "git_blob": "d34deadd2c0324376b986a134a3411ceffd18d45",
+        "sha256": "6ae74c3bb10ff8a05d00df4f38df2b4c50631c79c89d24d3b92bde45c2672358",
+        "bytes": 6620
+      },
+      "skills/keep-qbr/SKILL.md": {
+        "git_blob": "d6ce5bfc78d546c72fd6de3ee21ffc87b06b228d",
+        "sha256": "6a52421634b94ad582af4c952784d62dd5fcc1a9d2cd079f26b3cdea921773ad",
+        "bytes": 5485
+      },
+      "skills/keep-segment/SKILL.md": {
+        "git_blob": "ce7f0d23450c98e789a8fce3a5a282a4928bfa14",
+        "sha256": "37a605d1357aa64c69b2a222cf184c43fdf87f99c0ceeb1a6c9252f9f1fbcb01",
+        "bytes": 6674
+      },
+      "team/buzz/.claude-plugin/plugin.json": {
+        "git_blob": "17830b7193882f5b5a4b33062e5e50169d0be93c",
+        "sha256": "a329f81250b8df75bad05942aae56973d545d79b8aa8de78318c9ed089ca02c3",
+        "bytes": 457
+      },
+      "team/buzz/skills/buzz-devrel/SKILL.md": {
+        "git_blob": "396e607939db12435329cc74be25a61dd2111c93",
+        "sha256": "1cdccf1d9bc7700f0272a2279f0a552b332e8a2d5fbca687c1a3d5a548516a6c",
+        "bytes": 7715
+      },
+      "team/buzz/skills/buzz-hn/SKILL.md": {
+        "git_blob": "450740705a11a065f25a25b0fe67e835bde8f88f",
+        "sha256": "bd2ca3902f2c20eb6c096363f3a56c26f530d4addfbb7c0f382ba812a0a2ad76",
+        "bytes": 8210
+      },
+      "team/buzz/skills/buzz-outreach/SKILL.md": {
+        "git_blob": "85364d560940316cfbf56b17ff52708bf7228711",
+        "sha256": "eb8e842403bc58a563cf58f3f771329fd1feaa3932b3afb9a2623a5639625c39",
+        "bytes": 7934
+      },
+      "team/deal/.claude-plugin/plugin.json": {
+        "git_blob": "140ac88ff4f3df2d4bdeee8b2a0a61ef1d2f92cd",
+        "sha256": "8df3b86e7d7eccb2db9d0f6fd6212ff7c11f3bca8d587abda243aff981f1aa20",
+        "bytes": 447
+      },
+      "team/deal/skills/deal-outreach/SKILL.md": {
+        "git_blob": "cfa6724a37f2890b44d673b8ee4dc14f05af2d6f",
+        "sha256": "d16994e6fc6fd026b399f120ea0e1025d6a6af7e561675a153b947a96b113c83",
+        "bytes": 12862
+      },
+      "team/deal/skills/deal-proposal/SKILL.md": {
+        "git_blob": "24f0be3a33c2a0d31862835aff2f7077a3c70841",
+        "sha256": "24f61f7e2522f65a1e7b99b7d3371c5eff9a94cfa5e05ad8c72ffc5d91409454",
+        "bytes": 4694
+      },
+      "team/deal/skills/deal-qualify/SKILL.md": {
+        "git_blob": "537a51727a4ddbc7d63a3e7fab05fda6bf64d7cf",
+        "sha256": "567f3f6df2f83b8d120124eb56c3de4262da60ee5e6fae383d52f1093b302f20",
+        "bytes": 5619
+      },
+      "team/ink/.claude-plugin/plugin.json": {
+        "git_blob": "a0559e73165ec94e990065f042c30afb7b363bbf",
+        "sha256": "906b04296579e948c4850bf47c0877bb31e090cadf0858f9b21c5762a2974b49",
+        "bytes": 456
+      },
+      "team/ink/skills/ink-brief/SKILL.md": {
+        "git_blob": "9fad96deb78ed595d7817a8fe183618a89e841bf",
+        "sha256": "0e54290aea47e74dfd62f83a8c98f0604bc43786fdd8f0c4e82d7a25be97f81f",
+        "bytes": 5196
+      },
+      "team/ink/skills/ink-cluster/SKILL.md": {
+        "git_blob": "f810e1a7642efa0d571a8e7922eaaa9881c576d6",
+        "sha256": "b5491f4ba33316ba8e87a285eaa9532fd39a234c7879ab9fbff3e372f602fddd",
+        "bytes": 7015
+      },
+      "team/ink/skills/ink-distribute/SKILL.md": {
+        "git_blob": "10d08be3f6004b5eadbfe18851dad5e445426c9f",
+        "sha256": "22081f4a2eb24c75de64d7c0700c2f86d2d72219a6a640b64fbf05f57f58cceb",
+        "bytes": 7022
+      },
+      "team/keep/.claude-plugin/plugin.json": {
+        "git_blob": "678dabfd3eef9ce11e941975fb651e73b93831f8",
+        "sha256": "417f1f24b3f79f802431c781e312950286bbf574cef228674e6da893dad4031f",
+        "bytes": 468
+      },
+      "team/keep/skills/keep-churn/SKILL.md": {
+        "git_blob": "d34deadd2c0324376b986a134a3411ceffd18d45",
+        "sha256": "6ae74c3bb10ff8a05d00df4f38df2b4c50631c79c89d24d3b92bde45c2672358",
+        "bytes": 6620
+      },
+      "team/keep/skills/keep-qbr/SKILL.md": {
+        "git_blob": "d6ce5bfc78d546c72fd6de3ee21ffc87b06b228d",
+        "sha256": "6a52421634b94ad582af4c952784d62dd5fcc1a9d2cd079f26b3cdea921773ad",
+        "bytes": 5485
+      },
+      "team/keep/skills/keep-segment/SKILL.md": {
+        "git_blob": "ce7f0d23450c98e789a8fce3a5a282a4928bfa14",
+        "sha256": "37a605d1357aa64c69b2a222cf184c43fdf87f99c0ceeb1a6c9252f9f1fbcb01",
+        "bytes": 6674
+      }
+    }
+  },
+  "resources": {
+    "declared_output_kit": "docs/output-kit.md",
+    "local_package_matches": [],
+    "upstream_output_kit": {
+      "git_blob": "c8c053eead6d6bd1d972b02275cb3b942803a400",
+      "sha256": "c9634946aaa64eb4a07b35690d393058ff2f227cb30ad659ee23d027b1786086",
+      "bytes": 8612
+    },
+    "atlas_report": {
+      "path": "plugins/ai-agency/tonone/skills/atlas-report/SKILL.md",
+      "marketplace_visible": true,
+      "sha256": "df2aa1110fc5b278117650327eccdbcc8064a25f61dbd5d481c396dd1f3d2ece"
+    }
+  },
+  "items": [
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-devrel/SKILL.md",
+      "skill_name": "buzz-devrel",
+      "local_blob": "edf2ba492403151ddf7af38f0e5e4f58cdbbf0be",
+      "local_sha256": "f277469b53a06f334602c9177121e2843d5568c7fd8d687491be838655809262",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+        "name": "marketing-team",
+        "version": "1.9.1",
+        "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/buzz-devrel/SKILL.md",
+        "bundle_path": "bundle/marketing-team/skills/buzz-devrel/SKILL.md",
+        "team_path": "team/buzz/skills/buzz-devrel/SKILL.md",
+        "instruction_blob": "396e607939db12435329cc74be25a61dd2111c93",
+        "instruction_sha256": "1cdccf1d9bc7700f0272a2279f0a552b332e8a2d5fbca687c1a3d5a548516a6c",
+        "catalog_agent": "buzz",
+        "catalog_source": "./team/buzz",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": true
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-hn/SKILL.md",
+      "skill_name": "buzz-hn",
+      "local_blob": "202e1aaa02f41662c0a219d9f2ae3bf79fe90b73",
+      "local_sha256": "75c42bd9613e3800fd7ba7a9a3aa6cb9df606da4592aac4bbb4f1573e75df123",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+        "name": "marketing-team",
+        "version": "1.9.1",
+        "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/buzz-hn/SKILL.md",
+        "bundle_path": "bundle/marketing-team/skills/buzz-hn/SKILL.md",
+        "team_path": "team/buzz/skills/buzz-hn/SKILL.md",
+        "instruction_blob": "450740705a11a065f25a25b0fe67e835bde8f88f",
+        "instruction_sha256": "bd2ca3902f2c20eb6c096363f3a56c26f530d4addfbb7c0f382ba812a0a2ad76",
+        "catalog_agent": "buzz",
+        "catalog_source": "./team/buzz",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": false
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-outreach/SKILL.md",
+      "skill_name": "buzz-outreach",
+      "local_blob": "e9b774007fc94c4a76238049ee779142a8de883e",
+      "local_sha256": "13bd858ae522a21ef02ede65e9dd46de4007d75fdbe3b46b17d8084150a96d67",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+        "name": "marketing-team",
+        "version": "1.9.1",
+        "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/buzz-outreach/SKILL.md",
+        "bundle_path": "bundle/marketing-team/skills/buzz-outreach/SKILL.md",
+        "team_path": "team/buzz/skills/buzz-outreach/SKILL.md",
+        "instruction_blob": "85364d560940316cfbf56b17ff52708bf7228711",
+        "instruction_sha256": "eb8e842403bc58a563cf58f3f771329fd1feaa3932b3afb9a2623a5639625c39",
+        "catalog_agent": "buzz",
+        "catalog_source": "./team/buzz",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": false
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-brief/SKILL.md",
+      "skill_name": "ink-brief",
+      "local_blob": "4cadeaafad8d5b917532754a63a75fe0b497c8c8",
+      "local_sha256": "7f91608c1d7d442ae912c6305754b9ce07600781239d74fd71e0f2e13bb3f0eb",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+        "name": "marketing-team",
+        "version": "1.9.1",
+        "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/ink-brief/SKILL.md",
+        "bundle_path": "bundle/marketing-team/skills/ink-brief/SKILL.md",
+        "team_path": "team/ink/skills/ink-brief/SKILL.md",
+        "instruction_blob": "9fad96deb78ed595d7817a8fe183618a89e841bf",
+        "instruction_sha256": "0e54290aea47e74dfd62f83a8c98f0604bc43786fdd8f0c4e82d7a25be97f81f",
+        "catalog_agent": "ink",
+        "catalog_source": "./team/ink",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": false
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-cluster/SKILL.md",
+      "skill_name": "ink-cluster",
+      "local_blob": "e76e3223a6f4420317212e588d71b979210c9a86",
+      "local_sha256": "59317666636bcb6c7ed717814107479a35841f9051176ba38ad004ca3a160337",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+        "name": "marketing-team",
+        "version": "1.9.1",
+        "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/ink-cluster/SKILL.md",
+        "bundle_path": "bundle/marketing-team/skills/ink-cluster/SKILL.md",
+        "team_path": "team/ink/skills/ink-cluster/SKILL.md",
+        "instruction_blob": "f810e1a7642efa0d571a8e7922eaaa9881c576d6",
+        "instruction_sha256": "b5491f4ba33316ba8e87a285eaa9532fd39a234c7879ab9fbff3e372f602fddd",
+        "catalog_agent": "ink",
+        "catalog_source": "./team/ink",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": false
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-distribute/SKILL.md",
+      "skill_name": "ink-distribute",
+      "local_blob": "eeff67331f7326dd7b5bb733a1ceff710ad06aa0",
+      "local_sha256": "e8e683ddd9ba9380f01e584bbbec418ab42037909438b5bd48eb4d7f00b431ad",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+        "name": "marketing-team",
+        "version": "1.9.1",
+        "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/ink-distribute/SKILL.md",
+        "bundle_path": "bundle/marketing-team/skills/ink-distribute/SKILL.md",
+        "team_path": "team/ink/skills/ink-distribute/SKILL.md",
+        "instruction_blob": "10d08be3f6004b5eadbfe18851dad5e445426c9f",
+        "instruction_sha256": "22081f4a2eb24c75de64d7c0700c2f86d2d72219a6a640b64fbf05f57f58cceb",
+        "catalog_agent": "ink",
+        "catalog_source": "./team/ink",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": true
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-outreach/SKILL.md",
+      "skill_name": "deal-outreach",
+      "local_blob": "5f64fc417573f736acb1e961e2b6cf75552ff1ef",
+      "local_sha256": "07850b5b1836812d479c939aec0715ef10d9a35b1f987cb84c19ce9685661806",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+        "name": "revenue-team",
+        "version": "1.9.1",
+        "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/deal-outreach/SKILL.md",
+        "bundle_path": "bundle/revenue-team/skills/deal-outreach/SKILL.md",
+        "team_path": "team/deal/skills/deal-outreach/SKILL.md",
+        "instruction_blob": "cfa6724a37f2890b44d673b8ee4dc14f05af2d6f",
+        "instruction_sha256": "d16994e6fc6fd026b399f120ea0e1025d6a6af7e561675a153b947a96b113c83",
+        "catalog_agent": "deal",
+        "catalog_source": "./team/deal",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": false
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-proposal/SKILL.md",
+      "skill_name": "deal-proposal",
+      "local_blob": "b0c333c83e3c8db75200c11fda122ee0531f4a24",
+      "local_sha256": "f3bdbc1f10d7fae81bb9e63949632ccecc5eb4a39d0acd662982df6bdb701361",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+        "name": "revenue-team",
+        "version": "1.9.1",
+        "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/deal-proposal/SKILL.md",
+        "bundle_path": "bundle/revenue-team/skills/deal-proposal/SKILL.md",
+        "team_path": "team/deal/skills/deal-proposal/SKILL.md",
+        "instruction_blob": "24f0be3a33c2a0d31862835aff2f7077a3c70841",
+        "instruction_sha256": "24f61f7e2522f65a1e7b99b7d3371c5eff9a94cfa5e05ad8c72ffc5d91409454",
+        "catalog_agent": "deal",
+        "catalog_source": "./team/deal",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": true
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-qualify/SKILL.md",
+      "skill_name": "deal-qualify",
+      "local_blob": "068a5bf17c2ee2d3ef6d117fe991205a2d5d6da9",
+      "local_sha256": "90fc5eec52887d287119646eddba74dc6f7793b8c9d2dffbddea100c0be720f6",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+        "name": "revenue-team",
+        "version": "1.9.1",
+        "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/deal-qualify/SKILL.md",
+        "bundle_path": "bundle/revenue-team/skills/deal-qualify/SKILL.md",
+        "team_path": "team/deal/skills/deal-qualify/SKILL.md",
+        "instruction_blob": "537a51727a4ddbc7d63a3e7fab05fda6bf64d7cf",
+        "instruction_sha256": "567f3f6df2f83b8d120124eb56c3de4262da60ee5e6fae383d52f1093b302f20",
+        "catalog_agent": "deal",
+        "catalog_source": "./team/deal",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": true
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-churn/SKILL.md",
+      "skill_name": "keep-churn",
+      "local_blob": "2d87ab8edbe49008b0495a39815ccce3b85df355",
+      "local_sha256": "389da9a9eada2666421e2ee83ef4a9ae95752a800e4a17a1b314c04d7259e6a6",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+        "name": "revenue-team",
+        "version": "1.9.1",
+        "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/keep-churn/SKILL.md",
+        "bundle_path": "bundle/revenue-team/skills/keep-churn/SKILL.md",
+        "team_path": "team/keep/skills/keep-churn/SKILL.md",
+        "instruction_blob": "d34deadd2c0324376b986a134a3411ceffd18d45",
+        "instruction_sha256": "6ae74c3bb10ff8a05d00df4f38df2b4c50631c79c89d24d3b92bde45c2672358",
+        "catalog_agent": "keep",
+        "catalog_source": "./team/keep",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": true
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-qbr/SKILL.md",
+      "skill_name": "keep-qbr",
+      "local_blob": "d39ac859f88f6fbb0b7a8e49f94f84c020e8ab90",
+      "local_sha256": "35fdaed5cc26ed73b9c4036946bf620b01b6e5903d9ba333382f741f745ea753",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+        "name": "revenue-team",
+        "version": "1.9.1",
+        "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/keep-qbr/SKILL.md",
+        "bundle_path": "bundle/revenue-team/skills/keep-qbr/SKILL.md",
+        "team_path": "team/keep/skills/keep-qbr/SKILL.md",
+        "instruction_blob": "d6ce5bfc78d546c72fd6de3ee21ffc87b06b228d",
+        "instruction_sha256": "6a52421634b94ad582af4c952784d62dd5fcc1a9d2cd079f26b3cdea921773ad",
+        "catalog_agent": "keep",
+        "catalog_source": "./team/keep",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": true
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-segment/SKILL.md",
+      "skill_name": "keep-segment",
+      "local_blob": "f32ca26f3414184fbd6141468ef64e368f04cc7a",
+      "local_sha256": "989f81e1d9f34dda1777bceadde449a9c3673e4144365a94845114e8dd56de80",
+      "provenance": {
+        "status": "mirror",
+        "source_record": "plugins/ai-agency/tonone/.source.json",
+        "explicit_file_membership": false,
+        "repository": "tonone-ai/tonone"
+      },
+      "nearest_manifest": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+        "name": "revenue-team",
+        "version": "1.9.1",
+        "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+      },
+      "registered_locally": false,
+      "registered_in_vendored_catalog": false,
+      "registered_upstream_bundle": false,
+      "marketplace_visible": false,
+      "upstream": {
+        "root_path": "skills/keep-segment/SKILL.md",
+        "bundle_path": "bundle/revenue-team/skills/keep-segment/SKILL.md",
+        "team_path": "team/keep/skills/keep-segment/SKILL.md",
+        "instruction_blob": "ce7f0d23450c98e789a8fce3a5a282a4928bfa14",
+        "instruction_sha256": "37a605d1357aa64c69b2a222cf184c43fdf87f99c0ceeb1a6c9252f9f1fbcb01",
+        "catalog_agent": "keep",
+        "catalog_source": "./team/keep",
+        "catalog_version": "1.18.0",
+        "local_file_byte_identical": false,
+        "body_equal_after_line_end_whitespace_normalization": true
+      },
+      "disposition": "retain-frozen-exclude-standalone",
+      "status": "terminal-classification",
+      "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+      "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility."
+    }
+  ],
+  "frozen_items_check": [
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/audit/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 1,
+      "skill_name": "audit",
+      "blob_sha": "a9e38ca0f9f5ace57097fb1f23696fc0248ae5be",
+      "sha256": "d8bc0bf29b7c14a857af68ba6e870ce1077f49274f4e043e7a0c55bb0906a04c",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/background/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 2,
+      "skill_name": "background",
+      "blob_sha": "bcdb82aeac97a87a964f51277de1f516cf6400f1",
+      "sha256": "8aec2ec9190f3ee56b920e92814e50e4dacce768a15a3b25dc3f4f24cda05a25",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/bridge/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 3,
+      "skill_name": "bridge",
+      "blob_sha": "f00549e4d2ac46f4655edd145a36a14aa5f68a2b",
+      "sha256": "e2b64f42fd2aa9a5bb1cbb100c075a499641386a0937008cd241c9fb385bd725",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/cache/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 4,
+      "skill_name": "cache",
+      "blob_sha": "a355d59d5e96ce478650b7f417f55f7f3c09e7f0",
+      "sha256": "1e1147ffc5ca852371c05a95baae049539b3fc838e59ed2ddec5a89d774b4def",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/deploy/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 5,
+      "skill_name": "deploy",
+      "blob_sha": "4e9836abf93e6ebe0d0321ebf4c169fc5716e553",
+      "sha256": "881feb162af16f0603d74336f74c8e67788b74cdab1cf9b753ad7cf7f83e4c72",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/design/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 6,
+      "skill_name": "design",
+      "blob_sha": "6d1991ccf081b7bc56c0f44cf2f36c3456078f7b",
+      "sha256": "0630166fdc5f1a97b88381589ce4bfa6df05f546c365b982f175d7f01e649715",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/dispatch/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 7,
+      "skill_name": "dispatch",
+      "blob_sha": "e9799dcde1b0ee10a073cff9c0944d2b14397432",
+      "sha256": "5aab2c0b03b9cc8261a592077e7fa536f27b40a411ec143999bd51a19a9d04ac",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/flush/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 8,
+      "skill_name": "flush",
+      "blob_sha": "207d2855c5369ce63ba979b1c6135561d7191d04",
+      "sha256": "7a2a74cd6a694596640030b9b8dde5eeb8cfffca64c27f8d399eadbe0b6655fd",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/handoff/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 9,
+      "skill_name": "handoff",
+      "blob_sha": "5de900d86b29085d74f61e41b6f8065893e52e97",
+      "sha256": "376ad0353159568115e633d4d11466dfa03bcf638c1a3e48063ab45c862fd082",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/hyperflow/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 10,
+      "skill_name": "hyperflow",
+      "blob_sha": "fe1efe43687801fd401b854988ed64e833e25b6c",
+      "sha256": "fa9efca886ce447b96ed7cca6937ca60be17157a0d5c4ed140eb159e7330ac73",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/issue/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 11,
+      "skill_name": "issue",
+      "blob_sha": "4a84067f3e292a63fb3ebe12064d6006d3911eeb",
+      "sha256": "0f7fea844d69b6273d1b93785d364e706b2e88b2d59fe53cc8e8b39499268935",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/plan/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 12,
+      "skill_name": "plan",
+      "blob_sha": "b14b09da97e9ed8a2c2a2cab245205dcabd6b917",
+      "sha256": "06355295fe4e039269bdee719ce517d6458f596d8aeac365a4caba73ac95371c",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/pr/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 13,
+      "skill_name": "pr",
+      "blob_sha": "f60bc929e46e60bb307022e6d63afc6c92a42230",
+      "sha256": "12b30897c699939e5077bd1ab60a758b3eac71c773aee7510eaeb980bfa9ab63",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/scaffold/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 14,
+      "skill_name": "scaffold",
+      "blob_sha": "7846d9c79eadcd84ae0943b7b95869d854f1477f",
+      "sha256": "42105434979c6fc8585ca06b6cb813ab98abbd1e21a8a42076ea7c2909adf0cf",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/status/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 15,
+      "skill_name": "status",
+      "blob_sha": "ec935c750f015acb27a3c6f1eea78d597d0bf8f3",
+      "sha256": "9681067bdd33ae2f4032c2dffa928e7194c5a083949675a677c138e68425fc0f",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/sticky/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 16,
+      "skill_name": "sticky",
+      "blob_sha": "6ba7f1026023bfd717320cc423cb0bc9ab7dd9ce",
+      "sha256": "cea734ebd0f2876a21f877aa128debdc561f7906f5e3900a732326d411499e2d",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/trace/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 17,
+      "skill_name": "trace",
+      "blob_sha": "f492eb69b7ce0f165c152723379e292dc83542a3",
+      "sha256": "cf9da11a65a11ad9310fb1564e00dbc373c0daff96fdb15f47391d6f18227217",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/skills/workflow/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 18,
+      "skill_name": "workflow",
+      "blob_sha": "8262ac223223849d4694752a552736e7a602bf79",
+      "sha256": "2e05c565e183ad7667e1d9122d3c75104734670792896a72ec02efe12d395b85",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-audit/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 19,
+      "skill_name": "hyperflow-audit",
+      "blob_sha": "a324c822f1af8d99823d51ef0569ad04e43cd518",
+      "sha256": "86a505c0fb31baa41971b034672ab248e22661c961a561aa6009c98709ddf980",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-cache/SKILL.md",
+      "cohort": "E1",
+      "ordinal": 20,
+      "skill_name": "hyperflow-cache",
+      "blob_sha": "72b908c801324b06b86eec2c66954f97f1d23256",
+      "sha256": "410e588f37eb7209f59c219699f280d76c114128579a97125fe81c67d0eaf0dc",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-deploy/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 21,
+      "skill_name": "hyperflow-deploy",
+      "blob_sha": "2ab9438d4e5ba43950b0fd0526c0c5360f5a916c",
+      "sha256": "2f8399b5ea0f6201d506737c19a49c6ff4d80b71b22ac13603fedf1ca83ca864",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-design/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 22,
+      "skill_name": "hyperflow-design",
+      "blob_sha": "7d10c304765fac8701abac6036062d75484174b7",
+      "sha256": "66f85b4b23ebc39b4666db48c3313d07d51194678c6ea8c83f2ad88cda3fbf17",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-dispatch/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 23,
+      "skill_name": "hyperflow-dispatch",
+      "blob_sha": "7a46a01bee27f4f59d21ceac951c92a8c25ea8da",
+      "sha256": "bdcb0fc9858851894ddff83779bbff54167dfee0cae44888fa2b1790e1b59eea",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-plan/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 24,
+      "skill_name": "hyperflow-plan",
+      "blob_sha": "ae895af8a5d68ebdd5adda42ed358b54f5c96a75",
+      "sha256": "2793870e863130953f1dfdcf62a62d7c6976d0061073e7074bf60b946d35dd31",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-scaffold/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 25,
+      "skill_name": "hyperflow-scaffold",
+      "blob_sha": "e55fa040743b5654df9a3c5cc4b38cc6c0f52fcc",
+      "sha256": "530eb3ef77e432c67c03d18f299a7345c79097a1790d66114db2a1d8dcb6fd74",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-status/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 26,
+      "skill_name": "hyperflow-status",
+      "blob_sha": "24ce2822014b2467031c2edc94d68c0bbbad417f",
+      "sha256": "fc96ebe832f20cdd6678adcc0967288c453be89a99eff1007d37c2906aacd399",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-sticky/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 27,
+      "skill_name": "hyperflow-sticky",
+      "blob_sha": "964f42993519215be599a930f506bb61c2de8f07",
+      "sha256": "e78419014531b85e5b314e58b1a35a5e4899f5fa317b81c6f0a6c7f56039f35d",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/hyperflow/templates/antigravity/skills/hyperflow-trace/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 28,
+      "skill_name": "hyperflow-trace",
+      "blob_sha": "ca66a7d6e6ba18b7c802963078c0c42f5768afc7",
+      "sha256": "31e5fc907c5772d906d5b7cee1fe24ac11a918f94d84a314f2c4fe5098a73098",
+      "marketplace_visible": false,
+      "prior_disposition": "obsolete-orphan-label"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-devrel/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 29,
+      "skill_name": "buzz-devrel",
+      "blob_sha": "edf2ba492403151ddf7af38f0e5e4f58cdbbf0be",
+      "sha256": "f277469b53a06f334602c9177121e2843d5568c7fd8d687491be838655809262",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-hn/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 30,
+      "skill_name": "buzz-hn",
+      "blob_sha": "202e1aaa02f41662c0a219d9f2ae3bf79fe90b73",
+      "sha256": "75c42bd9613e3800fd7ba7a9a3aa6cb9df606da4592aac4bbb4f1573e75df123",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-outreach/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 31,
+      "skill_name": "buzz-outreach",
+      "blob_sha": "e9b774007fc94c4a76238049ee779142a8de883e",
+      "sha256": "13bd858ae522a21ef02ede65e9dd46de4007d75fdbe3b46b17d8084150a96d67",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-brief/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 32,
+      "skill_name": "ink-brief",
+      "blob_sha": "4cadeaafad8d5b917532754a63a75fe0b497c8c8",
+      "sha256": "7f91608c1d7d442ae912c6305754b9ce07600781239d74fd71e0f2e13bb3f0eb",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-cluster/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 33,
+      "skill_name": "ink-cluster",
+      "blob_sha": "e76e3223a6f4420317212e588d71b979210c9a86",
+      "sha256": "59317666636bcb6c7ed717814107479a35841f9051176ba38ad004ca3a160337",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-distribute/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 34,
+      "skill_name": "ink-distribute",
+      "blob_sha": "eeff67331f7326dd7b5bb733a1ceff710ad06aa0",
+      "sha256": "e8e683ddd9ba9380f01e584bbbec418ab42037909438b5bd48eb4d7f00b431ad",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/pitch-copy/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 35,
+      "skill_name": "pitch-copy",
+      "blob_sha": "0e84d42cd04b00daf3d5d3d317bf4125042608c4",
+      "sha256": "fa7a15afb59bc2a030525dc2a087d15822445c93cb7d717c0d3b12b0adab6402",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/pitch-landing/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 36,
+      "skill_name": "pitch-landing",
+      "blob_sha": "8a7021b8c85847797052814edbfc6bf5691bda61",
+      "sha256": "1a005eaac8d7326c8f347231b46abd3b84a480e3157584b215a5f1ca94128b98",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/pitch-launch/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 37,
+      "skill_name": "pitch-launch",
+      "blob_sha": "568b384d33f4983fc5287370de8177cf3de41fa7",
+      "sha256": "88ce3d24f075159f0b0d9f24d5fae5a589fcb1424afca25283b8c273a5377921",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/pitch-message/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 38,
+      "skill_name": "pitch-message",
+      "blob_sha": "7d5720ca11827d52dbbf6e38f2a6e59573d73ba5",
+      "sha256": "9c35023ceecc87500e2b165d9ee4ffbe59bd3b7f5dc6139c50fb88da73dfa565",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/pitch-position/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 39,
+      "skill_name": "pitch-position",
+      "blob_sha": "7e9cfa8ff07018037881f1f956d8c2c9bfa59892",
+      "sha256": "e241d3233a1d931c73f519ee6d80bc8be19f199f7f13ee31fe48bd5fc20e865c",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/pitch-recon/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 40,
+      "skill_name": "pitch-recon",
+      "blob_sha": "4021c932aa8f88317b012f8986d8f61fd94b7ad4",
+      "sha256": "878790be237ec39d36fe45409c4f9b1973af1a6d948cb26e37aff070fbcd754d",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-outreach/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 41,
+      "skill_name": "deal-outreach",
+      "blob_sha": "5f64fc417573f736acb1e961e2b6cf75552ff1ef",
+      "sha256": "07850b5b1836812d479c939aec0715ef10d9a35b1f987cb84c19ce9685661806",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-proposal/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 42,
+      "skill_name": "deal-proposal",
+      "blob_sha": "b0c333c83e3c8db75200c11fda122ee0531f4a24",
+      "sha256": "f3bdbc1f10d7fae81bb9e63949632ccecc5eb4a39d0acd662982df6bdb701361",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-qualify/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 43,
+      "skill_name": "deal-qualify",
+      "blob_sha": "068a5bf17c2ee2d3ef6d117fe991205a2d5d6da9",
+      "sha256": "90fc5eec52887d287119646eddba74dc6f7793b8c9d2dffbddea100c0be720f6",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-churn/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 44,
+      "skill_name": "keep-churn",
+      "blob_sha": "2d87ab8edbe49008b0495a39815ccce3b85df355",
+      "sha256": "389da9a9eada2666421e2ee83ef4a9ae95752a800e4a17a1b314c04d7259e6a6",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-qbr/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 45,
+      "skill_name": "keep-qbr",
+      "blob_sha": "d39ac859f88f6fbb0b7a8e49f94f84c020e8ab90",
+      "sha256": "35fdaed5cc26ed73b9c4036946bf620b01b6e5903d9ba333382f741f745ea753",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-segment/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 46,
+      "skill_name": "keep-segment",
+      "blob_sha": "f32ca26f3414184fbd6141468ef64e368f04cc7a",
+      "sha256": "989f81e1d9f34dda1777bceadde449a9c3673e4144365a94845114e8dd56de80",
+      "marketplace_visible": false,
+      "prior_disposition": "deferred-to-structural-parent"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/surge-activation/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 47,
+      "skill_name": "surge-activation",
+      "blob_sha": "c36605b3a6d9c5c7c8afa500c277a412c64262d8",
+      "sha256": "141cf217ae99d86a78ba17bb5d3768f15ec64d7d569c2fb878c0aee14f950633",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/surge-experiment/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 48,
+      "skill_name": "surge-experiment",
+      "blob_sha": "e782fbec3313e89d4931792e6c07f2b85589d5e0",
+      "sha256": "b05df53a58a78a4a8c628188e41c6b1ae2456067825544264d09906d6c61944d",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/surge-landing/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 49,
+      "skill_name": "surge-landing",
+      "blob_sha": "0e090a7bffdbad2ae9f9c3805eae236313410393",
+      "sha256": "f8b7dcc4e964edaf25e482dd754cadcb53c6e7b7597947c77f3e6070a9f300bd",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    },
+    {
+      "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/surge-plg/SKILL.md",
+      "cohort": "E2",
+      "ordinal": 50,
+      "skill_name": "surge-plg",
+      "blob_sha": "b6423d7daaa53d8d15b67b79ae0a15592466014a",
+      "sha256": "3a203eab5257c8748aef64a6cc021748468471f4d893133ef47ae3bbfd72fe48",
+      "marketplace_visible": false,
+      "prior_disposition": "duplicate-of-visible-root-instruction"
+    }
+  ],
+  "summary": {
+    "retained_excluded": 12,
+    "raw_equal_to_current_upstream": 0,
+    "normalized_body_equal": 7,
+    "changed_bodies": ["buzz-hn", "buzz-outreach", "ink-brief", "ink-cluster", "deal-outreach"],
+    "effective_frozen_terminal": 50,
+    "remaining_frozen_classification_cases": 0
+  },
+  "limits": [
+    "No upstream payload copied into the mirror, no catalog alias/registration or curated-freeze change.",
+    "Current upstream variants are source references, not adopted or runtime-verified replacements.",
+    "No quality grade, behavior, demand/adoption or safety certification is inferred.",
+    "No provider/native execution or contributor outreach occurred."
+  ]
+}

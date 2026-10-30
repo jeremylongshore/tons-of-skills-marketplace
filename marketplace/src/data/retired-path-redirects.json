@@ -4,10 +4,10 @@
   "stats": {
     "observedPaths": 709,
     "normalizedPaths": 611,
-    "redirected": 230,
-    "observedPathsRedirected": 257,
-    "kept404": 381,
-    "observedPathsKept404": 452,
+    "redirected": 229,
+    "observedPathsRedirected": 256,
+    "kept404": 382,
+    "observedPathsKept404": 453,
     "byRule": {
       "category-path": 2,
       "duplicate-suffix": 9,
@@ -19,11 +19,11 @@
       "relative-link-artifact": 162,
       "retired-learn-section-index": 3,
       "retired-plugin-section-index": 39,
-      "reviewed-keep-404": 5,
+      "reviewed-keep-404": 6,
       "reviewed-override": 2,
       "same-name-plugin": 1,
       "similar-plugin": 1,
-      "vendor-pack-page": 52
+      "vendor-pack-page": 51
     }
   },
   "entries": [
@@ -361,9 +361,9 @@
       "observed": [
         "/learn/framer/"
       ],
-      "status": 301,
-      "to": "/plugins/framer-pack/",
-      "rule": "vendor-pack-page"
+      "status": 404,
+      "rule": "reviewed-keep-404",
+      "note": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
     },
     {
       "from": "/learn/glean",

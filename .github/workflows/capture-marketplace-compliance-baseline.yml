@@ -2,6 +2,14 @@ name: Capture Marketplace Compliance Baseline
 
 on:
   workflow_dispatch:
+    inputs:
+      capture_mode:
+        description: Full current capture, or expand only original pinned section debt
+        type: choice
+        default: capture
+        options:
+          - capture
+          - historical-section-identities-v2
 
 permissions: {}
 
@@ -46,9 +54,35 @@ jobs:
         run: git diff --quiet && git diff --cached --quiet
 
       - name: Emit the triple-keyed marketplace baseline
-        run: >-
-          python3 scripts/validate-skills-schema.py --emit-baseline
-          > scripts/.marketplace-compliance-baseline.json
+        env:
+          CAPTURE_MODE: ${{ inputs.capture_mode || 'capture' }}
+        run: |
+          set -euo pipefail
+          candidate="$RUNNER_TEMP/marketplace-baseline-candidate.json"
+          case "$CAPTURE_MODE" in
+            capture)
+              version="$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+          baseline = json.loads(Path('scripts/.marketplace-compliance-baseline.json').read_text())
+          version = baseline.get('finding_identity_version', 1)
+          if type(version) is not int or version not in (1, 2):
+              raise ValueError('unsupported pinned finding identity version')
+          print(version)
+          PY
+              )"
+              python3 scripts/validate-skills-schema.py --emit-baseline \
+                --baseline-identity-version "$version" > "$candidate"
+              ;;
+            historical-section-identities-v2)
+              python3 scripts/migrate-marketplace-section-identities.py > "$candidate"
+              ;;
+            *)
+              echo 'Unsupported baseline capture mode' >&2
+              exit 1
+              ;;
+          esac
+          cp "$candidate" scripts/.marketplace-compliance-baseline.json
 
       - name: Refuse any generated diff outside the pinned baseline
         run: |
@@ -98,6 +132,7 @@ jobs:
           GH_TOKEN: ${{ secrets.BOT_PR_TOKEN }}
           BRANCH: ${{ needs.capture.outputs.branch }}
           BASE_SHA: ${{ needs.capture.outputs.base_sha }}
+          CAPTURE_MODE: ${{ inputs.capture_mode || 'capture' }}
         run: |
           set -euo pipefail
           test -n "$GH_TOKEN"
@@ -106,4 +141,4 @@ jobs:
             --base main \
             --head "$BRANCH" \
             --title 'chore(ci): capture marketplace compliance baseline' \
-            --body "Owner-dispatched CI baseline capture from quiet tree ${BASE_SHA}. This PR intentionally changes only scripts/.marketplace-compliance-baseline.json. Required CI verifies the owner-run identity, successful capture job, source commit, and byte-identical immutable artifact before permitting growth; no human review gate is required."
+            --body "Owner-dispatched CI baseline transaction (${CAPTURE_MODE}) from quiet tree ${BASE_SHA}. This PR intentionally changes only scripts/.marketplace-compliance-baseline.json. Historical section migration expands only debt evidenced at its original capture; it does not capture current debt. Required CI verifies the owner-run identity, successful capture job, source commit, and byte-identical immutable artifact before permitting growth; no human review gate is required."

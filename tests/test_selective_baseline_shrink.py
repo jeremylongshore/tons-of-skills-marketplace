@@ -128,6 +128,32 @@ class SelectiveShrinkTests(unittest.TestCase):
                 expected_count=1,
             )
 
+    def test_real_prepare_preserves_version_two_identity_contract(self):
+        # Use the real canonical emitter through prepare(), not the fixture
+        # override above: forgetting the pinned version would emit v1 and fail.
+        baseline = SHRINK.RATCHET.emit_current(self.root, finding_identity_version=2)
+        cleared_rule = "E-MISSING-REQUIRED-SECTION"
+        cleared = f"plugins/core/example/skills/s0/SKILL.md :: {cleared_rule} :: ## Overview"
+        baseline["entries"].append(cleared)
+        baseline["totals"]["errors"] += 1
+        self.write(SHRINK.BASELINE, json.dumps(baseline))
+        self.commit()
+        self.refresh_source()
+        candidate, receipt = SHRINK.prepare(
+            self.root,
+            source_sha=self.head,
+            repository="owner/repo",
+            run_id=123,
+            run=self.run,
+            job_pages=self.pages,
+            rule_id=cleared_rule,
+            expected_count=1,
+        )
+        self.assertEqual(candidate["finding_identity_version"], 2)
+        self.assertNotIn(cleared, candidate["entries"])
+        self.assertEqual(receipt["removed_entries"], [cleared])
+        self.assertTrue(receipt["corpus"]["allowed"])
+
     def test_exact_subset_preserves_every_other_field_and_existing_count_offset(self):
         before = (self.root / SHRINK.BASELINE).read_bytes()
         candidate, receipt = self.prepare()
