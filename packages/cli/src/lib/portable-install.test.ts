@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { installPortableTree } from './portable-install.js';
+import { diagnosePortableSkill } from './portable-doctor.js';
 import {
   hashPortableTree,
   parsePortableInstallReceipt,
@@ -104,6 +105,141 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     expect(JSON.parse(evidence.toString()).result.errors).toEqual([]);
     expect(receipt.validation.validator.name).toBe('ccpi-compatibility-validator');
     expect(await fs.readdir(destinationRoot)).toEqual(['.ccpi-evidence', 'demo-skill']);
+  });
+
+  test('synthetic contributing-clanker source excludes private neighbors and refuses installed source', async () => {
+    const canonical = 'plugins/community/contributing-clanker/skills/contribute';
+    const selected = path.join(root, canonical);
+    await fs.mkdir(selected, { recursive: true });
+    await fs.writeFile(
+      path.join(selected, 'SKILL.md'),
+      skill.replace('name: demo-skill', 'name: contribute'),
+    );
+    git('add', '--', canonical);
+    git('commit', '--quiet', '-m', 'test: canonical contributing-clanker fixture');
+    const privateNames = [
+      '.claude/hooks/private.json',
+      'dossiers/private.md',
+      'logs/private.log',
+      'credentials/session.json',
+      '.cache/private.txt',
+      'runtime/state.json',
+      'personal/home/notes.md',
+      'private.env',
+    ];
+    const pluginDirectory = path.dirname(path.dirname(canonical));
+    const privateState = privateNames.flatMap((relative) => [
+      relative,
+      path.posix.join(pluginDirectory, relative),
+    ]);
+    const marker = 'FIXTURE_ONLY_PRIVATE_STATE_1321';
+    for (const relative of privateState) {
+      await fs.mkdir(path.dirname(path.join(root, relative)), { recursive: true });
+      await fs.writeFile(path.join(root, relative), `${marker}:${relative}`);
+    }
+    const before = {
+      head: git('rev-parse', 'HEAD'),
+      tree: git('rev-parse', 'HEAD^{tree}'),
+      index: git('ls-files', '--stage'),
+      status: git('status', '--porcelain', '--untracked-files=all'),
+      source: await fs.readFile(path.join(selected, 'SKILL.md'), 'utf8'),
+    };
+    const registry = JSON.parse(
+      await fs.readFile(
+        new URL('../../../../config/harness-registry.json', import.meta.url),
+        'utf8',
+      ),
+    ) as {
+      schemaVersion: number;
+      harnesses: { id: string; support: string; projectPath: string | null }[];
+    };
+    const native = registry.harnesses.filter((harness) => harness.support === 'verified-native');
+    expect(native.length).toBeGreaterThan(0);
+    for (const harness of native) {
+      expect(harness.projectPath).not.toBeNull();
+      const targetRoot = path.join(root, 'consumer', harness.projectPath!);
+      const target = path.join(targetRoot, 'contribute');
+      const result = await installPortableTree({
+        ...options(),
+        sourceDirectory: selected,
+        destinationRoot: targetRoot,
+        harness: harness.id,
+        registryVersion: registry.schemaVersion,
+      });
+      expect(result.source.path).toBe(canonical);
+      expect(result.tree.entries.map((entry) => entry.path)).toEqual(['SKILL.md']);
+      expect((await fs.readdir(target)).sort()).toEqual(
+        [PORTABLE_INSTALL_RECEIPT_FILE, 'SKILL.md'].sort(),
+      );
+      expect(await fs.readFile(path.join(target, 'SKILL.md'), 'utf8')).toBe(before.source);
+      const savedReceipt = await fs.readFile(
+        path.join(target, PORTABLE_INSTALL_RECEIPT_FILE),
+        'utf8',
+      );
+      expect(JSON.parse(savedReceipt)).toEqual(result);
+      const evidenceRoot = path.join(targetRoot, '.ccpi-evidence');
+      const evidenceFiles = await fs.readdir(evidenceRoot);
+      expect(evidenceFiles.sort()).toEqual(
+        result.evidence.map((entry) => `${entry.sha256.slice(7)}.json`).sort(),
+      );
+      const evidence = await Promise.all(
+        evidenceFiles.map((file) => fs.readFile(path.join(evidenceRoot, file), 'utf8')),
+      );
+      for (const serialized of [JSON.stringify(result), savedReceipt, ...evidence]) {
+        expect(serialized).not.toContain(marker);
+        expect(serialized).not.toContain(root);
+        expect(serialized).not.toContain(JSON.stringify(root).slice(1, -1));
+        for (const relative of privateState) expect(serialized).not.toContain(relative);
+      }
+      const diagnose = () =>
+        diagnosePortableSkill({
+          destination: target,
+          sourceRepo: root,
+          harness: harness.id,
+          scope: 'project',
+        });
+      const pristineDiagnosis = await diagnose();
+      expect(pristineDiagnosis.integrity).toBe('verified');
+      await fs.writeFile(path.join(target, 'local-private.md'), marker);
+      const driftDiagnosis = await diagnose();
+      expect(driftDiagnosis.integrity).toBe('locally-modified');
+      for (const diagnosis of [pristineDiagnosis, driftDiagnosis]) {
+        // destination is intentionally public diagnostic context; private contents are not.
+        const serialized = JSON.stringify(diagnosis);
+        expect(diagnosis.destination).toBe(target);
+        expect(serialized).not.toContain(marker);
+        for (const relative of privateState) expect(serialized).not.toContain(relative);
+      }
+      await expect(
+        installPortableTree({
+          ...options(),
+          sourceDirectory: target,
+          destinationRoot: targetRoot,
+          harness: harness.id,
+          registryVersion: registry.schemaVersion,
+        }),
+      ).rejects.toThrow(/source\.path must identify/);
+      const installedLink = path.join(root, 'consumer', `${harness.id}-installed-link`);
+      await fs.symlink(target, installedLink, 'dir');
+      await expect(
+        installPortableTree({
+          ...options(),
+          sourceDirectory: installedLink,
+          destinationRoot: targetRoot,
+          harness: harness.id,
+          registryVersion: registry.schemaVersion,
+        }),
+      ).rejects.toThrow(/real directory|symlink/i);
+      expect(await fs.readFile(path.join(target, 'local-private.md'), 'utf8')).toBe(marker);
+    }
+    expect(git('rev-parse', 'HEAD')).toBe(before.head);
+    expect(git('rev-parse', 'HEAD^{tree}')).toBe(before.tree);
+    expect(git('ls-files', '--stage')).toBe(before.index);
+    expect(git('status', '--porcelain', '--untracked-files=all')).toBe(before.status);
+    expect(await fs.readFile(path.join(selected, 'SKILL.md'), 'utf8')).toBe(before.source);
+    for (const relative of privateState) {
+      expect(await fs.readFile(path.join(root, relative), 'utf8')).toBe(`${marker}:${relative}`);
+    }
   });
 
   test('dry run validates fully without creating harness paths', async () => {

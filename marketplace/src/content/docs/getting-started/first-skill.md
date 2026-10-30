@@ -1,439 +1,185 @@
 ---
-title: "Your First Agent Skill"
-description: "Learn how SKILL.md files work in Claude Code plugins, then build a production-quality agent skill from scratch. Covers frontmatter schema, body structure, testing, and iteration."
-section: "getting-started"
+title: 'Your First Agent Skill'
+description: 'Create a local review skill with all eight marketplace fields, an actual linked reference, explicit validation, and local plugin loading.'
+section: 'getting-started'
 order: 3
-keywords: ["Claude Code skills", "SKILL.md", "agent skills", "write a skill", "Claude Code skill tutorial", "skill frontmatter", "auto-activating skills"]
+keywords:
+  - "Claude Code skills"
+  - "SKILL.md"
+  - "agent skills"
+  - "write a skill"
+  - "Claude Code skill tutorial"
+  - "skill frontmatter"
+  - "auto-activating skills"
 officialLinks:
-  - title: "Claude Code Skills Documentation"
-    url: "https://code.claude.com/docs/en/skills"
-  - title: "Claude Code Plugin Structure"
-    url: "https://code.claude.com/docs/en/plugins"
+  - title: 'Claude Code Skills Documentation'
+    url: 'https://code.claude.com/docs/en/skills'
+  - title: 'Claude Code Plugin Structure'
+    url: 'https://code.claude.com/docs/en/plugins'
 relatedDocs:
-  - "getting-started/first-plugin"
-  - "concepts/skills"
-  - "guides/write-a-skill"
+  - 'getting-started/first-plugin'
+  - 'concepts/skills'
+  - 'guides/write-a-skill'
 ---
 
 ## Overview
 
-Skills are the core building blocks of Claude Code plugins. A skill is a single markdown file named `SKILL.md` that tells Claude *how* to perform a specific task -- code review, database migration, security scanning, or anything else you can express in structured instructions. When Claude detects that your request matches a skill's trigger conditions, it loads the skill automatically and follows its methodology.
+This tutorial creates a local plugin containing one read-only review skill. It demonstrates the repository's marketplace metadata contract without changing native Claude's permissive format. It does not claim that the example is already published, behaviorally evaluated, or suitable for every repository.
 
-This guide explains the anatomy of a SKILL.md file, walks you through building one from scratch, and shows how to test and refine it until it performs reliably.
+Use a new scratch directory you control. Do not overwrite an installed plugin or place secrets in the example files.
 
-## What is a SKILL.md file
+## Step 1: Create the layout
 
-A SKILL.md file lives inside a plugin at `skills/<skill-name>/SKILL.md`. It contains two parts:
-
-1. **YAML frontmatter** -- metadata that tells Claude Code when and how to load the skill.
-2. **Markdown body** -- the actual instructions Claude follows when the skill activates.
-
-Here is a minimal example:
-
-```markdown
----
-name: quick-lint
-description: |
-  Run a fast lint check on the current file. Use when the user asks
-  to lint, check style, or fix formatting issues.
-allowed-tools: Read, Bash(npx:eslint)
-version: 1.0.0
-author: Your Name <you@example.com>
-license: MIT
----
-
-## Overview
-
-You are a code linting specialist. When activated, run ESLint on the
-target file and report results in a structured format.
-
-## Steps
-
-1. Identify the file to lint from the user's request.
-2. Run `npx eslint <file> --format stylish` using the Bash tool.
-3. Parse the output and summarize findings.
-4. If there are auto-fixable issues, offer to run `npx eslint <file> --fix`.
+```text
+example-review-plugin/
+├── .claude-plugin/
+│   └── plugin.json
+├── skills/
+│   └── review-diff/
+│       ├── SKILL.md
+│       └── references/
+│           └── review-checklist.md
+├── README.md
+└── LICENSE
 ```
 
-When a user says "lint this file" or "check the formatting," Claude matches those phrases against the skill's `description` field and loads the instructions.
+Create those files using your editor. Paths in this tutorial are illustrative and relative to this new plugin directory. Native standard-layout discovery can work without a manifest, but a repository submission has stricter metadata and documentation requirements.
 
-## Frontmatter schema
+## Step 2: Add truthful manifest metadata
 
-Every SKILL.md starts with a YAML frontmatter block delimited by `---`. The following fields are supported.
-
-### Required fields
-
-| Field | Type | Description |
-|---|---|---|
-| `name` | string | Unique identifier for the skill (kebab-case) |
-| `description` | string | When to use this skill. Include trigger phrases that Claude matches against. |
-| `allowed-tools` | string | Comma-separated list of tools the skill can use |
-| `version` | string | Semantic version (e.g., `1.0.0`) |
-| `author` | string | Author name and optional email |
-| `license` | string | SPDX license identifier (e.g., `MIT`, `Apache-2.0`) |
-
-### Optional fields
-
-| Field | Type | Description |
-|---|---|---|
-| `model` | string | Override the LLM model (`sonnet`, `haiku`, `opus`) |
-| `context` | string | Set to `fork` to run in a subagent context |
-| `agent` | string | Subagent type (e.g., `Explore`) |
-| `user-invocable` | boolean | Set to `false` to hide from the `/` menu |
-| `argument-hint` | string | Autocomplete hint shown in the `/` menu |
-| `hooks` | object | Lifecycle hooks (e.g., `pre-tool-call`) |
-| `compatibility` | string | Environment requirements (e.g., `Node.js >= 18`) |
-| `compatible-with` | string | Platform compatibility (`claude-code`, `cursor`) |
-| `tags` | array | Discovery tags for search and categorization |
-
-### The `description` field matters most
-
-The `description` is the single most important field. Claude uses it to decide whether to activate the skill. Write it as a natural-language explanation of *when* the skill should fire, including specific trigger phrases:
-
-```yaml
-description: |
-  Perform a security audit on JavaScript or TypeScript code. Use when the
-  user asks to check for vulnerabilities, audit security, scan for XSS,
-  or review authentication logic.
-```
-
-Poor descriptions that are too vague ("helps with code") or too narrow ("only for React useState hooks") cause skills to either fire too often or never fire at all.
-
-### The `allowed-tools` field
-
-This field is a whitelist of the tools Claude is permitted to use when the skill is active. Valid tools:
-
-```
-Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch,
-Task, TodoWrite, NotebookEdit, AskUserQuestion, Skill
-```
-
-You can scope `Bash` to specific commands for tighter security:
-
-```yaml
-allowed-tools: Read, Edit, Bash(npm:*, npx:*, git:status)
-```
-
-This allows the skill to run any `npm` or `npx` command and `git status`, but nothing else.
-
-## Markdown body structure
-
-The body after the frontmatter closing `---` is the instruction set Claude follows. Use standard markdown with clear section headings.
-
-### Recommended sections
-
-A well-structured skill body includes these sections:
-
-```markdown
-## Overview
-What this skill does and its core methodology.
-
-## Steps
-Numbered step-by-step procedure Claude follows.
-
-## Output
-The format and structure of the skill's output.
-
-## Constraints
-Boundaries, edge cases, and things to avoid.
-
-## Examples
-Concrete input/output examples that calibrate Claude's behavior.
-```
-
-You do not need every section in every skill. A simple linter skill might only need Overview and Steps. A complex security auditor benefits from all five.
-
-### Writing effective instructions
-
-Skills are prompt engineering. The same principles that make a good system prompt make a good skill body:
-
-- **Be specific.** "Review the code" is weak. "Check for SQL injection, XSS, CSRF, insecure deserialization, and broken authentication" is strong.
-- **Use numbered steps.** Claude follows numbered procedures more reliably than prose paragraphs.
-- **Show the output format.** If you want structured output, include a template or example.
-- **Set boundaries.** Tell Claude what *not* to do. "Do not modify files unless explicitly asked" prevents unwanted side effects.
-
-### Referencing supporting files
-
-Skills can reference other markdown files in the same skill directory using relative links:
-
-```markdown
-For the complete API reference, see API docs.
-For usage examples, see examples.
-```
-
-Claude follows these links using the `Read` tool when it needs the referenced content. This keeps your main SKILL.md focused while allowing deep-dive documentation in supporting files.
-
-For bash commands or dynamic context injection, use the `${CLAUDE_SKILL_DIR}` variable to reference the skill's directory:
-
-```markdown
-!`cat ${CLAUDE_SKILL_DIR}/templates/report.md`
-```
-
-## Build a skill from scratch
-
-Let us build a practical skill: a code review assistant that evaluates pull request diffs against a quality checklist.
-
-### Step 1: Create the directory structure
-
-Inside your plugin directory, create the skill folder:
-
-```bash
-mkdir -p skills/pr-review
-```
-
-### Step 2: Write the SKILL.md
-
-Create `skills/pr-review/SKILL.md`:
-
-```markdown
----
-name: pr-review
-description: |
-  Review code changes for a pull request. Use when the user asks to
-  review a PR, check a diff, evaluate code changes, or assess code
-  quality before merging.
-allowed-tools: Read, Bash(git:*), Grep, Glob
-version: 1.0.0
-author: Your Name <you@example.com>
-license: MIT
-tags: [code-review, pull-request, quality]
----
-
-## Overview
-
-You are an expert code reviewer. When activated, analyze the current
-git diff or a specified PR and evaluate changes against a structured
-quality checklist. Provide actionable, specific feedback -- not
-generic advice.
-
-## Steps
-
-1. Determine the scope of the review:
-   - If the user specifies a branch or PR number, use
-     `git diff main...<branch>` to get the diff.
-   - If no branch is specified, use `git diff --staged` for staged
-     changes or `git diff` for unstaged changes.
-
-2. Read the diff output and identify all changed files.
-
-3. For each changed file, evaluate against this checklist:
-   - **Correctness**: Does the logic do what it claims?
-   - **Error handling**: Are failure cases covered?
-   - **Security**: Any hardcoded secrets, SQL injection, or XSS risks?
-   - **Performance**: Any O(n^2) loops, missing indexes, or redundant I/O?
-   - **Readability**: Are names clear? Is complexity justified?
-   - **Tests**: Are new code paths covered by tests?
-
-4. Search for related test files using Glob and Grep to verify
-   test coverage for changed functions.
-
-5. Produce a structured review report.
-
-## Output
-
-Format the review as follows:
-
-### Summary
-One paragraph overview of the changes and overall quality assessment.
-
-### Findings
-
-For each issue found:
-
-**[SEVERITY] File:Line -- Title**
-Description of the issue and why it matters.
-Suggested fix with a code snippet if applicable.
-
-Severity levels:
-- **CRITICAL** -- Must fix before merge (security, data loss, crashes)
-- **WARNING** -- Should fix (bugs, performance, maintainability)
-- **SUGGESTION** -- Nice to have (style, naming, minor improvements)
-- **PRAISE** -- Highlight well-written code worth calling out
-
-### Verdict
-APPROVE, REQUEST CHANGES, or NEEDS DISCUSSION with a one-line rationale.
-
-## Constraints
-
-- Do not modify any files. This is a read-only review.
-- Do not review generated files (lockfiles, build output, vendor).
-- If the diff is larger than 500 lines, summarize by file and focus
-  detailed review on the highest-risk changes.
-- Always include at least one PRAISE item to acknowledge good work.
-```
-
-### Step 3: Add the plugin manifest
-
-If you do not already have a plugin, create the manifest at `.claude-plugin/plugin.json`:
+Put this illustrative manifest in `.claude-plugin/plugin.json`, then replace the author and homepage with truthful project metadata before publication:
 
 ```json
 {
-  "name": "my-code-tools",
+  "name": "example-review-plugin",
   "version": "1.0.0",
-  "description": "Personal code quality tools for Claude Code",
-  "author": "Your Name <you@example.com>",
-  "license": "MIT"
+  "description": "Review supplied diffs using a bounded local checklist.",
+  "author": { "name": "Example Team" },
+  "homepage": "https://example.com/example-review-plugin",
+  "license": "MIT",
+  "keywords": ["review", "testing"],
+  "commands": []
 }
 ```
 
-Also create a `README.md` at the plugin root:
+`author` is an object, not a string. The empty `commands` array is appropriate because this example supplies a skill rather than legacy command files. Include the actual license text and a README explaining scope and prerequisites. This sample is not an exhaustive native manifest field allowlist.
 
-```markdown
-# My Code Tools
+## Step 3: Write the complete skill
 
-Personal code quality plugins for Claude Code.
+Place the following in `skills/review-diff/SKILL.md`. The outer fence is deliberately longer than its inner output fence:
 
-## Skills
+````markdown
+---
+name: review-diff
+description: Review a user-supplied Git diff for concrete correctness risks and missing tests without modifying files.
+allowed-tools: Read, Grep, Glob
+version: 1.0.0
+author: Example Team
+license: MIT
+compatibility: Claude Code with access to the local repository and a user-supplied diff.
+tags: [review, testing]
+---
 
-- **pr-review** -- Structured pull request code review with quality checklist.
+# Review Diff
+
+## Overview
+
+Review the supplied diff and relevant source files. This skill does not require
+package installation, test execution, or provider access.
+
+## Prerequisites
+
+The user supplies the diff, repository location, and review focus. Confirm that
+the source is available before making claims about it.
+
+## Instructions
+
+1. Identify changed behavior and the callers affected by it.
+2. Read the relevant source and existing tests without modifying them.
+3. Apply the [review checklist](references/review-checklist.md).
+4. Report only findings supported by the supplied diff and inspected source.
+5. Separate observed facts from behavior requiring execution to verify.
+
+## Output
+
+```text
+Finding: path and location — concrete risk and suggested test
+Uncertainty: information or execution needed to establish behavior
 ```
 
-Your directory structure should look like this:
+## Error Handling
 
-```
-my-code-tools/
-  .claude-plugin/
-    plugin.json
-  README.md
-  skills/
-    pr-review/
-      SKILL.md
-```
+If source or the diff is missing, ask for it. If a tool is denied, report the
+limitation. Do not invent test, installation, or provider results.
 
-## Test the skill
-
-### Validate the structure
-
-Run the validator to catch structural issues before testing in Claude Code:
-
-```bash
-# Using ccpi
-ccpi validate skills/pr-review/SKILL.md
-
-# Using the universal validator (if in the Tons of Skills repo)
-python3 scripts/validate-skills-schema.py --enterprise skills/pr-review/
-```
-
-The validator checks frontmatter fields, required sections, allowed-tools syntax, and overall content quality.
-
-### Test in Claude Code
-
-Install your plugin locally and try the skill:
-
-```bash
-# Start Claude Code in a project with uncommitted changes
-claude
-
-# Ask for a review
-Review the changes I have staged for commit.
-```
-
-If the skill activates, you will see Claude follow the methodology defined in your SKILL.md -- reading the diff, evaluating each file against the checklist, and producing a structured report.
-
-If the skill does not activate, check:
-
-- Is the plugin installed? Run `/plugin list` inside Claude Code.
-- Does the `description` field match your request phrasing? Try using the exact trigger phrases from the description.
-- Are there errors in the frontmatter? Run `ccpi validate` to check.
-
-## Iterate and improve
-
-Skills rarely work perfectly on the first try. Here is how to refine them.
-
-### Tune the description
-
-If the skill fires too often, narrow the trigger phrases. If it never fires, broaden them. The description should cover the most common ways a user would phrase the request.
-
-### Add examples
-
-Including input/output examples in the body dramatically improves consistency:
-
-```markdown
 ## Examples
 
-### Example: Small TypeScript PR
+Input: a diff changes an error handler to return success on a read failure.
+Output: identify the changed failure path and suggest an operational-error test.
 
-Input: `git diff main...feature/auth-refactor`
+## Resources
 
-Expected output structure:
-- Summary: "Refactors authentication middleware to use JWT validation..."
-- 2-3 findings with severity, file, line, and suggested fix
-- Verdict: APPROVE or REQUEST CHANGES
-```
+Use the bundled [review checklist](references/review-checklist.md) to inspect
+failure paths and distinguish source facts from unexecuted behavior. The user's
+supplied diff and selected repository source provide the evidence for findings;
+the checklist alone does not establish that any defect exists or tests passed.
+````
 
-### Use dynamic context injection
+### Required fields
 
-For skills that need runtime information, use DCI to inject data at activation time:
+All eight fields are required at marketplace tier: `name`, `description`, `allowed-tools`, `version`, `author`, `license`, `compatibility`, and `tags`. Missing fields are errors. Native Claude and the Agent Skills open standard have separate permissive floors; that distinction does not make tracking metadata optional here.
 
-```markdown
-## Context
+`allowed-tools` grants invocation-time preapproval; it does not prevent every other tool from being called under normal permission rules. The read-only intent in this example is not a sandbox. Do not add broad Bash permission or a package installer simply to make the tutorial convenient.
 
-Current branch and recent commits:
+If a future skill needs Bash, use separate supported patterns such as `Bash(git diff *)` and `Bash(git status *)`. Do not combine unrelated expressions inside one `Bash(...)` rule. Review command semantics and permission settings independently.
 
-!`git branch --show-current`
+## Step 4: Create the linked reference
 
-!`git log --oneline -5`
-```
-
-The `!` backtick syntax runs the command when the skill loads and injects the output into the prompt. This saves tool-call round trips and gives Claude immediate context.
-
-### Reference supporting files
-
-For complex skills, break instructions into multiple files:
-
-```
-skills/pr-review/
-  SKILL.md            # Main instructions
-  checklist.md        # Detailed quality checklist
-  examples/
-    typescript.md     # TypeScript-specific review examples
-    python.md         # Python-specific review examples
-```
-
-Reference them from SKILL.md with relative links:
+Put this content in `skills/review-diff/references/review-checklist.md`:
 
 ```markdown
-For the full quality checklist, see checklist.
-For language-specific guidance, see TypeScript examples.
+# Review Checklist
+
+- Identify what behavior changed and which caller relies on it.
+- Inspect error and refusal paths, not only successful output.
+- Check whether an existing test would expose the suspected defect.
+- Distinguish source evidence from unexecuted behavior.
+- Exclude credentials and unnecessary private data from the report.
 ```
 
-## Common patterns
+The actual Markdown link in `SKILL.md` points to this same-skill file. “See API docs” without a href would not provide that navigation. Keep resource links within the supported skill boundary and create targets before claiming they exist.
 
-### Subagent delegation
+## Step 5: Validate explicitly
 
-For expensive or long-running skills, run them in a forked context so they do not consume the main conversation's token budget:
+From a checkout of this repository with the documented prerequisites installed, substitute the actual scratch path:
 
-```yaml
-context: fork
-agent: Explore
+```bash
+python3 scripts/validate-skills-schema.py --standard /absolute/path/to/example-review-plugin/skills/review-diff/SKILL.md
+python3 scripts/validate-skills-schema.py --marketplace --verbose /absolute/path/to/example-review-plugin/skills/review-diff/SKILL.md
 ```
 
-### Model override
+The explicit flags distinguish native-floor checks from marketplace requirements. Inspect warnings as well as errors. The validator's existing `--fail-on-warn` changes how warnings affect that invocation's exit status; this tutorial does not adopt a new gate or require a particular static grade.
 
-If a skill needs stronger reasoning (e.g., complex security analysis), override the model:
+Static checks do not establish that a skill performs a useful review. They also do not certify security, successful native activation, or a live provider. Test those boundaries separately with authorized, non-sensitive fixtures.
 
-```yaml
-model: opus
+## Step 6: Load the local plugin
+
+Use the actual plugin root, not the repository root or skill subdirectory:
+
+```bash
+claude --plugin-dir /absolute/path/to/example-review-plugin
 ```
 
-For simple, high-volume tasks (e.g., formatting checks), use a faster model:
+Then invoke the namespaced skill in that session:
 
-```yaml
-model: haiku
+```text
+/example-review-plugin:review-diff
 ```
 
-### Scoped Bash access
+Supply a small non-sensitive diff and check whether the report is supported by the source. A plain `claude` invocation does not automatically register an arbitrary current-directory plugin. Do not install dependencies or execute repository code as part of this read-only trial.
 
-Limit Bash access to only the commands the skill needs:
+## Optional features and next steps
 
-```yaml
-allowed-tools: Read, Bash(npm:test, npm:run, git:diff, git:log)
-```
+Skills can support arguments, forked context, model-dependent effort, and lifecycle hooks. Learn each feature from the [native skills reference](https://code.claude.com/docs/en/skills) before adding it. Hook event keys are names such as `PreToolUse`, not `pre-tool-call`; use the actual nested hook schema and stdin JSON contract.
 
-This follows the principle of least privilege and prevents the skill from accidentally running destructive commands.
-
-## Next steps
-
-- [ccpi CLI Quick Reference](/docs/getting-started/cli-reference) -- validate and manage skills from the command line.
-- [Browse existing skills](/skills) -- study the 2,834 skills in the marketplace for patterns and inspiration.
-- [Explore plugins](/explore) -- see how production plugins structure their skills.
+For larger skills, move detailed material into linked references while keeping the main workflow usable. Static content-density scoring is not a new minimum word-count acceptance rule. Before contributing, follow repository review and generation instructions; do not hand-edit catalogs or assume a template is current merely because it exists.

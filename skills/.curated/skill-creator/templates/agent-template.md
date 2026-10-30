@@ -1,15 +1,15 @@
 ---
-name: {{AGENT_NAME}}
+name: "{{AGENT_NAME}}"
 description: "{{CONCISE_AGENT_SPECIALTY_20_1536_CHARS}}"
 # IS marketplace-required fields:
-tools: [Read, Glob, Grep]                # Allowlist; scope to the actual workflow
-model: inherit                           # sonnet|haiku|opus|fable|inherit|full Claude model ID
-color: blue                              # red|blue|green|yellow|purple|orange|pink|cyan
+tools: [Read, Glob, Grep] # Allowlist; scope to the actual workflow
+model: "{{MODEL}}" # Choose explicitly for the requested execution profile
+color: blue # red|blue|green|yellow|purple|orange|pink|cyan
 version: 1.0.0
 author: "{{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>"
-tags: [{{TAG_1}}, {{TAG_2}}]
-disallowedTools: []                      # IS denylist form; camelCase on agents
-skills: []                               # Skill names to preload
+tags: ["{{TAG_1}}", "{{TAG_2}}"]
+disallowedTools: [] # IS denylist form; camelCase on agents
+skills: [] # Skill names to preload
 background: false
 # Optional tuning fields (include as needed):
 # effort: medium                         # low|medium|high|xhigh|max

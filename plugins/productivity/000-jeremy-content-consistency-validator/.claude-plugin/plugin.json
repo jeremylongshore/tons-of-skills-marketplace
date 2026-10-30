@@ -1,7 +1,7 @@
 {
   "name": "000-jeremy-content-consistency-validator",
-  "version": "3.29.0",
-  "description": "Universal document consistency auditor. Runs deterministic drift checks across docs, code, tests, and CI; resolves conflicts through a per-fact-class authority registry (sot-map.yaml) instead of a global ranking; LLM-judged findings are structurally separated and advisory-only. Read-only — reports discrepancies, never fixes. Invoked automatically by /release Phase 1.6.",
+  "version": "3.30.0",
+  "description": "Document consistency auditor with per-fact authority and separated deterministic/advisory findings. Audit probes are instructed to leave project inputs unchanged; each local run attempts disclosure-approved report and index writes in a separate Intent OS checkout, reporting held filing explicitly. Invoked by /release Phase 1.6.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"

@@ -16,33 +16,35 @@ description: 'Backtest crypto and traditional trading strategies against histori
   "simulate trades", "optimize parameters", or "validate signals".
 
   '
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(python:*)
-version: 1.29.0
+allowed-tools: Read, Bash(python:*)
+version: 1.30.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- crypto
-- testing
-- performance
+  - crypto
+  - testing
+  - performance
 compatibility: Designed for Claude Code
 ---
+
 # Backtesting Trading Strategies
 
 ## Overview
 
-Validate trading strategies against historical data before risking real capital. This skill provides a complete backtesting framework with 8 built-in strategies, comprehensive performance metrics, and parameter optimization.
+Simulate trading strategies against historical data. Results describe a historical simulation, not expected future performance. The framework includes 8 built-in strategies, the metrics listed below, and parameter optimization.
 
 **Key Features:**
 
 - 8 pre-built trading strategies (SMA, EMA, RSI, MACD, Bollinger, Breakout, Mean Reversion, Momentum)
-- Full performance metrics (Sharpe, Sortino, Calmar, VaR, max drawdown)
+- Performance metrics (Sharpe, Sortino, Calmar, VaR, max drawdown)
 - Parameter grid search optimization
 - Equity curve visualization
 - Trade-by-trade analysis
 
 ## Prerequisites
 
-Install required dependencies:
+Before invoking this skill, the user installs the required dependencies in the
+Python environment used for the simulation:
 
 ```bash
 set -euo pipefail
@@ -72,7 +74,7 @@ pip install ta-lib scipy scikit-learn
      --strategy rsi_reversal \
      --symbol ETH-USD \
      --period 1y \
-     --capital 10000 \  # 10000: 10 seconds in ms
+     --capital 10000 \
      --params '{"period": 14, "overbought": 70, "oversold": 30}'
    ```
 
@@ -84,71 +86,70 @@ pip install ta-lib scipy scikit-learn
      --strategy sma_crossover \
      --symbol BTC-USD \
      --period 1y \
-     --param-grid '{"fast_period": [10, 20, 30], "slow_period": [50, 100, 200]}'  # HTTP 200 OK
+     --param-grid '{"fast_period": [10, 20, 30], "slow_period": [50, 100, 200]}'
    ```
 
 ## Output
 
 ### Performance Metrics
 
-| Metric | Description |
-|--------|-------------|
-| Total Return | Overall percentage gain/loss |
-| CAGR | Compound annual growth rate |
-| Sharpe Ratio | Risk-adjusted return (target: >1.5) |
-| Sortino Ratio | Downside risk-adjusted return |
-| Calmar Ratio | Return divided by max drawdown |
+| Metric        | Description                     |
+| ------------- | ------------------------------- |
+| Total Return  | Overall percentage gain/loss    |
+| CAGR          | Compound annual growth rate     |
+| Sharpe Ratio  | Historical risk-adjusted return |
+| Sortino Ratio | Downside risk-adjusted return   |
+| Calmar Ratio  | Return divided by max drawdown  |
 
 ### Risk Metrics
 
-| Metric | Description |
-|--------|-------------|
-| Max Drawdown | Largest peak-to-trough decline |
-| VaR (95%) | Value at Risk at 95% confidence |
-| CVaR (95%) | Expected loss beyond VaR |
-| Volatility | Annualized standard deviation |
+| Metric       | Description                     |
+| ------------ | ------------------------------- |
+| Max Drawdown | Largest peak-to-trough decline  |
+| VaR (95%)    | Value at Risk at 95% confidence |
+| CVaR (95%)   | Expected loss beyond VaR        |
+| Volatility   | Annualized standard deviation   |
 
 ### Trade Statistics
 
-| Metric | Description |
-|--------|-------------|
-| Total Trades | Number of round-trip trades |
-| Win Rate | Percentage of profitable trades |
-| Profit Factor | Gross profit divided by gross loss |
-| Expectancy | Expected value per trade |
+| Metric        | Description                                                     |
+| ------------- | --------------------------------------------------------------- |
+| Total Trades  | Number of round-trip trades                                     |
+| Win Rate      | Percentage of profitable trades                                 |
+| Profit Factor | Gross profit divided by gross loss; N/A with no observed losses |
+| Expectancy    | Expected value per trade                                        |
 
 ### Example Output
 
+Figure-free layout; actual values depend on the input series, fees, slippage,
+strategy and parameters. Do not present these placeholders as measured returns.
+
+```text
+HISTORICAL SIMULATION: [strategy]
+[symbol] | [start_date] to [end_date]
+Total Return: [computed] | Max Drawdown: [computed]
+Sharpe Ratio: [computed] | Win Rate: [computed]
+Total Trades: [observed] | Profit Factor: [computed or N/A]
 ```
-================================================================================
-                    BACKTEST RESULTS: SMA CROSSOVER
-                    BTC-USD | [start_date] to [end_date]
-================================================================================
- PERFORMANCE                          | RISK
- Total Return:        +47.32%         | Max Drawdown:      -18.45%
- CAGR:                +47.32%         | VaR (95%):         -2.34%
- Sharpe Ratio:        1.87            | Volatility:        42.1%
- Sortino Ratio:       2.41            | Ulcer Index:       8.2
---------------------------------------------------------------------------------
- TRADE STATISTICS
- Total Trades:        24              | Profit Factor:     2.34
- Win Rate:            58.3%           | Expectancy:        $197.17
- Avg Win:             $892.45         | Max Consec. Losses: 3
-================================================================================
-```
+
+Profit factor is unavailable when no losing trades were observed, including a
+zero-trade run or a single winning/breakeven trade. A single losing trade yields
+zero gross profit divided by its loss; this is not evidence of strategy quality.
+Zero/one-trade samples cannot establish performance, and optimization is an
+in-sample historical comparison rather than a forecast.
 
 ## Supported Strategies
 
-| Strategy | Description | Key Parameters |
-|----------|-------------|----------------|
-| `sma_crossover` | Simple moving average crossover | `fast_period`, `slow_period` |
-| `ema_crossover` | Exponential MA crossover | `fast_period`, `slow_period` |
-| `rsi_reversal` | RSI overbought/oversold | `period`, `overbought`, `oversold` |
-| `macd` | MACD signal line crossover | `fast`, `slow`, `signal` |
-| `bollinger_bands` | Mean reversion on bands | `period`, `std_dev` |
-| `breakout` | Price breakout from range | `lookback`, `threshold` |
-| `mean_reversion` | Return to moving average | `period`, `z_threshold` |
-| `momentum` | Rate of change momentum | `period`, `threshold` |
+| Strategy          | Description                     | Key Parameters                     |
+| ----------------- | ------------------------------- | ---------------------------------- |
+| `sma_crossover`   | Simple moving average crossover | `fast_period`, `slow_period`       |
+| `ema_crossover`   | Exponential MA crossover        | `fast_period`, `slow_period`       |
+| `rsi_reversal`    | RSI overbought/oversold         | `period`, `overbought`, `oversold` |
+| `macd`            | MACD signal line crossover      | `fast`, `slow`, `signal`           |
+| `bollinger_bands` | Mean reversion on bands         | `period`, `std_dev`                |
+| `breakout`        | Price breakout from range       | `lookback`, `threshold`            |
+| `mean_reversion`  | Return to moving average        | `period`, `z_threshold`            |
+| `momentum`        | Rate of change momentum         | `period`, `threshold`              |
 
 ## Configuration
 
@@ -160,19 +161,19 @@ data:
   cache_dir: ./data
 
 backtest:
-  default_capital: 10000  # 10000: 10 seconds in ms
-  commission: 0.001     # 0.1% per trade
-  slippage: 0.0005      # 0.05% slippage
+  default_capital: 10000 # Starting simulated capital in quote-currency units
+  commission: 0.001 # 0.1% per trade
+  slippage: 0.0005 # 0.05% slippage
 
 risk:
   max_position_size: 0.95
-  stop_loss: null       # Optional fixed stop loss
-  take_profit: null     # Optional fixed take profit
+  stop_loss: null # Optional fixed stop loss
+  take_profit: null # Optional fixed take profit
 ```
 
 ## Error Handling
 
-See [`references/errors.md`](references/errors.md) for common issues and solutions.
+Use Read to inspect [`references/errors.md`](references/errors.md) for common issues and solutions.
 
 ## Examples
 
@@ -184,13 +185,13 @@ See [`references/examples.md`](references/examples.md) for detailed usage exampl
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `scripts/backtest.py` | Main backtesting engine |
-| `scripts/fetch_data.py` | Historical data fetcher |
-| `scripts/strategies.py` | Strategy definitions |
-| `scripts/metrics.py` | Performance calculations |
-| `scripts/optimize.py` | Parameter optimization |
+| File                    | Purpose                  |
+| ----------------------- | ------------------------ |
+| `scripts/backtest.py`   | Main backtesting engine  |
+| `scripts/fetch_data.py` | Historical data fetcher  |
+| `scripts/strategies.py` | Strategy definitions     |
+| `scripts/metrics.py`    | Performance calculations |
+| `scripts/optimize.py`   | Parameter optimization   |
 
 ## Resources
 

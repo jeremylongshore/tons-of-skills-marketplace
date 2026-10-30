@@ -1,47 +1,59 @@
-# ga4-pack
+# GA4 pack
 
-> Claude Code skill pack for Google Analytics 4. 5 starter skills covering the operationally-leveraged paths: auth setup, Data API v1 queries, Realtime API, common reports (DAU / MAU / retention / top pages), and BigQuery export.
+Investigate conflicting reports, missing measurement signals and BigQuery export
+gaps with executable evidence checks. The v2 rebuild retains the `ga4-pack`
+install identity and consolidates five tutorials into three operator workflows.
 
 **Install:** `/plugin install ga4-pack@claude-code-plugins-plus`
 
-**Links:** Tons of Skills · [GA4 Data API v1 docs](https://developers.google.com/analytics/devguides/reporting/data/v1) · [GA4 BigQuery export](https://support.google.com/analytics/answer/9358801)
+Freshie run 139 grades the three workflows A/92, A/95 and A/97. See the
+[value decision](000-docs/001-AT-ADEC-operator-value-review.md) and
+[validation evidence](000-docs/002-RA-AUDT-v2-validation-evidence.md) for the
+immutable source, public inventory receipt and verification limits.
 
----
+| Workflow | Concrete output |
+| --- | --- |
+| [Report Forensics](skills/ga4-report-forensics/SKILL.md) | A comparison ledger separating scope, identity, quality and row-coverage differences from hypotheses. |
+| [Measurement Verifier](skills/ga4-measurement-verifier/SKILL.md) | Expected-event observations with count, truncation and deployment-window limits. |
+| [Export Guardian](skills/ga4-export-guardian/SKILL.md) | Daily/intraday evidence and gaps, plus an optional SQL-bound dry-run risk assessment. |
 
-## What's in the box
+Each workflow has a stdlib analyzer, a bounded optional SDK collector, a receipt
+contract, primary references and behavioral evaluation cases. Supplied-data mode
+works without credentials. Live collection requires an explicit live invocation,
+an approved target and existing credentials. Development checks use synthetic
+transports; they do not establish live property access or model-evaluation results.
 
-| Skill | When to use it |
-|---|---|
-| `ga4-auth-setup` | First-time setup of OAuth user creds OR a service account for read-only analytics access. |
-| `ga4-data-api-query` | Building a properly-structured `runReport` request against the Data API v1 — metrics, dimensions, date ranges, filters, ordering. |
-| `ga4-realtime-api` | Pulling active-users / current-session data from the Realtime endpoint. Different shape, different limits than the standard Data API. |
-| `ga4-common-reports` | The canonical reports every site owner wants: DAU/MAU, retention, top pages, top sources, conversion funnel. Copy-paste recipes. |
-| `ga4-bigquery-export` | Wiring GA4 → BigQuery for unsampled, queryable event-level data. Schema, partitioning, common SQL patterns. |
+Python 3.10+ is required; historical/export analysis also needs IANA timezone
+data. Optional collectors use `google-analytics-data` or `google-cloud-bigquery`
+from an approved environment. No key creation, IAM grants, tracking changes,
+export setup or paid query execution is performed. A successful dry run does not
+approve spend. Keep analytics receipts and SQL in approved local storage.
 
-Five skills, not thirty. **Intentional**: GA4's API surface is wide but the operational paths most engineers actually need are narrow. Each skill in this pack is a real reference — not boilerplate. If you need a specialized use case (e.g., GA4 Measurement Protocol, custom event taxonomy, consent-mode signal handling), open an issue and we'll add a focused skill.
+## Migration from v1
 
-## When NOT to use this pack
+| Previous skill | Successor and preserved coverage |
+| --- | --- |
+| `ga4-auth-setup` | Report Forensics [access diagnostics](skills/ga4-report-forensics/references/access-diagnostics.md); property identity, ADC and authorization boundaries. |
+| `ga4-data-api-query` | Report Forensics; bounded collection, request semantics, pagination and report-quality evidence. |
+| `ga4-common-reports` | Report Forensics [report definitions](skills/ga4-report-forensics/references/report-definitions.md); exact windows, non-additive users, scopes, cohorts and funnel limits. |
+| `ga4-realtime-api` | Measurement Verifier; observed event names/counts and honest realtime/deployment limits. |
+| `ga4-bigquery-export` | Export Guardian; metadata coverage, daily/intraday selection and dry-run scan risk. |
 
-- **You're using Umami / Plausible / Fathom instead of GA4**: use `web-analytics` instead — that pack is Umami-primary, GA4 as fallback only.
-- **You need to write events from a website**: this pack is read-only / reporting-focused. For event instrumentation, use Google's official tag manager guides directly.
-- **You're on Universal Analytics (UA)**: UA was sunset 2023-07-01. Migrate to GA4 first; this pack assumes GA4 properties.
+The replacement intentionally removes standalone authentication tutorials,
+copy-paste report slots and export-installation promises. Cohorts and custom
+query shapes remain supported through explicitly mapped supplied evidence;
+the bounded collectors hold unsupported shapes rather than silently dropping them.
+Permanent public skill-page redirects and source retirement accompany the v2
+release after normal review, generation and checks.
 
-## Prerequisites
+The exact pre-rebuild source is commit
+`dd9cf1c487edb19fe504463b9aadf73afb6c05a4`, path
+`plugins/saas-packs/ga4-pack/`. Preserve that Git receipt when reviewing retirement.
+A rollback restores that source tree, reverses only this migration’s five
+redirect entries, restores canonical pack metadata, and regenerates derived
+catalog/curated projections through the normal reviewed workflow. Do not roll
+back unrelated marketplace changes or rewrite history.
 
-- A GA4 property (not Universal Analytics)
-- One of:
-  - **OAuth user credentials** with `analytics.readonly` scope (for ad-hoc / interactive use)
-  - **Service account** with the GA4 property's API access (for automated / CI use)
-- For BigQuery export: a linked GCP project with BigQuery enabled (no extra cost — GA4 → BQ is free for the standard tier; sampling-free)
-
-See `ga4-auth-setup` for the actual setup steps.
-
-## Trigger examples
-
-| You ask Claude | Skill that fires |
-|---|---|
-| "Set up GA4 auth with a service account" | `ga4-auth-setup` |
-| "Query DAU for the last 30 days from GA4" | `ga4-data-api-query` |
-| "How many people are on my site right now?" | `ga4-realtime-api` |
-| "Show me retention week-over-week from GA4" | `ga4-common-reports` |
-| "I want unsampled GA4 data — set up the BigQuery export" | `ga4-bigquery-export` |
+For portfolio-wide business interpretation and publishing, use `web-analytics`.
+This pack diagnoses GA4 evidence. It does not instrument events, certify consent
+or identify a root cause from an empty report alone.

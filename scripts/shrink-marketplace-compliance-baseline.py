@@ -183,7 +183,7 @@ def prepare(
     validate_run(run, job_pages, run_id=run_id, source_sha=source_sha, repository=repository, workflow=workflow)
     baseline_bytes = (root / BASELINE).read_bytes()
     baseline = json.loads(baseline_bytes)
-    current = RATCHET.emit_current(root)
+    current = RATCHET.emit_current(root, finding_identity_version=baseline.get("finding_identity_version", 1))
     require(current.get("generated_from", {}).get("sha") == source_sha, "live emitter source mismatch")
     candidate, removed = selective_candidate(baseline, current, rule_id, expected_count)
     corpus = RATCHET.corpus_shrink_evidence(candidate, current, root, source_sha)

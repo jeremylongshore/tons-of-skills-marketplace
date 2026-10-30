@@ -22,13 +22,13 @@
       "error_files": 278,
       "error_total": 2798,
       "grade_distribution": {
-        "A": 2880,
-        "B": 323,
-        "C": 132,
+        "A": 2837,
+        "B": 187,
+        "C": 122,
         "D": 154,
         "F": 4
       },
-      "rows": 3493
+      "rows": 3304
     }
   },
   "rows": {
@@ -42,7 +42,7 @@
       "unpersisted_values": ["tracked_files"],
       "values": {
         "plugin_agent_files": 352,
-        "raw_tracked_plugin_skill_files": 2993
+        "raw_tracked_plugin_skill_files": 2804
       }
     },
     "2": {
@@ -53,9 +53,9 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "distinct_names": 438,
+        "distinct_names": 431,
         "duplicate_names": [],
-        "entries": 438
+        "entries": 431
       }
     },
     "3": {
@@ -80,28 +80,28 @@
       "values": {
         "agent_lane": {
           "error_total_all_validated_surfaces": 230,
-          "fully_compliant_surfaces": 776,
+          "fully_compliant_surfaces": 770,
           "terminal_denominator": {
             "agents": 363,
-            "files": 952,
+            "files": 945,
             "label": "agents_plus_plugin_manifests",
-            "plugin_manifests": 589
+            "plugin_manifests": 582
           },
           "validator_reported_mixed_denominator_percent": 81.5
         },
         "marketplace_terminal": {
           "error_total_all_validated_surfaces": 3029,
-          "fully_compliant_surfaces": 2088,
+          "fully_compliant_surfaces": 2084,
           "terminal_denominator": {
             "agents": 363,
             "commands": 370,
-            "files": 4815,
+            "files": 4619,
             "label": "skills_plus_commands_plus_agents_plus_plugin_manifests",
-            "plugin_manifests": 589,
-            "skills": 3493
+            "plugin_manifests": 582,
+            "skills": 3304
           },
-          "validated_plugin_manifests": 596,
-          "validator_reported_mixed_denominator_percent": 43.4
+          "validated_plugin_manifests": 589,
+          "validator_reported_mixed_denominator_percent": 45.1
         },
         "skill_rows": {
           "a_error_total": 23,
@@ -112,13 +112,13 @@
           "error_files": 278,
           "error_total": 2798,
           "grade_distribution": {
-            "A": 2880,
-            "B": 323,
-            "C": 132,
+            "A": 2837,
+            "B": 187,
+            "C": 122,
             "D": 154,
             "F": 4
           },
-          "rows": 3493
+          "rows": 3304
         }
       }
     },
@@ -129,22 +129,22 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "average_score": 91.8,
+        "average_score": 92.1,
         "grade_distribution": {
-          "A": 2880,
-          "B": 323,
-          "C": 132,
+          "A": 2837,
+          "B": 187,
+          "C": 122,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 82.5,
-          "B": 9.2,
-          "C": 3.8,
-          "D": 4.4,
+          "A": 85.9,
+          "B": 5.7,
+          "C": 3.7,
+          "D": 4.7,
           "F": 0.1
         },
-        "rows": 3493
+        "rows": 3304
       }
     },
     "6": {
@@ -161,7 +161,7 @@
         "b_error_total": 147,
         "b_failing": 14,
         "certified_target": 0,
-        "skill_summary_rows": 3493
+        "skill_summary_rows": 3304
       }
     },
     "7": {
@@ -188,7 +188,7 @@
         "missing_required_field_occurrences": 580,
         "missing_required_section_occurrences": 1641,
         "other_skill_error_occurrences": 577,
-        "skill_rows": 3493,
+        "skill_rows": 3304,
         "structural_occurrences": 2221,
         "structural_share_of_skill_errors_pct": 79.3781,
         "target": 0,
@@ -199,7 +199,7 @@
           "E-MISSING-REQUIRED-SECTION": 267
         },
         "validator_schema_version": "4.1.0",
-        "validator_sha256": "47109fb5a701b0ceb7ad5b3f0c281ae2ebedf9ae273581f4b62bdd146937dd66"
+        "validator_sha256": "716e732fed464f2920379588f592d55cbeea2db525d9e3014a74b8b62aa6b197"
       }
     },
     "8": {
@@ -251,7 +251,7 @@
       "status": "measured",
       "target_status": "pass",
       "values": {
-        "candidate_count": 33,
+        "candidate_count": 34,
         "mismatch_count": 0,
         "mismatch_paths": []
       }
@@ -296,12 +296,12 @@
       ],
       "status": "partial",
       "values": {
-        "declared": 3482,
+        "declared": 3293,
         "folded_scalar": 5,
         "malformed_frontmatter": 0,
         "malformed_shape": 0,
         "missing": 11,
-        "rows": 3493,
+        "rows": 3304,
         "target_malformed": 0
       }
     },
@@ -312,7 +312,7 @@
       "source": ["scripts/validate-skills-schema.py"],
       "status": "measured",
       "values": {
-        "distinct_values": 448,
+        "distinct_values": 456,
         "invalid_or_empty": 0,
         "target_free_text_values": 0,
         "values": [
@@ -417,7 +417,7 @@
             "value": "Cross-platform — talks WebDriver HTTP directly via Node's built-in node:https; no platform-specific binary dependency. Requires Node.js >= 18, a persistent local filesystem (the observe-decide-act loop passes state through local turn files), and ~/.kobiton/.credentials written by /automate:setup — scripts/appium.js reads that file directly and never calls the MCP getCredential tool, so it is required, not a fallback. An authenticated Kobiton MCP connection is additionally useful for device selection."
           },
           {
-            "count": 2230,
+            "count": 2033,
             "value": "Designed for Claude Code"
           },
           {
@@ -1165,12 +1165,12 @@
             "value": "Designed for Claude Code; requires Python 3, optionally the repository-pinned J-Rig CLI"
           },
           {
-            "count": 24,
-            "value": "Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use"
+            "count": 1,
+            "value": "Designed for Claude Code; requires a separately configured Plane MCP server with permitted read tools and inspected schemas; no server version is installed or pinned by this plugin"
           },
           {
-            "count": 1,
-            "value": "Designed for Claude Code; requires mcp__plane MCP server configured (PLANE_API_KEY, PLANE_WORKSPACE_SLUG, PLANE_API_HOST_URL env vars)"
+            "count": 24,
+            "value": "Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use"
           },
           {
             "count": 1,
@@ -1375,6 +1375,38 @@
           {
             "count": 1,
             "value": "Provider load testing requires explicit authorization, dedicated non-production users, synthetic data, and an abort owner."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ and IANA timezone data; optional collection requires google-analytics-data and existing approved ADC."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ and IANA timezone data; optional collection requires google-cloud-bigquery and existing approved ADC."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ for supplied receipts; optional live collection requires google-analytics-data and existing approved ADC."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; SDK result projection is an optional local JavaScript module for the documented Langfuse client 6.0.2 result shape."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; supplied OTLP JSON and Langfuse Observations API v2 evidence. No SDK or credentials needed for offline analysis."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; supplied native Observations API v2 pages. No credentials, price lookup or provider calls are required."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; supplied native project and observation JSON evidence. No credentials, networking, masking or deletion is performed."
+          },
+          {
+            "count": 1,
+            "value": "Python 3.10+ standard library; supplied native prompt API snapshots. Optional webhook verification uses an existing approved secret through a named environment variable."
           },
           {
             "count": 1,
@@ -2444,7 +2476,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2628
+            "value": 2449
           },
           {
             "cohort": "curriculum",
@@ -2452,15 +2484,15 @@
           },
           {
             "cohort": "first-party",
-            "value": 2646
+            "value": 2457
           },
           {
             "cohort": "graded",
-            "value": 3493
+            "value": 3304
           },
           {
             "cohort": "marketplace-visible",
-            "value": 2902
+            "value": 2713
           }
         ],
         "distinct_numeric_answers": 5,
@@ -2903,7 +2935,7 @@
         "distinct_actions": 7,
         "mutable_uses": [],
         "target_mutable_uses": 0,
-        "total_uses": 37
+        "total_uses": 45
       }
     },
     "37": {
@@ -3222,10 +3254,10 @@
       ],
       "status": "measured",
       "values": {
-        "index_entries": 261,
+        "index_entries": 276,
         "missing_from_index": [],
         "target_equal": true,
-        "tracked_documents": 261,
+        "tracked_documents": 276,
         "untracked_index_entries": []
       }
     },
@@ -3329,14 +3361,14 @@
       "status": "partial",
       "values": {
         "coverage": {
-          "conditional_envelopes": 44,
-          "containers": 237,
+          "conditional_envelopes": 45,
+          "containers": 238,
           "containers_with_sites": 17,
           "counts_overlap": true,
           "jobs": 28,
           "opaque_actions": 73,
-          "run_containers": 164,
-          "unreviewed_run_containers": 147,
+          "run_containers": 165,
+          "unreviewed_run_containers": 148,
           "workflows": 3
         },
         "repository_unbounded_total": null,
@@ -3408,7 +3440,7 @@
           {
             "authority": [
               {
-                "line": 961,
+                "line": 965,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3421,7 +3453,7 @@
             "promotion": null,
             "rationale": "Test failure is accumulated and propagated by the final fail check in this bound run body.",
             "run_line": 70,
-            "step": 9,
+            "step": 10,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3489,7 +3521,7 @@
           {
             "authority": [
               {
-                "line": 1165,
+                "line": 1169,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
@@ -3507,7 +3539,7 @@
             "promotion": null,
             "rationale": "Only grep's no-match status 1 is normalized; find traversal and exclusion-filter failures remain blocking under pipefail, including partial discovery output. Extracted-workflow tests preserve pytest arguments and failures.",
             "run_line": 20,
-            "step": 17,
+            "step": 18,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3612,7 +3644,7 @@
             "promotion": null,
             "rationale": "Full-lane optional runtime installation remains best-effort without case-specific failure authority; the three-file fixture dependency closure is installed strictly afterward in both lanes.",
             "run_line": 14,
-            "step": 14,
+            "step": 15,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3625,7 +3657,7 @@
             "promotion": null,
             "rationale": "Report versus gate role and bounds are unresolved; the later CLI marker does not apply.",
             "run_line": 11,
-            "step": 23,
+            "step": 24,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3636,13 +3668,13 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 1263
+              "source_line": 1267
             },
             "owner": null,
             "promotion": null,
             "rationale": "The CLI marker and historical issue reference do not establish a current owner.",
             "run_line": 47,
-            "step": 23,
+            "step": 24,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3720,7 +3752,7 @@
             "promotion": null,
             "rationale": "Only grep's no-match status 1 selects no-test/Python/test:ci branches; operational errors in all four queries terminate before package commands. Remaining discovery-policy disposition is unresolved.",
             "run_line": 27,
-            "step": 9,
+            "step": 10,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3791,17 +3823,17 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-138.json",
+        "freshie/reports/run-delta-156.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "hk2a9qcgp0dddgqiuvqavk8uf8hk03pq",
-        "header_total_skills": 2916,
-        "run_id": 138,
+        "dolt_commit": "sn4ddt17773abusftrjlhqe81h441rap",
+        "header_total_skills": 2727,
+        "run_id": 156,
         "skill_row_delta": 0,
-        "skill_rows": 2916,
+        "skill_rows": 2727,
         "target_skill_row_delta": 0
       }
     },
@@ -3812,32 +3844,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-138.json"
+        "freshie/reports/run-delta-156.json"
       ],
       "status": "target_met",
       "values": {
-        "compliance_rows": 3493,
-        "export_dolt_commit": "hk2a9qcgp0dddgqiuvqavk8uf8hk03pq",
-        "export_run_id": 138,
-        "grades_csv_rows": 3493,
-        "grades_csv_sha256": "e5225298e333318dae1e51ae8d7d7e3e8fe7f3265934a1415f94e5898e8684e5",
+        "compliance_rows": 3304,
+        "export_dolt_commit": "sn4ddt17773abusftrjlhqe81h441rap",
+        "export_run_id": 156,
+        "grades_csv_rows": 3304,
+        "grades_csv_sha256": "88193a1dcd8baeee9dc84053d73e329e38ffeefd7d970295af94df98cc33fad2",
         "histogram_grades": {
-          "A": 2880,
-          "B": 323,
-          "C": 132,
+          "A": 2838,
+          "B": 186,
+          "C": 122,
           "D": 154,
           "F": 4
         },
-        "histogram_total": 3493,
+        "histogram_total": 3304,
         "immutable_grade_counts": {
-          "A": 2880,
-          "B": 323,
-          "C": 132,
+          "A": 2838,
+          "B": 186,
+          "C": 122,
           "D": 154,
           "F": 4
         },
-        "inventory_dolt_commit": "hk2a9qcgp0dddgqiuvqavk8uf8hk03pq",
-        "inventory_run_id": 138,
+        "inventory_dolt_commit": "sn4ddt17773abusftrjlhqe81h441rap",
+        "inventory_run_id": 156,
         "target_lag_runs": 0
       }
     },
@@ -3847,7 +3879,7 @@
       "reproduce": "pnpm run measure:e1 --row=54 --stdout",
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-138.json",
+        "freshie/reports/run-delta-156.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
@@ -3861,7 +3893,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 138,
+        "current_run_id": 156,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -3885,7 +3917,7 @@
       "source": [
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-138.json",
+        "freshie/reports/run-delta-156.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
@@ -3932,12 +3964,20 @@
         "plugins/saas-packs/databricks-pack/skills/databricks-cost-leak-hunter/eval-spec.yaml",
         "plugins/saas-packs/databricks-pack/skills/databricks-streaming-guardian/eval-spec.yaml",
         "plugins/saas-packs/databricks-pack/skills/databricks-uc-migration-pilot/eval-spec.yaml",
+        "plugins/saas-packs/ga4-pack/skills/ga4-export-guardian/eval-spec.yaml",
+        "plugins/saas-packs/ga4-pack/skills/ga4-measurement-verifier/eval-spec.yaml",
+        "plugins/saas-packs/ga4-pack/skills/ga4-report-forensics/eval-spec.yaml",
         "plugins/saas-packs/grammarly-pack/skills/grammarly-access-readiness/eval-spec.yaml",
         "plugins/saas-packs/grammarly-pack/skills/grammarly-api-reliability/eval-spec.yaml",
         "plugins/saas-packs/grammarly-pack/skills/grammarly-data-safety-guardian/eval-spec.yaml",
         "plugins/saas-packs/grammarly-pack/skills/grammarly-document-evaluator/eval-spec.yaml",
         "plugins/saas-packs/grammarly-pack/skills/grammarly-license-governor/eval-spec.yaml",
         "plugins/saas-packs/hubspot-pack/skills/hubspot-warehouse-sync/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-cost-forensics/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-data-boundary-auditor/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-experiment-guardian/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-prompt-release-guardian/eval-spec.yaml",
+        "plugins/saas-packs/langfuse-pack/skills/langfuse-trace-ingestion-medic/eval-spec.yaml",
         "plugins/saas-packs/sentry-pack/skills/sentry-data-handling/eval-spec.yaml",
         "plugins/saas-packs/snowflake-pack/skills/snowflake-access-guardian/eval-spec.yaml",
         "plugins/saas-packs/snowflake-pack/skills/snowflake-cost-leak-hunter/eval-spec.yaml",
@@ -3965,12 +4005,20 @@
         "skills/.curated/databricks-cost-leak-hunter/eval-spec.yaml",
         "skills/.curated/databricks-streaming-guardian/eval-spec.yaml",
         "skills/.curated/databricks-uc-migration-pilot/eval-spec.yaml",
+        "skills/.curated/ga4-export-guardian/eval-spec.yaml",
+        "skills/.curated/ga4-measurement-verifier/eval-spec.yaml",
+        "skills/.curated/ga4-report-forensics/eval-spec.yaml",
         "skills/.curated/grammarly-access-readiness/eval-spec.yaml",
         "skills/.curated/grammarly-api-reliability/eval-spec.yaml",
         "skills/.curated/grammarly-data-safety-guardian/eval-spec.yaml",
         "skills/.curated/grammarly-document-evaluator/eval-spec.yaml",
         "skills/.curated/grammarly-license-governor/eval-spec.yaml",
         "skills/.curated/hubspot-warehouse-sync/eval-spec.yaml",
+        "skills/.curated/langfuse-cost-forensics/eval-spec.yaml",
+        "skills/.curated/langfuse-data-boundary-auditor/eval-spec.yaml",
+        "skills/.curated/langfuse-experiment-guardian/eval-spec.yaml",
+        "skills/.curated/langfuse-prompt-release-guardian/eval-spec.yaml",
+        "skills/.curated/langfuse-trace-ingestion-medic/eval-spec.yaml",
         "skills/.curated/production-upgrade/eval-spec.yaml",
         "skills/.curated/sentry-data-handling/eval-spec.yaml",
         "skills/.curated/skill-creator/eval-spec.yaml",
@@ -3989,11 +4037,11 @@
       ],
       "status": "measured",
       "values": {
-        "adoption_percent": 1.07,
-        "curated_copies": 32,
-        "plugin_skill_rows": 2993,
-        "source_eval_specs": 32,
-        "tracked_eval_specs": 64
+        "adoption_percent": 1.43,
+        "curated_copies": 40,
+        "plugin_skill_rows": 2804,
+        "source_eval_specs": 40,
+        "tracked_eval_specs": 80
       }
     },
     "58": {

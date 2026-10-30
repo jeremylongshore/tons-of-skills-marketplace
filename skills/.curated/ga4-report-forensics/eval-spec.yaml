@@ -1,0 +1,38 @@
+spec_version: '1.0'
+skill_name: ga4-report-forensics
+description: Evaluate a GA4 investigation on supplied report receipts without provider access.
+criteria:
+  - id: distinguishes-quality-signals
+    description: Separates sampling, other-row loss and threshold-sensitive reporting.
+    method: judge
+    blocker: true
+  - id: preserves-evidence-boundary
+    description: Labels supplied-data mode and does not invent live access, settings or a proven root cause.
+    method: judge
+    blocker: true
+  - id: checks-comparability
+    description: Checks property, dates, timezone, identity, filters and row coverage before drawing numeric conclusions.
+    method: judge
+    blocker: true
+  - id: actionable-ledger
+    description: Produces evidence-linked findings, unknowns and discriminating next checks without adding user counts across rows.
+    method: judge
+    blocker: true
+test_cases:
+  - id: api-ui-disagreement
+    prompt: Investigate why these supplied GA4 API and UI receipts disagree. One identity setting is unknown. Do not contact the property.
+    trigger_expectation: should_trigger
+    criteria_ids: [preserves-evidence-boundary, checks-comparability, actionable-ledger]
+  - id: high-cardinality-not-sampling
+    prompt: The supplied report has dataLossFromOtherRow=true and equal sampling read/space counts. Was it sampled, and what should we check next?
+    trigger_expectation: should_trigger
+    criteria_ids: [distinguishes-quality-signals, actionable-ledger]
+  - id: incomplete-pagination
+    prompt: Our GA4 export contains 10000 rows but rowCount says 26000. Explain what the evidence supports without guessing missing values.
+    trigger_expectation: should_trigger
+    criteria_ids: [checks-comparability, preserves-evidence-boundary, actionable-ledger]
+  - id: unrelated-deployment
+    prompt: Deploy my Astro website.
+    trigger_expectation: should_not_trigger
+    criteria_ids: []
+tags: [ga4, forensics, supplied-data]

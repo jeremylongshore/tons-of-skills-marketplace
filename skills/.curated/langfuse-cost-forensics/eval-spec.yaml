@@ -1,0 +1,54 @@
+spec_version: '1.0'
+skill_name: langfuse-cost-forensics
+description: Assess recorded cost and evidence coverage without live pricing or provider calls.
+criteria:
+  - id: unknown-is-not-zero
+    description: Distinguishes unavailable recorded cost from explicit numeric zero.
+    method: judge
+    blocker: true
+  - id: bounds-subtotals
+    description: Separates known-row/complete retrieved-set subtotals from project aggregates and invoices.
+    method: judge
+    blocker: true
+  - id: checks-native-coverage
+    description: Checks scope, usage field groups, compound IDs and cursor completeness before totals.
+    method: judge
+    blocker: true
+  - id: avoids-invented-savings
+    description: Does not sum overlapping usage/cost components, invent rates or promise savings.
+    method: judge
+    blocker: true
+test_cases:
+  - id: null-and-zero
+    prompt:
+      One supplied Langfuse generation has totalCost null and another has zero. Explain recorded spend and whether
+      a complete subtotal is supported.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - unknown-is-not-zero
+      - bounds-subtotals
+  - id: first-page-total
+    prompt:
+      This first Langfuse observation page has a remaining cursor. Tell me our monthly total and model-switch
+      savings.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - checks-native-coverage
+      - bounds-subtotals
+      - avoids-invented-savings
+  - id: overlapping-components
+    prompt:
+      The supplied Langfuse usage has input, output and total fields. May I add all three? The invoice also
+      differs.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - avoids-invented-savings
+      - bounds-subtotals
+  - id: unrelated-infrastructure
+    prompt: Resize my database server.
+    trigger_expectation: should_not_trigger
+    criteria_ids: []
+tags:
+  - langfuse
+  - supplied-data
+  - operator-review

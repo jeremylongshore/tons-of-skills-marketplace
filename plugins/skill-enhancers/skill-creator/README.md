@@ -1,13 +1,16 @@
 # Skill Creator
 
-Create and validate production-grade agent skills aligned with the 2026 AgentSkills.io spec and Anthropic best practices. Includes a 100-point marketplace grading rubric.
+Create, validate and refresh skills against the existing IS marketplace contract.
+The paired agent creator emits the IS plugin or standalone enterprise templates;
+adapt them to another target repository's canonical gate.
 
 ## Features
 
 - **Create mode**: Build complete skill packages from scratch with interactive wizard
 - **Validate mode**: Grade existing skills against the Intent Solutions 100-point rubric
 - **Auto-fix**: Automatically apply improvements to boost marketplace scores
-- **Eval-driven**: Built-in evaluation framework for testing skill quality
+- **Forge / reforge**: Manual API-driven generation and refresh, with separate build-time `.forge/` evidence
+- **Evaluation**: Requested model comparisons and description optimization; static results remain separate
 
 ## Install
 
@@ -15,13 +18,18 @@ Create and validate production-grade agent skills aligned with the 2026 AgentSki
 ccpi install skill-creator
 ```
 
-Or copy the `skills/skill-creator/` directory to `~/.claude/skills/` for standalone use.
+Or copy `skills/skill-creator/` for standalone skill authoring. Copy the companion
+`skills/agent-creator/` as well when generating agents. Static grading requires
+the target's canonical IS validator; missing tooling is reported as unverified.
 
 ## Usage
 
 ```
 /skill-creator              # Interactive skill creation
 /skill-creator validate     # Grade an existing skill
+/skill-creator optimize     # Requested description optimization
+/skill-creator --forge API  # Generate from an API after its scope is known
+/skill-creator --reforge PLUGIN # Refresh a generated plugin
 ```
 
 ## What's Included
@@ -29,9 +37,12 @@ Or copy the `skills/skill-creator/` directory to `~/.claude/skills/` for standal
 | Directory | Purpose |
 |-----------|---------|
 | `skills/skill-creator/SKILL.md` | Main skill (works standalone) |
-| `references/` | 6 spec documents (frontmatter, validation rules, workflows, etc.) |
+| `skills/agent-creator/` | Context-specific agent generation |
+| `skills/skill-creator/references/` | Maintained authority and mode workflows |
+| `references/` | Compatibility links to the maintained guides |
 | `scripts/validate-skill.py` | Automated validation + 100-point grading |
-| `templates/skill-template.md` | SKILL.md skeleton for new skills |
+| `skills/skill-creator/templates/` | Skill and agent skeletons |
+| `templates/skill-template.md` | Compatible copy of the skill skeleton |
 
 ## Grading Rubric (100 points)
 

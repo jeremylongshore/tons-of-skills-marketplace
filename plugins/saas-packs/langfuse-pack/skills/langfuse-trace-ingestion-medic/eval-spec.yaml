@@ -1,0 +1,55 @@
+spec_version: '1.0'
+skill_name: langfuse-trace-ingestion-medic
+description: Assess missing-observation diagnosis without provider access or business retries.
+criteria:
+  - id: preserves-operation
+    description: Never reruns the business operation or replays telemetry to manufacture evidence.
+    method: judge
+    blocker: true
+  - id: separates-acknowledgements
+    description: Separates local span creation, HTTP acceptance, flush completion and actual span readback.
+    method: judge
+    blocker: true
+  - id: bounds-coverage
+    description:
+      Checks project/trace/window/cursors and labels missing or partial evidence without inventing data
+      loss.
+    method: judge
+    blocker: true
+  - id: actionable-diagnosis
+    description: Returns evidence-linked findings and the smallest authorized discriminating check.
+    method: judge
+    blocker: true
+test_cases:
+  - id: missing-after-flush
+    prompt:
+      An existing Langfuse OTLP batch has two ended spans but the supplied v2 pages show one. Flush resolved.
+      Explain what is proven; do not rerun the purchase callback.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - preserves-operation
+      - separates-acknowledgements
+      - bounds-coverage
+      - actionable-diagnosis
+  - id: external-parent
+    prompt:
+      This captured Langfuse child names a parent outside the retained batch and appears at the UI root. Is
+      provider data loss proven?
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - bounds-coverage
+      - actionable-diagnosis
+  - id: empty-accepted
+    prompt: The exporter returned HTTP 200 for an empty batch. Can we call Langfuse recovered?
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - separates-acknowledgements
+      - bounds-coverage
+  - id: unrelated-prompt-copy
+    prompt: Rewrite the wording of my marketing prompt.
+    trigger_expectation: should_not_trigger
+    criteria_ids: []
+tags:
+  - langfuse
+  - supplied-data
+  - operator-review

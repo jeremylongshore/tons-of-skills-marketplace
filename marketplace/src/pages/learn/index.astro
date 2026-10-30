@@ -15,7 +15,7 @@ const sortedVendors = [...vendorPacks.vendors].sort((a, b) => {
   <style>
     .learn-hero {
       background: var(--bg); border-bottom: 1px solid var(--rule);
-      color: white;
+      color: var(--ink);
       padding: 4rem 2rem 3rem;
       text-align: center;
     }
@@ -186,6 +186,10 @@ const sortedVendors = [...vendorPacks.vendors].sort((a, b) => {
       const tierVendors = sortedVendors.filter(v => v.tier === tier);
       const tierInfo = vendorPacks.tiers[tier];
       if (tierVendors.length === 0) return null;
+      const counts = tierVendors.map(v => v.skillCount);
+      const minimum = Math.min(...counts);
+      const maximum = Math.max(...counts);
+      const tierCounts = { label: minimum === maximum ? `${minimum}` : `${minimum}–${maximum}` };
 
       return (
         <div class="tier-section">
@@ -194,7 +198,7 @@ const sortedVendors = [...vendorPacks.vendors].sort((a, b) => {
               {tierInfo.badge}
             </span>
             <span class="tier-description">
-              <span data-count-provenance="vendor-pack-local">{tierInfo.skillCount} vendor-pack-local skills per pack</span>
+              <span data-count-provenance="vendor-pack-local">{tierCounts.label} vendor-pack-local skills per pack</span>
             </span>
           </div>
 

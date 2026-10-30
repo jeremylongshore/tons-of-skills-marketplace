@@ -1,0 +1,56 @@
+spec_version: '1.0'
+skill_name: langfuse-data-boundary-auditor
+description: Assess field-policy and retention evidence without exporting or deleting data.
+criteria:
+  - id: audits-unknown-fields
+    description:
+      Treats unapproved nested fields and empty containers as evidence; never equates an allowlist with
+      anonymization.
+    method: judge
+    blocker: true
+  - id: separates-retention
+    description: Separates Cloud access windows, configured retention and actual deletion execution.
+    method: judge
+    blocker: true
+  - id: bounds-other-stores
+    description: Preserves cursor/query and dataset/audit/external-copy coverage gaps without complete-export claims.
+    method: judge
+    blocker: true
+  - id: avoids-certification
+    description: Produces bounded supplied-data findings without deletion, credential mutation or compliance/DoD certification.
+    method: judge
+    blocker: true
+test_cases:
+  - id: metadata-left-behind
+    prompt:
+      Our supplied Langfuse anonymized export still has a nested metadata object outside the field policy. Review
+      it without sharing or rewriting the raw payload.
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - audits-unknown-fields
+      - avoids-certification
+  - id: access-window
+    prompt:
+      The Langfuse UI shows only 30 days, retentionDays is absent, and dataset review is missing. Does that
+      prove older personal data is deleted?
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - separates-retention
+      - bounds-other-stores
+      - avoids-certification
+  - id: partial-page
+    prompt:
+      Our Langfuse export manifest contains page one with an opaque next cursor. Can we certify the inventory
+      complete?
+    trigger_expectation: should_trigger
+    criteria_ids:
+      - bounds-other-stores
+      - avoids-certification
+  - id: unrelated-content
+    prompt: Write a YouTube video introduction.
+    trigger_expectation: should_not_trigger
+    criteria_ids: []
+tags:
+  - langfuse
+  - supplied-data
+  - operator-review

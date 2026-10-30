@@ -5,7 +5,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, test } from 'node:test';
-import { checkPublishedCountCohorts, parseArguments } from './check-published-count-cohorts.mjs';
+import {
+  checkPublishedCountCohorts,
+  findPublishedSkillCountEvidence,
+  parseArguments,
+} from './check-published-count-cohorts.mjs';
 
 const script = fileURLToPath(new URL('./check-published-count-cohorts.mjs', import.meta.url));
 const temporaryRoots = [];
@@ -1067,7 +1071,7 @@ test('CLI rejects unknown arguments and emits JSON for a fixture root', () => {
   deepEqual(parseArguments(['--root', root, '--json']), { root, json: true });
 });
 
-test('live vendor-pack pages use explicit local claims for pack and category counts', () => {
+function liveVendorPackSources() {
   const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const registry = JSON.parse(
     fs.readFileSync(path.join(repositoryRoot, 'scripts/published-count-cohorts.json'), 'utf8'),
@@ -1075,16 +1079,118 @@ test('live vendor-pack pages use explicit local claims for pack and category cou
   const group = registry.deferredGroups.find(
     (candidate) => candidate.classification === 'vendor-pack-local',
   );
-  equal(group.paths.length, 0);
-  equal(group.claims.length, 56);
-  equal(new Set(group.claims.map((claim) => claim.path)).size, 28);
-  equal(group.claims.filter((claim) => claim.expression === 'vendor.skillCount').length, 28);
-  equal(group.claims.filter((claim) => claim.expression === 'category.skills.length').length, 28);
+  return { repositoryRoot, registry, group };
+}
+
+test('live vendor-pack counts have two explicit shared contracts and no path deferrals', () => {
+  const { repositoryRoot, group } = liveVendorPackSources();
+  deepEqual(group.paths, []);
+  equal(group.claims.length, 2);
+  deepEqual(
+    [...new Set(group.claims.map((claim) => claim.path))],
+    ['marketplace/src/components/VendorPackTemplate.astro'],
+  );
+  deepEqual(group.claims.map((claim) => claim.expression).sort(), [
+    'category.skills.length',
+    'vendor.skillCount',
+  ]);
 
   const report = check(repositoryRoot);
-  equal(report.allow, true);
-  equal(report.deferred >= 56, true);
+  equal(report.allow, true, JSON.stringify(report.findings));
   equal(report.findings.length, 0);
+});
+
+test('all 26 vendor routes select their own canonical data and consume the shared count template', () => {
+  const { repositoryRoot, registry } = liveVendorPackSources();
+  const dataPath = path.join(repositoryRoot, 'marketplace/src/data/vendor-packs.json');
+  const { vendors } = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+  const learnRoot = path.join(repositoryRoot, 'marketplace/src/pages/learn');
+  const routeIds = fs
+    .readdirSync(learnRoot, { withFileTypes: true })
+    .filter(
+      (entry) =>
+        entry.isDirectory() && fs.existsSync(path.join(learnRoot, entry.name, 'index.astro')),
+    )
+    .map((entry) => entry.name)
+    .sort();
+  equal(routeIds.length, 26);
+  equal(new Set(vendors.map((vendor) => vendor.id)).size, vendors.length);
+  deepEqual(routeIds, vendors.map((vendor) => vendor.id).sort());
+
+  for (const id of routeIds) {
+    const routePath = path.join(learnRoot, id, 'index.astro');
+    const source = fs.readFileSync(routePath, 'utf8');
+    const frontmatter = /^---\s*\n([\s\S]*?)\n---/
+      .exec(source)?.[1]
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/[^\n]*/g, '');
+    equal(typeof frontmatter, 'string', `${id}: Astro frontmatter`);
+    const componentImport = /import\s+VendorPackTemplate\s+from\s+['"]([^'"]+)['"]/.exec(
+      frontmatter,
+    );
+    equal(
+      path.resolve(path.dirname(routePath), componentImport?.[1] ?? ''),
+      path.join(repositoryRoot, 'marketplace/src/components/VendorPackTemplate.astro'),
+      `${id}: real shared component import`,
+    );
+    const dataImport = /import\s+vendorPacks\s+from\s+['"]([^'"]+)['"]/.exec(frontmatter);
+    equal(
+      path.resolve(path.dirname(routePath), dataImport?.[1] ?? ''),
+      dataPath,
+      `${id}: canonical vendor data import`,
+    );
+    equal(
+      /const\s+vendorId\s*=\s*['"]([^'"]+)['"]/.exec(frontmatter)?.[1],
+      id,
+      `${id}: lookup identity`,
+    );
+    match(
+      frontmatter,
+      /const\s+vendor\s*=\s*vendorPacks\.vendors\.find\(\s*\(?([A-Za-z_$][\w$]*)\)?\s*=>\s*\1\.id\s*===\s*vendorId\s*\)/,
+      `${id}: selected record reaches vendor prop`,
+    );
+    match(
+      frontmatter,
+      /if\s*\(!vendor\)\s*\{\s*return\s+Astro\.redirect\(['"]\/learn\/['"]\);?\s*\}/,
+      `${id}: missing data redirects before render`,
+    );
+    const markup = source.slice(source.indexOf('---', 3) + 3).trim();
+    match(
+      markup,
+      /^<VendorPackTemplate\s[^>]*\bvendor=\{vendor\}[^>]*\/?>$/,
+      `${id}: actual sole template consumption`,
+    );
+    deepEqual(
+      findPublishedSkillCountEvidence(source, registry.discovery),
+      [],
+      `${id}: no duplicate route-local count publication`,
+    );
+  }
+});
+
+test('shared vendor contracts reject added route counts and missing or duplicated component counts', () => {
+  const { repositoryRoot, group } = liveVendorPackSources();
+  const componentPath = 'marketplace/src/components/VendorPackTemplate.astro';
+  const routePath = 'marketplace/src/pages/learn/apollo/index.astro';
+  const component = fs.readFileSync(path.join(repositoryRoot, componentPath), 'utf8');
+  const adapter = fs.readFileSync(path.join(repositoryRoot, routePath), 'utf8');
+  const fixture = (componentSource = component, routeSource = adapter) =>
+    makeFixture({
+      deferredGroups: [group],
+      files: { [componentPath]: componentSource, [routePath]: routeSource },
+    });
+  equal(check(fixture()).allow, true);
+
+  const localCount = fixture(component, `${adapter}\n<p>{vendor.skillCount} skills</p>\n`);
+  equal(findingCode(check(localCount)), 'UNREGISTERED_PUBLIC_COUNT');
+  for (const claim of group.claims) {
+    const expression = `{${claim.expression}}`;
+    equal(component.split(expression).length - 1, 1, claim.expression);
+    const missing = fixture(component.replace(expression, ''));
+    equal(findingCode(check(missing)), 'MISSING_EXPRESSION', claim.expression);
+    const duplicated = fixture(`${component}\n<p>${expression} skills</p>\n`);
+    equal(findingCode(check(duplicated)), 'AMBIGUOUS_LOCAL_EXPRESSION', claim.expression);
+  }
 });
 
 test('learning hub separates aggregate and vendor-pack-local claims', () => {

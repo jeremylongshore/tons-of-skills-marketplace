@@ -74,6 +74,9 @@
 !plugins/saas-packs/coreweave-pack/000-docs/003-RL-RSRC-gpu-node-fabric.md
 !plugins/saas-packs/coreweave-pack/000-docs/004-RL-RSRC-training-storage-checkpoints.md
 !plugins/saas-packs/coreweave-pack/000-docs/005-RL-RSRC-inference-cost-observability.md
+!plugins/saas-packs/ga4-pack/000-docs/
+!plugins/saas-packs/ga4-pack/000-docs/001-AT-ADEC-operator-value-review.md
+!plugins/saas-packs/ga4-pack/000-docs/002-RA-AUDT-v2-validation-evidence.md
 !plugins/saas-packs/databricks-pack/000-docs/
 !plugins/saas-packs/databricks-pack/000-docs/**
 # EXCEPTION: Grammarly v2 public contract research, architecture decisions,

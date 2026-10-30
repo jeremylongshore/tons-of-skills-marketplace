@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@intentsolutions/core>zod': 4.6.6
+
 importers:
 
   .:
@@ -18,13 +21,13 @@ packages:
     resolution: {integrity: sha512-6IF/A5qqrUdA/L4HB6YLd2/7+T3fA/1gY7rX1izkIhrx1E5+4XL/O3MIXvJafobQztPnm6ItYHbHLV1EpLnYOg==}
     engines: {node: '>=20.0.0', pnpm: '>=9.0.0'}
 
-  zod@4.4.3:
-    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
 snapshots:
 
   '@intentsolutions/core@0.10.0':
     dependencies:
-      zod: 4.4.3
+      zod: 4.6.6
 
-  zod@4.4.3: {}
+  zod@4.6.6: {}

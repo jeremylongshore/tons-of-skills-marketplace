@@ -136,16 +136,6 @@
       "isSaasPack": true
     },
     {
-      "id": "anthropic-pack",
-      "name": "Anthropic",
-      "description": "Claude API, prompt engineering, tool use, and Anthropic SDK patterns",
-      "color": "#D4A27F",
-      "category": "saas-packs",
-      "packName": "anthropic-pack",
-      "featured": true,
-      "isSaasPack": true
-    },
-    {
       "id": "security",
       "name": "Security",
       "description": "Vulnerability scanning, code auditing, compliance checks, and threat modeling",
@@ -253,6 +243,6 @@
   "meta": {
     "version": "1.0.0",
     "lastUpdated": "2026-02-19",
-    "totalPacks": 28
+    "totalPacks": 27
   }
 }

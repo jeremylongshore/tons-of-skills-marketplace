@@ -1,5 +1,12 @@
 # Forge Proofs — Plane Plugin
 
+> 2026-10-23 qualification: the record below is historical static evidence. Its
+> production-ready language and old behavioral command examples do not establish
+> live compatibility or authorize provider execution. The current versioned mapping
+> is in `skills/plane/references/api-surface.md`. No authenticated workspace or
+> behavioral evaluation was run for this source review; consult the current
+> validate-skillmd workflow before any separately authorized evaluation.
+
 **Forge run**: 2026-05-07
 **Plugin slug**: `plane`
 **Forge version**: /skill-creator v8.1.0

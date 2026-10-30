@@ -1,144 +1,136 @@
 ---
 name: finding-arbitrage-opportunities
-description: 'Detect profitable arbitrage opportunities across CEX, DEX, and cross-chain
-  markets in real-time.
+description: 'Compare live best bid and ask for one crypto pair across exchanges and
+  report every cross-venue spread, gross and net of stated taker fees; search
+  three-trade cycles within one exchange. Read-only, no API keys.
 
-  Use when scanning for price spreads, finding arbitrage paths, comparing exchange
-  prices, or analyzing triangular arbitrage opportunities.
+  Use when checking whether a coin trades at different prices on different
+  exchanges, sizing a spread against fees, or looking for triangular price gaps on
+  OKX, KuCoin or Gate.
 
-  Trigger with phrases like "find arbitrage", "scan for arb", "price spread", "exchange
-  arbitrage", "triangular arb", "DEX price difference", or "cross-exchange opportunity".
+  Trigger with phrases like "find arbitrage", "scan for arb", "price spread",
+  "exchange price difference", "triangular arb", or "cross-exchange spread".
 
   '
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(crypto:arbitrage-*)
-version: 1.27.0
+allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py:*)
+argument-hint: "<scan BASE QUOTE | triangular VENUE | monitor BASE QUOTE>"
+version: 2.0.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
 - crypto
-- finding-arbitrage
+- arbitrage
+- order-book
 compatibility: Designed for Claude Code
 ---
 # Finding Arbitrage Opportunities
 
 ## Overview
 
-Detect and analyze arbitrage opportunities across cryptocurrency exchanges and DeFi protocols. Aggregates prices from CEX and DEX sources, calculates net profit after fees, and identifies direct, triangular, and cross-chain arbitrage paths.
+Compare one exact pair's best bid and ask across nine exchanges and compute every cross-venue spread, gross and net of stated taker fees. A triangular search checks three-trade cycles inside one venue.
+
+Venues: Kraken, Coinbase, KuCoin, Gate, OKX, Bitfinex, Crypto.com, Binance, Bybit. Binance and Bybit refuse US networks (HTTP 451/403); the tool names them and carries on.
+
+Pairs with different quote assets are never compared: BTC/USD against BTC/USDT measures the USDT/USD rate, not an arbitrage.
 
 ## Prerequisites
 
-- Python 3.9+ with `httpx`, `rich`, and `networkx` packages
-- Internet access for API calls (no API keys required for basic use)
-- Optional: Exchange API keys for real-time order book access
-- Understanding of arbitrage concepts and trading fees
+- Python 3.9 or newer. Standard library only: no packages, no API keys.
+- Network access to the exchanges' public endpoints.
 
 ## Instructions
 
-1. **Quick spread scan** on a specific pair:
+All commands run `python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py`. Every command accepts `--format json`, `--fee VENUE=PERCENT` (the actual account taker fee), `--demo` (bundled recorded data, marked on every line) and `--timeout SECONDS`.
+
+1. **Scan one pair across venues:**
 
    ```bash
-   python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan ETH USDC
+   python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan BTC USDT
+   python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan ETH USD --venues kraken,coinbase,bitfinex,gate
    ```
 
-   Shows current prices per exchange, spread %, estimated profit after fees, and recommended action.
-
-2. **Multi-exchange comparison** across specific exchanges:
+2. **Set actual account fees** (fees vary by tier, region and token discounts):
 
    ```bash
-   python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan ETH USDC \
-     --exchanges binance,coinbase,kraken,kucoin,okx
+   python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan BTC USDT --fee coinbase=0.6 --fee kucoin=0.1
    ```
 
-3. **DEX price comparison** across decentralized exchanges:
+3. **Express the best net spread in money** for a trade size in base units:
 
    ```bash
-   python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan ETH USDC --dex-only
+   python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan SOL USDT --amount 25  # 25 = trade size in SOL
    ```
 
-   Compares Uniswap V3, SushiSwap, Curve, Balancer with gas cost estimates.
-
-4. **Triangular arbitrage discovery** within a single exchange:
+4. **Search triangles on one venue** (okx, kucoin, gate), using pairs above a 24-hour volume floor:
 
    ```bash
-   python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py triangular binance --min-profit 0.5
+   python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py triangular okx
+   python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py triangular kucoin --fee kucoin=0.1 --min-volume-usd 250000  # 250000 = USD volume floor
    ```
 
-5. **Cross-chain opportunities** across different blockchains:
+5. **Watch a pair** for a few minutes (minimum interval 5 seconds):
 
    ```bash
-   python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py cross-chain USDC \
-     --chains ethereum,polygon,arbitrum
+   python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py monitor BTC USDT --interval 15 --count 8 --threshold 0
    ```
 
-6. **Real-time monitoring** with threshold alerts:
+6. **See fee assumptions and their sources:** `arb_finder.py venues`.
 
-   ```bash
-   python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py monitor ETH USDC \
-     --threshold 0.5 --interval 5
-   ```
-
-7. **Export opportunities** for bot integration:
-
-   ```bash
-   python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan ETH USDC --output json > opportunities.json
-   ```
+When reporting, give the spreads with the fee assumptions and the "not included" list below. Describe what the data shows; never recommend a trade.
 
 ## Output
 
-- **Quick mode** (default): Best opportunity with profit estimate, buy/sell recommendation, risk level
-- **Detailed mode** (`--detailed`): All exchange prices, fee breakdown, slippage estimates, historical spread context
-- **Monitor mode**: Real-time updates with threshold alerts and trend indicators
+Console tables end with sources and the line "Research output only. Not financial advice. This tool places no trades." JSON output is one envelope with `skill`, `version`, `command`, `generated_at`, `mode` (`live` or `demo`), `sources`, `failures`, `data`, `not_included` and `disclaimer`.
 
-See [`references/implementation.md`](references/implementation.md) for exchange fee tables and output format examples.
+Every spread excludes withdrawal and network fees, the time to move funds between venues, price moves in that time, and depth beyond the best bid and ask. A positive net spread at the top of the book is not a collectable amount.
+
+Fee assumptions are base-tier spot taker fees taken from each venue's published schedule (dates and sources in `arb_finder.py venues`). Gate's is read live from its API. KuCoin and Coinbase do not show a base-tier fee without a login, so their net column reads `n/a` until `--fee` sets it. Details: [`references/implementation.md`](references/implementation.md).
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| Rate limited | Too many API requests | Reduce polling frequency or add API key |
-| Stale prices | Data older than 10s | Flagged with warning; retry |
-| No spread | Efficient market pricing | Normal condition; try different pairs |
-| Insufficient liquidity | Trade exceeds order book depth | Reduce trade size |
+| Message | Cause | What to do |
+|---------|-------|------------|
+| `refused from this network (HTTP 451/403 ...)` | Binance or Bybit blocks the region | Nothing; other venues still report |
+| `BTC-USD not listed` (or similar) | The venue has no market for that exact pair | Try another quote asset (USD, USDT, USDC) |
+| `no confirmed fee for kucoin` | Triangular search needs a fee | Pass `--fee kucoin=PERCENT` |
+| `rate limited (HTTP 429)` | Too many requests | Raise `--interval`, wait a minute |
+| `the bundled demo recording covers ...` | `--demo` with something not recorded | Run without `--demo` |
+| Exit code 2 | No venue returned data | Read the "Unavailable" list |
+
+More in [`references/errors.md`](references/errors.md).
 
 ## Examples
 
-**Quick ETH/USDC spread scan** - Find best buy/sell across all CEX exchanges:
+**Cross-venue BTC/USDT check** (an excerpt of captured live output; full runs with their capture time are in `references/examples.md`, and live figures change every minute):
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan ETH USDC
+python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan BTC USDT --top 3
 ```
 
-Sample detection output:
-
 ```
-  ARB OPPORTUNITY: ETH/USDC
-  Buy:  Binance  @ $3,198.50  |  Sell: Coinbase @ $3,214.20
-  Spread: 0.49%  |  Net Profit (after fees): 0.29% ($9.27 per ETH)
-  Risk: LOW  |  Confidence: HIGH  |  Window: ~30s
+Buy        Sell            Gross  Net of fees   Size at best
+bitfinex   okx          +0.0293%     -0.3208%    1.35507 BTC
+bitfinex   coinbase     +0.0291%          n/a     0.0109 BTC
+bitfinex   cryptocom    +0.0258%     -0.4743%     0.3817 BTC
+No venue pair stays positive after assumed taker fees.
 ```
 
-**Triangular arb on Binance** - Discover circular paths with minimum 0.5% net profit:
+**Triangles on OKX as JSON:**
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py triangular binance --min-profit 0.5
+python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py triangular okx --format json
 ```
 
-**Cross-chain USDC opportunities** - Compare stablecoin prices across L1/L2 chains:
+**Try it offline:**
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py cross-chain USDC --chains ethereum,polygon,arbitrum
-```
-
-**Calculate exact profit** - Detailed fee breakdown for a specific trade:
-
-```bash
-python ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py calc \
-  --buy-exchange binance --sell-exchange coinbase --pair ETH/USDC --amount 10  # 10 = trade size in ETH
+python3 ${CLAUDE_SKILL_DIR}/scripts/arb_finder.py scan BTC USDT --demo
 ```
 
 ## Resources
 
-- [CoinGecko API](https://www.coingecko.com/en/api) - Free price data
-- [CCXT Library](https://github.com/ccxt/ccxt) - Unified exchange API
-- Uniswap Subgraph - DEX data
-- [`references/implementation.md`](references/implementation.md) - Exchange fee tables, configuration, advanced arbitrage types, disclaimer
+- [`references/implementation.md`](references/implementation.md): endpoints, formulas, fee sources, what is not covered
+- [`references/examples.md`](references/examples.md): real output for every command
+- [`references/errors.md`](references/errors.md): error messages and fixes
+- Tests: `python3 -m unittest discover -s tests -v` (offline)
+- Refresh the demo recording: `python3 scripts/record_demo.py`

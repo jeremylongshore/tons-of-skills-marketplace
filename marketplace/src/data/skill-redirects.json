@@ -1,35 +1,300 @@
 {
   "schemaVersion": 1,
   "redirects": [
-    { "from": "snowflake-advanced-troubleshooting", "to": "snowflake-query-forensics", "status": 301 },
-    { "from": "snowflake-architecture-variants", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-ci-integration", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-common-errors", "to": "snowflake-query-forensics", "status": 301 },
-    { "from": "snowflake-core-workflow-a", "to": "snowflake-pipeline-guardian", "status": 301 },
-    { "from": "snowflake-core-workflow-b", "to": "snowflake-pipeline-guardian", "status": 301 },
-    { "from": "snowflake-cost-tuning", "to": "snowflake-cost-leak-hunter", "status": 301 },
-    { "from": "snowflake-data-handling", "to": "snowflake-access-guardian", "status": 301 },
-    { "from": "snowflake-debug-bundle", "to": "snowflake-query-forensics", "status": 301 },
-    { "from": "snowflake-deploy-integration", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-enterprise-rbac", "to": "snowflake-access-guardian", "status": 301 },
-    { "from": "snowflake-hello-world", "to": "snowflake-strong-auth-migration-pilot", "status": 301 },
-    { "from": "snowflake-incident-runbook", "to": "snowflake-query-forensics", "status": 301 },
-    { "from": "snowflake-install-auth", "to": "snowflake-strong-auth-migration-pilot", "status": 301 },
-    { "from": "snowflake-known-pitfalls", "to": "snowflake-query-forensics", "status": 301 },
-    { "from": "snowflake-load-scale", "to": "snowflake-query-forensics", "status": 301 },
-    { "from": "snowflake-local-dev-loop", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-migration-deep-dive", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-multi-env-setup", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-observability", "to": "snowflake-pipeline-guardian", "status": 301 },
-    { "from": "snowflake-performance-tuning", "to": "snowflake-query-forensics", "status": 301 },
-    { "from": "snowflake-policy-guardrails", "to": "snowflake-access-guardian", "status": 301 },
-    { "from": "snowflake-prod-checklist", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-rate-limits", "to": "snowflake-query-forensics", "status": 301 },
-    { "from": "snowflake-reference-architecture", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-reliability-patterns", "to": "snowflake-pipeline-guardian", "status": 301 },
-    { "from": "snowflake-sdk-patterns", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-security-basics", "to": "snowflake-access-guardian", "status": 301 },
-    { "from": "snowflake-upgrade-migration", "to": "snowflake-deploy-medic", "status": 301 },
-    { "from": "snowflake-webhooks-events", "to": "snowflake-pipeline-guardian", "status": 301 }
+    {
+      "from": "snowflake-advanced-troubleshooting",
+      "to": "snowflake-query-forensics",
+      "status": 301
+    },
+    {
+      "from": "snowflake-architecture-variants",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-ci-integration",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-common-errors",
+      "to": "snowflake-query-forensics",
+      "status": 301
+    },
+    {
+      "from": "snowflake-core-workflow-a",
+      "to": "snowflake-pipeline-guardian",
+      "status": 301
+    },
+    {
+      "from": "snowflake-core-workflow-b",
+      "to": "snowflake-pipeline-guardian",
+      "status": 301
+    },
+    {
+      "from": "snowflake-cost-tuning",
+      "to": "snowflake-cost-leak-hunter",
+      "status": 301
+    },
+    {
+      "from": "snowflake-data-handling",
+      "to": "snowflake-access-guardian",
+      "status": 301
+    },
+    {
+      "from": "snowflake-debug-bundle",
+      "to": "snowflake-query-forensics",
+      "status": 301
+    },
+    {
+      "from": "snowflake-deploy-integration",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-enterprise-rbac",
+      "to": "snowflake-access-guardian",
+      "status": 301
+    },
+    {
+      "from": "snowflake-hello-world",
+      "to": "snowflake-strong-auth-migration-pilot",
+      "status": 301
+    },
+    {
+      "from": "snowflake-incident-runbook",
+      "to": "snowflake-query-forensics",
+      "status": 301
+    },
+    {
+      "from": "snowflake-install-auth",
+      "to": "snowflake-strong-auth-migration-pilot",
+      "status": 301
+    },
+    {
+      "from": "snowflake-known-pitfalls",
+      "to": "snowflake-query-forensics",
+      "status": 301
+    },
+    {
+      "from": "snowflake-load-scale",
+      "to": "snowflake-query-forensics",
+      "status": 301
+    },
+    {
+      "from": "snowflake-local-dev-loop",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-migration-deep-dive",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-multi-env-setup",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-observability",
+      "to": "snowflake-pipeline-guardian",
+      "status": 301
+    },
+    {
+      "from": "snowflake-performance-tuning",
+      "to": "snowflake-query-forensics",
+      "status": 301
+    },
+    {
+      "from": "snowflake-policy-guardrails",
+      "to": "snowflake-access-guardian",
+      "status": 301
+    },
+    {
+      "from": "snowflake-prod-checklist",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-rate-limits",
+      "to": "snowflake-query-forensics",
+      "status": 301
+    },
+    {
+      "from": "snowflake-reference-architecture",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-reliability-patterns",
+      "to": "snowflake-pipeline-guardian",
+      "status": 301
+    },
+    {
+      "from": "snowflake-sdk-patterns",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-security-basics",
+      "to": "snowflake-access-guardian",
+      "status": 301
+    },
+    {
+      "from": "snowflake-upgrade-migration",
+      "to": "snowflake-deploy-medic",
+      "status": 301
+    },
+    {
+      "from": "snowflake-webhooks-events",
+      "to": "snowflake-pipeline-guardian",
+      "status": 301
+    },
+    {
+      "from": "ga4-auth-setup",
+      "to": "ga4-report-forensics",
+      "status": 301
+    },
+    {
+      "from": "ga4-data-api-query",
+      "to": "ga4-report-forensics",
+      "status": 301
+    },
+    {
+      "from": "ga4-common-reports",
+      "to": "ga4-report-forensics",
+      "status": 301
+    },
+    {
+      "from": "ga4-realtime-api",
+      "to": "ga4-measurement-verifier",
+      "status": 301
+    },
+    {
+      "from": "ga4-bigquery-export",
+      "to": "ga4-export-guardian",
+      "status": 301
+    },
+    {
+      "from": "langfuse-ci-integration",
+      "to": "langfuse-experiment-guardian",
+      "status": 301
+    },
+    {
+      "from": "langfuse-common-errors",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-core-workflow-a",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-core-workflow-b",
+      "to": "langfuse-experiment-guardian",
+      "status": 301
+    },
+    {
+      "from": "langfuse-cost-tuning",
+      "to": "langfuse-cost-forensics",
+      "status": 301
+    },
+    {
+      "from": "langfuse-data-handling",
+      "to": "langfuse-data-boundary-auditor",
+      "status": 301
+    },
+    {
+      "from": "langfuse-debug-bundle",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-deploy-integration",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-enterprise-rbac",
+      "to": "langfuse-data-boundary-auditor",
+      "status": 301
+    },
+    {
+      "from": "langfuse-hello-world",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-incident-runbook",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-install-auth",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-local-dev-loop",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-migration-deep-dive",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-multi-env-setup",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-observability",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-performance-tuning",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-prod-checklist",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-rate-limits",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-reference-architecture",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-sdk-patterns",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-security-basics",
+      "to": "langfuse-data-boundary-auditor",
+      "status": 301
+    },
+    {
+      "from": "langfuse-upgrade-migration",
+      "to": "langfuse-trace-ingestion-medic",
+      "status": 301
+    },
+    {
+      "from": "langfuse-webhooks-events",
+      "to": "langfuse-prompt-release-guardian",
+      "status": 301
+    }
   ]
 }

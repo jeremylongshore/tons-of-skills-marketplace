@@ -53,7 +53,7 @@ test.describe('Documentation navigation', () => {
     await expect(
       page.locator('#docs-content').getByRole('heading', { name: 'Overview', exact: true }),
     ).toBeVisible();
-    await expect(page.locator('#docs-content')).toContainText('ccpi install code-reviewer');
+    await expect(page.locator('#docs-content')).toContainText('ccpi install api-test-automation');
 
     await page.locator('.nav-prev').click();
     await expect(page).toHaveURL(/\/docs\/getting-started\/installation\/?$/);

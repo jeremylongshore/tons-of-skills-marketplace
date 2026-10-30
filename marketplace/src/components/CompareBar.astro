@@ -201,6 +201,8 @@
 </style>
 
 <script>
+  import { comparisonKey } from '../lib/comparison.mjs';
+
   // Comparison state management
   window.CompareManager = {
     MAX_ITEMS: 4,
@@ -211,7 +213,8 @@
       const saved = localStorage.getItem('compare-items');
       if (saved) {
         try {
-          this.items = JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          this.items = Array.isArray(parsed) ? parsed.filter(item => comparisonKey(item)).slice(0, this.MAX_ITEMS) : [];
           this.render();
         } catch (e) {
           this.items = [];
@@ -226,7 +229,7 @@
       // Remove buttons are rendered at runtime; bind by delegation.
       document.getElementById('compare-items')?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-remove-id]');
-        if (btn) this.remove(btn.dataset.removeId);
+        if (btn) this.remove(btn.dataset.removeId, btn.dataset.removeType);
       });
 
       // Update compare link on changes
@@ -234,12 +237,13 @@
     },
 
     add(item) {
+      if (!comparisonKey(item)) return false;
       if (this.items.length >= this.MAX_ITEMS) {
         this.showToast(`Maximum ${this.MAX_ITEMS} items for comparison`);
         return false;
       }
 
-      if (this.items.find(i => i.id === item.id)) {
+      if (this.items.find(i => comparisonKey(i) === comparisonKey(item))) {
         this.showToast('Already added to comparison');
         return false;
       }
@@ -251,8 +255,10 @@
       return true;
     },
 
-    remove(id) {
-      const index = this.items.findIndex(i => i.id === id);
+    remove(id, type) {
+      const matches = this.items.filter(i => i.id === id && (!type || i.type === type));
+      if (matches.length !== 1) return;
+      const index = this.items.indexOf(matches[0]);
       if (index > -1) {
         const item = this.items[index];
         this.items.splice(index, 1);
@@ -269,8 +275,8 @@
       this.showToast('Comparison cleared');
     },
 
-    has(id) {
-      return this.items.some(i => i.id === id);
+    has(id, type) {
+      return this.items.some(i => i.id === id && i.type === type);
     },
 
     save() {
@@ -303,7 +309,7 @@
         <div class="compare-item" data-id="${esc(item.id)}">
           <span class="compare-item-type">${esc(item.type)}</span>
           <span class="compare-item-name">${esc(item.name)}</span>
-          <button type="button" class="compare-item-remove" data-remove-id="${esc(item.id)}" title="Remove">×</button>
+          <button type="button" class="compare-item-remove" data-remove-id="${esc(item.id)}" data-remove-type="${esc(item.type)}" title="Remove">×</button>
         </div>
       `).join('');
 
@@ -316,7 +322,7 @@
       if (!btn) return;
 
       if (this.items.length >= 2) {
-        const ids = this.items.map(i => i.id).join(',');
+        const ids = this.items.map(comparisonKey).join(',');
         btn.href = `/compare/?items=${encodeURIComponent(ids)}`;
         btn.classList.remove('disabled');
       } else {
@@ -329,7 +335,7 @@
       // Update compare buttons on cards
       document.querySelectorAll('[data-compare-id]').forEach(btn => {
         const id = btn.dataset.compareId;
-        if (this.has(id)) {
+        if (this.has(id, btn.dataset.compareType)) {
           btn.classList.add('active');
           btn.textContent = '✓ Added';
         } else {

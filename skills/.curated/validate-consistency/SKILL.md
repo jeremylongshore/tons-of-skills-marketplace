@@ -4,15 +4,17 @@ description: |
   Universal document consistency auditor. Runs deterministic drift checks across
   docs, code, tests, and CI, resolves conflicts through a per-fact-class authority
   registry (sot-map.yaml), and produces reports that structurally separate
-  deterministic findings from advisory LLM-judged findings.
+  deterministic findings from advisory LLM-judged findings. Each local run attempts
+  disclosure-approved report and index writes in the caller’s separate Intent OS
+  checkout; unavailable or rejected filing is reported as HELD.
   Use when checking documentation accuracy before a release, after major refactors,
   or when onboarding to a new codebase. Also invoked automatically by /release Phase
   1.6.
   Trigger with "/validate-consistency", "check consistency", "validate docs",
   "audit documentation", "doc drift check".
-allowed-tools: Read, Glob, Grep, Bash(echo:*), Bash(git:*), Bash(diff:*)
+allowed-tools: Read, Glob, Grep, Bash(echo:*), Bash(git:*), Bash(diff:*), Bash(python3:*)
 argument-hint: '[optional path to sot-map.yaml — defaults to ~/000-projects/intent-os/sot-map.yaml]'
-version: 3.29.0
+version: 3.30.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
@@ -30,7 +32,7 @@ tags:
 1. [Overview](#overview)
 2. [Truth Invariant](#truth-invariant)
 3. [Examples](#examples)
-4. [Instructions](#instructions) — Steps 0–5
+4. [Instructions](#instructions) — Steps 0–6
 5. [Severity Assignment Rules](#severity-assignment-rules)
 6. [Bootstrap: Drafting Registry Rows](#bootstrap-drafting-registry-rows)
 7. [Integration with /release](#integration-with-release)
@@ -355,6 +357,30 @@ echo ""
 echo "Audit complete: [n] critical, [n] warning, [n] info, [n] advisory findings across [n] artifacts."
 ```
 
+### Step 6: Persist the Local Run
+
+Save each local report into the caller's Intent OS checkout (default
+`~/000-projects/intent-os`) using
+`${CLAUDE_SKILL_DIR}/scripts/persist-report.py`. Read
+[report persistence](references/report-persistence.md) for the input contract,
+disclosure policy, filing rules and failure recovery. Use `Bash(python3:*)` only
+for this helper as a workflow instruction, not an OS sandbox. Pass the actual
+audited directory as `--audited-root`; the writer refuses its report/index
+destination inside that tree. Read-only audit behavior is an instruction-level constraint; the Git and Python
+grants do not enforce filesystem immutability.
+
+Pass the complete Part A/Part B report and any caller-supplied repair evidence.
+Do not invent fixes or treat advisory findings as adjudicated facts. This helper
+writes the approved report and an index entry in Intent OS; it never fixes the
+audited project, edits the registry, or ingests into the governed brain.
+
+Read the actual result. A missing policy, rejected content, receipt failure or
+busy destination is **HELD**, never a saved report. Preserve the conversation
+report and name the content-free failure code; do not bypass the filter or copy
+the rejected payload into another log. On success, include the returned record
+path and SHA-256 in the summary. During `/release`, retain the existing release
+audit trail too; only deterministic Critical findings affect its blocking gate.
+
 If there are deterministic critical findings, add:
 
 ```
@@ -429,7 +455,10 @@ The skill produces a structured markdown report containing:
 
 Each individual finding includes: severity icon, lane, fact class, what the authority artifact says (when registered), what the drifted artifact says, file paths with line numbers, and whether the fix is auto-applicable.
 
-When invoked standalone, the report is printed to the conversation. When invoked from `/release`, the report is incorporated into the release audit trail.
+The report is printed to the conversation and, after the disclosure gate accepts
+it, saved as a dated Intent OS audit record. During `/release`, it is also
+incorporated into the existing release audit trail. Report persistence has its
+own saved/HELD result; it does not change finding severity or release policy.
 
 ## Error Handling
 
@@ -443,10 +472,12 @@ When invoked standalone, the report is printed to the conversation. When invoked
 | No `000-docs/` directory | Skip index checks (3.1); note in report |
 | No planning directory | Skip planning-vs-implementation check (3.9); note in report |
 | No package manifest found | Skip version consistency check for that source; use whatever version sources exist |
-| Empty repository (no files) | Report "No documentation artifacts found — nothing to audit" and exit |
+| Empty repository (no files) | Produce an empty-scope report with both lanes and no invented findings; persist it through Step 6 |
 | Binary files in doc paths | Skip binary files; only audit text/markdown files |
 
-The skill never fails — it gracefully skips checks whose inputs don't exist and reports what it could verify.
+Audit checks skip missing inputs and report what could be verified. Persistence
+failures remain explicit HELD results; a printed report does not prove a durable
+record was saved.
 
 ## What This Skill Does NOT Do
 
@@ -455,7 +486,8 @@ The skill never fails — it gracefully skips checks whose inputs don't exist an
 - Does not read the governed brain as ground truth for generated facts (see [Truth Invariant](#truth-invariant)).
 - Does not audit email or CRM content — out of scope for v1.
 - Does not use WebSearch or WebFetch — filesystem and git only. Does not validate external URLs (no HTTP requests).
-- Does not run tests or execute code.
+- Does not run tests or execute code from the audited project. The bundled
+  persistence helper executes only the existing destination disclosure adapter.
 - Does not check grammar or writing quality.
 - Does not assess documentation completeness (only consistency).
 
