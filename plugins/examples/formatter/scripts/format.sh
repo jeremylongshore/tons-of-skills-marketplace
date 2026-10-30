@@ -200,8 +200,8 @@ get_prettier_command() {
         prettier_cmd="prettier"
         log_debug "Using global prettier"
     elif command -v npx &> /dev/null; then
-        prettier_cmd="npx prettier"
-        log_debug "Using npx prettier"
+        prettier_cmd="npx --no-install prettier"
+        log_debug "Using npx --no-install prettier"
     else
         log_error "Prettier not found"
         return 1

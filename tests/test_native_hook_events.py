@@ -184,6 +184,33 @@ class NativeHookEventsTests(unittest.TestCase):
         logs = "".join(p.read_text() for p in (self.formatter / "logs").glob("*.log"))
         self.assertNotIn(sentinel, result.stdout + result.stderr + logs)
 
+    def test_npx_fallback_never_installs_packages(self):
+        # Remove the global formatter and use a recording npx that refuses
+        # installation; exercise both actual shell entry points offline.
+        (self.root / "bin/prettier").unlink()
+        npx = self.root / "bin/npx"
+        npx.write_text(
+            npx.read_text().replace(
+                "sys.exit(99)", "sys.exit(0 if sys.argv[1:3] == ['--no-install', 'prettier'] else 99)"
+            )
+        )
+        target, payload = self.formatting_event()
+        result = self.run_script(self.formatter / "scripts/format.sh", payload)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.set_enabled("PreToolUse", True)
+        result = self.run_script(
+            self.formatter / "scripts/validate-format.sh",
+            self.event(tool="Edit", file_path=str(target)),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = self.invocations()
+        self.assertGreaterEqual(len(calls), 3)
+        self.assertTrue(
+            all(c["program"] == "npx" and c["args"][:2] == ["--no-install", "prettier"] for c in calls), calls
+        )
+        self.assertTrue(any("--check" in c["args"] for c in calls))
+        self.assertTrue(any("--write" in c["args"] for c in calls))
+
     def test_optional_pre_hook_is_inert_until_its_switch_is_enabled(self):
         target, _ = self.formatting_event()
         payload = self.event(tool="Edit", file_path=str(target))
