@@ -1,5 +1,7 @@
 <!-- doc-class: record -->
 
+<!-- prettier-ignore-start -->
+
 ---
 filing_code: DR-GUID-EXTERNAL-SOURCE-VETTING-PLAYBOOK-2026-07-06
 date: 2026-07-06
@@ -15,6 +17,8 @@ sibling_prs:
   - feat/sync-security-scan (Track B — deterministic REFUSE/CHALLENGE/FLAG scan)
   - docs/sync-threat-model (Track C — this document + the threat model)
 ---
+
+<!-- prettier-ignore-end -->
 
 # External-Source Vetting Playbook (Contributors + Maintainers)
 
@@ -35,10 +39,10 @@ implementations differ on mechanics, the merged code is authoritative — update
 
 Orthogonal by design (full rationale: the mirror-by-default decision record):
 
-| Flag | What it means | What it mechanically does |
-|---|---|---|
+| Flag             | What it means                                                                                                          | What it mechanically does                                                                                                                                                                                                             |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `verified: true` | A maintainer completed the listing checklist below and vouches for the source's trust and quality **at listing time**. | It is a **trust record, not a control** — the sync engine does not branch on it. It feeds catalog trust-level display (SECURITY.md § Plugin Trust Levels) and is the precondition for listing at the `scripted` or `hooks-mcp` tiers. |
-| `curated: true` | We locally hardened the plugin past its upstream. | **Freezes the mirror entirely** — no clone, no write, no orphan-prune, even under `--force`. Only the catalog entry stays current. The standing off-ramp is upstreaming the improvement, then dropping the flag. |
+| `curated: true`  | We locally hardened the plugin past its upstream.                                                                      | **Freezes the mirror entirely** — no clone, no write, no orphan-prune, even under `--force`. Only the catalog entry stays current. The standing off-ramp is upstreaming the improvement, then dropping the flag.                      |
 
 Honest corollaries:
 
@@ -55,11 +59,11 @@ follows the file list, never the author's description. A source with no explicit
 classified from the surface actually present in its mirror, defaulting to the highest surface
 found (classification fails closed; the sync itself keeps working).
 
-| Tier | Admits | Handling |
-|---|---|---|
-| `markdown-only` | `SKILL.md`, `README.md`, `references/**`, other prose/docs | Routine path: drift quarantine + scan + standard review. The residual vector is prompt injection (threat model V4) — the drift reviewer **reads the changed instructions as instructions**, not as prose. |
-| `scripted` | markdown-only + shell / Python / JS the skill invokes (mirrored with executable bits preserved) | Drift review reads **every changed script line**. Scan REFUSE patterns bind hardest here. Any new network endpoint, env access, or file write outside the plugin's own tree must be justified in the review before merge. |
-| `hooks-mcp` | scripted + `hooks/**`, `.mcp.json`, `mcp-server/**` | Highest blast radius — these execute **automatically** in users' agents. Every drift requires explicit human re-approval (the quarantine PR may not be merged on green checks alone); each MCP `command`/`url` and each hook command is justified per entry, per change. Consider `curated: true` freeze-handling for sources here whose upstream churns. |
+| Tier            | Admits                                                                                          | Handling                                                                                                                                                                                                                                                                                                                                                  |
+| --------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `markdown-only` | `SKILL.md`, `README.md`, `references/**`, other prose/docs                                      | Routine path: drift quarantine + scan + standard review. The residual vector is prompt injection (threat model V4) — the drift reviewer **reads the changed instructions as instructions**, not as prose.                                                                                                                                                 |
+| `scripted`      | markdown-only + shell / Python / JS the skill invokes (mirrored with executable bits preserved) | Drift review reads **every changed script line**. Scan REFUSE patterns bind hardest here. Any new network endpoint, env access, or file write outside the plugin's own tree must be justified in the review before merge.                                                                                                                                 |
+| `hooks-mcp`     | scripted + `hooks/**`, `.mcp.json`, `mcp-server/**`                                             | Highest blast radius — these execute **automatically** in users' agents. Every drift requires explicit human re-approval (the quarantine PR may not be merged on green checks alone); each MCP `command`/`url` and each hook command is justified per entry, per change. Consider `curated: true` freeze-handling for sources here whose upstream churns. |
 
 Tier changes are one-way-hard: moving a source **up** a tier (its globs start admitting
 scripts or hooks) is a new listing decision — run the full checklist below again. Moving down
@@ -136,11 +140,19 @@ upstream conversation.
 The scanner (branch `feat/sync-security-scan`) grades findings so the gate stays credible —
 an ungraded gate produces a false-positive storm and gets disabled:
 
-| Verdict | Meaning | Override path |
-|---|---|---|
-| **REFUSE** | Known-hostile shape (pipe-to-shell, encoded exec, credential exfil). | **None.** Fix upstream or don't ship the content. REFUSE is not allowlistable. |
-| **CHALLENGE** | Legitimate-capable but dangerous-capable (network calls in scripts, env harvesting, hook/MCP changes, `allowed-tools` expansion). | Blocked until a human adds a **scoped allowlist entry**. |
-| **FLAG** | Suspicious-but-explainable (obfuscation smells, minified blobs). | Non-blocking; acknowledged in the PR review thread. |
+| Verdict       | Meaning                                                                                                                           | Override path                                                                  |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **REFUSE**    | Known-hostile shape (pipe-to-shell, encoded exec, credential exfil).                                                              | **None.** Fix upstream or don't ship the content. REFUSE is not allowlistable. |
+| **CHALLENGE** | Legitimate-capable but dangerous-capable (network calls in scripts, env harvesting, hook/MCP changes, `allowed-tools` expansion). | Blocked until a human adds a **scoped allowlist entry**.                       |
+| **FLAG**      | Suspicious-but-explainable (obfuscation smells, minified blobs).                                                                  | Non-blocking; acknowledged in the PR review thread.                            |
+
+The bot advisory mode accepted in PR #969 is a scanner execution mode, not a
+CHALLENGE approval. It applies only to a same-repository sync PR whose PR number
+and exact current head are bound to a receipt from the approved Sync External
+Plugins workflow. Human PRs, forks, prefix lookalikes, and missing or mismatched
+provenance retain full grading. REFUSE always blocks and is never waivable.
+Advisory scan success does not satisfy the scoped human CHALLENGE approval and
+reviewed allowlist requirements above.
 
 **Allowlist discipline** (the exact file location and entry format live with the scanner —
 see the `feat/sync-security-scan` PR):
@@ -163,7 +175,7 @@ When an upstream is compromised, goes hostile, or simply dies:
    merge commit first, ask questions after.
 2. **Cut the source.** Remove its entry from `sources.yaml` (or, for a temporary hold,
    freeze it `curated: true` — note that freezing keeps the current mirror published, so it
-   is only appropriate when the *current* content is trusted and it's the *future* you're
+   is only appropriate when the _current_ content is trusted and it's the _future_ you're
    blocking).
 3. **Remove the mirror.** Delete the plugin directory and its catalog entry in
    `.claude-plugin/marketplace.extended.json`; run the lint-ignore generator so the managed
@@ -185,7 +197,7 @@ The whole defense degrades to theater if review becomes ritual. Standing rules:
 - **Say "no" cheaply.** Closing a quarantine PR costs nothing; the next sync regenerates the
   proposal. The default answer to an unreadable or unexplained drift is no.
 - **The audit trail is load-bearing.** Vet evidence in listing PRs, lock updates as approval
-  records, justified allowlist entries — these are what let the *next* maintainer trust the
+  records, justified allowlist entries — these are what let the _next_ maintainer trust the
   state of the mirror without re-deriving it from diffs.
 
 ## References
