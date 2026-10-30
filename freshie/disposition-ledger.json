@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "88193a1dcd8baeee9dc84053d73e329e38ffeefd7d970295af94df98cc33fad2",
+    "sha256": "a96c25b7d2309f481058885d98c41440126f08a62ec8a5b17100504e473c2ee1",
     "artifact_count": 3304
   },
   "rule_order": [
@@ -6896,7 +6896,7 @@
     {
       "path": "plugins/crypto/crypto-news-aggregator/skills/aggregating-crypto-news/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
