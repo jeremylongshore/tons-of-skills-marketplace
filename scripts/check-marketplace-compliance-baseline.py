@@ -49,6 +49,25 @@ def metadata_drift(baseline: dict[str, Any], current: dict[str, Any]) -> list[st
     ratchet until the dedicated baseline-capture transaction has been reviewed.
     """
     errors: list[str] = []
+    identity_versions = {}
+    for label, payload in (("baseline", baseline), ("live", current)):
+        version = payload.get("finding_identity_version", 1)
+        if type(version) is not int or version not in (1, 2):
+            errors.append(f"{label} has unsupported finding_identity_version")
+            continue
+        identity_versions[label] = version
+        if version == 2 and any(
+            len(parts := entry.split(" :: ", 2)) == 3
+            and parts[1] == "E-MISSING-REQUIRED-SECTION"
+            and parts[2].strip() in ("", "##")
+            for entry in entries(payload)
+        ):
+            errors.append(f"{label} finding_identity_version=2 contains an unnamed required-section entry")
+    if len(identity_versions) == 2 and identity_versions["baseline"] != identity_versions["live"]:
+        errors.append(
+            "finding_identity_version drift: "
+            f"baseline={identity_versions['baseline']}, live={identity_versions['live']}"
+        )
     baseline_schema = baseline.get("schema_version")
     current_schema = current.get("schema_version")
     if not isinstance(baseline_schema, str) or not isinstance(current_schema, str):
@@ -318,9 +337,21 @@ def commit_parents(repo_root: Path, sha: str) -> list[str]:
     return parts[1:]
 
 
-def emit_current(repo_root: Path) -> dict[str, Any]:
+def emit_current(repo_root: Path, *, finding_identity_version: int = 1) -> dict[str, Any]:
+    # Select the pinned contract, never infer it from live findings. Envelope
+    # changes still pass the separate owner-capture provenance gate.
+    if type(finding_identity_version) is not int or finding_identity_version not in (1, 2):
+        raise ValueError("baseline has unsupported finding_identity_version")
     result = subprocess.run(
-        [sys.executable, str(VALIDATOR), "--emit-baseline", "--repo-root", str(repo_root)],
+        [
+            sys.executable,
+            str(VALIDATOR),
+            "--emit-baseline",
+            "--baseline-identity-version",
+            str(finding_identity_version),
+            "--repo-root",
+            str(repo_root),
+        ],
         capture_output=True,
         text=True,
     )
@@ -338,10 +369,26 @@ def corpus_shrink_evidence(
     provenance = baseline.get("generated_from")
     if not all(isinstance(value, dict) for value in (baseline_corpus, current_corpus, provenance)):
         raise ValueError("R3 requires baseline/live corpus objects and baseline generated_from provenance")
+    corpus_source_sha = provenance.get("sha")
+    if "corpus_source_sha" in baseline:
+        migration = baseline.get("identity_migration")
+        original = migration.get("prior_generated_from") if isinstance(migration, dict) else None
+        corpus_source_sha = baseline["corpus_source_sha"]
+        if (
+            type(baseline.get("finding_identity_version")) is not int
+            or baseline["finding_identity_version"] != 2
+            or not isinstance(migration, dict)
+            or migration.get("kind") != "historical-required-sections-v1-to-v2"
+            or not isinstance(original, dict)
+            or not isinstance(corpus_source_sha, str)
+            or not re.fullmatch(r"[0-9a-f]{40}", corpus_source_sha)
+            or original.get("sha") != corpus_source_sha
+        ):
+            raise ValueError("R3 historical corpus source must match the version-2 section migration provenance")
     payload = {
         "baseline_count": baseline_corpus.get("skill_files"),
         "current_count": current_corpus.get("skill_files"),
-        "baseline_sha": provenance.get("sha"),
+        "baseline_sha": corpus_source_sha,
     }
     if checkout_sha:
         payload["checkout_sha"] = checkout_sha
@@ -452,7 +499,11 @@ def main() -> int:
             print("marketplace-compliance-ratchet: OK (no unauthorized permissive baseline mutation)")
             return 0
         baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
-        current = json.loads(args.current.read_text(encoding="utf-8")) if args.current else emit_current(repo_root)
+        current = (
+            json.loads(args.current.read_text(encoding="utf-8"))
+            if args.current
+            else emit_current(repo_root, finding_identity_version=baseline.get("finding_identity_version", 1))
+        )
         drift = metadata_drift(baseline, current)
         newcomers = compare(baseline, current)
     except (OSError, ValueError, json.JSONDecodeError, RuntimeError) as error:

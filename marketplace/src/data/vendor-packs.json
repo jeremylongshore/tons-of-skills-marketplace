@@ -262,25 +262,6 @@
       "dashboardUrl": "https://www.firecrawl.dev/signin"
     },
     {
-      "id": "clay",
-      "name": "Clay",
-      "tier": "flagship+",
-      "skillCount": 30,
-      "description": "Data enrichment platform for sales and marketing automation",
-      "icon": "users",
-      "color": "#4F46E5",
-      "installCommand": "/plugin install clay-pack@claude-code-plugins-plus",
-      "categories": [
-        { "name": "Onboarding & Foundations", "skills": ["clay-install-auth", "clay-hello-world", "clay-local-dev-loop", "clay-sdk-patterns", "clay-core-workflow-a", "clay-core-workflow-b"] },
-        { "name": "Operations & Debugging", "skills": ["clay-common-errors", "clay-debug-bundle", "clay-rate-limits", "clay-security-basics", "clay-prod-checklist", "clay-upgrade-migration"] },
-        { "name": "CI/CD & Deployment", "skills": ["clay-ci-integration", "clay-deploy-integration", "clay-webhooks-events", "clay-performance-tuning", "clay-cost-tuning", "clay-reference-architecture"] },
-        { "name": "Enterprise & Compliance", "skills": ["clay-multi-env-setup", "clay-observability", "clay-incident-runbook", "clay-data-handling", "clay-enterprise-rbac", "clay-migration-deep-dive"] },
-        { "name": "Advanced Patterns", "skills": ["clay-advanced-troubleshooting", "clay-load-scale", "clay-reliability-patterns", "clay-policy-guardrails", "clay-architecture-variants", "clay-known-pitfalls"] }
-      ],
-      "docsUrl": "https://docs.clay.com",
-      "dashboardUrl": "https://app.clay.com"
-    },
-    {
       "id": "exa",
       "name": "Exa",
       "tier": "flagship+",
@@ -610,24 +591,6 @@
       "docsUrl": "https://docs.granola.ai/help-center",
       "dashboardUrl": "https://notes.granola.ai/download",
       "dashboardLabel": "Get Granola"
-    },
-    {
-      "id": "gamma",
-      "name": "Gamma",
-      "tier": "flagship",
-      "skillCount": 24,
-      "description": "AI presentation and document generator with beautiful templates",
-      "icon": "presentation",
-      "color": "#8B5CF6",
-      "installCommand": "/plugin install gamma-pack@claude-code-plugins-plus",
-      "categories": [
-        { "name": "Onboarding & Foundations", "skills": ["gamma-install-auth", "gamma-hello-world", "gamma-local-dev-loop", "gamma-sdk-patterns", "gamma-core-workflow-a", "gamma-core-workflow-b"] },
-        { "name": "Operations & Debugging", "skills": ["gamma-common-errors", "gamma-debug-bundle", "gamma-rate-limits", "gamma-security-basics", "gamma-prod-checklist", "gamma-upgrade-migration"] },
-        { "name": "CI/CD & Deployment", "skills": ["gamma-ci-integration", "gamma-deploy-integration", "gamma-webhooks-events", "gamma-performance-tuning", "gamma-cost-tuning", "gamma-reference-architecture"] },
-        { "name": "Enterprise & Compliance", "skills": ["gamma-multi-env-setup", "gamma-observability", "gamma-incident-runbook", "gamma-data-handling", "gamma-enterprise-rbac", "gamma-migration-deep-dive"] }
-      ],
-      "docsUrl": "https://gamma.app/help",
-      "dashboardUrl": "https://gamma.app"
     },
     {
       "id": "clerk",

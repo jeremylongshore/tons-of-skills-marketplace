@@ -13,17 +13,18 @@ python scripts/backtest.py \
   --params '{"fast_period": 20, "slow_period": 50}'
 ```
 
-**Expected Output:**
+**Output layout (placeholders, not measured performance):**
 
+```text
+HISTORICAL SIMULATION: SMA_CROSSOVER
+BTC-USD | [start_date] to [end_date]
+Total Return: [computed] | Max Drawdown: [computed]
+Sharpe Ratio: [computed] | Win Rate: [computed]
+Profit Factor: [computed or N/A when there are no observed losses]
 ```
-╔══════════════════════════════════════════════════════════════════════╗
-║            BACKTEST RESULTS: SMA_CROSSOVER                           ║
-║            BTC-USD | 2023-01-14 to 2024-01-14                        ║
-╠══════════════════════════════════════════════════════════════════════╣
-║ Total Return:     +47.32%         │ Max Drawdown:      -18.45%       ║
-║ Sharpe Ratio:        1.87         │ Win Rate:             58.3%      ║
-╚══════════════════════════════════════════════════════════════════════╝
-```
+
+Results depend on the supplied historical series, fees, slippage and parameters.
+A zero/one-trade sample does not establish performance or predict future returns.
 
 ## Example 2: RSI Reversal Strategy
 
@@ -66,26 +67,9 @@ python scripts/optimize.py \
   --param-grid '{"fast_period": [10, 20, 30, 50], "slow_period": [50, 100, 150, 200]}'
 ```
 
-**Expected Output:**
-
-```
-================================================================================
-PARAMETER OPTIMIZATION RESULTS
-================================================================================
-
-TOP 10 PARAMETER COMBINATIONS (by Sharpe Ratio):
---------------------------------------------------------------------------------
-fast_period  slow_period    Return%     Sharpe     MaxDD%   WinRate%    Trades
---------------------------------------------------------------------------------
-         20          100       52.3       2.14      -15.2       62.5        18
-         30          150       48.7       1.98      -12.8       58.3        14
-         ...
-
-BEST PARAMETERS:
-  fast_period: 20
-  slow_period: 100
-================================================================================
-```
+The report ranks the tested parameter combinations using the selected metric.
+Its return, drawdown and trade statistics describe an in-sample historical
+simulation. Do not treat the winning combination as expected future performance.
 
 ## Example 5: Compare Multiple Strategies
 
@@ -171,4 +155,5 @@ done
 ```
 
 ---
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+
+_[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)_

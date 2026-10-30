@@ -83,7 +83,7 @@ test('every vendor route retains its own content and local count provenance', as
   test.setTimeout(120_000);
   const pageErrors: string[] = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
-  expect(vendors).toHaveLength(28);
+  expect(vendors).toHaveLength(26);
   for (const vendor of vendors) {
     await test.step(vendor.id, async () => {
       const response = await page.goto(`/learn/${vendor.id}/`);

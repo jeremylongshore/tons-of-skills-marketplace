@@ -580,7 +580,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-devrel/SKILL.md",
+        "skill_name": "buzz-devrel",
+        "local_blob": "edf2ba492403151ddf7af38f0e5e4f58cdbbf0be",
+        "local_sha256": "f277469b53a06f334602c9177121e2843d5568c7fd8d687491be838655809262",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+          "name": "marketing-team",
+          "version": "1.9.1",
+          "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/buzz-devrel/SKILL.md",
+          "bundle_path": "bundle/marketing-team/skills/buzz-devrel/SKILL.md",
+          "team_path": "team/buzz/skills/buzz-devrel/SKILL.md",
+          "instruction_blob": "396e607939db12435329cc74be25a61dd2111c93",
+          "instruction_sha256": "1cdccf1d9bc7700f0272a2279f0a552b332e8a2d5fbca687c1a3d5a548516a6c",
+          "catalog_agent": "buzz",
+          "catalog_source": "./team/buzz",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": true
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -608,7 +650,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-hn/SKILL.md",
+        "skill_name": "buzz-hn",
+        "local_blob": "202e1aaa02f41662c0a219d9f2ae3bf79fe90b73",
+        "local_sha256": "75c42bd9613e3800fd7ba7a9a3aa6cb9df606da4592aac4bbb4f1573e75df123",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+          "name": "marketing-team",
+          "version": "1.9.1",
+          "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/buzz-hn/SKILL.md",
+          "bundle_path": "bundle/marketing-team/skills/buzz-hn/SKILL.md",
+          "team_path": "team/buzz/skills/buzz-hn/SKILL.md",
+          "instruction_blob": "450740705a11a065f25a25b0fe67e835bde8f88f",
+          "instruction_sha256": "bd2ca3902f2c20eb6c096363f3a56c26f530d4addfbb7c0f382ba812a0a2ad76",
+          "catalog_agent": "buzz",
+          "catalog_source": "./team/buzz",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": false
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -636,7 +720,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/buzz-outreach/SKILL.md",
+        "skill_name": "buzz-outreach",
+        "local_blob": "e9b774007fc94c4a76238049ee779142a8de883e",
+        "local_sha256": "13bd858ae522a21ef02ede65e9dd46de4007d75fdbe3b46b17d8084150a96d67",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+          "name": "marketing-team",
+          "version": "1.9.1",
+          "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/buzz-outreach/SKILL.md",
+          "bundle_path": "bundle/marketing-team/skills/buzz-outreach/SKILL.md",
+          "team_path": "team/buzz/skills/buzz-outreach/SKILL.md",
+          "instruction_blob": "85364d560940316cfbf56b17ff52708bf7228711",
+          "instruction_sha256": "eb8e842403bc58a563cf58f3f771329fd1feaa3932b3afb9a2623a5639625c39",
+          "catalog_agent": "buzz",
+          "catalog_source": "./team/buzz",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": false
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -664,7 +790,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-brief/SKILL.md",
+        "skill_name": "ink-brief",
+        "local_blob": "4cadeaafad8d5b917532754a63a75fe0b497c8c8",
+        "local_sha256": "7f91608c1d7d442ae912c6305754b9ce07600781239d74fd71e0f2e13bb3f0eb",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+          "name": "marketing-team",
+          "version": "1.9.1",
+          "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/ink-brief/SKILL.md",
+          "bundle_path": "bundle/marketing-team/skills/ink-brief/SKILL.md",
+          "team_path": "team/ink/skills/ink-brief/SKILL.md",
+          "instruction_blob": "9fad96deb78ed595d7817a8fe183618a89e841bf",
+          "instruction_sha256": "0e54290aea47e74dfd62f83a8c98f0604bc43786fdd8f0c4e82d7a25be97f81f",
+          "catalog_agent": "ink",
+          "catalog_source": "./team/ink",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": false
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -692,7 +860,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-cluster/SKILL.md",
+        "skill_name": "ink-cluster",
+        "local_blob": "e76e3223a6f4420317212e588d71b979210c9a86",
+        "local_sha256": "59317666636bcb6c7ed717814107479a35841f9051176ba38ad004ca3a160337",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+          "name": "marketing-team",
+          "version": "1.9.1",
+          "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/ink-cluster/SKILL.md",
+          "bundle_path": "bundle/marketing-team/skills/ink-cluster/SKILL.md",
+          "team_path": "team/ink/skills/ink-cluster/SKILL.md",
+          "instruction_blob": "f810e1a7642efa0d571a8e7922eaaa9881c576d6",
+          "instruction_sha256": "b5491f4ba33316ba8e87a285eaa9532fd39a234c7879ab9fbff3e372f602fddd",
+          "catalog_agent": "ink",
+          "catalog_source": "./team/ink",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": false
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -720,7 +930,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/marketing-team/skills/ink-distribute/SKILL.md",
+        "skill_name": "ink-distribute",
+        "local_blob": "eeff67331f7326dd7b5bb733a1ceff710ad06aa0",
+        "local_sha256": "e8e683ddd9ba9380f01e584bbbec418ab42037909438b5bd48eb4d7f00b431ad",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/marketing-team/.claude-plugin/plugin.json",
+          "name": "marketing-team",
+          "version": "1.9.1",
+          "sha256": "6b1db61cb3183c12b0d7c490bcbb5dbaf51c6c72e948dd6af3804a9ee023749c"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/ink-distribute/SKILL.md",
+          "bundle_path": "bundle/marketing-team/skills/ink-distribute/SKILL.md",
+          "team_path": "team/ink/skills/ink-distribute/SKILL.md",
+          "instruction_blob": "10d08be3f6004b5eadbfe18851dad5e445426c9f",
+          "instruction_sha256": "22081f4a2eb24c75de64d7c0700c2f86d2d72219a6a640b64fbf05f57f58cceb",
+          "catalog_agent": "ink",
+          "catalog_source": "./team/ink",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": true
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -910,7 +1162,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-outreach/SKILL.md",
+        "skill_name": "deal-outreach",
+        "local_blob": "5f64fc417573f736acb1e961e2b6cf75552ff1ef",
+        "local_sha256": "07850b5b1836812d479c939aec0715ef10d9a35b1f987cb84c19ce9685661806",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+          "name": "revenue-team",
+          "version": "1.9.1",
+          "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/deal-outreach/SKILL.md",
+          "bundle_path": "bundle/revenue-team/skills/deal-outreach/SKILL.md",
+          "team_path": "team/deal/skills/deal-outreach/SKILL.md",
+          "instruction_blob": "cfa6724a37f2890b44d673b8ee4dc14f05af2d6f",
+          "instruction_sha256": "d16994e6fc6fd026b399f120ea0e1025d6a6af7e561675a153b947a96b113c83",
+          "catalog_agent": "deal",
+          "catalog_source": "./team/deal",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": false
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -938,7 +1232,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-proposal/SKILL.md",
+        "skill_name": "deal-proposal",
+        "local_blob": "b0c333c83e3c8db75200c11fda122ee0531f4a24",
+        "local_sha256": "f3bdbc1f10d7fae81bb9e63949632ccecc5eb4a39d0acd662982df6bdb701361",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+          "name": "revenue-team",
+          "version": "1.9.1",
+          "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/deal-proposal/SKILL.md",
+          "bundle_path": "bundle/revenue-team/skills/deal-proposal/SKILL.md",
+          "team_path": "team/deal/skills/deal-proposal/SKILL.md",
+          "instruction_blob": "24f0be3a33c2a0d31862835aff2f7077a3c70841",
+          "instruction_sha256": "24f61f7e2522f65a1e7b99b7d3371c5eff9a94cfa5e05ad8c72ffc5d91409454",
+          "catalog_agent": "deal",
+          "catalog_source": "./team/deal",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": true
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -966,7 +1302,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/deal-qualify/SKILL.md",
+        "skill_name": "deal-qualify",
+        "local_blob": "068a5bf17c2ee2d3ef6d117fe991205a2d5d6da9",
+        "local_sha256": "90fc5eec52887d287119646eddba74dc6f7793b8c9d2dffbddea100c0be720f6",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+          "name": "revenue-team",
+          "version": "1.9.1",
+          "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/deal-qualify/SKILL.md",
+          "bundle_path": "bundle/revenue-team/skills/deal-qualify/SKILL.md",
+          "team_path": "team/deal/skills/deal-qualify/SKILL.md",
+          "instruction_blob": "537a51727a4ddbc7d63a3e7fab05fda6bf64d7cf",
+          "instruction_sha256": "567f3f6df2f83b8d120124eb56c3de4262da60ee5e6fae383d52f1093b302f20",
+          "catalog_agent": "deal",
+          "catalog_source": "./team/deal",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": true
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -994,7 +1372,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-churn/SKILL.md",
+        "skill_name": "keep-churn",
+        "local_blob": "2d87ab8edbe49008b0495a39815ccce3b85df355",
+        "local_sha256": "389da9a9eada2666421e2ee83ef4a9ae95752a800e4a17a1b314c04d7259e6a6",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+          "name": "revenue-team",
+          "version": "1.9.1",
+          "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/keep-churn/SKILL.md",
+          "bundle_path": "bundle/revenue-team/skills/keep-churn/SKILL.md",
+          "team_path": "team/keep/skills/keep-churn/SKILL.md",
+          "instruction_blob": "d34deadd2c0324376b986a134a3411ceffd18d45",
+          "instruction_sha256": "6ae74c3bb10ff8a05d00df4f38df2b4c50631c79c89d24d3b92bde45c2672358",
+          "catalog_agent": "keep",
+          "catalog_source": "./team/keep",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": true
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -1022,7 +1442,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-qbr/SKILL.md",
+        "skill_name": "keep-qbr",
+        "local_blob": "d39ac859f88f6fbb0b7a8e49f94f84c020e8ab90",
+        "local_sha256": "35fdaed5cc26ed73b9c4036946bf620b01b6e5903d9ba333382f741f745ea753",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+          "name": "revenue-team",
+          "version": "1.9.1",
+          "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/keep-qbr/SKILL.md",
+          "bundle_path": "bundle/revenue-team/skills/keep-qbr/SKILL.md",
+          "team_path": "team/keep/skills/keep-qbr/SKILL.md",
+          "instruction_blob": "d6ce5bfc78d546c72fd6de3ee21ffc87b06b228d",
+          "instruction_sha256": "6a52421634b94ad582af4c952784d62dd5fcc1a9d2cd079f26b3cdea921773ad",
+          "catalog_agent": "keep",
+          "catalog_source": "./team/keep",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": true
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -1050,7 +1512,49 @@
       "disposition": "deferred-to-structural-parent",
       "expected_post_state": "Preserve bundle blob and current nonvisibility pending an evidence-backed distribution decision.",
       "residual_work": "claude-rx0s.1",
-      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved."
+      "validation": "No same-named root counterpart or individual entry in the vendored upstream catalog; nearest bundle identity is absent from both catalogs. Intent and current upstream state remain unresolved.",
+      "final_review": {
+        "path": "plugins/ai-agency/tonone/bundle/revenue-team/skills/keep-segment/SKILL.md",
+        "skill_name": "keep-segment",
+        "local_blob": "f32ca26f3414184fbd6141468ef64e368f04cc7a",
+        "local_sha256": "989f81e1d9f34dda1777bceadde449a9c3673e4144365a94845114e8dd56de80",
+        "provenance": {
+          "status": "mirror",
+          "source_record": "plugins/ai-agency/tonone/.source.json",
+          "explicit_file_membership": false,
+          "repository": "tonone-ai/tonone"
+        },
+        "nearest_manifest": {
+          "path": "plugins/ai-agency/tonone/bundle/revenue-team/.claude-plugin/plugin.json",
+          "name": "revenue-team",
+          "version": "1.9.1",
+          "sha256": "775ebfcef0f465b686d0170fd8353af6aa8d2eeb85676f8f08ac37fbb736ba49"
+        },
+        "registered_locally": false,
+        "registered_in_vendored_catalog": false,
+        "registered_upstream_bundle": false,
+        "marketplace_visible": false,
+        "upstream": {
+          "root_path": "skills/keep-segment/SKILL.md",
+          "bundle_path": "bundle/revenue-team/skills/keep-segment/SKILL.md",
+          "team_path": "team/keep/skills/keep-segment/SKILL.md",
+          "instruction_blob": "ce7f0d23450c98e789a8fce3a5a282a4928bfa14",
+          "instruction_sha256": "37a605d1357aa64c69b2a222cf184c43fdf87f99c0ceeb1a6c9252f9f1fbcb01",
+          "catalog_agent": "keep",
+          "catalog_source": "./team/keep",
+          "catalog_version": "1.18.0",
+          "local_file_byte_identical": false,
+          "body_equal_after_line_end_whitespace_normalization": true
+        },
+        "disposition": "retain-frozen-exclude-standalone",
+        "status": "terminal-classification",
+        "rationale": "Retain the vendored payload under its curated outer source; decline a new nested-bundle listing because the bundle identity is not registered and its declared output-kit resource is absent from this mirrored artifact.",
+        "expected_post_state": "Same frozen source blob, ancestor provenance, curated:true and verified:false; no separate marketing-team/revenue-team listing and no change to existing Tonone visibility.",
+        "review_date": "2026-10-25",
+        "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+        "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+        "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md"
+      }
     },
     {
       "cohort": "E2",
@@ -1169,5 +1673,16 @@
     "structural_parent": "claude-rx0s.1",
     "program_complete": false,
     "scope": "Triage evidence only; all frozen identities and source blobs preserved. E1 fields unchanged."
+  },
+  "final_followup": {
+    "issue": "claude-rx0s.1",
+    "review_date": "2026-10-25",
+    "analysis_sha": "3f15d981b8b6d0c869df0106741d192448dcc51d",
+    "decision": "000-docs/833-RA-REPT-tonone-bundle-disposition.md",
+    "evidence": "000-docs/833a-RA-DATA-tonone-bundle-evidence.json",
+    "effective_disposition_rule": "Use final_review.disposition when present; otherwise use the original disposition. Original reviews remain historical.",
+    "effective_terminal_classifications": 50,
+    "remaining_frozen_classification_cases": 0,
+    "acceptance": "Decision recorded; issue closure additionally requires normal PR acceptance and merged-state verification."
   }
 }

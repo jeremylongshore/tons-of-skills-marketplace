@@ -22,6 +22,19 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from backtest import load_data, run_backtest
 from fetch_data import parse_period
+from metrics import format_metric
+
+
+METRIC_COLUMNS = {
+    "total_return": ("Return%", ".1f"),
+    "sharpe_ratio": ("Sharpe", ".2f"),
+    "sortino_ratio": ("Sortino", ".2f"),
+    "max_drawdown": ("MaxDD%", ".1f"),
+    "win_rate": ("WinRate%", ".1f"),
+    "profit_factor": ("ProfitFactor", ".2f"),
+    "calmar_ratio": ("Calmar", ".2f"),
+    "total_trades": ("Trades", ".0f"),
+}
 
 
 def grid_search(
@@ -32,6 +45,9 @@ def grid_search(
     metric: str = "sharpe_ratio",
 ) -> pd.DataFrame:
     """Run grid search over parameter combinations."""
+
+    if metric not in METRIC_COLUMNS:
+        raise ValueError(f"Unsupported ranking metric: {metric}")
 
     # Generate all parameter combinations
     param_names = list(param_grid.keys())
@@ -61,7 +77,7 @@ def grid_search(
                     "sortino_ratio": result.sortino_ratio,
                     "max_drawdown": result.max_drawdown,
                     "win_rate": result.win_rate,
-                    "profit_factor": result.profit_factor,
+                    "profit_factor": float("nan") if result.profit_factor is None else result.profit_factor,
                     "total_trades": result.total_trades,
                     "calmar_ratio": result.calmar_ratio,
                 }
@@ -77,10 +93,11 @@ def grid_search(
 
     df = pd.DataFrame(results)
 
-    # Sort by target metric
+    # Undefined ratios cannot outrank a finite measurement.
     if metric in df.columns:
-        df = df.sort_values(metric, ascending=False)
-
+        df[metric] = pd.to_numeric(df[metric], errors="coerce").replace([float("inf"), -float("inf")], float("nan"))
+        df = df.sort_values(metric, ascending=False, na_position="last")
+    df.attrs["ranking_metric"] = metric
     return df
 
 
@@ -89,43 +106,47 @@ def format_optimization_results(df: pd.DataFrame, param_names: List[str]) -> str
 
     output = []
     output.append("=" * 80)
-    output.append("PARAMETER OPTIMIZATION RESULTS")
+    output.append("HISTORICAL SIMULATION: PARAMETER OPTIMIZATION")
     output.append("=" * 80)
     output.append("")
 
+    metric = df.attrs.get("ranking_metric", "sharpe_ratio")
+    if df.empty:
+        output.append("No successful parameter simulations; no best parameter set.")
+        return "\n".join(output)
+    if metric not in df or not df[metric].notna().any():
+        output.append(f"No finite {metric} values; no best parameter set.")
+        return "\n".join(output)
+
     # Top 10 results
-    output.append("TOP 10 PARAMETER COMBINATIONS (by Sharpe Ratio):")
+    output.append(f"TOP 10 PARAMETER COMBINATIONS (by {metric}):")
     output.append("-" * 80)
 
-    header = param_names + ["Return%", "Sharpe", "MaxDD%", "WinRate%", "Trades"]
+    columns = list(dict.fromkeys([metric, "total_return", "sharpe_ratio", "max_drawdown", "win_rate", "total_trades"]))
+    header = param_names + [METRIC_COLUMNS[column][0] for column in columns]
     output.append("  ".join(f"{h:>10}" for h in header))
     output.append("-" * 80)
 
-    for _, row in df.head(10).iterrows():
+    for row in df.head(10).to_dict("records"):
         values = [row[p] for p in param_names]
-        values += [
-            f"{row['total_return']:.1f}",
-            f"{row['sharpe_ratio']:.2f}",
-            f"{row['max_drawdown']:.1f}",
-            f"{row['win_rate']:.1f}",
-            f"{row['total_trades']:.0f}",
-        ]
+        values += [format_metric(row[column], METRIC_COLUMNS[column][1]) for column in columns]
         output.append("  ".join(f"{v:>10}" for v in values))
 
     output.append("")
     output.append("=" * 80)
 
     # Best parameters
-    best = df.iloc[0]
+    best = df.head(1).to_dict("records")[0]
     output.append("BEST PARAMETERS:")
     for p in param_names:
         output.append(f"  {p}: {best[p]}")
     output.append("")
-    output.append("Expected Performance:")
-    output.append(f"  Total Return: {best['total_return']:.2f}%")
-    output.append(f"  Sharpe Ratio: {best['sharpe_ratio']:.2f}")
-    output.append(f"  Max Drawdown: {best['max_drawdown']:.2f}%")
-    output.append(f"  Win Rate: {best['win_rate']:.1f}%")
+    output.append("In-sample historical simulation (not expected future performance):")
+    output.append(f"  Ranking metric ({metric}): {format_metric(best[metric])}")
+    output.append(f"  Total Return: {format_metric(best['total_return'], '.2f')}%")
+    output.append(f"  Sharpe Ratio: {format_metric(best['sharpe_ratio'], '.2f')}")
+    output.append(f"  Max Drawdown: {format_metric(best['max_drawdown'], '.2f')}%")
+    output.append(f"  Win Rate: {format_metric(best['win_rate'], '.1f')}%")
     output.append("=" * 80)
 
     return "\n".join(output)
@@ -140,7 +161,9 @@ def main():
     parser.add_argument("--start", help="Start date (YYYY-MM-DD)")
     parser.add_argument("--end", help="End date (YYYY-MM-DD)")
     parser.add_argument("--capital", "-c", type=float, default=10000, help="Initial capital")
-    parser.add_argument("--metric", "-m", default="sharpe_ratio", help="Optimization metric")
+    parser.add_argument(
+        "--metric", "-m", default="sharpe_ratio", choices=tuple(METRIC_COLUMNS), help="Optimization metric"
+    )
     parser.add_argument("--output", "-o", help="Output directory")
 
     args = parser.parse_args()

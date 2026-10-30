@@ -767,15 +767,15 @@
     {
       "name": "arbitrage-opportunity-finder",
       "source": "./plugins/crypto/arbitrage-opportunity-finder",
-      "description": "Find and analyze arbitrage opportunities across exchanges and DeFi protocols",
-      "version": "1.27.0",
+      "description": "Compare live bid/ask for a crypto pair across exchanges and show spreads net of stated fees; read-only",
+      "version": "2.0.0",
       "category": "crypto",
       "keywords": [
         "arbitrage",
-        "trading",
-        "defi",
-        "mev",
-        "profit"
+        "crypto",
+        "spreads",
+        "order-book",
+        "bid-ask"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -1288,18 +1288,19 @@
     {
       "name": "crypto-derivatives-tracker",
       "source": "./plugins/crypto/crypto-derivatives-tracker",
-      "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
-      "version": "1.30.0",
+      "description": "Read-only crypto derivatives research from live public exchange data: funding, open interest, basis, liquidations, options",
+      "version": "2.0.0",
       "category": "crypto",
       "keywords": [
         "crypto",
         "derivatives",
         "futures",
-        "options",
         "perpetuals",
         "funding-rate",
         "open-interest",
-        "trading"
+        "options",
+        "basis",
+        "liquidations"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -4449,7 +4450,7 @@
       "name": "trading-strategy-backtester",
       "source": "./plugins/crypto/trading-strategy-backtester",
       "description": "Backtest trading strategies with historical data, performance metrics, and risk analysis",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "crypto",
       "keywords": [
         "trading",
@@ -5250,27 +5251,6 @@
       }
     },
     {
-      "name": "clay-pack",
-      "source": "./plugins/saas-packs/clay-pack",
-      "description": "Complete Clay integration skill pack with 30 skills covering data enrichment, waterfall workflows, AI agents, and GTM automation. Flagship+ tier vendor pack.",
-      "version": "1.14.0",
-      "category": "saas-packs",
-      "keywords": [
-        "clay",
-        "data-enrichment",
-        "waterfall",
-        "gtm",
-        "sales-ops",
-        "lead-enrichment",
-        "ai-agents"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      }
-    },
-    {
       "name": "cursor-pack",
       "source": "./plugins/saas-packs/cursor-pack",
       "description": "Complete Cursor integration skill pack with 30 skills covering AI code editing, composer workflows, codebase indexing, and productivity features. Flagship+ tier vendor pack.",
@@ -5749,27 +5729,6 @@
         "reporting",
         "dau-mau",
         "cohort-retention"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      }
-    },
-    {
-      "name": "gamma-pack",
-      "source": "./plugins/saas-packs/gamma-pack",
-      "description": "Complete Gamma integration skill pack with 24 skills covering AI presentations, document generation, templates, and visual content creation. Flagship tier vendor pack.",
-      "version": "1.13.0",
-      "category": "saas-packs",
-      "keywords": [
-        "gamma",
-        "presentations",
-        "documents",
-        "ai-generation",
-        "templates",
-        "slides",
-        "visual-content"
       ],
       "author": {
         "name": "Jeremy Longshore",
@@ -6299,24 +6258,6 @@
       }
     },
     {
-      "name": "anthropic-pack",
-      "source": "./plugins/saas-packs/anthropic-pack",
-      "description": "Claude Code skill pack for Anthropic (30 skills)",
-      "version": "1.7.0",
-      "category": "saas-packs",
-      "keywords": [
-        "anthropic",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      }
-    },
-    {
       "name": "apify-pack",
       "source": "./plugins/saas-packs/apify-pack",
       "description": "Claude Code skill pack for Apify (18 skills)",
@@ -6324,25 +6265,6 @@
       "category": "saas-packs",
       "keywords": [
         "apify",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      }
-    },
-    {
-      "name": "apple-notes-pack",
-      "source": "./plugins/saas-packs/apple-notes-pack",
-      "description": "Claude Code skill pack for Apple Notes (24 skills)",
-      "version": "1.6.0",
-      "category": "saas-packs",
-      "keywords": [
-        "apple-notes",
-        "apple notes",
         "saas",
         "sdk",
         "integration"
@@ -6679,42 +6601,6 @@
       "category": "saas-packs",
       "keywords": [
         "fondo",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      }
-    },
-    {
-      "name": "framer-pack",
-      "source": "./plugins/saas-packs/framer-pack",
-      "description": "Claude Code skill pack for Framer (18 skills)",
-      "version": "1.5.0",
-      "category": "saas-packs",
-      "keywords": [
-        "framer",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      }
-    },
-    {
-      "name": "glean-pack",
-      "source": "./plugins/saas-packs/glean-pack",
-      "description": "Claude Code skill pack for Glean (24 skills)",
-      "version": "1.8.0",
-      "category": "saas-packs",
-      "keywords": [
-        "glean",
         "saas",
         "sdk",
         "integration"

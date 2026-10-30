@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 434,
-    "totalSkills": 2863,
+    "totalPlugins": 428,
+    "totalSkills": 2713,
     "totalCommands": 82,
-    "pluginsWithSkills": 400,
+    "pluginsWithSkills": 394,
     "byCategory": {
       "productivity": 28,
       "security": 28,
@@ -26,7 +26,7 @@
       "business-tools": 4,
       "community": 19,
       "examples": 5,
-      "saas-packs": 102,
+      "saas-packs": 96,
       "analytics": 1,
       "design": 2
     },
@@ -1095,15 +1095,15 @@
       "slug": "arbitrage-opportunity-finder",
       "name": "arbitrage-opportunity-finder",
       "displayName": "arbitrage opportunity finder",
-      "description": "Find and analyze arbitrage opportunities across exchanges and DeFi protocols",
-      "version": "1.27.0",
+      "description": "Compare live bid/ask for a crypto pair across exchanges and show spreads net of stated fees; read-only",
+      "version": "2.0.0",
       "category": "crypto",
       "keywords": [
         "arbitrage",
-        "trading",
-        "defi",
-        "mev",
-        "profit"
+        "crypto",
+        "spreads",
+        "order-book",
+        "bid-ask"
       ],
       "hasSkills": true,
       "skillCount": 1,
@@ -1840,18 +1840,19 @@
       "slug": "crypto-derivatives-tracker",
       "name": "crypto-derivatives-tracker",
       "displayName": "crypto derivatives tracker",
-      "description": "Track crypto futures, options, perpetual swaps with funding rates, open interest, and derivatives market analysis",
-      "version": "1.30.0",
+      "description": "Read-only crypto derivatives research from live public exchange data: funding, open interest, basis, liquidations, options",
+      "version": "2.0.0",
       "category": "crypto",
       "keywords": [
         "crypto",
         "derivatives",
         "futures",
-        "options",
         "perpetuals",
         "funding-rate",
         "open-interest",
-        "trading"
+        "options",
+        "basis",
+        "liquidations"
       ],
       "hasSkills": true,
       "skillCount": 1,
@@ -6377,7 +6378,7 @@
       "name": "trading-strategy-backtester",
       "displayName": "trading strategy backtester",
       "description": "Backtest trading strategies with historical data, performance metrics, and risk analysis",
-      "version": "1.29.0",
+      "version": "1.30.0",
       "category": "crypto",
       "keywords": [
         "trading",
@@ -7480,35 +7481,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "clay-pack",
-      "name": "clay-pack",
-      "displayName": "clay pack",
-      "description": "Complete Clay integration skill pack with 30 skills covering data enrichment, waterfall workflows, AI agents, and GTM automation. Flagship+ tier vendor pack.",
-      "version": "1.14.0",
-      "category": "saas-packs",
-      "keywords": [
-        "clay",
-        "data-enrichment",
-        "waterfall",
-        "gtm",
-        "sales-ops",
-        "lead-enrichment",
-        "ai-agents"
-      ],
-      "hasSkills": true,
-      "skillCount": 30,
-      "commandCount": 0,
-      "installCommand": "/plugin install clay-pack",
-      "sourcePath": "./plugins/saas-packs/clay-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "cursor-pack",
       "name": "cursor-pack",
       "displayName": "cursor pack",
@@ -8170,35 +8142,6 @@
       "commandCount": 0,
       "installCommand": "/plugin install ga4-pack",
       "sourcePath": "./plugins/saas-packs/ga4-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "gamma-pack",
-      "name": "gamma-pack",
-      "displayName": "gamma pack",
-      "description": "Complete Gamma integration skill pack with 24 skills covering AI presentations, document generation, templates, and visual content creation. Flagship tier vendor pack.",
-      "version": "1.13.0",
-      "category": "saas-packs",
-      "keywords": [
-        "gamma",
-        "presentations",
-        "documents",
-        "ai-generation",
-        "templates",
-        "slides",
-        "visual-content"
-      ],
-      "hasSkills": true,
-      "skillCount": 24,
-      "commandCount": 0,
-      "installCommand": "/plugin install gamma-pack",
-      "sourcePath": "./plugins/saas-packs/gamma-pack",
       "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",
@@ -8923,32 +8866,6 @@
       "type": "instruction-plugin"
     },
     {
-      "slug": "anthropic-pack",
-      "name": "anthropic-pack",
-      "displayName": "anthropic pack",
-      "description": "Claude Code skill pack for Anthropic (30 skills)",
-      "version": "1.7.0",
-      "category": "saas-packs",
-      "keywords": [
-        "anthropic",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "hasSkills": true,
-      "skillCount": 30,
-      "commandCount": 0,
-      "installCommand": "/plugin install anthropic-pack",
-      "sourcePath": "./plugins/saas-packs/anthropic-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
       "slug": "apify-pack",
       "name": "apify-pack",
       "displayName": "apify pack",
@@ -8966,33 +8883,6 @@
       "commandCount": 0,
       "installCommand": "/plugin install apify-pack",
       "sourcePath": "./plugins/saas-packs/apify-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "apple-notes-pack",
-      "name": "apple-notes-pack",
-      "displayName": "apple notes pack",
-      "description": "Claude Code skill pack for Apple Notes (24 skills)",
-      "version": "1.6.0",
-      "category": "saas-packs",
-      "keywords": [
-        "apple-notes",
-        "apple notes",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "hasSkills": true,
-      "skillCount": 24,
-      "commandCount": 0,
-      "installCommand": "/plugin install apple-notes-pack",
-      "sourcePath": "./plugins/saas-packs/apple-notes-pack",
       "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",
@@ -9473,58 +9363,6 @@
       "commandCount": 0,
       "installCommand": "/plugin install fondo-pack",
       "sourcePath": "./plugins/saas-packs/fondo-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "framer-pack",
-      "name": "framer-pack",
-      "displayName": "framer pack",
-      "description": "Claude Code skill pack for Framer (18 skills)",
-      "version": "1.5.0",
-      "category": "saas-packs",
-      "keywords": [
-        "framer",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "hasSkills": true,
-      "skillCount": 18,
-      "commandCount": 0,
-      "installCommand": "/plugin install framer-pack",
-      "sourcePath": "./plugins/saas-packs/framer-pack",
-      "isFeatured": false,
-      "author": {
-        "name": "Jeremy Longshore",
-        "email": "jeremy@intentsolutions.io",
-        "url": "https://github.com/jeremylongshore"
-      },
-      "type": "instruction-plugin"
-    },
-    {
-      "slug": "glean-pack",
-      "name": "glean-pack",
-      "displayName": "glean pack",
-      "description": "Claude Code skill pack for Glean (24 skills)",
-      "version": "1.8.0",
-      "category": "saas-packs",
-      "keywords": [
-        "glean",
-        "saas",
-        "sdk",
-        "integration"
-      ],
-      "hasSkills": true,
-      "skillCount": 24,
-      "commandCount": 0,
-      "installCommand": "/plugin install glean-pack",
-      "sourcePath": "./plugins/saas-packs/glean-pack",
       "isFeatured": false,
       "author": {
         "name": "Jeremy Longshore",

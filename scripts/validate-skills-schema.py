@@ -4599,7 +4599,7 @@ def validate_skill(path: Path, tier: str = TIER_STANDARD) -> Dict[str, Any]:
 # === MARKETPLACE COMPLIANCE BASELINE =========================================
 
 
-def baseline_finding_triple(artifact_path: str, error: str) -> Tuple[str, str, str]:
+def baseline_finding_triple(artifact_path: str, error: str, *, identity_version: int = 1) -> Tuple[str, str, str]:
     """Return a stable ``(path, rule_id, field)`` identity for one validator
     error.
 
@@ -4609,7 +4609,15 @@ def baseline_finding_triple(artifact_path: str, error: str) -> Tuple[str, str, s
     receive readable IDs; every other shape gets a deterministic ID based on
     the normalized validator message, so an unrecognized new error can never
     silently alias an old one.
+
+    The legacy version-1 section-name collision is retained only for the pinned
+    baseline. Version 2 preserves complete quoted labels; activating it in the
+    emitter requires the separately reviewed baseline migration.
     """
+    # Version 1 remains pinned until an owner-authorized baseline migration.
+    # Version 2 is explicit: changing the default would reinterpret accepted debt.
+    if type(identity_version) is not int or identity_version not in (1, 2):
+        raise ValueError("unsupported baseline finding identity version")
     scoped = re.match(r"^\[([^\]]+)\]\s*(.*)$", error)
     scope = scoped.group(1) if scoped else "validator"
     detail = scoped.group(2) if scoped else error
@@ -4624,6 +4632,11 @@ def baseline_finding_triple(artifact_path: str, error: str) -> Tuple[str, str, s
         rule_id = "E-MISSING-REQUIRED-FIELD"
     elif "Required section missing:" in detail:
         rule_id = "E-MISSING-REQUIRED-SECTION"
+        if identity_version == 2:
+            section = re.match(r"^Required section missing:\s*'([^']+)'", detail)
+            if section is None or not section.group(1).strip() or section.group(1).strip() == "##":
+                raise ValueError("required-section diagnostic lacks a complete quoted section identity")
+            field = section.group(1).strip()
     elif "Invalid field" in detail:
         rule_id = "E-INVALID-FIELD"
     elif "shell substitution" in detail.lower():
@@ -4647,8 +4660,16 @@ def marketplace_baseline_payload(
     agent_files: int,
     grade_a_plus_b: int,
     repo_root: Path,
+    *,
+    finding_identity_version: int = 1,
 ) -> Dict[str, Any]:
     """Build the shrink-only baseline schema from a full validator run."""
+    if type(finding_identity_version) is not int or finding_identity_version not in (1, 2):
+        raise ValueError("unsupported baseline finding identity version")
+    if finding_identity_version == 2 and any(
+        rule == "E-MISSING-REQUIRED-SECTION" and field.strip() in ("", "##") for _, rule, field in findings
+    ):
+        raise ValueError("version 2 cannot label collapsed required-section identities")
     triples = sorted(set(findings))
     entries = [f"{path} :: {rule_id} :: {field}" for path, rule_id, field in triples]
     try:
@@ -4657,7 +4678,7 @@ def marketplace_baseline_payload(
     except Exception:
         sha = "unknown"
     run_id = os.environ.get("GITHUB_RUN_ID")
-    return {
+    payload = {
         "$comment": (
             "Shrink-only. Entries may ONLY be REMOVED. Regenerate ONLY via --emit-baseline "
             "in the owner-dispatched CI capture whose immutable artifact is verified by required CI."
@@ -4683,6 +4704,10 @@ def marketplace_baseline_payload(
         "rule_inventory": sorted(DECLARED_MARKETPLACE_RULE_INVENTORY | {rule_id for _path, rule_id, _field in triples}),
         "entries": entries,
     }
+    if finding_identity_version == 2:
+        payload["finding_identity_version"] = 2
+        payload["totals"]["raw_error_occurrences"] = len(findings)
+    return payload
 
 
 def validate_plugin(plugin_dir: Path, tier: str = TIER_STANDARD, strict: bool = False) -> Dict[str, Any]:
@@ -5664,6 +5689,17 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--baseline-identity-version",
+        type=int,
+        choices=(1, 2),
+        default=None,
+        help=(
+            "Finding identity contract for --emit-baseline only (default: legacy version 1). "
+            "Version 2 preserves complete required-section labels; changing pinned debt "
+            "still requires the owner-authorized migration transaction."
+        ),
+    )
+    parser.add_argument(
         "--populate-db",
         type=str,
         default=None,
@@ -5716,6 +5752,10 @@ def main() -> int:
     repo_root = args.repo_root.resolve()
     verbose = args.verbose
     machine_output = args.json or args.emit_baseline
+    if args.baseline_identity_version is not None and not args.emit_baseline:
+        print("ERROR: --baseline-identity-version requires --emit-baseline", file=sys.stderr)
+        return 1
+    baseline_identity_version = args.baseline_identity_version or 1
 
     # Kernel shadow (DR-049, advisory): the comparison block is always embedded
     # in --json output; the human-readable startup print is opt-in via
@@ -6049,6 +6089,7 @@ def main() -> int:
                 agent_files=0,
                 grade_a_plus_b=0,
                 repo_root=repo_root,
+                finding_identity_version=baseline_identity_version,
             )
             print(json_module.dumps(baseline, indent=2, sort_keys=True))
             return 0
@@ -6103,7 +6144,11 @@ def main() -> int:
                 }
             )
             if args.emit_baseline:
-                baseline_findings.append(baseline_finding_triple(str(rel), f"[fatal] {result['fatal']}"))
+                baseline_findings.append(
+                    baseline_finding_triple(
+                        str(rel), f"[fatal] {result['fatal']}", identity_version=baseline_identity_version
+                    )
+                )
             continue
 
         has_issues = False
@@ -6149,7 +6194,10 @@ def main() -> int:
             files_with_errors.append(str(rel))
             has_issues = True
             if args.emit_baseline:
-                baseline_findings.extend(baseline_finding_triple(str(rel), error) for error in result["errors"])
+                baseline_findings.extend(
+                    baseline_finding_triple(str(rel), error, identity_version=baseline_identity_version)
+                    for error in result["errors"]
+                )
 
         if result["warnings"]:
             if not machine_output:
@@ -6194,7 +6242,11 @@ def main() -> int:
             total_errors += 1
             files_with_errors.append(str(rel))
             if args.emit_baseline:
-                baseline_findings.append(baseline_finding_triple(str(rel), f"[fatal] {result['fatal']}"))
+                baseline_findings.append(
+                    baseline_finding_triple(
+                        str(rel), f"[fatal] {result['fatal']}", identity_version=baseline_identity_version
+                    )
+                )
             continue
 
         if result["errors"]:
@@ -6205,7 +6257,10 @@ def main() -> int:
             total_errors += len(result["errors"])
             files_with_errors.append(str(rel))
             if args.emit_baseline:
-                baseline_findings.extend(baseline_finding_triple(str(rel), error) for error in result["errors"])
+                baseline_findings.extend(
+                    baseline_finding_triple(str(rel), error, identity_version=baseline_identity_version)
+                    for error in result["errors"]
+                )
         elif result["warnings"]:
             if not machine_output:
                 print(f"⚠️  {rel} (command):")
@@ -6231,7 +6286,11 @@ def main() -> int:
             files_with_errors.append(str(rel))
             json_agent_results.append({"path": str(agent), "errors": 1, "warnings": 0})
             if args.emit_baseline:
-                baseline_findings.append(baseline_finding_triple(str(rel), f"[fatal] {result['fatal']}"))
+                baseline_findings.append(
+                    baseline_finding_triple(
+                        str(rel), f"[fatal] {result['fatal']}", identity_version=baseline_identity_version
+                    )
+                )
             continue
 
         err_count = len(result["errors"])
@@ -6246,7 +6305,10 @@ def main() -> int:
             total_errors += len(result["errors"])
             files_with_errors.append(str(rel))
             if args.emit_baseline:
-                baseline_findings.extend(baseline_finding_triple(str(rel), error) for error in result["errors"])
+                baseline_findings.extend(
+                    baseline_finding_triple(str(rel), error, identity_version=baseline_identity_version)
+                    for error in result["errors"]
+                )
         elif result["warnings"]:
             if not machine_output:
                 print(f"⚠️  {rel} (agent):")
@@ -6275,7 +6337,10 @@ def main() -> int:
             total_errors += len(result["errors"])
             files_with_errors.append(str(rel))
             if args.emit_baseline:
-                baseline_findings.extend(baseline_finding_triple(str(rel), error) for error in result["errors"])
+                baseline_findings.extend(
+                    baseline_finding_triple(str(rel), error, identity_version=baseline_identity_version)
+                    for error in result["errors"]
+                )
         elif result["warnings"]:
             if not machine_output:
                 print(f"⚠️  {rel} (plugin.json):")
@@ -6297,6 +6362,7 @@ def main() -> int:
             agent_files=len(agents),
             grade_a_plus_b=grade_counts["A"] + grade_counts["B"],
             repo_root=repo_root,
+            finding_identity_version=baseline_identity_version,
         )
         print(json_module.dumps(baseline, indent=2, sort_keys=True))
         return 0

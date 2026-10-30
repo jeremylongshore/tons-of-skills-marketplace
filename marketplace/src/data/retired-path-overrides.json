@@ -78,6 +78,654 @@
     },
     "/skills/appfolio-webhooks-events": {
       "reason": "The AppFolio tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git a0ddd8e19bd74c2839fd1e29367b003f9d276354 if needed (claude-juoz.3.11.52)."
+    },
+    "/plugins/clay-pack": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/learn/clay": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-advanced-troubleshooting": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-architecture-variants": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-ci-integration": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-common-errors": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-core-workflow-a": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-core-workflow-b": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-cost-tuning": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-data-handling": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-debug-bundle": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-deploy-integration": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-enterprise-rbac": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-hello-world": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-incident-runbook": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-install-auth": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-known-pitfalls": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-load-scale": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-local-dev-loop": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-migration-deep-dive": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-multi-env-setup": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-observability": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-performance-tuning": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-policy-guardrails": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-prod-checklist": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-rate-limits": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-reference-architecture": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-reliability-patterns": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-sdk-patterns": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-security-basics": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-upgrade-migration": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/skills/clay-webhooks-events": {
+      "reason": "The Clay tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 7409ebbfdb302045c4f7d523d834e74209ed0fef if needed (claude-juoz.3.11.53)."
+    },
+    "/plugins/glean-pack": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/learn/glean": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-advanced-troubleshooting": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-ci-integration": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-common-errors": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-core-feature": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-core-workflow-a": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-core-workflow-b": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-cost-tuning": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-data-handling": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-debug-bundle": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-deploy-integration": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-deploy-pipeline": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-enterprise-rbac": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-hello-world": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-incident-runbook": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-install-auth": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-known-pitfalls": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-load-scale": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-local-dev-loop": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-migration-deep-dive": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-multi-env-setup": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-observability": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-performance-tuning": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-primary-workflow": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-prod-checklist": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-rate-limits": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-reference-architecture": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-reliability-patterns": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-sdk-patterns": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-security-basics": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-upgrade-migration": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/skills/glean-webhooks-events": {
+      "reason": "The Glean tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git a5c96e2771d9f64fe8867cac86fe863cac018a6d if needed (claude-juoz.3.11.54)."
+    },
+    "/learn/gamma": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/plugins/gamma-pack": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-advanced-troubleshooting": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-ci-integration": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-common-errors": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-core-feature": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-core-workflow-a": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-core-workflow-b": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-cost-tuning": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-data-handling": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-debug-bundle": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-deploy-integration": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-deploy-pipeline": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-enterprise-rbac": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-hello-world": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-incident-runbook": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-install-auth": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-known-pitfalls": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-load-scale": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-local-dev-loop": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-migration-deep-dive": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-multi-env-setup": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-observability": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-performance-tuning": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-primary-workflow": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-prod-checklist": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-rate-limits": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-reference-architecture": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-reliability-patterns": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-sdk-patterns": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-security-basics": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-upgrade-migration": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/skills/gamma-webhooks-events": {
+      "reason": "The Gamma tutorial pack was retired after source and value review without a maintained replacement. Keep 404; restore historical source from Git 1a55bc6251c5de1f10a3078d77072a432adfff7a if needed (claude-juoz.3.11.55)."
+    },
+    "/plugins/apple-notes-pack": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/learn/apple-notes": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-advanced-troubleshooting": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-ci-integration": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-common-errors": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-core-feature": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-core-workflow-a": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-core-workflow-b": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-cost-tuning": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-data-handling": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-debug-bundle": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-deploy-integration": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-deploy-pipeline": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-enterprise-rbac": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-hello-world": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-incident-runbook": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-install-auth": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-known-pitfalls": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-load-scale": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-local-dev-loop": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-migration-deep-dive": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-multi-env-setup": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-observability": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-performance-tuning": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-primary-workflow": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-prod-checklist": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-rate-limits": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-reference-architecture": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-reliability-patterns": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-sdk-patterns": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-security-basics": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-upgrade-migration": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/skills/apple-notes-webhooks-events": {
+      "reason": "The unsupported Apple Notes tutorial pack was retired without a verified replacement. Keep 404; restore historical source from Git ac45dee05e8c08854a4864142dd1f4d0834886fa if needed (claude-juoz.3.11.56)."
+    },
+    "/plugins/framer-pack": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/learn/framer": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-ci-integration": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-common-errors": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-core-feature": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-core-workflow-a": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-core-workflow-b": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-cost-tuning": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-debug-bundle": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-deploy-integration": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-deploy-pipeline": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-hello-world": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-install-auth": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-local-dev-loop": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-performance-tuning": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-primary-workflow": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-prod-checklist": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-rate-limits": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-reference-architecture": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-sdk-patterns": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-security-basics": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-upgrade-migration": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/skills/framer-webhooks-events": {
+      "reason": "The Framer tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 572e8b1781a49ce89e6347bfea9faad541b0ebf3 if needed (claude-juoz.3.11.57)."
+    },
+    "/learn/anthropic": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/plugins/anthropic-pack": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-advanced-troubleshooting": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-architecture-variants": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-ci-integration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-common-errors": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-core-workflow-a": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-core-workflow-b": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-cost-tuning": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-data-handling": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-debug-bundle": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-deploy-integration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-enterprise-rbac": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-hello-world": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-incident-runbook": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-install-auth": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-known-pitfalls": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-load-scale": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-local-dev-loop": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-migration-deep-dive": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-multi-env-setup": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-observability": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-performance-tuning": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-policy-guardrails": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-prod-checklist": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-rate-limits": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-reference-architecture": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-reliability-patterns": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-sdk-patterns": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-security-basics": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-upgrade-migration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anth-webhooks-events": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-advanced-troubleshooting": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-architecture-variants": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-ci-integration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-common-errors": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-core-feature": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-cost-tuning": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-data-handling": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-debug-bundle": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-deploy-pipeline": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-enterprise-rbac": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-hello-world": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-incident-runbook": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-install-auth": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-known-pitfalls": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-load-scale": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-local-dev-loop": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-migration-deep-dive": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-multi-env-setup": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-observability": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-performance-tuning": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-policy-guardrails": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-primary-workflow": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-prod-checklist": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-rate-limits": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-reference-architecture": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-reliability-patterns": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-sdk-patterns": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-security-basics": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-upgrade-migration": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
+    },
+    "/skills/anthropic-webhooks-events": {
+      "reason": "The Anthropic tutorial pack was retired after source and value review with no automatic replacement in this marketplace. Keep 404; restore historical source from Git 95d9c91736284c2209fed3af74f3f82d9f534b9f if needed (claude-juoz.3.11.58)."
     }
   }
 }

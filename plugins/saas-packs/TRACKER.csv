@@ -8,7 +8,7 @@ klingai,Kling AI,flagship+,30,@intentsolutionsio/klingai-skill-md-pack,published
 retellai,Retell AI,flagship+,30,@intentsolutionsio/retellai-skill-md-pack,published,ccpi-retellai,30,30,complete,added,Brex #4 - website added 2026-01-06
 windsurf,Windsurf,flagship+,30,@intentsolutionsio/windsurf-skill-md-pack,published,ccpi-windsurf,30,30,complete,added,Brex #6 - website added 2026-01-06
 firecrawl,FireCrawl,flagship+,30,@intentsolutionsio/firecrawl-skill-md-pack,published,ccpi-firecrawl,30,30,complete,added,Brex #7 - website added 2026-01-06
-clay,Clay,flagship+,30,@intentsolutionsio/clay-skill-md-pack,published,ccpi-clay,30,30,complete,added,Brex #8 - website added 2026-01-06
+clay,Clay,retired,0,@intentsolutionsio/clay-skill-md-pack,retired,ccpi-clay,30,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.53); registry disposition tracked in bead
 exa,Exa,flagship+,30,@intentsolutionsio/exa-skill-md-pack,published,ccpi-exa,30,30,complete,added,Brex #10 - website added 2026-01-06
 vastai,Vast.ai,flagship,24,@intentsolutionsio/vastai-skill-md-pack,published,ccpi-vastai,24,24,complete,added,Brex #11 - website added 2026-01-06
 groq,Groq,flagship,24,@intentsolutionsio/groq-skill-md-pack,published,ccpi-groq,24,24,complete,added,Brex #12 - website added 2026-01-06
@@ -24,14 +24,14 @@ customerio,Customer.io,flagship,24,@intentsolutionsio/customerio-skill-md-pack,r
 langchain,LangChain,flagship,24,@intentsolutionsio/langchain-skill-md-pack,reserved,ccpi-langchain,24,24,complete,added,Brex #22 - website added 2026-01-06
 lindy,Lindy,flagship,24,@intentsolutionsio/lindy-skill-md-pack,reserved,ccpi-lindy,24,24,complete,added,Brex #24 - website added 2026-01-06
 granola,Granola,flagship,24,@intentsolutionsio/granola-skill-md-pack,reserved,ccpi-granola,24,24,complete,added,Brex #25 - website added 2026-01-06
-gamma,Gamma,flagship,24,@intentsolutionsio/gamma-skill-md-pack,reserved,ccpi-gamma,24,24,complete,added,Brex #26 - website added 2026-01-06
+gamma,Gamma,retired,0,@intentsolutionsio/gamma-skill-md-pack,retired,ccpi-gamma,24,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.55); registry disposition tracked in bead
 clerk,Clerk,flagship,24,@intentsolutionsio/clerk-skill-md-pack,reserved,ccpi-clerk,24,24,complete,added,Brex #28 - website added 2026-01-06
 linear,Linear,flagship,24,@intentsolutionsio/linear-skill-md-pack,reserved,ccpi-linear,24,24,complete,added,Brex #29 - website added 2026-01-06
 clickhouse,ClickHouse,flagship,24,@intentsolutionsio/clickhouse-skill-md-pack,reserved,ccpi-clickhouse,24,0,not_started,not_added,Brex #30
 fondo,Fondo,pro,18,@intentsolutionsio/fondo-skill-md-pack,reserved,ccpi-fondo,18,0,not_started,not_added,Brex #31
 anima,Anima,pro,18,@intentsolutionsio/anima-skill-md-pack,reserved,ccpi-anima,18,0,not_started,not_added,Brex #32
 flyio,Fly.io,pro,18,@intentsolutionsio/flyio-skill-md-pack,reserved,ccpi-flyio,18,0,not_started,not_added,Brex #34
-framer,Framer,pro,18,@intentsolutionsio/framer-skill-md-pack,reserved,ccpi-framer,18,0,not_started,not_added,Brex #35
+framer,Framer,retired,0,@intentsolutionsio/framer-skill-md-pack,retired,ccpi-framer,18,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.57); registry disposition tracked in bead
 stackblitz,StackBlitz,pro,18,@intentsolutionsio/stackblitz-skill-md-pack,reserved,ccpi-stackblitz,18,0,not_started,not_added,Brex #36
 elevenlabs,ElevenLabs,pro,18,@intentsolutionsio/elevenlabs-skill-md-pack,reserved,ccpi-elevenlabs,18,0,not_started,not_added,Brex #37
 assemblyai,AssemblyAI,pro,18,@intentsolutionsio/assemblyai-skill-md-pack,reserved,ccpi-assemblyai,18,0,not_started,not_added,Brex #38
@@ -47,10 +47,10 @@ apify,Apify,pro,18,@intentsolutionsio/apify-skill-md-pack,reserved,ccpi-apify,18
 finta,Finta,pro,18,@intentsolutionsio/finta-skill-md-pack,reserved,ccpi-finta,18,0,not_started,not_added,Brex #48
 mistral,Mistral AI,pro,18,@intentsolutionsio/mistral-skill-md-pack,reserved,ccpi-mistral,18,0,not_started,not_added,Brex #49
 wispr,Wispr,pro,18,@intentsolutionsio/wispr-skill-md-pack,reserved,ccpi-wispr,18,0,not_started,not_added,Brex #50
-anthropic,Anthropic,flagship+,30,@intentsolutionsio/anthropic-skill-md-pack,reserved,ccpi-anthropic,30,0,not_started,not_added,Extended #51 - Claude maker
+anthropic,Anthropic,retired,0,@intentsolutionsio/anthropic-skill-md-pack,retired,ccpi-anthropic,30,0,retired,removed,Retired tutorial pack after source and value review (claude-juoz.3.11.58); registry disposition tracked in bead
 databricks,Databricks,flagship+,30,@intentsolutionsio/databricks-skill-md-pack,reserved,ccpi-databricks,30,0,not_started,not_added,Extended #52
 coreweave,CoreWeave,flagship,23,@intentsolutionsio/coreweave-skill-md-pack,reserved,ccpi-coreweave,23,0,not_started,not_added,Extended #53; pruned 4 filler skills + added CoreWeave non-affiliation notice (v1.1.0); added coreweave-gpu-cost-leak-hunter heavy-hitter v2 pilot (v1.2.0); added coreweave-gpu-node-forensics heavy-hitter #2 (v1.3.0); added coreweave-fabric-diagnostics GPUDirect-RDMA fallback detector (v1.4.0)
-glean,Glean,flagship,24,@intentsolutionsio/glean-skill-md-pack,reserved,ccpi-glean,24,0,not_started,not_added,Extended #54
+glean,Glean,retired,0,@intentsolutionsio/glean-skill-md-pack,retired,ccpi-glean,24,0,retired,removed,Retired unsafe tutorial pack after source and value review (claude-juoz.3.11.54); registry disposition tracked in bead
 cohere,Cohere,flagship,24,@intentsolutionsio/cohere-skill-md-pack,reserved,ccpi-cohere,24,0,not_started,not_added,Extended #55
 abridge,Abridge,pro,18,@intentsolutionsio/abridge-skill-md-pack,reserved,ccpi-abridge,18,0,not_started,not_added,Extended #56
 notion,Notion,flagship+,30,@intentsolutionsio/notion-skill-md-pack,reserved,ccpi-notion,30,0,not_started,not_added,Extended #57 - top note-taking app
@@ -99,6 +99,6 @@ speak,Speak,pro,18,@intentsolutionsio/speak-skill-md-pack,reserved,ccpi-speak,18
 openevidence,OpenEvidence,pro,18,@intentsolutionsio/openevidence-skill-md-pack,reserved,ccpi-openevidence,18,0,not_started,not_added,Extended #100
 documenso,Documenso,pro,18,@intentsolutionsio/documenso-skill-md-pack,reserved,ccpi-documenso,18,0,not_started,not_added,open-source document signing - DocuSign alternative
 evernote,Evernote,flagship,24,@intentsolutionsio/evernote-skill-md-pack,reserved,ccpi-evernote,24,0,not_started,not_added,note-taking - 15.9% market share
-apple-notes,Apple Notes,flagship,24,@intentsolutionsio/apple-notes-skill-md-pack,reserved,ccpi-apple-notes,24,0,not_started,not_added,note-taking - 15.5% market share
+apple-notes,Apple Notes,retired,0,@intentsolutionsio/apple-notes-skill-md-pack,retired,ccpi-apple-notes,24,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.56); registry disposition tracked in bead
 obsidian,Obsidian,pro,18,@intentsolutionsio/obsidian-skill-md-pack,reserved,ccpi-obsidian,18,0,not_started,not_added,note-taking - 8.7% market share
 onenote,OneNote,pro,18,@intentsolutionsio/onenote-skill-md-pack,reserved,ccpi-onenote,18,0,not_started,not_added,note-taking - 7.9% market share

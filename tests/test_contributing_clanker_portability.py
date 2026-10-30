@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import os
 from pathlib import Path
@@ -13,6 +14,7 @@ import time
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -298,6 +300,20 @@ class HermeticContributingShellTests(unittest.TestCase):
             if process.stdin:
                 process.stdin.close()
         return process.returncode, *(bytes(value).decode(errors="replace") for value in output)
+
+    def assert_descendant_stopped(self, identity):
+        stat = Path(f"/proc/{identity['pid']}/stat")
+        stop = time.monotonic() + 3
+        while stat.exists():
+            try:
+                fields = stat.read_text().rsplit(")", 1)[1].split()
+            except (FileNotFoundError, ProcessLookupError):
+                break
+            if fields[19] != identity["start"] or fields[0] in ("Z", "X"):
+                break  # Nonlive orphan zombie is not claimed to be reaped here.
+            if time.monotonic() >= stop:
+                self.fail("owned helper descendant remains live")
+            time.sleep(0.01)
 
     def install_gh_stub(self):
         # Literal policy inventory, not a permissive /contents/* endpoint wildcard.
@@ -631,18 +647,52 @@ sys.exit(code)
                     self.run_child(["/usr/bin/python3", str(helper)], timeout=2)
                 self.assertTrue(marker.is_file(), "descendant must actually start")
                 identity = json.loads(marker.read_text())
-                stat = Path(f"/proc/{identity['pid']}/stat")
-                stop = time.monotonic() + 3
-                while stat.exists():
-                    try:
-                        fields = stat.read_text().rsplit(")", 1)[1].split()
-                    except FileNotFoundError:
-                        break
-                    if fields[19] != identity["start"] or fields[0] in ("Z", "X"):
-                        break  # Nonlive orphan zombie is not claimed to be reaped here.
-                    if time.monotonic() >= stop:
-                        self.fail("owned helper descendant remains live")
-                    time.sleep(0.01)
+                self.assert_descendant_stopped(identity)
+
+    def test_cleanup_observation_accepts_process_exit_during_read(self):
+        identity = {"pid": 12345, "start": "42"}
+        for error in (FileNotFoundError(errno.ENOENT, "gone"), ProcessLookupError(errno.ESRCH, "exited")):
+            with self.subTest(error=type(error).__name__):
+                # Reproduce disappearance after exists(), including ESRCH
+                # from an already-open procfs file. No real PID is accessed.
+                with mock.patch.object(Path, "exists", return_value=True):
+                    with mock.patch.object(Path, "read_text", side_effect=error):
+                        self.assert_descendant_stopped(identity)
+
+    def test_cleanup_observation_does_not_swallow_unrelated_io_errors(self):
+        identity = {"pid": 12345, "start": "42"}
+        for error in (PermissionError(errno.EACCES, "denied"), OSError(errno.EIO, "read failed")):
+            with self.subTest(error=type(error).__name__):
+                with mock.patch.object(Path, "exists", return_value=True):
+                    with mock.patch.object(Path, "read_text", side_effect=error):
+                        with self.assertRaises(type(error)):
+                            self.assert_descendant_stopped(identity)
+
+    def test_cleanup_observation_refuses_live_same_identity(self):
+        identity = {"pid": 12345, "start": "42"}
+        fields = ["R"] + ["0"] * 18 + [identity["start"]]
+        stat = "12345 (owned fixture) " + " ".join(fields)
+        with mock.patch.object(Path, "exists", return_value=True):
+            with mock.patch.object(Path, "read_text", return_value=stat):
+                with mock.patch.object(time, "monotonic", side_effect=[0, 4]):
+                    with self.assertRaisesRegex(AssertionError, "descendant remains live"):
+                        self.assert_descendant_stopped(identity)
+
+    def test_cleanup_observation_accepts_reused_or_nonlive_identity(self):
+        identity = {"pid": 12345, "start": "42"}
+        for state, start in (("R", "43"), ("Z", "42"), ("X", "42")):
+            with self.subTest(state=state, start=start):
+                fields = [state] + ["0"] * 18 + [start]
+                stat = "12345 (owned fixture) " + " ".join(fields)
+                with mock.patch.object(Path, "exists", return_value=True):
+                    with mock.patch.object(Path, "read_text", return_value=stat):
+                        self.assert_descendant_stopped(identity)
+
+    def test_cleanup_observation_accepts_already_absent_process(self):
+        with mock.patch.object(Path, "exists", return_value=False):
+            with mock.patch.object(Path, "read_text") as read:
+                self.assert_descendant_stopped({"pid": 12345, "start": "42"})
+        read.assert_not_called()
 
 
 if __name__ == "__main__":

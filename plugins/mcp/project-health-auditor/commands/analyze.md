@@ -16,6 +16,13 @@ When the user requests a repository health analysis, follow this systematic appr
 4. **Map Test Coverage**: Use `map_tests` to find files missing tests
 5. **Generate Report**: Combine all metrics into actionable recommendations
 
+For `list_repo_files` and `map_tests`, collect every page: keep repository and
+filters fixed, advance `offset` by `showing`, and continue while `hasMore` is true.
+The default and maximum page size is 100. Inventory arrays/maps contain only the
+current page; summaries describe the complete unpaginated scan under the tool
+discovery rules and active filters. Test mapping is based on
+filenames, so report its ratio separately from measured coverage and test results.
+
 ## Analysis Workflow
 
 ### Step 1: File Discovery

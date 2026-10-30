@@ -219,7 +219,7 @@ needs are different so we treat them as a separate persona.
 ## Persona 5 — Pack Subscriber ("Sam")
 
 **Role.** Engineer using one of the SaaS skill packs (`langchain-py-pack`,
-`clay-pack`, `apollo-pack`, etc.) at `plugins/saas-packs/<vendor>-pack/`.
+`databricks-pack`, `apollo-pack`, etc.) at `plugins/saas-packs/<vendor>-pack/`.
 They want a deeply curated set of skills for one vendor, not a single
 plugin. Maps to `marketplace/src/content/docs/guides/saas-skill-packs.md`.
 

@@ -49,6 +49,66 @@ class MarketplaceComplianceRatchetTests(unittest.TestCase):
             ["b/SKILL.md :: E-MISSING-REQUIRED-FIELD :: author"],
         )
 
+    def test_real_emitter_and_ratchet_cli_detect_a_different_missing_section(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skill = root / "plugins/example/skills/example/SKILL.md"
+            skill.parent.mkdir(parents=True)
+            sections = (
+                "## Overview",
+                "## Prerequisites",
+                "## Instructions",
+                "## Output",
+                "## Error Handling",
+                "## Examples",
+                "## Resources",
+            )
+
+            def write_skill(missing):
+                skill.write_text(
+                    "---\nname: example\ndescription: An isolated section identity fixture.\n---\n# Example\n\n"
+                    + "\n\n".join(
+                        section + "\n\nInspect the supplied input and record the observed result."
+                        for section in sections
+                        if section not in missing
+                    ),
+                    encoding="utf-8",
+                )
+
+            write_skill({"## Overview", "## Resources"})
+            legacy_before = self.ratchet.emit_current(root)
+            before = self.ratchet.emit_current(root, finding_identity_version=2)
+            self.assertEqual(before["finding_identity_version"], 2)
+            baseline = root / "baseline.json"
+            baseline.write_text(json.dumps(before), encoding="utf-8")
+
+            # Keep Overview missing and the number of missing sections constant.
+            # R1 must still detect Examples rather than aliasing it to Overview.
+            write_skill({"## Overview", "## Examples"})
+            legacy_after = self.ratchet.emit_current(root)
+            after = self.ratchet.emit_current(root, finding_identity_version=2)
+            self.assertEqual(self.ratchet.compare(legacy_before, legacy_after), [])
+            self.assertEqual(before["totals"]["errors"], after["totals"]["errors"])
+            expected = "plugins/example/skills/example/SKILL.md :: E-MISSING-REQUIRED-SECTION :: ## Examples"
+            self.assertEqual(self.ratchet.compare(before, after), [expected])
+
+            # The actual CLI must select v2 from pinned metadata, without a
+            # caller override, a supplied --current payload, or a mocked emitter.
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "--baseline", str(baseline), "--repo-root", str(root)],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn("new marketplace debt", result.stderr)
+            self.assertIn(expected, result.stderr)
+            self.assertNotIn("contract drift", result.stderr)
+
+    def test_emitter_refuses_unknown_pinned_identity_versions(self):
+        for version in (True, 0, 3, "2"):
+            with self.subTest(version=version), self.assertRaisesRegex(ValueError, "unsupported"):
+                self.ratchet.emit_current(ROOT, finding_identity_version=version)
+
     def test_malformed_entries_fail_closed(self):
         with self.assertRaises(ValueError):
             self.ratchet.compare({"entries": "not-a-list"}, {"entries": []})
@@ -67,6 +127,42 @@ class MarketplaceComplianceRatchetTests(unittest.TestCase):
         self.assertEqual(
             self.ratchet.metadata_drift(baseline, current),
             ["schema_version drift: baseline=4.1.0, live=4.2.0"],
+        )
+
+    def test_finding_identity_version_cannot_silently_change(self):
+        baseline = {"schema_version": "4.1.0", "rule_inventory": ["E-ONE"], "entries": []}
+        current = {**baseline, "finding_identity_version": 2}
+        self.assertEqual(
+            self.ratchet.metadata_drift(baseline, current),
+            ["finding_identity_version drift: baseline=1, live=2"],
+        )
+        self.assertTrue(self.ratchet.capture_required_reasons(baseline, current))
+        self.assertIn(
+            "owner-dispatched capture artifact",
+            self.ratchet.baseline_growth_error(
+                baseline,
+                current,
+                {self.ratchet.BASELINE_PATH},
+                "automation/compliance-baseline-123",
+            ),
+        )
+
+    def test_version_two_rejects_collapsed_or_unknown_identity_contracts(self):
+        baseline = {"schema_version": "4.1.0", "rule_inventory": ["E-ONE"], "entries": []}
+        for version in (True, 0, 3, "2"):
+            with self.subTest(version=version):
+                self.assertIn(
+                    "live has unsupported finding_identity_version",
+                    self.ratchet.metadata_drift(baseline, {**baseline, "finding_identity_version": version}),
+                )
+        collapsed = {
+            **baseline,
+            "finding_identity_version": 2,
+            "entries": ["a/SKILL.md :: E-MISSING-REQUIRED-SECTION :: ##"],
+        }
+        self.assertIn(
+            "live finding_identity_version=2 contains an unnamed required-section entry",
+            self.ratchet.metadata_drift(collapsed, collapsed),
         )
 
     def test_monotone_metrics_allow_equal_or_improved_values(self):

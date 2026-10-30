@@ -37,10 +37,21 @@ name: Emit signed evidence manifest
 on:
   push:
     branches: [main]
-  workflow_dispatch: # activation / re-emit without waiting for a push
+  workflow_dispatch:
+    inputs:
+      cosign_v3_trial:
+        description: 'Cosign v3.0.6 trial: public keyless signing, no release publication. Requires the owner-review environment.'
+        type: boolean
+        default: false
+        required: false
+      approved_source_sha:
+        description: 'For a v3 trial, the exact main SHA approved by the owner; mismatch fails before signing.'
+        type: string
+        default: ''
+        required: false
 
 concurrency:
-  group: emit-evidence
+  group: ${{ github.event_name == 'workflow_dispatch' && inputs.cosign_v3_trial && format('cosign-v3-trial-{0}', github.run_id) || 'emit-evidence' }}
   cancel-in-progress: true
 
 permissions: {} # default-deny; the job grants exactly what it needs
@@ -50,7 +61,7 @@ jobs:
     name: Emit signed gate-result evidence for the dashboard
     # Claims must pin refs/heads/main — a dispatch from any other ref would
     # produce an unverifiable manifest, so guard instead of emitting one.
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && !(github.event_name == 'workflow_dispatch' && inputs.cosign_v3_trial)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -61,6 +72,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
@@ -98,7 +111,11 @@ jobs:
         run: |
           set -euo pipefail
           for attempt in $(seq 1 30); do
-            gh api --paginate "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100" > /tmp/required-checks.json
+            if ! gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100" | node ci/emit-evidence/merge-check-pages.mjs > /tmp/required-checks.json; then
+              echo "::warning::Incomplete check-run report; retrying (attempt $attempt/30)"
+              sleep 20
+              continue
+            fi
             missing=$(jq -r '
               .check_runs as $runs |
               ["ci-required", "gitleaks", "skill-conform"] |
@@ -204,3 +221,201 @@ jobs:
           gh release upload evidence-latest build/evidence/report-manifest.json \
             --repo "${GITHUB_REPOSITORY}" --clobber
           echo "report-manifest.json published to the evidence-latest rolling prerelease"
+
+  approve-cosign-v3-trial:
+    name: Owner approval for exact Cosign v3 trial source
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.cosign_v3_trial
+    environment: cosign-v3-trial
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Validate the approved trial source before signing
+        env:
+          APPROVED_SHA: ${{ inputs.approved_source_sha }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$APPROVED_SHA" =~ ^[a-f0-9]{40}$ ]] || [ "$APPROVED_SHA" != "$SOURCE_SHA" ]; then
+            echo "::error::Trial requires the exact owner-approved main SHA; obtain fresh approval if main advanced."
+            exit 1
+          fi
+
+      - name: Checkout approval validator
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js for approval validation
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      - name: Require configured owner reviewer and this run's actual approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/environments/cosign-v3-trial" > /tmp/trial-environment.json
+          gh api "repos/${GITHUB_REPOSITORY}/environments/cosign-v3-trial/deployment-branch-policies" > /tmp/trial-branches.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/approvals" > /tmp/trial-approvals.json
+          node ci/emit-evidence/check-trial-approval.mjs /tmp/trial-environment.json /tmp/trial-branches.json /tmp/trial-approvals.json
+
+  cosign-v3-trial:
+    name: Cosign v3 compatibility trial (public signing, no release)
+    needs: approve-cosign-v3-trial
+    # Keep environment approval in the preceding job: the signing job must retain
+    # the production branch-ref OIDC subject, not an environment-scoped subject.
+    # Manual, explicit opt-in on main preserves the consumer's workflow identity.
+    # Preparing this lane does not authorize its Fulcio/Rekor/TSA operations.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.cosign_v3_trial
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      checks: read
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # Node >= 22.6 — the emit scripts run under --experimental-strip-types
+          # (TS without a build step), which Node 20 does NOT support.
+          node-version: 22
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        with:
+          # Trial only; both production signers remain on v2.5.2.
+          cosign-release: 'v3.0.6'
+
+      # Use the existing producer's committed standalone validator lockfile.
+      # Actual reports-hub compatibility remains a separate acceptance step.
+      - name: Install kernel validators (standalone, frozen lockfile)
+        working-directory: ci/emit-evidence
+        run: pnpm install --frozen-lockfile --ignore-workspace
+
+      - name: Emit-evidence self-check (kernel-valid + canonical-stable)
+        run: node --experimental-strip-types ci/emit-evidence/emit-evidence.ts --self-check
+
+      - name: Await completed protected-branch contexts for this SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            if ! gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100" | node ci/emit-evidence/merge-check-pages.mjs > /tmp/required-checks.json; then
+              echo "::warning::Incomplete check-run report; retrying (attempt $attempt/30)"
+              sleep 20
+              continue
+            fi
+            missing=$(jq -r '
+              .check_runs as $runs |
+              ["ci-required", "gitleaks", "skill-conform"] |
+              map(. as $name | ($runs | map(select(.name == $name and .status == "completed")) | length) as $n | select($n != 1) | $name) |
+              join(",")
+            ' /tmp/required-checks.json)
+            if [ -z "$missing" ]; then
+              echo "all three required contexts completed"
+              exit 0
+            fi
+            echo "waiting for required contexts: $missing (attempt $attempt/30)"
+            sleep 20
+          done
+          echo "::error::required contexts did not complete for ${GITHUB_SHA}"
+          exit 1
+
+      # The waiter requires one completed run per named context. The producer
+      # validates the complete report, including duplicates and conclusions;
+      # see ci/emit-evidence/emit-evidence.ts and its required-context tests.
+      - name: Emit gate-result/v1 EvidenceBundle(s)
+        run: node --experimental-strip-types ci/emit-evidence/emit-evidence.ts --out build/evidence --ref "${GITHUB_REF}" --workflow-ref "${GITHUB_WORKFLOW_REF}" --required-checks-report /tmp/required-checks.json
+
+      - name: Sign each EvidenceBundle (cosign keyless -> production Rekor)
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          signed=0
+          for bundle in build/evidence/bundle-*.json; do
+            case "$bundle" in *.sigstore.json) continue;; esac
+            sig="${bundle%.json}.sigstore.json"
+            echo "::group::cosign sign-blob $bundle"
+            cosign sign-blob --yes --new-bundle-format --bundle "$sig" "$bundle"
+            echo "::endgroup::"
+            signed=$((signed + 1))
+          done
+          if [ "$signed" -eq 0 ]; then
+            echo "::error::no EvidenceBundles were produced to sign"
+            exit 1
+          fi
+          echo "signed $signed bundle(s)"
+
+      # Verify each signature back, in-repo, before publishing — a signature
+      # nobody in the producing pipeline checks is not a verified chain. The
+      # pinned identity uses the existing producer-side workflow expression.
+      # This does not establish actual reports-hub acceptance.
+      - name: Verify each EvidenceBundle signature (cosign verify-blob; fail-closed)
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          cert_identity="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/emit-evidence.yml@${GITHUB_REF}"
+          cert_issuer="https://token.actions.githubusercontent.com"
+          echo "verifying against identity: ${cert_identity}"
+          verified=0
+          for bundle in build/evidence/bundle-*.json; do
+            case "$bundle" in *.sigstore.json) continue;; esac
+            sig="${bundle%.json}.sigstore.json"
+            if [ ! -s "$sig" ]; then
+              echo "::error::expected signature ${sig} for ${bundle} but it is missing/empty"
+              exit 1
+            fi
+            echo "::group::cosign verify-blob $bundle"
+            cosign verify-blob \
+              --new-bundle-format \
+              --bundle "$sig" \
+              --certificate-identity "$cert_identity" \
+              --certificate-oidc-issuer "$cert_issuer" \
+              "$bundle"
+            echo "::endgroup::"
+            verified=$((verified + 1))
+          done
+          if [ "$verified" -eq 0 ]; then
+            echo "::error::no signed EvidenceBundles were found to verify"
+            exit 1
+          fi
+          echo "verified $verified signed bundle(s) — emit->sign->verify chain closed in-repo"
+
+      - name: Assemble report-manifest.json (fail-closed on shape mismatch)
+        run: node --experimental-strip-types ci/emit-evidence/assemble-manifest.ts --dir build/evidence --out build/evidence/report-manifest.json
+
+      - name: Record trial provenance and installed Cosign version
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          cosign version > build/evidence/cosign-version.txt
+          jq -n --arg source_sha "$SOURCE_SHA" --arg workflow_ref "$WORKFLOW_REF" \
+            --arg run_id "$RUN_ID" --arg run_attempt "$RUN_ATTEMPT" \
+            '{schema_version:"cosign-v3-trial/v1",source_sha:$source_sha,workflow_ref:$workflow_ref,run_id:$run_id,run_attempt:$run_attempt,requested_cosign_release:"v3.0.6",producer_commands_completed:true,consumer_verification:"not_run",published:false}' \
+            > build/evidence/trial-receipt.json
+
+      - name: Retain trial bundle for the actual reports-hub verifier
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: cosign-v3-trial-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/evidence/
+          if-no-files-found: error
+          retention-days: 14

@@ -583,13 +583,9 @@ importers:
 
   plugins/saas-packs/anima-pack: {}
 
-  plugins/saas-packs/anthropic-pack: {}
-
   plugins/saas-packs/apify-pack: {}
 
   plugins/saas-packs/apollo-pack: {}
-
-  plugins/saas-packs/apple-notes-pack: {}
 
   plugins/saas-packs/assemblyai-pack: {}
 
@@ -606,8 +602,6 @@ importers:
   plugins/saas-packs/clari-pack: {}
 
   plugins/saas-packs/claude-pack: {}
-
-  plugins/saas-packs/clay-pack: {}
 
   plugins/saas-packs/clerk-pack: {}
 
@@ -653,13 +647,7 @@ importers:
 
   plugins/saas-packs/fondo-pack: {}
 
-  plugins/saas-packs/framer-pack: {}
-
   plugins/saas-packs/ga4-pack: {}
-
-  plugins/saas-packs/gamma-pack: {}
-
-  plugins/saas-packs/glean-pack: {}
 
   plugins/saas-packs/grammarly-pack: {}
 

@@ -1100,7 +1100,7 @@ test('live vendor-pack counts have two explicit shared contracts and no path def
   equal(report.findings.length, 0);
 });
 
-test('all 28 vendor routes select their own canonical data and consume the shared count template', () => {
+test('all 26 vendor routes select their own canonical data and consume the shared count template', () => {
   const { repositoryRoot, registry } = liveVendorPackSources();
   const dataPath = path.join(repositoryRoot, 'marketplace/src/data/vendor-packs.json');
   const { vendors } = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
@@ -1113,7 +1113,7 @@ test('all 28 vendor routes select their own canonical data and consume the share
     )
     .map((entry) => entry.name)
     .sort();
-  equal(routeIds.length, 28);
+  equal(routeIds.length, 26);
   equal(new Set(vendors.map((vendor) => vendor.id)).size, vendors.length);
   deepEqual(routeIds, vendors.map((vendor) => vendor.id).sort());
 

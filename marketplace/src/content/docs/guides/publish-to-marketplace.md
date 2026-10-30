@@ -77,7 +77,7 @@ Regenerate derived surfaces with their canonical producers:
 pnpm run sync-marketplace
 ```
 
-Do not hand-edit `marketplace.json`, generated plugin packages, the README catalog block, or site/search projections. Skill-content changes require the canonical verification and affected projection workflow; sync alone does not cover every output. Freshie's inventory, history, and promotion pipeline are governed evidence operations, not an optional arbitrary database write each contributor should run. See [Freshie's documentation](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/main/freshie/README.md).
+Do not hand-edit `marketplace.json`, generated plugin packages, the README catalog block, or site/search projections. Skill-content changes require the canonical verification and affected projection workflow; sync alone does not cover every output. Freshie's inventory, history, and promotion pipeline are governed evidence operations, not an optional arbitrary database write each contributor should run. See [Freshie's storage architecture](/docs/concepts/freshie-architecture/) and its [operational documentation](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/main/freshie/README.md).
 
 ## Submit a reviewable change
 
