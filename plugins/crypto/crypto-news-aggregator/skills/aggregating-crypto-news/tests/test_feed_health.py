@@ -38,6 +38,7 @@ def response(content, status=200):
     result.url = "https://fixture.example/feed"
     result.encoding = "utf-8"
     result._content = content.encode()
+    result._content_consumed = True
     return result
 
 
@@ -59,12 +60,15 @@ class FeedHealthTests(unittest.TestCase):
         self.scratch = tempfile.TemporaryDirectory()
         self.addCleanup(self.scratch.cleanup)
         self.fetcher = FeedFetcher(cache_dir=self.scratch.name)
+        guard = patch("requests.sessions.Session.send", side_effect=AssertionError("Unexpected network transport"))
+        guard.start()
+        self.addCleanup(guard.stop)
 
     def test_partial_failure_and_disabled_receipts_preserve_configuration_order(self):
         def get(url, **kwargs):
             return response(rss()) if url == GOOD["url"] else response("missing", 404)
 
-        with patch("feed_fetcher.requests.get", side_effect=get) as network:
+        with patch("feed_fetcher.requests.Session.get", side_effect=get) as network:
             feeds = self.fetcher.fetch_all([BAD, GOOD, DISABLED])
         self.assertEqual(list(feeds), ["Good"])
         self.assertEqual([r["source"] for r in self.fetcher.diagnostics], ["Bad", "Good", "Disabled"])
@@ -74,33 +78,137 @@ class FeedHealthTests(unittest.TestCase):
 
     def test_timeout_and_tls_failures_remain_visible(self):
         for error, reason in [(requests.Timeout(), "Request timed out"), (requests.exceptions.SSLError(), "SSLError")]:
-            with self.subTest(error=type(error).__name__), patch("feed_fetcher.requests.get", side_effect=error):
+            with (
+                self.subTest(error=type(error).__name__),
+                patch("feed_fetcher.requests.Session.get", side_effect=error),
+            ):
                 self.assertEqual(self.fetcher.fetch_all([GOOD]), {})
                 self.assertEqual(self.fetcher.diagnostics[0]["reason"], reason)
 
     def test_html_200_is_not_cached_as_a_feed(self):
-        with patch("feed_fetcher.requests.get", return_value=response("<html>Access denied</html>")):
+        with patch("feed_fetcher.requests.Session.get", return_value=response("<html>Access denied</html>")):
             self.assertEqual(self.fetcher.fetch_all([GOOD]), {})
         self.assertFalse(self.fetcher._get_cache_path(GOOD["url"]).exists())
         self.assertEqual(self.fetcher.diagnostics[0]["status"], "failed")
 
     def test_valid_empty_feed_is_not_a_fetch_failure(self):
-        with patch("feed_fetcher.requests.get", return_value=response(rss(False))):
+        with patch("feed_fetcher.requests.Session.get", return_value=response(rss(False))):
             self.assertIn("Good", self.fetcher.fetch_all([GOOD]))
         self.assertEqual(self.fetcher.diagnostics[0]["status"], "ok")
 
     def test_valid_cache_has_explicit_cache_receipt(self):
         self.fetcher._set_cached(GOOD["url"], rss())
-        with patch("feed_fetcher.requests.get", side_effect=AssertionError("network should not run")):
+        with patch("feed_fetcher.requests.Session.get", side_effect=AssertionError("network should not run")):
             self.assertIn("Good", self.fetcher.fetch_all([GOOD]))
         self.assertTrue(self.fetcher.diagnostics[0]["cached"])
 
     def test_invalid_cached_html_is_replaced_by_valid_network_feed(self):
         self.fetcher._set_cached(GOOD["url"], "<html>not RSS</html>")
-        with patch("feed_fetcher.requests.get", return_value=response(rss())) as network:
+        with patch("feed_fetcher.requests.Session.get", return_value=response(rss())) as network:
             self.assertIn("Good", self.fetcher.fetch_all([GOOD]))
             network.assert_called_once()
         self.assertFalse(self.fetcher.diagnostics[0]["cached"])
+
+    def test_transport_does_not_load_netrc_proxy_or_ca_environment(self):
+        observed = []
+
+        def send(prepared, **kwargs):
+            observed.append((prepared, kwargs))
+            return response(rss())
+
+        with (
+            patch.dict(
+                "os.environ",
+                {
+                    "NETRC": "/must-not-read",
+                    "HTTPS_PROXY": "http://proxy.invalid",
+                    "REQUESTS_CA_BUNDLE": "/must-not-read",
+                },
+            ),
+            patch("requests.sessions.get_netrc_auth", side_effect=AssertionError("Implicit credential read")),
+            patch("requests.sessions.Session.send", side_effect=send),
+        ):
+            self.assertIn("Good", self.fetcher.fetch_all([GOOD]))
+        self.assertEqual(len(observed), 1)
+        prepared, settings = observed[0]
+        self.assertNotIn("Authorization", prepared.headers)
+        self.assertEqual(settings["proxies"], {})
+        self.assertIs(settings["verify"], True)
+        self.assertIs(settings["stream"], True)
+        self.assertIs(settings["allow_redirects"], False)
+
+    def test_oversized_body_fails_without_populating_cache(self):
+        self.fetcher.max_response_bytes = 64
+        with patch("feed_fetcher.requests.Session.get", return_value=response(rss())):
+            self.assertEqual(self.fetcher.fetch_all([GOOD]), {})
+        self.assertIn("byte limit", self.fetcher.diagnostics[0]["reason"])
+        self.assertFalse(self.fetcher._get_cache_path(GOOD["url"]).exists())
+
+    def test_cache_read_is_bounded_and_oversized_content_is_not_used(self):
+        self.fetcher.max_response_bytes = 16
+        path = self.fetcher._get_cache_path(GOOD["url"])
+        path.write_bytes(b"x" * 5000)
+        self.assertIsNone(self.fetcher._get_cached(GOOD["url"]))
+        path.write_text(json.dumps({"timestamp": datetime.now(timezone.utc).isoformat(), "content": rss()}))
+        self.assertIsNone(self.fetcher._get_cached(GOOD["url"]))
+
+    def test_safe_redirect_is_followed_explicitly(self):
+        redirect = response("", 302)
+        redirect.headers["Location"] = "/rss"
+        with patch("feed_fetcher.requests.Session.get", side_effect=[redirect, response(rss())]) as network:
+            self.assertIn("Good", self.fetcher.fetch_all([GOOD]))
+        self.assertEqual([c.args[0] for c in network.call_args_list], [GOOD["url"], "https://good.example/rss"])
+        self.assertTrue(all(c.kwargs["allow_redirects"] is False for c in network.call_args_list))
+
+    def test_unsafe_redirect_is_not_requested(self):
+        for target in (
+            "http://other.example/rss",
+            "https://user:secret@other.example/rss",
+            "file:///tmp/feed",
+            "https://other.example:8443/rss",
+        ):
+            with self.subTest(target=target):
+                redirect = response("", 302)
+                redirect.headers["Location"] = target
+                with patch("feed_fetcher.requests.Session.get", return_value=redirect) as network:
+                    self.assertEqual(self.fetcher.fetch_all([GOOD]), {})
+                self.assertEqual(network.call_count, 1)
+                self.assertNotIn("secret", self.fetcher.diagnostics[0]["reason"])
+
+    def test_redirect_loop_stops_at_configured_bound(self):
+        redirect = response("", 302)
+        redirect.headers["Location"] = "/again"
+        with patch("feed_fetcher.requests.Session.get", return_value=redirect) as network:
+            self.assertEqual(self.fetcher.fetch_all([GOOD]), {})
+        self.assertEqual(network.call_count, self.fetcher.max_redirects + 1)
+        self.assertEqual(self.fetcher.diagnostics[0]["reason"], "Feed redirect limit exceeded")
+
+    def test_stream_read_deadline_cannot_report_success(self):
+        with (
+            patch("feed_fetcher.time.monotonic", side_effect=[0, 0, 11]),
+            patch("feed_fetcher.requests.Session.get", return_value=response(rss())),
+        ):
+            self.assertEqual(self.fetcher.fetch_all([GOOD]), {})
+        self.assertEqual(self.fetcher.diagnostics[0]["reason"], "Request timed out")
+
+    def test_insecure_initial_url_never_reaches_transport(self):
+        with patch("feed_fetcher.requests.Session.get") as network:
+            self.assertEqual(self.fetcher.fetch_all([{**GOOD, "url": "http://good.example/feed"}]), {})
+        network.assert_not_called()
+
+    def test_invalid_transport_budgets_are_rejected(self):
+        for kwargs in (
+            {"timeout": 0},
+            {"timeout": float("nan")},
+            {"timeout": True},
+            {"max_workers": 0},
+            {"max_workers": 33},
+            {"max_response_bytes": 0},
+            {"max_redirects": -1},
+            {"max_redirects": True},
+        ):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                FeedFetcher(cache_dir=self.scratch.name, **kwargs)
 
     def test_legacy_utc_cache_and_expiry(self):
         for age, valid in [(timedelta(seconds=10), True), (timedelta(hours=1), False), (timedelta(hours=-1), False)]:
@@ -123,7 +231,7 @@ class FeedHealthTests(unittest.TestCase):
             patch.object(
                 news_aggregator, "FeedFetcher", side_effect=lambda **kw: FeedFetcher(cache_dir=self.scratch.name, **kw)
             ),
-            patch("feed_fetcher.requests.get", side_effect=fetch),
+            patch("feed_fetcher.requests.Session.get", side_effect=fetch),
             patch.object(sys, "argv", ["news_aggregator.py", "--coin", "BTC", "--format", fmt, *extra_args]),
             contextlib.redirect_stdout(output),
             contextlib.redirect_stderr(errors),
