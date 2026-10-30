@@ -149,7 +149,9 @@ def remote_rows(org: str, repo: str, ref: str, sql: str) -> list[dict]:
     path = "/".join(urllib.parse.quote(v, safe="") for v in (org, repo, ref))
     url = "https://www.dolthub.com/api/v1alpha1/" + path + "?" + urllib.parse.urlencode({"q": sql})
     try:
-        with urllib.request.urlopen(url, timeout=20) as response:
+        # Public authority queries can exceed 20s on a cold DoltHub revision.
+        # Bound the wait without treating a timeout as missing/empty history.
+        with urllib.request.urlopen(url, timeout=60) as response:
             payload = json.load(response)
         if not isinstance(payload, dict) or payload.get("query_execution_status") != "Success":
             raise ValueError("remote authority query did not succeed")
