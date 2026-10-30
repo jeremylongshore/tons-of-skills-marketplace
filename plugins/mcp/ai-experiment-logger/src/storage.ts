@@ -32,24 +32,21 @@ export class ExperimentStorage {
 
   private async readData(): Promise<StorageData | null> {
     let file;
-    let observed = false;
     try {
-      const before = await lstat(DATA_FILE);
-      observed = true;
-      if (!before.isFile() || before.isSymbolicLink()) {
-        throw new Error('Unsafe experiment data file');
-      }
+      // Open first: all content reads use this descriptor, never a path that
+      // was checked earlier. O_NOFOLLOW also rejects final-component symlinks.
       file = await open(DATA_FILE, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
-      const opened = await file.stat();
-      if (!opened.isFile() || opened.ino !== before.ino || opened.dev !== before.dev) {
-        throw new Error('Experiment data changed while opening');
-      }
     } catch (error) {
-      if (file) await file.close().catch(() => {});
-      if (!observed && error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') return null;
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') return null;
       throw new Error('Cannot safely read experiment data; existing files were not changed.');
     }
     try {
+      const opened = await file.stat();
+      const current = await lstat(DATA_FILE);
+      if (!opened.isFile() || !current.isFile() || current.isSymbolicLink() ||
+          opened.ino !== current.ino || opened.dev !== current.dev) {
+        throw new Error('Cannot safely read experiment data; existing files were not changed.');
+      }
       let parsed: unknown;
       try {
         parsed = JSON.parse(await file.readFile('utf8'));

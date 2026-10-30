@@ -392,7 +392,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 **Built with ❤️ for the Claude Code community**
 
-
 ## Data safety and recovery
 
 The manual stdio server stores plaintext JSON under the current user's home directory. New directories use mode0700 and new/replaced files use0600 on POSIX; review permissions on older existing directories separately. This does not encrypt data or protect it from another process running as the same user.
