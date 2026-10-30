@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -634,6 +636,66 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual(
             signals, ["prescreen-internal-error: validator produced no result for plugins/security/example"]
         )
+
+
+class OwnedHookDocumentationTests(unittest.TestCase):
+    """Tracking metadata is not a native runtime enforcement/disablement test."""
+
+    ROOT = _SCRIPT.parents[2]
+    PLUGINS = {
+        "plugins/devops/jeremy-github-actions-gcp": {"PreToolUse": (True, True)},
+        "plugins/examples/formatter": {"PostToolUse": (True, False), "PreToolUse": (False, False)},
+    }
+
+    def documents(self):
+        for relative, intent in self.PLUGINS.items():
+            path = self.ROOT / relative / "hooks/hooks.json"
+            yield relative, intent, json.loads(path.read_text())
+
+    def test_owned_hook_roots_pass_existing_structural_gate(self):
+        for relative in self.PLUGINS:
+            with self.subTest(plugin=relative):
+                self.assertEqual(_SCOPE.validate_plugin_structure(self.ROOT / relative, relative, has_skills=True), [])
+
+    def test_handler_metadata_preserves_declared_intent_including_disabled_pre_hook(self):
+        for relative, intent, document in self.documents():
+            for event, (enabled, blocking) in intent.items():
+                with self.subTest(plugin=relative, event=event):
+                    group = document["hooks"][event][0]
+                    handler = group["hooks"][0]
+                    self.assertIs(group["enabled"], enabled)
+                    self.assertIs(handler["enabled"], enabled)
+                    self.assertIs(handler["blocking"], blocking)
+                    self.assertIs(handler["continueOnError"], not blocking)
+
+    def test_missing_or_string_tracking_metadata_still_fails_closed(self):
+        for relative, intent, document in self.documents():
+            for event in intent:
+                for field in ("enabled", "blocking"):
+                    for replacement in (None, "false"):
+                        with self.subTest(plugin=relative, event=event, field=field, value=replacement):
+                            mutated = copy.deepcopy(document)
+                            handler = mutated["hooks"][event][0]["hooks"][0]
+                            if replacement is None:
+                                handler.pop(field, None)
+                            else:
+                                handler[field] = replacement
+                            self.assertEqual(
+                                _SCOPE._validate_hooks(mutated, relative),
+                                [f"{relative} event {event!r} group 0 handler 0 {field} must be boolean"],
+                            )
+
+    def test_command_paths_with_spaces_remain_one_shell_argument(self):
+        for relative, intent, document in self.documents():
+            for event in intent:
+                with self.subTest(plugin=relative, event=event):
+                    command = document["hooks"][event][0]["hooks"][0]["command"]
+                    expanded = command.replace("${CLAUDE_PLUGIN_ROOT}", "/tmp/plugin with spaces")
+                    arguments = shlex.split(expanded)
+                    self.assertEqual(len(arguments), 1)
+                    self.assertTrue(arguments[0].startswith("/tmp/plugin with spaces/scripts/"))
+                    script = arguments[0].removeprefix("/tmp/plugin with spaces/")
+                    self.assertTrue((self.ROOT / relative / script).is_file())
 
 
 if __name__ == "__main__":

@@ -14,7 +14,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/format.sh\"",
+            "enabled": true,
+            "blocking": false,
             "description": "Runs Prettier formatter on supported file types (JS, TS, JSON, CSS, MD)",
             "timeout": 5000,
             "continueOnError": true,
@@ -35,7 +37,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-format.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/validate-format.sh\"",
+            "enabled": false,
+            "blocking": false,
             "description": "Checks if file is already formatted to avoid unnecessary changes",
             "timeout": 3000,
             "continueOnError": true
