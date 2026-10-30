@@ -107,6 +107,8 @@ Which files are missing tests in this project?
   repoPath: string;           // Absolute path to repository
   globs?: string[];           // Patterns to match (default: ["**/*"])
   exclude?: string[];         // Patterns to exclude
+  limit?: number;             // Integer 1..100; default 100
+  offset?: number;            // Nonnegative integer; default 0
 }
 ```
 
@@ -116,6 +118,10 @@ Which files are missing tests in this project?
 {
   "repoPath": "/path/to/repo",
   "totalFiles": 245,
+  "limit": 100,
+  "offset": 0,
+  "showing": 100,
+  "hasMore": true,
   "files": ["src/index.ts", "src/utils/helper.ts", ...],
   "patterns": ["**/*"],
   "excluded": ["node_modules/**", ".git/**"]
@@ -123,6 +129,18 @@ Which files are missing tests in this project?
 ```
 
 ---
+
+For both inventory tools, advance `offset` by `showing` while `hasMore` is true,
+keeping the same repository and filters. Pages are sorted and reflect current
+files, so repository changes between calls can shift offsets. Invalid paging
+values return an argument error. `totalFiles` covers all files matching the
+active list filters; `map_tests.summary` covers its complete unpaginated source
+and test scan. `files`, `sourceFiles`, `coverage`, and `missingTests` contain only
+the current page. `map_tests` pages source files, including both matched and
+unmatched files, so missing tests beyond the old 50-file preview are reachable.
+Individual paths and matching-test arrays remain intact; item limits do not
+bound serialized characters or analysis time. Test mapping uses filename
+heuristics; its ratio is not measured line coverage or proof that tests passed.
 
 ### file_metrics
 
@@ -218,6 +236,8 @@ Which files are missing tests in this project?
 ```typescript
 {
   repoPath: string;  // Absolute path to repository
+  limit?: number;   // Integer 1..100; default 100
+  offset?: number;  // Nonnegative integer; default 0
 }
 ```
 
@@ -226,6 +246,11 @@ Which files are missing tests in this project?
 ```json
 {
   "repoPath": "/path/to/repo",
+  "limit": 100,
+  "offset": 0,
+  "showing": 100,
+  "hasMore": true,
+  "sourceFiles": ["src/services/auth.ts", "src/utils/helper.ts", "..."],
   "summary": {
     "totalSourceFiles": 156,
     "totalTestFiles": 98,

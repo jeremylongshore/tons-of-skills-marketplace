@@ -14,7 +14,12 @@ import { z } from 'zod';
 import path from 'path';
 
 // Input schemas
-const ListRepoFilesSchema = z.object({
+const PaginationSchema = z.object({
+  limit: z.number().int().min(1).max(100).optional().default(100),
+  offset: z.number().int().min(0).optional().default(0)
+});
+
+const ListRepoFilesSchema = PaginationSchema.extend({
   repoPath: z.string(),
   globs: z.array(z.string()).optional().default(['**/*']),
   exclude: z.array(z.string()).optional().default(['node_modules/**', '.git/**', 'dist/**', 'build/**'])
@@ -29,13 +34,13 @@ const GitChurnSchema = z.object({
   since: z.string().optional().default('6 months ago')
 });
 
-const MapTestsSchema = z.object({
+const MapTestsSchema = PaginationSchema.extend({
   repoPath: z.string()
 });
 
 // Tool implementations
-export async function listRepoFiles(args: z.infer<typeof ListRepoFilesSchema>) {
-  const { repoPath, globs: patterns, exclude } = args;
+export async function listRepoFiles(args: z.input<typeof ListRepoFilesSchema>) {
+  const { repoPath, globs: patterns, exclude, limit, offset } = ListRepoFilesSchema.parse(args);
 
   const files: string[] = [];
 
@@ -51,11 +56,16 @@ export async function listRepoFiles(args: z.infer<typeof ListRepoFilesSchema>) {
 
   // Remove duplicates and sort
   const uniqueFiles = [...new Set(files)].sort();
+  const page = uniqueFiles.slice(offset, offset + limit);
 
   return {
     repoPath,
     totalFiles: uniqueFiles.length,
-    files: uniqueFiles,
+    files: page,
+    limit,
+    offset,
+    showing: page.length,
+    hasMore: offset + limit < uniqueFiles.length,
     patterns,
     excluded: exclude
   };
@@ -205,7 +215,7 @@ async function gitChurn(args: z.infer<typeof GitChurnSchema>) {
 }
 
 async function mapTests(args: z.infer<typeof MapTestsSchema>) {
-  const { repoPath } = args;
+  const { repoPath, limit, offset } = args;
 
   try {
     // Find test files
@@ -230,13 +240,16 @@ async function mapTests(args: z.infer<typeof MapTestsSchema>) {
       nodir: true
     });
 
+    // Stable ordering makes pages repeatable while the repository is unchanged.
+    sourceFiles.sort();
+    testFiles.sort();
+
     // Map tests to source files
     const testCoverage: Record<string, string[]> = {};
     const missingTests: string[] = [];
 
     for (const sourceFile of sourceFiles) {
       const baseName = path.basename(sourceFile, path.extname(sourceFile));
-      const sourceDir = path.dirname(sourceFile);
 
       // Look for corresponding test files
       const matchingTests = testFiles.filter(testFile => {
@@ -255,16 +268,27 @@ async function mapTests(args: z.infer<typeof MapTestsSchema>) {
       ? ((sourceFiles.length - missingTests.length) / sourceFiles.length) * 100
       : 0;
 
+    const page = sourceFiles.slice(offset, offset + limit);
+    const pageCoverage = Object.fromEntries(
+      page.filter(file => file in testCoverage).map(file => [file, testCoverage[file]])
+    );
+    const pageMissingTests = page.filter(file => !(file in testCoverage));
+
     return {
       repoPath,
+      limit,
+      offset,
+      showing: page.length,
+      hasMore: offset + limit < sourceFiles.length,
+      sourceFiles: page,
       summary: {
         totalSourceFiles: sourceFiles.length,
         totalTestFiles: testFiles.length,
         testedFiles: sourceFiles.length - missingTests.length,
         coverageRatio: Math.round(coverageRatio * 100) / 100
       },
-      coverage: testCoverage,
-      missingTests: missingTests.slice(0, 50), // Limit to 50 for readability
+      coverage: pageCoverage,
+      missingTests: pageMissingTests,
       recommendations: generateTestRecommendations(missingTests, coverageRatio)
     };
   } catch (error) {
@@ -316,7 +340,7 @@ export function createServer() {
       tools: [
         {
           name: 'list_repo_files',
-          description: 'List all files in a repository matching glob patterns',
+          description: 'List a page of repository files matching glob patterns. Advance offset by showing while hasMore is true; totalFiles describes all matches.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -324,6 +348,7 @@ export function createServer() {
                 type: 'string',
                 description: 'Absolute path to the repository'
               },
+              ...z.toJSONSchema(PaginationSchema).properties,
               globs: {
                 type: 'array',
                 items: { type: 'string' },
@@ -375,10 +400,11 @@ export function createServer() {
         },
         {
           name: 'map_tests',
-          description: 'Map source files to test files and identify files missing tests',
+          description: 'Page source-to-test filename matches and missing tests. Advance offset by showing while hasMore is true; summary describes all source files. Filename matches do not prove measured coverage or passing tests.',
           inputSchema: {
             type: 'object',
             properties: {
+              ...z.toJSONSchema(PaginationSchema).properties,
               repoPath: {
                 type: 'string',
                 description: 'Absolute path to the repository'

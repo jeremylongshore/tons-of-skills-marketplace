@@ -548,126 +548,86 @@ function analyzeFailure(log: HTTPLog, endpoint?: ParsedEndpoint): FailureAnalysi
 /**
  * Generate cURL command to reproduce API call
  */
+/** Quote one literal argument for POSIX shells; NUL cannot be an argv byte. */
+function shellQuote(value: string): string {
+  if (value.includes('\0')) throw new Error('NUL cannot be represented in a shell argument');
+  return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
+function requestBodyText(log: Partial<HTTPLog>): string | undefined {
+  if (log.requestBody === undefined) return undefined;
+  return typeof log.requestBody === 'string' ? log.requestBody : JSON.stringify(log.requestBody);
+}
+
 async function makeRepro(args: z.infer<typeof MakeReproSchema>) {
   const { logIndex, log: directLog, includeHeaders, pretty } = args;
-
   try {
-    // Get the log to convert
-    let log: Partial<HTTPLog>;
-    if (directLog) {
-      log = directLog;
-    } else if (logIndex !== undefined) {
-      if (logIndex < 0 || logIndex >= httpLogs.length) {
+    let original: Partial<HTTPLog>;
+    if (directLog) original = directLog;
+    else if (logIndex !== undefined) {
+      if (logIndex < 0 || logIndex >= httpLogs.length || !Number.isInteger(logIndex)) {
         throw new Error(`Invalid log index: ${logIndex}. Available logs: 0-${httpLogs.length - 1}`);
       }
-      log = httpLogs[logIndex];
-    } else {
-      throw new Error('Either logIndex or log must be provided');
-    }
+      original = httpLogs[logIndex];
+    } else throw new Error('Either logIndex or log must be provided');
 
-    // Build cURL command
-    const parts: string[] = ['curl'];
-
-    // Add method
-    if (log.method && log.method !== 'GET') {
-      parts.push(`-X ${log.method}`);
-    }
-
-    // Add headers
-    if (includeHeaders && log.requestHeaders) {
-      for (const [key, value] of Object.entries(log.requestHeaders)) {
-        // Skip some headers that curl adds automatically
-        if (!['host', 'content-length', 'connection'].includes(key.toLowerCase())) {
-          parts.push(`-H "${key}: ${value}"`);
-        }
+    // Apply the option to every alternative without mutating the stored log.
+    const log = { ...original, requestHeaders: includeHeaders ? original.requestHeaders : undefined };
+    for (const key of Object.keys(log.requestHeaders || {})) {
+      if (!/^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(key)) {
+        throw new Error('Header names must be HTTP tokens');
       }
     }
-
-    // Add body
-    if (log.requestBody) {
-      const body = typeof log.requestBody === 'string'
-        ? log.requestBody
-        : JSON.stringify(log.requestBody);
-      // POSIX single-quoted strings have no escape character, so a bare
-      // backslash before a quote does not escape it -- it terminates the
-      // quoted string early and lets whatever follows be interpreted as
-      // shell syntax. Close the quote, emit a literal quote, then reopen:
-      // ' -> '\''
-      parts.push(`-d '${body.replace(/'/g, "'\\''")}'`);
+    const body = requestBodyText(log);
+    const parts: string[] = ['curl'];
+    if (body !== undefined || (log.method && log.method !== 'GET')) {
+      parts.push('-X', shellQuote(log.method || 'GET'));
     }
-
-    // Add URL (must be last)
-    parts.push(`"${log.url}"`);
-
-    // Format output
-    const curl = pretty
-      ? parts.join(' \\\n  ')
-      : parts.join(' ');
-
+    for (const [key, value] of Object.entries(log.requestHeaders || {})) {
+      if (!['host', 'content-length', 'connection'].includes(key.toLowerCase())) {
+        parts.push('-H', shellQuote(`${key}: ${value}`));
+      }
+    }
+    // --data-raw keeps a leading @ as data instead of loading a local file.
+    if (body !== undefined) parts.push('--data-raw', shellQuote(body));
+    // The explicit option also keeps an option-like URL out of curl's option parser.
+    parts.push('--url', shellQuote(log.url || ''));
     return {
-      curl,
+      curl: pretty ? parts.join(' \\\n  ') : parts.join(' '),
       method: log.method,
       url: log.url,
-      hasBody: !!log.requestBody,
+      hasBody: body !== undefined,
       headerCount: Object.keys(log.requestHeaders || {}).length,
-      alternative: {
-        httpie: generateHTTPie(log),
-        javascript: generateJavaScript(log)
-      }
+      alternative: { httpie: generateHTTPie(log), javascript: generateJavaScript(log) }
     };
   } catch (error) {
     throw new Error(`Failed to generate cURL: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
-/**
- * Generate HTTPie command as alternative
- */
+/** Generate POSIX-shell HTTPie arguments, with raw bodies rather than field syntax. */
 function generateHTTPie(log: Partial<HTTPLog>): string {
-  const parts: string[] = ['http'];
-
-  // Method and URL
-  if (log.method && log.method !== 'GET') {
-    parts.push(log.method);
+  const parts: string[] = ['http', '--ignore-stdin'];
+  const body = requestBodyText(log);
+  if (body !== undefined) parts.push(shellQuote(`--raw=${body}`));
+  parts.push('--', shellQuote(log.method || 'GET'), shellQuote(log.url || ''));
+  for (const [key, value] of Object.entries(log.requestHeaders || {})) {
+    // HTTPie treats :@ as a file import. Escape that operator for literal headers.
+    const literalValue = value.startsWith('@') ? `\\${value}` : value;
+    parts.push(shellQuote(`${key}:${literalValue}`));
   }
-  parts.push(log.url || '');
-
-  // Headers
-  if (log.requestHeaders) {
-    for (const [key, value] of Object.entries(log.requestHeaders)) {
-      parts.push(`${key}:"${value}"`);
-    }
-  }
-
-  // Body (HTTPie auto-detects JSON)
-  if (log.requestBody && typeof log.requestBody === 'object') {
-    for (const [key, value] of Object.entries(log.requestBody)) {
-      parts.push(`${key}="${value}"`);
-    }
-  }
-
   return parts.join(' ');
 }
 
-/**
- * Generate JavaScript fetch code
- */
+/** Serialize the URL and options as JavaScript data, never source fragments. */
 function generateJavaScript(log: Partial<HTTPLog>): string {
-  const options: any = {
+  const options: { method: string; headers?: Record<string, string>; body?: string } = {
     method: log.method || 'GET',
   };
-
-  if (log.requestHeaders) {
-    options.headers = log.requestHeaders;
-  }
-
-  if (log.requestBody) {
-    options.body = typeof log.requestBody === 'string'
-      ? log.requestBody
-      : JSON.stringify(log.requestBody);
-  }
-
-  return `fetch("${log.url}", ${JSON.stringify(options, null, 2)})
+  if (log.requestHeaders) options.headers = log.requestHeaders;
+  const body = requestBodyText(log);
+  if (body !== undefined) options.body = body;
+  return `fetch(${JSON.stringify(log.url || '')}, ${JSON.stringify(options, null, 2)})
   .then(res => res.json())
   .then(data => console.log(data))
   .catch(err => console.error(err));`;

@@ -25,6 +25,85 @@ def load_validator():
 
 
 class MarketplaceComplianceBaselineTests(unittest.TestCase):
+    def test_version_two_distinguishes_new_section_debt_from_real_body_diagnostics(self):
+        validator = load_validator()
+        path = "plugins/example/skills/example/SKILL.md"
+
+        def section_errors(missing):
+            body = "# Example\n\n" + "\n\n".join(
+                section
+                + "\n\nInspect the supplied input, record the observed result, and preserve unresolved evidence."
+                for section in validator.RECOMMENDED_SECTIONS
+                if section != "# " and section not in missing
+            )
+            errors, _, _ = validator.validate_body(Path(path), body, validator.TIER_MARKETPLACE)
+            return [error for error in errors if "Required section missing:" in error]
+
+        before = section_errors({"## Overview"})
+        after = section_errors({"## Overview", "## Examples"})
+        self.assertEqual((len(before), len(after)), (1, 2))
+        # Reproduce the pinned legacy collision; do not silently change its policy.
+        self.assertEqual(
+            {validator.baseline_finding_triple(path, error) for error in before},
+            {validator.baseline_finding_triple(path, error) for error in after},
+        )
+        old = {validator.baseline_finding_triple(path, error, identity_version=2) for error in before}
+        new = {validator.baseline_finding_triple(path, error, identity_version=2) for error in after}
+        self.assertEqual(new - old, {(path, "E-MISSING-REQUIRED-SECTION", "## Examples")})
+        spec = importlib.util.spec_from_file_location(
+            "section_identity_ratchet", ROOT / "scripts" / "check-marketplace-compliance-baseline.py"
+        )
+        ratchet = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(ratchet)
+        self.assertEqual(
+            ratchet.compare(
+                {"entries": [" :: ".join(triple) for triple in old]},
+                {"entries": [" :: ".join(triple) for triple in new]},
+            ),
+            [f"{path} :: E-MISSING-REQUIRED-SECTION :: ## Examples"],
+        )
+
+    def test_version_two_preserves_multiword_sections_and_title_identity(self):
+        validator = load_validator()
+        for section in ("## Error Handling", "## Prerequisites", "# "):
+            with self.subTest(section=section):
+                self.assertEqual(
+                    validator.baseline_finding_triple(
+                        "example/SKILL.md", f"[body] Required section missing: '{section}'", identity_version=2
+                    ),
+                    ("example/SKILL.md", "E-MISSING-REQUIRED-SECTION", section.strip()),
+                )
+        for version in (True, 0, 3, "2"):
+            with self.subTest(version=version), self.assertRaises(ValueError):
+                validator.baseline_finding_triple("example/SKILL.md", "error", identity_version=version)
+        with self.assertRaises(ValueError):
+            validator.baseline_finding_triple(
+                "example/SKILL.md", "[body] Required section missing: ## Examples", identity_version=2
+            )
+
+    def test_version_two_payload_separates_occurrences_from_unique_identities(self):
+        validator = load_validator()
+        arguments = dict(
+            findings=[("a/SKILL.md", "E-MISSING-REQUIRED-SECTION", "## Overview")] * 2
+            + [("a/SKILL.md", "E-MISSING-REQUIRED-SECTION", "## Examples")],
+            skill_files=1,
+            command_files=0,
+            plugin_dirs=1,
+            agent_files=0,
+            grade_a_plus_b=0,
+            repo_root=ROOT,
+        )
+        legacy = validator.marketplace_baseline_payload(**arguments)
+        self.assertNotIn("finding_identity_version", legacy)
+        self.assertNotIn("raw_error_occurrences", legacy["totals"])
+        payload = validator.marketplace_baseline_payload(**arguments, finding_identity_version=2)
+        self.assertEqual(payload["finding_identity_version"], 2)
+        self.assertEqual(payload["totals"]["errors"], 2)
+        self.assertEqual(payload["totals"]["raw_error_occurrences"], 3)
+        arguments["findings"] = [("a/SKILL.md", "E-MISSING-REQUIRED-SECTION", "##")]
+        with self.assertRaises(ValueError):
+            validator.marketplace_baseline_payload(**arguments, finding_identity_version=2)
+
     def test_common_finding_shapes_have_readable_stable_triples(self):
         validator = load_validator()
         path = "plugins/example/skills/example/SKILL.md"
@@ -84,6 +163,39 @@ class MarketplaceComplianceBaselineTests(unittest.TestCase):
             )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("requires a full --marketplace corpus run", result.stderr)
+
+    def test_identity_version_flag_requires_baseline_mode_and_known_contract(self):
+        for arguments in (
+            ["--baseline-identity-version", "2"],
+            ["--emit-baseline", "--baseline-identity-version", "3"],
+        ):
+            with self.subTest(arguments=arguments):
+                result = subprocess.run([sys.executable, str(SCRIPT), *arguments], capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, "")
+
+    def test_version_two_empty_emitter_declares_zero_occurrences(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "plugins").mkdir()
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--emit-baseline",
+                    "--baseline-identity-version",
+                    "2",
+                    "--repo-root",
+                    str(root),
+                ],
+                capture_output=True,
+                text=True,
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["finding_identity_version"], 2)
+        self.assertEqual(payload["totals"]["raw_error_occurrences"], 0)
+        self.assertEqual(payload["entries"], [])
 
     def test_emit_baseline_is_json_when_run_against_an_empty_marketplace_fixture(self):
         with tempfile.TemporaryDirectory() as directory:

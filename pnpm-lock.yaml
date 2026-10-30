@@ -583,13 +583,9 @@ importers:
 
   plugins/saas-packs/anima-pack: {}
 
-  plugins/saas-packs/anthropic-pack: {}
-
   plugins/saas-packs/apify-pack: {}
 
   plugins/saas-packs/apollo-pack: {}
-
-  plugins/saas-packs/apple-notes-pack: {}
 
   plugins/saas-packs/assemblyai-pack: {}
 
@@ -650,8 +646,6 @@ importers:
   plugins/saas-packs/flyio-pack: {}
 
   plugins/saas-packs/fondo-pack: {}
-
-  plugins/saas-packs/framer-pack: {}
 
   plugins/saas-packs/ga4-pack: {}
 

@@ -31,7 +31,7 @@ clickhouse,ClickHouse,flagship,24,@intentsolutionsio/clickhouse-skill-md-pack,re
 fondo,Fondo,pro,18,@intentsolutionsio/fondo-skill-md-pack,reserved,ccpi-fondo,18,0,not_started,not_added,Brex #31
 anima,Anima,pro,18,@intentsolutionsio/anima-skill-md-pack,reserved,ccpi-anima,18,0,not_started,not_added,Brex #32
 flyio,Fly.io,pro,18,@intentsolutionsio/flyio-skill-md-pack,reserved,ccpi-flyio,18,0,not_started,not_added,Brex #34
-framer,Framer,pro,18,@intentsolutionsio/framer-skill-md-pack,reserved,ccpi-framer,18,0,not_started,not_added,Brex #35
+framer,Framer,retired,0,@intentsolutionsio/framer-skill-md-pack,retired,ccpi-framer,18,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.57); registry disposition tracked in bead
 stackblitz,StackBlitz,pro,18,@intentsolutionsio/stackblitz-skill-md-pack,reserved,ccpi-stackblitz,18,0,not_started,not_added,Brex #36
 elevenlabs,ElevenLabs,pro,18,@intentsolutionsio/elevenlabs-skill-md-pack,reserved,ccpi-elevenlabs,18,0,not_started,not_added,Brex #37
 assemblyai,AssemblyAI,pro,18,@intentsolutionsio/assemblyai-skill-md-pack,reserved,ccpi-assemblyai,18,0,not_started,not_added,Brex #38
@@ -47,7 +47,7 @@ apify,Apify,pro,18,@intentsolutionsio/apify-skill-md-pack,reserved,ccpi-apify,18
 finta,Finta,pro,18,@intentsolutionsio/finta-skill-md-pack,reserved,ccpi-finta,18,0,not_started,not_added,Brex #48
 mistral,Mistral AI,pro,18,@intentsolutionsio/mistral-skill-md-pack,reserved,ccpi-mistral,18,0,not_started,not_added,Brex #49
 wispr,Wispr,pro,18,@intentsolutionsio/wispr-skill-md-pack,reserved,ccpi-wispr,18,0,not_started,not_added,Brex #50
-anthropic,Anthropic,flagship+,30,@intentsolutionsio/anthropic-skill-md-pack,reserved,ccpi-anthropic,30,0,not_started,not_added,Extended #51 - Claude maker
+anthropic,Anthropic,retired,0,@intentsolutionsio/anthropic-skill-md-pack,retired,ccpi-anthropic,30,0,retired,removed,Retired tutorial pack after source and value review (claude-juoz.3.11.58); registry disposition tracked in bead
 databricks,Databricks,flagship+,30,@intentsolutionsio/databricks-skill-md-pack,reserved,ccpi-databricks,30,0,not_started,not_added,Extended #52
 coreweave,CoreWeave,flagship,23,@intentsolutionsio/coreweave-skill-md-pack,reserved,ccpi-coreweave,23,0,not_started,not_added,Extended #53; pruned 4 filler skills + added CoreWeave non-affiliation notice (v1.1.0); added coreweave-gpu-cost-leak-hunter heavy-hitter v2 pilot (v1.2.0); added coreweave-gpu-node-forensics heavy-hitter #2 (v1.3.0); added coreweave-fabric-diagnostics GPUDirect-RDMA fallback detector (v1.4.0)
 glean,Glean,retired,0,@intentsolutionsio/glean-skill-md-pack,retired,ccpi-glean,24,0,retired,removed,Retired unsafe tutorial pack after source and value review (claude-juoz.3.11.54); registry disposition tracked in bead
@@ -99,6 +99,6 @@ speak,Speak,pro,18,@intentsolutionsio/speak-skill-md-pack,reserved,ccpi-speak,18
 openevidence,OpenEvidence,pro,18,@intentsolutionsio/openevidence-skill-md-pack,reserved,ccpi-openevidence,18,0,not_started,not_added,Extended #100
 documenso,Documenso,pro,18,@intentsolutionsio/documenso-skill-md-pack,reserved,ccpi-documenso,18,0,not_started,not_added,open-source document signing - DocuSign alternative
 evernote,Evernote,flagship,24,@intentsolutionsio/evernote-skill-md-pack,reserved,ccpi-evernote,24,0,not_started,not_added,note-taking - 15.9% market share
-apple-notes,Apple Notes,flagship,24,@intentsolutionsio/apple-notes-skill-md-pack,reserved,ccpi-apple-notes,24,0,not_started,not_added,note-taking - 15.5% market share
+apple-notes,Apple Notes,retired,0,@intentsolutionsio/apple-notes-skill-md-pack,retired,ccpi-apple-notes,24,0,retired,removed,Retired unsupported tutorial pack after source and value review (claude-juoz.3.11.56); registry disposition tracked in bead
 obsidian,Obsidian,pro,18,@intentsolutionsio/obsidian-skill-md-pack,reserved,ccpi-obsidian,18,0,not_started,not_added,note-taking - 8.7% market share
 onenote,OneNote,pro,18,@intentsolutionsio/onenote-skill-md-pack,reserved,ccpi-onenote,18,0,not_started,not_added,note-taking - 7.9% market share

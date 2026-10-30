@@ -10,6 +10,9 @@ import csv
 # Refuse regeneration so deleted filler cannot silently reappear through an old
 # release command.
 RETIRED_SKILL_DATABASES = {
+    "anthropic": "The Anthropic tutorial pack is retired (claude-juoz.3.11.58)",
+    "framer": "The unsupported Framer tutorial pack is retired (claude-juoz.3.11.57)",
+    "apple-notes": "The unsupported Apple Notes tutorial pack is retired (claude-juoz.3.11.56)",
     "gamma": "The unsupported Gamma tutorial pack is retired (claude-juoz.3.11.55)",
     "glean": "The unsafe Glean tutorial pack is retired (claude-juoz.3.11.54)",
     "clay": "The unsupported Clay tutorial pack is retired (claude-juoz.3.11.53)",
