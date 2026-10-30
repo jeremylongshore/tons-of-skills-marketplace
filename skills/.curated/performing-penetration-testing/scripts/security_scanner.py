@@ -1,11 +1,11 @@
 """
 HTTP Security Scanner - Automated web application security assessment tool.
 
-Performs non-intrusive security checks against a target URL including:
+Performs authorized active HTTP/TLS checks against a target URL including:
 - Security header analysis (CSP, HSTS, X-Frame-Options, etc.)
 - SSL/TLS certificate validation and expiry checking
 - Common path exposure probing (git, env, admin panels)
-- HTTP method enumeration and dangerous method detection
+- Bounded OPTIONS method-advertisement inspection (no write-method probes)
 - CORS policy analysis and misconfiguration detection
 
 Usage:
@@ -87,6 +87,14 @@ class ScanResult:
     errors: list[str] = field(default_factory=list)
 
 
+class CheckIncomplete(Exception):
+    """A selected check failed; preserve any partial findings without a clean verdict."""
+
+    def __init__(self, message: str, findings=None):
+        super().__init__(message)
+        self.findings = list(findings or [])
+
+
 def _log(message: str, verbose: bool = True) -> None:
     """Print a status message to stderr."""
     if verbose:
@@ -136,17 +144,10 @@ def scan_security_headers(url: str, session: requests.Session) -> list[Finding]:
 
     try:
         resp = session.get(url, timeout=timeout, allow_redirects=True)
-    except requests.RequestException as exc:
-        findings.append(
-            Finding(
-                check="headers",
-                severity="high",
-                title="Unable to retrieve headers",
-                detail=f"Request failed: {exc}",
-                remediation="Verify the target URL is reachable and the server is running.",
-            )
-        )
-        return findings
+    except requests.RequestException as _transport_error:
+        raise CheckIncomplete(
+            "Selected scan_security_headers request failed: " + type(_transport_error).__name__, findings
+        ) from _transport_error
 
     headers = resp.headers
 
@@ -540,36 +541,12 @@ def check_ssl_tls(url: str) -> list[Finding]:
                 "Ensure the certificate chain is complete.",
             )
         )
-    except ssl.SSLError as exc:
-        findings.append(
-            Finding(
-                check="ssl",
-                severity="high",
-                title="SSL/TLS connection error",
-                detail=f"TLS handshake failed: {exc}",
-                remediation="Check the server TLS configuration and ensure modern cipher suites are enabled.",
-            )
-        )
-    except socket.timeout:
-        findings.append(
-            Finding(
-                check="ssl",
-                severity="medium",
-                title="SSL connection timed out",
-                detail="The TLS handshake did not complete within 10 seconds.",
-                remediation="Verify the server is reachable and TLS is properly configured.",
-            )
-        )
-    except OSError as exc:
-        findings.append(
-            Finding(
-                check="ssl",
-                severity="high",
-                title="Unable to establish SSL connection",
-                detail=f"Connection error: {exc}",
-                remediation="Verify the hostname, port, and network connectivity.",
-            )
-        )
+    except ssl.SSLError as _tls_error:
+        raise CheckIncomplete("Selected TLS transport failed: " + type(_tls_error).__name__, findings) from _tls_error
+    except socket.timeout as _tls_error:
+        raise CheckIncomplete("Selected TLS transport failed: " + type(_tls_error).__name__, findings) from _tls_error
+    except OSError as _tls_error:
+        raise CheckIncomplete("Selected TLS transport failed: " + type(_tls_error).__name__, findings) from _tls_error
 
     return findings
 
@@ -638,9 +615,10 @@ def probe_common_exposures(url: str, session: requests.Session) -> list[Finding]
                         f"to avoid confirming the path exists.",
                     )
                 )
-        except requests.RequestException:
-            # Silently skip unreachable paths
-            continue
+        except requests.RequestException as _transport_error:
+            raise CheckIncomplete(
+                "Selected probe_common_exposures request failed: " + type(_transport_error).__name__, findings
+            ) from _transport_error
 
     # --- robots.txt analysis ---
     try:
@@ -693,8 +671,10 @@ def probe_common_exposures(url: str, session: requests.Session) -> list[Finding]
                         "robots.txt, which is advisory only and publicly readable.",
                     )
                 )
-    except requests.RequestException:
-        pass
+    except requests.RequestException as _transport_error:
+        raise CheckIncomplete(
+            "Selected probe_common_exposures request failed: " + type(_transport_error).__name__, findings
+        ) from _transport_error
 
     # --- security.txt ---
     for sec_path in ["/.well-known/security.txt", "/security.txt"]:
@@ -712,8 +692,10 @@ def probe_common_exposures(url: str, session: requests.Session) -> list[Finding]
                     )
                 )
                 break  # Only report once
-        except requests.RequestException:
-            continue
+        except requests.RequestException as _transport_error:
+            raise CheckIncomplete(
+                "Selected probe_common_exposures request failed: " + type(_transport_error).__name__, findings
+            ) from _transport_error
 
     # --- Directory listing detection ---
     try:
@@ -733,8 +715,10 @@ def probe_common_exposures(url: str, session: requests.Session) -> list[Finding]
                     )
                 )
                 break
-    except requests.RequestException:
-        pass
+    except requests.RequestException as _transport_error:
+        raise CheckIncomplete(
+            "Selected probe_common_exposures request failed: " + type(_transport_error).__name__, findings
+        ) from _transport_error
 
     # --- Server header version disclosure ---
     try:
@@ -761,8 +745,10 @@ def probe_common_exposures(url: str, session: requests.Session) -> list[Finding]
                     remediation="Remove the X-Powered-By header from server responses.",
                 )
             )
-    except requests.RequestException:
-        pass
+    except requests.RequestException as _transport_error:
+        raise CheckIncomplete(
+            "Selected probe_common_exposures request failed: " + type(_transport_error).__name__, findings
+        ) from _transport_error
 
     if not findings:
         findings.append(
@@ -784,95 +770,37 @@ def probe_common_exposures(url: str, session: requests.Session) -> list[Finding]
 
 
 def check_http_methods(url: str, session: requests.Session) -> list[Finding]:
-    """Test for enabled HTTP methods and flag potentially dangerous ones."""
-    findings: list[Finding] = []
-    timeout: int = getattr(session, "timeout", 10)
-
-    dangerous_methods = {"PUT", "DELETE", "TRACE", "CONNECT", "PATCH"}
-
+    """Observe bounded method advertisement; never infer execution or XST."""
+    timeout = getattr(session, "timeout", 10)
+    response = None
     try:
-        resp = session.options(url, timeout=timeout, allow_redirects=True)
-        allow_header = resp.headers.get("Allow", "")
-        access_control = resp.headers.get("Access-Control-Allow-Methods", "")
-
-        methods_str = allow_header or access_control
-        if methods_str:
-            methods = {m.strip().upper() for m in methods_str.split(",") if m.strip()}
-            enabled_dangerous = methods & dangerous_methods
-
-            findings.append(
-                Finding(
-                    check="methods",
-                    severity="info",
-                    title=f"Allowed HTTP methods: {', '.join(sorted(methods))}",
-                    detail="The server advertises these methods via the Allow or Access-Control-Allow-Methods header.",
-                    remediation="Restrict HTTP methods to only those required by the application.",
-                )
-            )
-
-            if enabled_dangerous:
-                for method in sorted(enabled_dangerous):
-                    severity = "high" if method == "TRACE" else "medium"
-                    detail_msg = ""
-                    if method == "TRACE":
-                        detail_msg = (
-                            "TRACE reflects the request back to the client, which "
-                            "can be exploited in cross-site tracing (XST) attacks "
-                            "to steal credentials from HTTP headers."
-                        )
-                    elif method == "PUT":
-                        detail_msg = (
-                            "PUT allows uploading or replacing files on the server, "
-                            "which may allow unauthorized content modification."
-                        )
-                    elif method == "DELETE":
-                        detail_msg = (
-                            "DELETE allows removing resources from the server, "
-                            "which may allow unauthorized data destruction."
-                        )
-                    elif method == "CONNECT":
-                        detail_msg = (
-                            "CONNECT may allow the server to be used as a proxy, "
-                            "potentially enabling unauthorized network access."
-                        )
-                    elif method == "PATCH":
-                        detail_msg = (
-                            "PATCH allows partial resource modification. Ensure it "
-                            "requires proper authentication and authorization."
-                        )
-                    findings.append(
-                        Finding(
-                            check="methods",
-                            severity=severity,
-                            title=f"Dangerous HTTP method enabled: {method}",
-                            detail=detail_msg,
-                            remediation=f"Disable the {method} method unless explicitly required. "
-                            f"Configure the web server or application firewall to block it.",
-                        )
-                    )
-        else:
-            findings.append(
-                Finding(
-                    check="methods",
-                    severity="info",
-                    title="No Allow header in OPTIONS response",
-                    detail=f"The OPTIONS request returned HTTP {resp.status_code} without "
-                    f"an Allow header. Method enumeration was not possible.",
-                    remediation="This is acceptable. The server does not advertise allowed methods.",
-                )
-            )
-    except requests.RequestException as exc:
-        findings.append(
+        response = session.options(url, timeout=timeout, allow_redirects=False, stream=True)
+        if not 200 <= response.status_code < 300:
+            raise CheckIncomplete("Method discovery was redirected, rejected or failed")
+        raw = response.headers.get("Allow", "")
+        if not isinstance(raw, str) or not raw or len(raw) > 4096:
+            raise CheckIncomplete("Method discovery lacked a bounded Allow header")
+        methods = [part.strip() for part in raw.split(",")]
+        if len(methods) > 64 or any(
+            not part or not part.isascii() or not all(c.isalpha() or c in "!#$%&'*+-.^_`|~0123456789" for c in part)
+            for part in methods
+        ):
+            raise CheckIncomplete("Method discovery contained malformed method tokens")
+        return [
             Finding(
                 check="methods",
                 severity="info",
-                title="OPTIONS request failed",
-                detail=f"Could not perform method enumeration: {exc}",
-                remediation="OPTIONS may be blocked by a firewall or WAF, which is acceptable.",
+                title="Advertised HTTP methods",
+                detail=", ".join(sorted(set(methods)))
+                + ". Advertisement does not demonstrate a write, TRACE echo, browser exploitation or proxy forwarding.",
+                remediation="Compare with owner policy; use separately approved narrow operator experiments for capability proof.",
             )
-        )
-
-    return findings
+        ]
+    except requests.RequestException as exc:
+        raise CheckIncomplete("Method discovery transport failed: " + type(exc).__name__) from exc
+    finally:
+        if response is not None:
+            response.close()
 
 
 # ---------------------------------------------------------------------------
@@ -979,16 +907,10 @@ def check_cors_policy(url: str, session: requests.Session) -> list[Finding]:
                     )
                 )
 
-    except requests.RequestException as exc:
-        findings.append(
-            Finding(
-                check="cors",
-                severity="info",
-                title="CORS check failed",
-                detail=f"Could not perform CORS analysis: {exc}",
-                remediation="Verify the target is reachable and retry the scan.",
-            )
-        )
+    except requests.RequestException as _transport_error:
+        raise CheckIncomplete(
+            "Selected check_cors_policy request failed: " + type(_transport_error).__name__, findings
+        ) from _transport_error
 
     return findings
 
@@ -1044,10 +966,12 @@ def generate_report(
         severity_counts[f.severity] = severity_counts.get(f.severity, 0) + 1
 
     total_findings = len(results.findings)
-    risk_score = _calculate_risk_score(results.findings)
+    risk_score = None if results.errors else _calculate_risk_score(results.findings)
 
     # Risk rating label
-    if risk_score >= 90:
+    if risk_score is None:
+        risk_label = "INCOMPLETE"
+    elif risk_score >= 90:
         risk_label = "LOW RISK"
     elif risk_score >= 70:
         risk_label = "MODERATE RISK"
@@ -1069,7 +993,11 @@ def generate_report(
     lines.append(f"Checks:     {', '.join(results.checks_performed)}")
     lines.append("")
     lines.append("-" * 72)
-    lines.append(f"  RISK SCORE: {risk_score}/100 ({risk_label})")
+    lines.append(
+        "  RISK SCORE: not assessed (INCOMPLETE)"
+        if risk_score is None
+        else f"  RISK SCORE: {risk_score}/100 ({risk_label})"
+    )
     lines.append("-" * 72)
     lines.append("")
     lines.append("## Summary")
@@ -1126,13 +1054,14 @@ def generate_report(
             "total_findings": total_findings,
             "findings": [asdict(f) for f in sorted_findings],
             "errors": results.errors,
+            "status": "incomplete" if results.errors else "complete",
         }
         try:
             with open(output_path, "w", encoding="utf-8") as fh:
                 json.dump(json_data, fh, indent=2, ensure_ascii=False)
             _log(f"JSON report written to: {output_path}")
         except OSError as exc:
-            _log_error(f"Failed to write JSON report: {exc}")
+            raise CheckIncomplete("Requested report could not be persisted: " + type(exc).__name__) from exc
 
     return report_text
 
@@ -1204,7 +1133,14 @@ def main() -> int:
     args = parser.parse_args()
 
     # Validate URL
-    parsed = urlparse(args.url)
+    if args.timeout <= 0:
+        parser.error("--timeout must be greater than zero")
+    try:
+        parsed = urlparse(args.url)
+        _ = parsed.port
+    except ValueError:
+        _log_error("Invalid URL syntax or port")
+        return 2
     if parsed.scheme not in ("http", "https"):
         _log_error(f"Invalid URL scheme: '{parsed.scheme}'. Use http:// or https://")
         return 2
@@ -1215,7 +1151,7 @@ def main() -> int:
     # Parse requested checks
     requested = [c.strip().lower() for c in args.checks.split(",") if c.strip()]
     invalid_checks = [c for c in requested if c not in ALL_CHECKS]
-    if invalid_checks:
+    if invalid_checks or not requested or len(requested) != len(set(requested)):
         _log_error(f"Unknown check(s): {', '.join(invalid_checks)}. Available: {', '.join(ALL_CHECKS)}")
         return 2
 
@@ -1244,8 +1180,8 @@ def main() -> int:
         _log_error(f"Connection to {url} timed out after {args.timeout} seconds.")
         return 2
     except requests.RequestException as exc:
-        _log_error(f"Pre-check failed: {exc}")
-        # Continue anyway; individual checks handle their own errors
+        _log_error("Connectivity pre-check failed: " + type(exc).__name__)
+        return 2
 
     # Execute checks
     check_map: dict[str, tuple[str, object]] = {
@@ -1265,9 +1201,13 @@ def main() -> int:
             result.checks_performed.append(check_name)
             _log(f"  {label}: {len(findings)} finding(s)", args.verbose)
         except Exception as exc:
-            error_msg = f"Check '{check_name}' failed with unexpected error: {exc}"
+            error_msg = f"Check '{check_name}' incomplete: " + (
+                str(exc) if isinstance(exc, CheckIncomplete) else type(exc).__name__
+            )
             _log_error(error_msg)
             result.errors.append(error_msg)
+            if isinstance(exc, CheckIncomplete):
+                result.findings.extend(exc.findings)
 
     # Finalize timing
     scan_end = datetime.now(timezone.utc)
@@ -1279,8 +1219,15 @@ def main() -> int:
     _log("", args.verbose)
 
     # Generate and print report
-    report = generate_report(url, result, output_path=args.output)
+    try:
+        report = generate_report(url, result, output_path=args.output)
+    except CheckIncomplete as exc:
+        _log_error(str(exc))
+        return 2
     print(report)
+
+    if result.errors:
+        return 2
 
     # Determine exit code
     critical_or_high = sum(1 for f in result.findings if f.severity in ("critical", "high"))

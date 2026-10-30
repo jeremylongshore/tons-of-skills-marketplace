@@ -1,40 +1,44 @@
 # Cost Reduction Strategies
 
-## Cost Reduction Strategies
+## Batch Reads Through the Data API
 
-### Step 1: Request Sampling
+Supabase JS has no generic `get()`, `batchGet()`, or `trackEvent()` client methods.
+Use the documented table query interface and check its returned error. This example
+assumes an application-owned `products(id, name)` table with appropriate RLS.
 
 ```typescript
-function shouldSample(samplingRate = 0.1): boolean {
-  return Math.random() < samplingRate;
+import { createClient } from '@supabase/supabase-js';
+
+export async function readProducts(url: string, publishableKey: string, ids: string[]) {
+  if (ids.length === 0) return [];
+  const client = createClient(url, publishableKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data, error } = await client.from('products').select('id, name').in('id', ids);
+  if (error) throw error;
+  return data;
 }
-
-// Use for non-critical telemetry
-if (shouldSample(0.1)) { // 10% sample
-  await supabaseClient.trackEvent(event);
-}
 ```
 
-### Step 2: Batching Requests
+A single query can still encounter row/URL/payload limits. Bound the caller's ID
+batch, paginate when needed, and measure actual requests and returned bytes. Do not
+promise that every input ID appears: RLS, missing rows, and configured limits apply.
+Authenticated applications must use their user-scoped client rather than a public
+probe or privileged key. Do not sample required audit records, billing events, or
+security controls to reduce costs.
 
-```typescript
-// Instead of N individual calls
-await Promise.all(ids.map(id => supabaseClient.get(id)));
+## Cache Only Within the Correct Trust Boundary
 
-// Use batch endpoint (1 call)
-await supabaseClient.batchGet(ids);
-```
+Use explicit column selection, query filters, and bounded pagination before adding
+caches. If caching authorized results, include the user/tenant authorization context
+in cache keys, set TTL/invalidation rules, and avoid sharing private results across
+users. Revalidate permissions rather than treating a cache entry as authorization.
 
-### Step 3: Caching (from P16)
+## Reduce Payloads Without Invented SDK Options
 
-- Cache frequently accessed data
-- Use cache invalidation webhooks
-- Set appropriate TTLs
+There is no `compression: true` SupabaseClient option. Optimize image/file bytes
+before upload where appropriate, use documented Storage transforms where supported,
+and inspect actual HTTP/cache behavior. Verify current project usage and invoices;
+these patterns do not establish a fixed saving or change a plan's billing rules.
 
-### Step 4: Compression
-
-```typescript
-const client = new SupabaseClient({
-  compression: true, // Enable gzip
-});
-```
+[Query filters](https://supabase.com/docs/reference/javascript/using-filters)

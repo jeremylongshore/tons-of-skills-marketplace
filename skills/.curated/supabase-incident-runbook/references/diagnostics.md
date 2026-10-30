@@ -196,31 +196,25 @@ async function getConnectionStats() {
 
 ```sql
 -- List all RLS policies on a table
-SELECT policyname, cmd, permissive,
-       pg_get_expr(qual, polrelid) AS using_expression,
-       pg_get_expr(with_check, polrelid) AS with_check_expression
-FROM pg_policy
-JOIN pg_class ON pg_class.oid = polrelid
-WHERE relname = 'your_table_name';
+SELECT policyname, cmd, permissive, roles,
+       qual AS using_expression, with_check AS with_check_expression
+FROM pg_policies
+WHERE schemaname = 'public' AND tablename = 'your_table_name';
 
--- Test as a specific user (simulates their JWT in SQL Editor)
-SET request.jwt.claim.sub = 'target-user-uuid';
-SET request.jwt.claim.role = 'authenticated';
+-- Separately authorize this test in a disposable, seeded fixture only.
+-- Confirm authenticated is neither BYPASSRLS nor the target table owner;
+-- superusers/table owners can bypass RLS. Do not test against production data.
+BEGIN;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims',
+  '{"sub":"reviewed-fixture-user-uuid","role":"authenticated"}', true);
+SELECT current_user, auth.uid(); -- Verify role and expected fixture subject first.
+SELECT id FROM public.your_table_name;
+ROLLBACK; -- Always roll back the fixture transaction, including after errors.
+-- An empty result alone does not establish a broken policy. Compare with the
+-- approved seeded expectations for multiple subjects and denied operations.
+-- Injected claims are not a real authenticated session or a proof of deployed RLS.
 
--- Run the query that's failing
-SELECT * FROM your_table_name WHERE user_id = 'target-user-uuid';
--- If empty but data exists → RLS is filtering incorrectly
-
--- Verify what auth.uid() resolves to
-SELECT auth.uid();
-SELECT auth.jwt();
-
--- Compare with service role (bypasses RLS)
--- Use service_role key in createClient to confirm data exists
-
--- Reset after testing
-RESET request.jwt.claim.sub;
-RESET request.jwt.claim.role;
 ```
 
 ### RLS debugging from the SDK
@@ -228,43 +222,34 @@ RESET request.jwt.claim.role;
 ```typescript
 import { createClient } from '@supabase/supabase-js';
 
-// Anon client — respects RLS
-const anonClient = createClient(url, anonKey);
-
-// Service role client — bypasses RLS
-const adminClient = createClient(url, serviceRoleKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
-
-async function debugRLS(table: string, userId: string) {
-  // Query with RLS (what the user sees)
-  const { data: rlsData, error: rlsError } = await anonClient
-    .from(table)
-    .select('*')
-    .eq('user_id', userId);
-
-  // Query without RLS (what actually exists)
-  const { data: adminData, error: adminError } = await adminClient
-    .from(table)
-    .select('*')
-    .eq('user_id', userId);
-
-  console.log('With RLS:', rlsData?.length ?? 0, 'rows', rlsError?.message ?? 'OK');
-  console.log('Without RLS:', adminData?.length ?? 0, 'rows', adminError?.message ?? 'OK');
-
-  if ((adminData?.length ?? 0) > (rlsData?.length ?? 0)) {
-    console.warn('RLS is filtering rows — check policies on', table);
-  }
+// Server-only, request-scoped observation; never log tokens or returned rows.
+async function debugRLS(request: Request, approvedTable: string) {
+  const authorization = request.headers.get('authorization');
+  if (!authorization?.startsWith('Bearer ')) throw new Error('Authentication required');
+  const userClient = createClient(url, publishableKey, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data: { user }, error: authError } = await userClient.auth.getUser();
+  if (authError || !user) throw new Error('User verification failed');
+  const { count, error } = await userClient.from(approvedTable)
+    .select('id', { count: 'exact', head: true }).eq('user_id', user.id);
+  if (error || typeof count !== 'number') throw new Error('Approved query failed');
+  return { status: 'inconclusive', visible_rows: count };
 }
+// This observes one verified subject's query, not policy correctness. Even a
+// privileged count comparison cannot establish why rows differ. Use separately
+// authorized seeded multi-user/denied-operation fixtures for policy assertions.
+
 ```
 
 ### Edge Function log inspection
 
 ```text
-# View recent Edge Function logs
-npx supabase functions logs my-function --project-ref <project-ref>
+# Remote logs: open the project Dashboard, select the Edge Function,
+# and inspect its Logs and Invocations panels (no CLI logs subcommand).
 
-# Tail logs in real-time during debugging
+# Local development diagnostics only; not a remote log tail
 npx supabase functions serve my-function --debug --env-file .env.local
 
 # Check function deployment status

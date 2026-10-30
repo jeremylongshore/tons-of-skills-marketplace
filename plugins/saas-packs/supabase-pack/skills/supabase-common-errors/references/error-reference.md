@@ -1,58 +1,61 @@
 # Supabase Error Code Reference
 
-Complete lookup tables for every error layer. SKILL.md keeps the two most-cited
-tables (PostgREST + PostgreSQL) inline; the Auth, Storage, and Realtime tables
-live here in full.
+Use the exact service, locked version, returned error code, and documented response
+contract. This is a selected diagnostic reference, not an exhaustive list or proof
+that every failure has one cause. Database queries normally return `{ data, error }`;
+Auth, Storage, Realtime callbacks and Python exceptions have different contracts.
 
-## PostgREST API Errors (PGRST*)
+## PostgREST Database API
 
-| Code | HTTP | Meaning | Root Cause | Fix |
-| ------ | ------ | --------- | ------------ | ----- |
-| `PGRST301` | 401 | JWT expired or invalid | `SUPABASE_ANON_KEY` is wrong, or the user session expired | Verify `SUPABASE_ANON_KEY` matches the project; call `supabase.auth.refreshSession()` |
-| `PGRST302` | 401 | Missing Authorization header | Client created without a key, or middleware stripped the header | Pass `SUPABASE_ANON_KEY` to `createClient()`; check proxy/CDN config |
-| `PGRST116` | 406 | No rows returned for `.single()` | Query matched 0 rows but `.single()` expects exactly 1 | Use `.maybeSingle()` for optional lookups, or check filters |
-| `PGRST200` | 400 | Invalid query parameters | Malformed filter, bad operator, or invalid column reference | Check filter syntax: `.eq('col', val)` not `.eq('col = val')` |
-| `PGRST204` | 400 | Column not found | Column name doesn't exist in the table or view | Verify column exists with `supabase gen types typescript`; check for typos |
-| `PGRST000` | 503 | Connection pool exhausted | Too many concurrent connections from serverless functions | Enable pgBouncer (Supavisor) in project settings; reduce connection count |
+Reviewed against the [official error reference](https://docs.postgrest.org/en/stable/references/errors.html)
+on 2026-10-22. Prefer the server's actual version documentation if it differs.
 
-## PostgreSQL Database Errors (5-digit codes)
+| Code     | HTTP | Meaning and next check                                                                        |
+| -------- | ---- | --------------------------------------------------------------------------------------------- |
+| PGRST000 | 503  | Cannot connect: incorrect database URI or database not running; inspect service configuration |
+| PGRST001 | 503  | Internal database-connection error; inspect availability and protected operational evidence   |
+| PGRST002 | 503  | Database unavailable while building schema cache                                              |
+| PGRST003 | 504  | Timed out waiting for a pool connection; inspect workload and pool capacity                   |
+| PGRST100 | 400  | Query-string parsing error; inspect documented filter syntax                                  |
+| PGRST116 | 406  | Singular response has zero or multiple rows; maybeSingle permits zero, not multiple           |
+| PGRST200 | 400  | Embedded relationship missing or stale in schema cache; inspect foreign keys/embedding        |
+| PGRST204 | 400  | Specified column absent; check schema and cache                                               |
+| PGRST301 | 401  | JWT cannot be decoded or is invalid; check project/token/session configuration                |
+| PGRST302 | 401  | Bearer authentication absent while anonymous role disabled                                    |
+| PGRST303 | 401  | JWT claims validation or parsing failed                                                       |
 
-| Code | Meaning | Root Cause | Fix |
-| ------ | --------- | ------------ | ----- |
-| `42501` | RLS policy violation | Row-level security is blocking the operation for this user | Add or fix the RLS policy; test with service role to confirm |
-| `23505` | Unique constraint violation | INSERT/UPDATE conflicts with an existing row | Use `.upsert({ onConflict: 'column' })` or check existence first |
-| `23503` | Foreign key violation | Referenced row doesn't exist in the parent table | Insert the parent row first, or check the foreign key value |
-| `42P01` | Table or relation doesn't exist | Migration not applied, or wrong schema | Run `supabase db push`; verify schema with `\dt` in SQL Editor |
-| `42703` | Column doesn't exist | Schema out of sync with code | Regenerate types: `supabase gen types typescript --local > types/supabase.ts` |
-| `57014` | Query cancelled (statement timeout) | Query took longer than `statement_timeout` | Add indexes; simplify the query; increase timeout in `postgresql.conf` |
+Do not relabel PGRST301 as a connection error or blindly refresh/retry every 401.
+A missing user session, invalid credential, and wrong project require different
+remedies. Do not diagnose RLS by comparing a user's row count with a privileged one.
 
-## Auth Service Errors
+## PostgreSQL SQLSTATE
 
-| Error Message | Cause | Fix |
-| --------------- | ------- | ----- |
-| `invalid_credentials` / `Invalid login credentials` | Wrong email or password | Verify credentials; check if email is confirmed |
-| `email_not_confirmed` / `Email not confirmed` | User hasn't clicked confirmation link | Check inbox/spam; for local dev check Inbucket at `localhost:54324` |
-| `user_already_exists` / `User already registered` | Duplicate sign-up | Call `signInWithPassword()` instead of `signUp()` |
-| `Token has expired or is invalid` | Stale magic link or OTP | Request a new magic link or OTP; links expire after 5 minutes by default |
-| `AuthRetryableFetchError` | Network failure reaching Auth service | Retry with backoff; verify `SUPABASE_URL` is correct and reachable |
+SQLSTATE is five characters, not always five digits. Codes can reach the Data API
+from PostgreSQL; inspect the exact operation and policies before changing anything.
 
-## Storage Errors
+| Code  | Meaning                | Disposition                                                                                  |
+| ----- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| 42501 | Insufficient privilege | Review grants, identity and RLS under the actual caller; not automatically an RLS-only issue |
+| 23505 | Unique violation       | Reconcile conflict semantics; upsert may overwrite and needs explicit authorization          |
+| 23503 | Foreign-key violation  | Verify intended ownership, parent row and dependency order                                   |
+| 42P01 | Undefined table        | Check schema/migrations through the reviewed deployment workflow                             |
+| 42703 | Undefined column       | Check schema, generated types and spelling                                                   |
+| 57014 | Query cancelled        | Check deadline/load and indexes; do not automatically increase timeouts or replay writes     |
 
-| Error | Cause | Fix |
-| ------- | ------- | ----- |
-| `Bucket not found` | Bucket name is wrong or bucket doesn't exist | Create the bucket in Dashboard or via migration SQL |
-| `The resource already exists` | Uploading to a path that already has a file | Pass `{ upsert: true }` in upload options to overwrite |
-| `new row violates row-level security` | Storage RLS blocking the upload/download | Add a policy on `storage.objects` for the operation (INSERT, SELECT, DELETE) |
-| `413 Payload Too Large` | File exceeds the bucket's size limit | Increase `file_size_limit` on the bucket, or use TUS resumable upload for large files |
+## Auth, Storage and Realtime
 
-## Realtime Errors
+- Auth: inspect documented error codes and recovery flows. Do not disclose whether
+  an account exists through a public diagnostic endpoint. Link/OTP expiry depends
+  on the configured flow; no universal five-minute default is assumed here.
+- Storage: verify bucket/path, operation-specific policies, and configured file
+  limits. A resumable transport does not override the bucket's size limit. Upsert
+  grants overwrite semantics, not a safe universal response to a conflict.
+- Realtime: CHANNEL_ERROR and TIMED_OUT can have several causes. Check identity,
+  channel authorization, connectivity, publication membership for Postgres Changes,
+  and actual subscription status. Do not log changed rows or assume auto-reconnect
+  guarantees recovery of missed events.
 
-| Symptom | Cause | Fix |
-| --------- | ------- | ----- |
-| `CHANNEL_ERROR` on subscribe | Realtime not enabled for the table | Dashboard > Database > Replication > enable the table; or add it to `supabase_realtime` publication |
-| `TIMED_OUT` on subscribe | Network issue or firewall blocking WebSocket | Check that port 443 WebSocket connections are allowed |
-| No events received | Table not in Realtime publication | Run: `ALTER PUBLICATION supabase_realtime ADD TABLE your_table;` |
-| Events stop after deploy | Schema change drops Realtime connections | Clients auto-reconnect; ensure `.subscribe()` handles reconnection |
-
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+[Auth errors](https://supabase.com/docs/guides/auth/debugging/error-codes)
+[Storage errors](https://supabase.com/docs/guides/storage/debugging/error-codes)
+[PostgreSQL codes](https://www.postgresql.org/docs/current/errcodes-appendix.html)
+[Realtime troubleshooting](https://supabase.com/docs/guides/realtime/troubleshooting)

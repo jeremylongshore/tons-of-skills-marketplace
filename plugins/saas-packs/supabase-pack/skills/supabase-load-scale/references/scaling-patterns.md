@@ -1,11 +1,14 @@
 # Scaling Patterns
 
-## Scaling Patterns
+## Scale Application Workers Separately From the Database
 
-### Horizontal Scaling
+A Kubernetes HPA scales your application, not Supabase compute or database connection
+limits. Start with observed CPU/latency/backlog metrics and an explicit maximum.
+This CPU-only example assumes the Deployment exists, requests CPU resources, and
+has a working metrics server. A queue metric would require your own metrics adapter;
+`supabase_queue_depth` is not a built-in Supabase metric.
 
 ```yaml
-# kubernetes HPA
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -24,42 +27,21 @@ spec:
         target:
           type: Utilization
           averageUtilization: 70
-    - type: Pods
-      pods:
-        metric:
-          name: supabase_queue_depth
-        target:
-          type: AverageValue
-          averageValue: 100
 ```
 
-### Connection Pooling
+## HTTP Clients Are Not SQL Connection Pools
 
-```typescript
-import { Pool } from 'generic-pool';
+`createClient(projectUrl, publishableKey, options)` constructs the Supabase HTTP
+client. Do not put it in a `generic-pool` SQL pool or call a nonexistent generic
+`client.close()`. Reuse a browser client within its browser session; create
+request-scoped cookie-aware clients for authenticated SSR. Never share a mutable
+user session across unrelated server requests. Clean up Realtime channels with
+`removeChannel()` when their subscription lifecycle ends.
 
-const supabasePool = Pool.create({
-  create: async () => {
-    return new SupabaseClient({
-      apiKey: process.env.SUPABASE_API_KEY!,
-    });
-  },
-  destroy: async (client) => {
-    await client.close();
-  },
-  max: 20,
-  min: 5,
-  idleTimeoutMillis: 30000,
-});
+For direct Postgres drivers, configure a bounded driver pool using the appropriate
+Supavisor connection string and budget total connections across all app replicas.
+Transaction pooling and prepared-statement compatibility depend on the driver and
+workload; see [connection pooling](connection-pooling.md). Application autoscaling
+must not silently multiply the database pool past its measured capacity.
 
-async function withSupabaseClient<T>(
-  fn: (client: SupabaseClient) => Promise<T>
-): Promise<T> {
-  const client = await supabasePool.acquire();
-  try {
-    return await fn(client);
-  } finally {
-    supabasePool.release(client);
-  }
-}
-```
+[Supabase connection management](https://supabase.com/docs/guides/database/connecting-to-postgres)

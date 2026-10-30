@@ -9,7 +9,7 @@ description: 'Implement Supabase Auth (signUp, signIn, OAuth, session management
   "supabase file upload", "supabase presence", "supabase rls storage".
   '
 allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(supabase:*), Grep
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

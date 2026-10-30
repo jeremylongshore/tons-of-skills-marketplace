@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "88193a1dcd8baeee9dc84053d73e329e38ffeefd7d970295af94df98cc33fad2",
+    "sha256": "f258ae1ac7ee68a736d048bbd76ff87575b2caf2d9e000553a89378c5010035a",
     "artifact_count": 3304
   },
   "rule_order": [
@@ -19,9 +19,9 @@
     "G9"
   ],
   "counts": {
-    "AUTO-MIGRATE": 1,
+    "AUTO-MIGRATE": 0,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 2955,
+    "CERTIFY-PENDING-EVIDENCE": 2956,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
     "QUARANTINE": 347
@@ -6139,8 +6139,8 @@
     },
     {
       "path": "plugins/business-tools/brand-strategy-framework/skills/brand-strategy/SKILL.md",
-      "grade": "B",
-      "score": 83,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6194,8 +6194,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/agreement-generator/SKILL.md",
-      "grade": "B",
-      "score": 85,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6205,8 +6205,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/compliance-audit/SKILL.md",
-      "grade": "B",
-      "score": 82,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6216,8 +6216,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/contract-compare/SKILL.md",
-      "grade": "B",
-      "score": 87,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6227,8 +6227,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/contract-review/SKILL.md",
-      "grade": "B",
-      "score": 87,
+      "grade": "A",
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6238,8 +6238,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/freelancer-review/SKILL.md",
-      "grade": "B",
-      "score": 82,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6249,8 +6249,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/missing-protections/SKILL.md",
-      "grade": "B",
-      "score": 84,
+      "grade": "A",
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6260,8 +6260,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/nda-generator/SKILL.md",
-      "grade": "B",
-      "score": 87,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6272,7 +6272,7 @@
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/negotiate/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6282,8 +6282,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/plain-english/SKILL.md",
-      "grade": "B",
-      "score": 86,
+      "grade": "A",
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6293,8 +6293,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/privacy-generator/SKILL.md",
-      "grade": "B",
-      "score": 82,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6304,8 +6304,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/risk-analysis/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6315,8 +6315,8 @@
     },
     {
       "path": "plugins/business-tools/general-legal-assistant/skills/terms-generator/SKILL.md",
-      "grade": "B",
-      "score": 85,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -6896,7 +6896,7 @@
     {
       "path": "plugins/crypto/crypto-news-aggregator/skills/aggregating-crypto-news/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9119,8 +9119,8 @@
     },
     {
       "path": "plugins/productivity/j-rig/skills/j-rig/SKILL.md",
-      "grade": "B",
-      "score": 81,
+      "grade": "A",
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9410,7 +9410,7 @@
     {
       "path": "plugins/productivity/youtube-strategy/skills/yt-brief/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9420,8 +9420,8 @@
     },
     {
       "path": "plugins/productivity/youtube-strategy/skills/yt-ideation/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 93,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9432,7 +9432,7 @@
     {
       "path": "plugins/productivity/youtube-strategy/skills/yt-outline/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9442,8 +9442,8 @@
     },
     {
       "path": "plugins/productivity/youtube-strategy/skills/yt-packaging/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -9453,8 +9453,8 @@
     },
     {
       "path": "plugins/productivity/youtube-strategy/skills/yt-research/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 92,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30477,7 +30477,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-advanced-troubleshooting/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30553,8 +30553,8 @@
     },
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-debug-bundle/SKILL.md",
-      "grade": "A",
-      "score": 90,
+      "grade": "B",
+      "score": 89,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30565,7 +30565,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-deploy-integration/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30631,7 +30631,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-load-scale/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30730,7 +30730,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-reference-architecture/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 92,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30741,7 +30741,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-reliability-patterns/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 91,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30763,7 +30763,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-sdk-patterns/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30785,7 +30785,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-upgrade-migration/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 91,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30796,7 +30796,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-webhooks-events/SKILL.md",
       "grade": "A",
-      "score": 94,
+      "score": 93,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -33095,7 +33095,7 @@
     {
       "path": "plugins/security/penetration-tester/skills/defining-pentest-scope/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -33238,7 +33238,7 @@
     {
       "path": "plugins/security/penetration-tester/skills/performing-penetration-testing/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 91,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -33249,7 +33249,7 @@
     {
       "path": "plugins/security/penetration-tester/skills/probing-dangerous-http-methods/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -33259,8 +33259,8 @@
     },
     {
       "path": "plugins/security/penetration-tester/skills/recording-pentest-engagement/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 91,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -33479,8 +33479,8 @@
     },
     {
       "path": "plugins/skill-enhancers/research-to-deploy/skills/research-to-deploy/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -33545,27 +33545,13 @@
     },
     {
       "path": "plugins/skill-enhancers/zero-tech-debt/skills/zero-tech-debt/SKILL.md",
-      "grade": "B",
-      "score": 82,
-      "diagnostics": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)",
-        "[body] Required section missing: '## Resources' (or an equivalent heading: ## References, ## See also, ## Links, ## Further reading, ## Related, ## Additional resources) (marketplace tier)"
-      ],
-      "disposition": "AUTO-MIGRATE",
-      "gate": "G5",
+      "grade": "A",
+      "score": 99,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
       "reason_codes": [
-        "[body] Required section missing: '## Error Handling' (or an equivalent heading: ## Errors, ## Troubleshooting, ## Failure modes, ## Edge cases, ## Limitations) (marketplace tier)",
-        "[body] Required section missing: '## Examples' (or an equivalent heading: ## Example, ## Sample, ## Samples, ## Usage examples, ## Example usage) (marketplace tier)",
-        "[body] Required section missing: '## Instructions' (or an equivalent heading: ## Usage, ## How to use, ## How it works, ## Steps, ## Workflow, ## Guide, ## Getting started) (marketplace tier)",
-        "[body] Required section missing: '## Output' (or an equivalent heading: ## Outputs, ## Returns, ## Results, ## Output format, ## Response) (marketplace tier)",
-        "[body] Required section missing: '## Overview' (or an equivalent heading: ## Summary, ## About, ## Description, ## What it does, ## Introduction, ## Capabilities, ## Purpose) (marketplace tier)",
-        "[body] Required section missing: '## Prerequisites' (or an equivalent heading: ## Requirements, ## Setup, ## Dependencies, ## Before you begin, ## Installation) (marketplace tier)",
-        "[body] Required section missing: '## Resources' (or an equivalent heading: ## References, ## See also, ## Links, ## Further reading, ## Related, ## Additional resources) (marketplace tier)"
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
       ]
     },
     {

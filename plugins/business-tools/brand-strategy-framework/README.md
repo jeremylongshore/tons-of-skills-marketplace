@@ -1,6 +1,6 @@
 # Brand Strategy Framework
 
-A systematic 7-part methodology for building brand foundations — the same process top agencies use with Fortune 500 clients.
+A seven-part brand strategy framework for identity, audience, positioning, messaging, visual principles, channels and measurement.
 
 ## Installation
 

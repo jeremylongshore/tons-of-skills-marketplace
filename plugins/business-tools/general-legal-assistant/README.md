@@ -1,6 +1,6 @@
 # General Legal Assistant
 
-AI-powered contract review, risk analysis, document generation, and compliance auditing. 12 skills, 5 parallel agents.
+AI-powered contract review, risk analysis, document generation, and compliance auditing. 12 skills and 5 bundled agents.
 
 ## Skills
 
@@ -8,40 +8,43 @@ AI-powered contract review, risk analysis, document generation, and compliance a
 
 | Skill | What It Does |
 |-------|-------------|
-| `contract-review` | **Flagship** — Full review with 5 parallel agents. Contract Safety Score (0-100), clause-by-clause analysis, prioritized recommendations. |
-| `risk-analysis` | Clause-by-clause risk scoring (1-10) with financial exposure estimates and poison pill detection. |
-| `contract-compare` | Side-by-side version comparison. Flags additions, removals, and dangerous changes. |
-| `plain-english` | Translates legalese into plain English at an 8th-grade reading level. Flags deliberately confusing language. |
-| `missing-protections` | Finds protections that should be in the contract but aren't. Ready-to-insert clause language. |
-| `freelancer-review` | Reviews contracts from the freelancer's perspective. IRS 20-Factor Test for misclassification. |
-| `negotiate` | Generates counter-proposals with replacement language and a negotiation email template. |
+| `contract-review` | Evidence-linked contract review with explicit coverage, five analysis lenses, optional permitted delegation and prioritized negotiation questions. |
+| `risk-analysis` | Evidence-linked review across ten issue categories, with explicit assumptions, unknowns and source-backed scenarios. |
+| `contract-compare` | Clause-level version comparison with exact evidence, coverage gaps and qualified possible effects for the identified parties. |
+| `plain-english` | Clause-linked explanations that preserve conditions, exceptions and ambiguity; readability metrics only when actually measured. |
+| `missing-protections` | Relevant clause-topic gap review with applicability, evidence status and scoped drafting options when requested. |
+| `freelancer-review` | Fourteen commercial review lenses, clause evidence and actual-work questions, with scoped worker-classification limits. |
+| `negotiate` | Clause-linked counterproposals and fallback options grounded in actual priorities, with source provenance and an optional unsent email draft. |
 
 ### Document Generation
 
 | Skill | What It Does |
 |-------|-------------|
-| `nda-generator` | Generates custom NDAs — mutual, one-way, employee, or vendor. |
-| `terms-generator` | Generates Terms of Service by analyzing what a website actually does. |
-| `privacy-generator` | Generates a privacy policy by detecting data collection practices. GDPR/CCPA compliant. |
-| `agreement-generator` | Generates business agreements — freelancer contracts, partnerships, SOWs, MSAs, and more. |
+| `nda-generator` | Confidentiality drafts with explicit disclosure direction, relationship context, term decisions and template provenance. |
+| `terms-generator` | Service-specific terms drafts from confirmed features and business choices, with scoped applicability review. |
+| `privacy-generator` | Privacy-notice drafts from confirmed processing facts, with a separate evidence and unresolved-questions record. |
+| `agreement-generator` | Ten relationship-based drafting flows using confirmed commercial facts, proposed choices and source provenance. |
 
 ### Compliance
 
 | Skill | What It Does |
 |-------|-------------|
-| `compliance-audit` | Gap analysis across GDPR, CCPA, ADA/WCAG, PCI-DSS, CAN-SPAM, COPPA, SOC 2. |
+| `compliance-audit` | Scoped readiness review across seven lenses, with applicability questions, traceable evidence gaps and remediation actions; no compliance grade or attestation. |
 
 ## Agents
 
-The `contract-review` skill spawns 5 specialized agents in parallel:
+Contract review can run directly or use permitted, available agents. Clause inventory
+precedes dependent risk, compliance and obligation passes; recommendations consume
+their actual results. Shared-model agreement and numeric scores do not prove legal
+correctness. See the skill's handoff reference for output checks and current limits.
 
-| Agent | Role | Weight |
-|-------|------|--------|
-| `legal-clauses` | Clause extraction and categorization | 20% |
-| `legal-risks` | Risk scoring and threat identification | 25% |
-| `legal-compliance` | Regulatory compliance verification | 20% |
-| `legal-obligations` | Obligation mapping and financial exposure | 15% |
-| `legal-recommendations` | Recommendations and negotiation strategy | 20% |
+| Agent | Intended role |
+|-------|---------------|
+| `legal-clauses` | Clause inventory and cross-references |
+| `legal-risks` | Draft risk analysis for source verification |
+| `legal-compliance` | Draft regulatory questions and findings for authority checks |
+| `legal-obligations` | Obligation mapping and conditional calculations |
+| `legal-recommendations` | Synthesis of available upstream findings and proposed options |
 
 ## Install
 

@@ -16,7 +16,7 @@ description: 'Deploy and manage Supabase projects in production. Covers database
 
   '
 allowed-tools: Read, Write, Edit, Bash(npx:supabase), Bash(supabase:*), Bash(curl:*)
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -32,13 +32,13 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Deploy and manage Supabase projects in production with confidence. This skill covers the full deployment lifecycle: pushing database migrations, deploying Edge Functions, managing secrets, executing zero-downtime rollouts with blue/green database branching, rolling back failed migrations, and verifying deployment health. All commands use the Supabase CLI with `--project-ref` for explicit project targeting.
+Deploy and manage Supabase projects in production with confidence. This skill covers the full deployment lifecycle: pushing database migrations, deploying Edge Functions, managing secrets, executing zero-downtime rollouts with blue/green database branching, rolling back failed migrations, and verifying deployment health. Verify the approved project and working directory before remote work. Link-based database commands use `--linked`; only commands that document a project-ref flag use it directly.
 
 **SDK**: `@supabase/supabase-js` — [supabase.com/docs](https://supabase.com/docs)
 
 ## Prerequisites
 
-- Supabase CLI installed (`npm install -g supabase` or `npx supabase`)
+- Supabase CLI installed (`npm install --save-dev supabase` or `npx supabase`)
 - Supabase project linked (`npx supabase link --project-ref <your-ref>`)
 - Database migrations in `supabase/migrations/` directory
 - Edge Functions in `supabase/functions/` directory (if deploying functions)
@@ -53,14 +53,15 @@ Apply pending database migrations to your production project, then deploy Edge F
 **Database migrations:**
 
 ```bash
-# Apply all pending migrations to production
-npx supabase db push --project-ref $PROJECT_REF
+# Link only the approved target; inspect the CLI confirmation against the Dashboard.
+npx supabase link --project-ref "$PROJECT_REF"
 
-# Preview what will run without applying (dry run)
-npx supabase db push --project-ref $PROJECT_REF --dry-run
+# Confirm migration history in this same working directory and approved project.
+npx supabase migration list --linked
+npx supabase db push --linked --dry-run
 
-# Check current migration status
-npx supabase migration list --project-ref $PROJECT_REF
+# Apply only after target, migration review, and deployment approval.
+npx supabase db push --linked
 ```
 
 Each migration file in `supabase/migrations/` is applied in timestamp order. The CLI tracks which migrations have already been applied and only runs new ones.
@@ -104,14 +105,18 @@ npx supabase branches create staging-v2 --project-ref $PROJECT_REF
 
 # The branch gets its own connection string and API URL
 # Test your migrations against the branch first
-npx supabase db push --project-ref $BRANCH_REF
+npx supabase link --project-ref "$BRANCH_REF"
+# Verify the linked branch target before applying.
+npx supabase db push --linked
 
 # Verify the branch works with your application
 # Point a staging instance at the branch's connection string
 
 # When satisfied, merge branch changes into production
 # Apply the same migrations to the main project
-npx supabase db push --project-ref $PROJECT_REF
+npx supabase link --project-ref "$PROJECT_REF"
+# Verify the approved main project target again; linking is per working directory.
+npx supabase db push --linked
 
 # Delete the branch after successful cutover
 npx supabase branches delete staging-v2 --project-ref $PROJECT_REF
@@ -140,30 +145,24 @@ ALTER TABLE orders RENAME COLUMN status_v2 TO status;
 
 When a migration fails or causes issues, roll it back. Then verify deployment health.
 
-**Rollback a failed migration:**
+**Recovery and migration-history repair are different operations:**
+
+First verify the approved project, inspect the actual schema/data effects, and review a compensating migration or a tested backup-recovery plan. A failed migration is not automatically reversible, and a history edit does not restore business data.
 
 ```bash
-# Mark a specific migration as reverted (removes it from the applied list)
-npx supabase migration repair --status reverted <migration_version> --project-ref $PROJECT_REF
-
-# Example: revert migration 20260322120000
-npx supabase migration repair --status reverted 20260322120000 --project-ref $PROJECT_REF
-
-# After marking as reverted, manually undo the schema changes
-# Write a new "down" migration to reverse the changes
-npx supabase migration new rollback_order_status
+# In the explicitly linked, verified target working directory:
+npx supabase migration list --linked
+# Author and review the actual compensating SQL before any remote apply.
+npx supabase migration new reviewed_compensation
 ```
 
-```sql
--- supabase/migrations/<timestamp>_rollback_order_status.sql
--- Reverse the changes from the failed migration
-ALTER TABLE orders DROP COLUMN IF EXISTS status_v2;
+Only if the history itself needs repair, use the exact reviewed migration version with the documented command:
+
+```text
+npx supabase migration repair <reviewed-version> --status reverted --linked
 ```
 
-```bash
-# Push the rollback migration
-npx supabase db push --project-ref $PROJECT_REF
-```
+That command changes migration-history metadata; it does not execute a down migration or undo data changes. Do not choose a version by parsing the last line of CLI output. Recheck history, schema, and application/data recovery independently after the approved operation.
 
 **Post-deploy health check:**
 
@@ -185,13 +184,13 @@ async function healthCheck() {
 
   // Database connectivity
   const dbStart = Date.now()
-  const { error: dbErr } = await supabase.from('_health').select('count').limit(1)
-  checks.database = !dbErr || dbErr.code === 'PGRST116' // table not found is OK
+  const { error: dbErr } = await supabase.from('_health').select('id', { head: true }).limit(1)
+  checks.database = !dbErr // Every returned error remains a failed scoped query
   const dbLatency = Date.now() - dbStart
 
-  // Auth service
-  const { error: authErr } = await supabase.auth.getSession()
-  checks.auth = !authErr
+  // Fresh user verification, not a standalone Auth-platform availability test.
+  const { data: { user }, error: authErr } = await supabase.auth.getUser()
+  checks.auth = !authErr && !!user
 
   // Storage service
   const { error: storageErr } = await supabase.storage.listBuckets()
@@ -208,7 +207,7 @@ async function healthCheck() {
   const allHealthy = Object.values(checks).every(Boolean)
 
   console.log({
-    status: allHealthy ? 'healthy' : 'degraded',
+    status: allHealthy ? 'probes_succeeded' : 'probe_failed_or_not_authorized',
     checks,
     db_latency_ms: dbLatency,
     timestamp: new Date().toISOString(),
@@ -217,6 +216,8 @@ async function healthCheck() {
   return allHealthy
 }
 ```
+
+Use an approved existing `_health` table and independently reviewed user session for these probes. A missing table, absent user, or authorization error cannot be counted as healthy. `PGRST116` is HTTP 406 for zero/multiple rows in a singular response, not a missing-table condition. These checks do not certify whole-platform availability.
 
 **Monitoring via Supabase Dashboard:**
 
@@ -234,7 +235,7 @@ After completing these steps, you will have:
 - Edge Functions deployed to Supabase's global edge network
 - Secrets configured for Edge Functions without exposing values in code
 - A zero-downtime deployment strategy using database branching or rolling migrations
-- Rollback capability for any failed migration via `migration repair --status reverted`
+- Reviewed recovery plan with migration-history repair kept separate from schema/data rollback
 - Health check endpoint verifying database, auth, storage, and function connectivity
 - Monitoring configured through the Supabase Dashboard Reports
 
@@ -249,7 +250,7 @@ After completing these steps, you will have:
 | `branch limit reached` | Too many active branches | Delete unused branches with `supabase branches delete` |
 | `migration repair` has no effect | Wrong version number | Run `supabase migration list` to find the exact version string |
 | `connection refused` on db push | IP not allowlisted | Add your IP in Dashboard > Settings > Database > Network Bans |
-| Edge Function 500 after deploy | Missing secret or import error | Check `supabase functions logs <name>` for stack trace |
+| Edge Function 500 after deploy | Missing secret or import error | Inspect the function Logs and Invocations in the project Dashboard |
 
 ## Examples
 
@@ -277,7 +278,7 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Push migrations
-        run: npx supabase db push --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: npx supabase db push --linked
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
@@ -287,20 +288,12 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 ```
 
-**Quick rollback script:**
+**Recovery review checklist:**
 
-```bash
-#!/bin/bash
-# rollback.sh — Revert the last migration
-set -euo pipefail
-
-REF="${1:?Usage: rollback.sh <project-ref>}"
-LAST=$(npx supabase migration list --project-ref "$REF" 2>/dev/null | tail -1 | awk '{print $1}')
-
-echo "Reverting migration: $LAST"
-npx supabase migration repair --status reverted "$LAST" --project-ref "$REF"
-echo "Migration $LAST marked as reverted. Write and push a compensating migration next."
-```
+1. Verify the linked project against the approved target and inspect migration history with `npx supabase migration list --linked`.
+2. Determine what schema and business-data changes actually occurred; choose a reviewed compensating migration or tested backup recovery.
+3. Treat `migration repair` solely as an explicitly reviewed history correction, never an automatic rollback.
+4. Verify data reconciliation and application behavior before declaring recovery complete.
 
 ## Resources
 

@@ -16,14 +16,14 @@
     "values": {
       "a_error_total": 23,
       "a_failing": 7,
-      "ab_error_total": 170,
-      "ab_failing": 21,
-      "b_failing": 14,
-      "error_files": 278,
-      "error_total": 2798,
+      "ab_error_total": 163,
+      "ab_failing": 20,
+      "b_failing": 13,
+      "error_files": 277,
+      "error_total": 2791,
       "grade_distribution": {
-        "A": 2838,
-        "B": 186,
+        "A": 2856,
+        "B": 168,
         "C": 122,
         "D": 154,
         "F": 4
@@ -90,7 +90,7 @@
           "validator_reported_mixed_denominator_percent": 81.5
         },
         "marketplace_terminal": {
-          "error_total_all_validated_surfaces": 3029,
+          "error_total_all_validated_surfaces": 3022,
           "fully_compliant_surfaces": 2084,
           "terminal_denominator": {
             "agents": 363,
@@ -106,14 +106,14 @@
         "skill_rows": {
           "a_error_total": 23,
           "a_failing": 7,
-          "ab_error_total": 170,
-          "ab_failing": 21,
-          "b_failing": 14,
-          "error_files": 278,
-          "error_total": 2798,
+          "ab_error_total": 163,
+          "ab_failing": 20,
+          "b_failing": 13,
+          "error_files": 277,
+          "error_total": 2791,
           "grade_distribution": {
-            "A": 2838,
-            "B": 186,
+            "A": 2856,
+            "B": 168,
             "C": 122,
             "D": 154,
             "F": 4
@@ -131,15 +131,15 @@
       "values": {
         "average_score": 92.1,
         "grade_distribution": {
-          "A": 2838,
-          "B": 186,
+          "A": 2856,
+          "B": 168,
           "C": 122,
           "D": 154,
           "F": 4
         },
         "grade_percentages": {
-          "A": 85.9,
-          "B": 5.6,
+          "A": 86.4,
+          "B": 5.1,
           "C": 3.7,
           "D": 4.7,
           "F": 0.1
@@ -156,10 +156,10 @@
       "values": {
         "a_error_total": 23,
         "a_failing": 7,
-        "ab_error_total": 170,
-        "ab_failing": 21,
-        "b_error_total": 147,
-        "b_failing": 14,
+        "ab_error_total": 163,
+        "ab_failing": 20,
+        "b_error_total": 140,
+        "b_failing": 13,
         "certified_target": 0,
         "skill_summary_rows": 3304
       }
@@ -182,21 +182,21 @@
       "status": "measured",
       "target_status": "fail",
       "values": {
-        "affected_skills": 274,
-        "all_skill_error_occurrences": 2798,
+        "affected_skills": 273,
+        "all_skill_error_occurrences": 2791,
         "measurement_schema_version": 1,
         "missing_required_field_occurrences": 580,
-        "missing_required_section_occurrences": 1641,
+        "missing_required_section_occurrences": 1634,
         "other_skill_error_occurrences": 577,
         "skill_rows": 3304,
-        "structural_occurrences": 2221,
-        "structural_share_of_skill_errors_pct": 79.3781,
+        "structural_occurrences": 2214,
+        "structural_share_of_skill_errors_pct": 79.3264,
         "target": 0,
         "target_met": false,
-        "unique_structural_triples": 847,
+        "unique_structural_triples": 846,
         "unique_triples_by_rule": {
           "E-MISSING-REQUIRED-FIELD": 580,
-          "E-MISSING-REQUIRED-SECTION": 267
+          "E-MISSING-REQUIRED-SECTION": 266
         },
         "validator_schema_version": "4.1.0",
         "validator_sha256": "716e732fed464f2920379588f592d55cbeea2db525d9e3014a74b8b62aa6b197"
@@ -1169,6 +1169,10 @@
             "value": "Designed for Claude Code; requires a separately configured Plane MCP server with permitted read tools and inspected schemas; no server version is installed or pinned by this plugin"
           },
           {
+            "count": 1,
+            "value": "Designed for Claude Code; requires a separately installed compatible J-Rig CLI for refiner commands"
+          },
+          {
             "count": 24,
             "value": "Designed for Claude Code; requires authorized OpenEvidence access and qualified clinical review for patient-care use"
           },
@@ -1251,10 +1255,6 @@
           {
             "count": 1,
             "value": "Designed for Claude Code; the live probe requires a ClickUp personal token or OAuth access token"
-          },
-          {
-            "count": 1,
-            "value": "Designed for Claude Code; the refine subcommands wrap the published @intentsolutions/jrig-cli binary and run anywhere that CLI installs"
           },
           {
             "count": 1,
@@ -3361,14 +3361,14 @@
       "status": "partial",
       "values": {
         "coverage": {
-          "conditional_envelopes": 44,
-          "containers": 237,
+          "conditional_envelopes": 45,
+          "containers": 238,
           "containers_with_sites": 17,
           "counts_overlap": true,
           "jobs": 28,
           "opaque_actions": 73,
-          "run_containers": 164,
-          "unreviewed_run_containers": 147,
+          "run_containers": 165,
+          "unreviewed_run_containers": 148,
           "workflows": 3
         },
         "repository_unbounded_total": null,
@@ -3440,7 +3440,7 @@
           {
             "authority": [
               {
-                "line": 960,
+                "line": 965,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3453,7 +3453,7 @@
             "promotion": null,
             "rationale": "Test failure is accumulated and propagated by the final fail check in this bound run body.",
             "run_line": 70,
-            "step": 9,
+            "step": 10,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3521,7 +3521,7 @@
           {
             "authority": [
               {
-                "line": 1164,
+                "line": 1170,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
@@ -3539,7 +3539,7 @@
             "promotion": null,
             "rationale": "Only grep's no-match status 1 is normalized; find traversal and exclusion-filter failures remain blocking under pipefail, including partial discovery output. Extracted-workflow tests preserve pytest arguments and failures.",
             "run_line": 20,
-            "step": 17,
+            "step": 18,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3644,7 +3644,7 @@
             "promotion": null,
             "rationale": "Full-lane optional runtime installation remains best-effort without case-specific failure authority; the three-file fixture dependency closure is installed strictly afterward in both lanes.",
             "run_line": 14,
-            "step": 14,
+            "step": 15,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3657,7 +3657,7 @@
             "promotion": null,
             "rationale": "Report versus gate role and bounds are unresolved; the later CLI marker does not apply.",
             "run_line": 11,
-            "step": 23,
+            "step": 24,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3668,13 +3668,13 @@
             "observed_deadline": {
               "date": "2026-10-31",
               "expiry_adjudicated": false,
-              "source_line": 1262
+              "source_line": 1268
             },
             "owner": null,
             "promotion": null,
             "rationale": "The CLI marker and historical issue reference do not establish a current owner.",
             "run_line": 47,
-            "step": 23,
+            "step": 24,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3752,7 +3752,7 @@
             "promotion": null,
             "rationale": "Only grep's no-match status 1 selects no-test/Python/test:ci branches; operational errors in all four queries terminate before package commands. Remaining discovery-policy disposition is unresolved.",
             "run_line": 27,
-            "step": 9,
+            "step": 10,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3797,8 +3797,8 @@
             "observed_deadline": null,
             "owner": null,
             "promotion": null,
-            "rationale": "Branch-name selected warn-only mode lacks established current ownership, bound and actor authorization.",
-            "run_line": 8,
+            "rationale": "Trusted producer provenance limits the existing sync advisory scanner mode to its actual same-repository PR and exact head; missing proof retains full grading. Authentication does not settle the remaining advisory ownership/bound or human CHALLENGE approval policy, so this site remains unresolved.",
+            "run_line": 14,
             "step": 3,
             "workflow": ".github/workflows/validate-plugins.yml"
           }
@@ -3823,15 +3823,15 @@
       "dimension": "Inventory header versus rows",
       "reproduce": "pnpm run measure:e1 --row=52 --stdout",
       "source": [
-        "freshie/reports/run-delta-156.json",
+        "freshie/reports/run-delta-161.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"
       ],
       "status": "target_met",
       "values": {
-        "dolt_commit": "sn4ddt17773abusftrjlhqe81h441rap",
+        "dolt_commit": "6pc05u17d05df6g5riqv968hhu36tb44",
         "header_total_skills": 2727,
-        "run_id": 156,
+        "run_id": 161,
         "skill_row_delta": 0,
         "skill_rows": 2727,
         "target_skill_row_delta": 0
@@ -3844,32 +3844,32 @@
       "source": [
         "freshie/grade-histogram.json",
         "freshie/grades.csv",
-        "freshie/reports/run-delta-156.json"
+        "freshie/reports/run-delta-161.json"
       ],
       "status": "target_met",
       "values": {
         "compliance_rows": 3304,
-        "export_dolt_commit": "sn4ddt17773abusftrjlhqe81h441rap",
-        "export_run_id": 156,
+        "export_dolt_commit": "6pc05u17d05df6g5riqv968hhu36tb44",
+        "export_run_id": 161,
         "grades_csv_rows": 3304,
-        "grades_csv_sha256": "88193a1dcd8baeee9dc84053d73e329e38ffeefd7d970295af94df98cc33fad2",
+        "grades_csv_sha256": "f258ae1ac7ee68a736d048bbd76ff87575b2caf2d9e000553a89378c5010035a",
         "histogram_grades": {
-          "A": 2838,
-          "B": 186,
+          "A": 2856,
+          "B": 168,
           "C": 122,
           "D": 154,
           "F": 4
         },
         "histogram_total": 3304,
         "immutable_grade_counts": {
-          "A": 2838,
-          "B": 186,
+          "A": 2856,
+          "B": 168,
           "C": 122,
           "D": 154,
           "F": 4
         },
-        "inventory_dolt_commit": "sn4ddt17773abusftrjlhqe81h441rap",
-        "inventory_run_id": 156,
+        "inventory_dolt_commit": "6pc05u17d05df6g5riqv968hhu36tb44",
+        "inventory_run_id": 161,
         "target_lag_runs": 0
       }
     },
@@ -3879,7 +3879,7 @@
       "reproduce": "pnpm run measure:e1 --row=54 --stdout",
       "source": [
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-156.json",
+        "freshie/reports/run-delta-161.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py",
@@ -3893,7 +3893,7 @@
           "E2": 0,
           "E3": 0
         },
-        "current_run_id": 156,
+        "current_run_id": 161,
         "invalid_identities": 0,
         "legacy_e0_records": 3,
         "retained_e2_e3": 0,
@@ -3917,7 +3917,7 @@
       "source": [
         "000-docs/807-DR-STND-evaluation-evidence.md",
         "freshie/reports/legacy-forge-proofs-demotion.json",
-        "freshie/reports/run-delta-156.json",
+        "freshie/reports/run-delta-161.json",
         "freshie/reports/run-delta-19.json",
         "freshie/scripts/dolt-sync.py",
         "freshie/scripts/run-delta.py"

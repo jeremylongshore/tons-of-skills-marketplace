@@ -8,12 +8,13 @@
     "ai-experiment-logger": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc && chmod +x dist/index.js",
+    "build": "tsc && node scripts/build.mjs",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "web": "node dist/web/server.js",
-    "test": "pnpm build && node --test tests/protocol.test.mjs",
-    "typecheck": "tsc --noEmit"
+    "test": "pnpm build && node --test tests/entrypoint.test.mjs tests/protocol.test.mjs tests/storage.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:ci": "pnpm build && git diff --exit-code -- dist/index.js && node --test tests/entrypoint.test.mjs tests/protocol.test.mjs tests/storage.test.mjs"
   },
   "keywords": [
     "mcp",
@@ -32,6 +33,10 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.9.1",
+    "esbuild": "0.28.2",
     "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

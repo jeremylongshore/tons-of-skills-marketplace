@@ -1,122 +1,79 @@
-# Dependency Checker Plugin
+# Dependency Checker
 
-Check dependencies for known vulnerabilities, outdated packages, and license compliance across multiple package managers.
+Audit selected project dependencies with installed tools, normalize existing
+reports and inventory declared license metadata. Failed or partial observations
+stay incomplete rather than becoming an empty clean report.
 
-## Features
+## Installation and use
 
-- **Multi-Language Support** - npm, pip, composer, gem, go modules
-- **CVE Detection** - Known vulnerability scanning
-- **Version Analysis** - Identify outdated packages
-- **License Scanning** - Check license compatibility
-- **Transitive Dependencies** - Scan entire dependency tree
-- **Remediation Guidance** - Safe upgrade recommendations
-
-## Installation
-
-```bash
+```text
 /plugin install dependency-checker@claude-code-plugins-plus
-```
-
-## Usage
-
-```bash
-# Check all dependencies
 /check-deps
-
-# Or use shortcut
-/depcheck
 ```
 
-## Supported Package Managers
+The command shortcut is `/depc`. Select a project root and authorize any live
+audit requests first. Package names and versions can be sent to configured
+advisory services. The plugin does not install tools, generate lock files, apply
+upgrades or run `audit fix`.
 
-- **Node.js**: npm, yarn, pnpm (package.json)
-- **Python**: pip, pipenv, poetry (requirements.txt, Pipfile, pyproject.toml)
-- **PHP**: composer (composer.json)
-- **Ruby**: bundler (Gemfile)
-- **Go**: go modules (go.mod)
+## Supported audit routes
 
-## Report Structure
+| Selector | Required project inputs                                   | Installed executable            |
+| -------- | --------------------------------------------------------- | ------------------------------- |
+| npm      | package.json and package-lock.json or npm-shrinkwrap.json | npm                             |
+| pip      | Explicit pinned requirements.txt                          | pip-audit                       |
+| composer | composer.json and composer.lock                           | composer                        |
+| bundler  | Gemfile and Gemfile.lock                                  | bundle-audit or bundler-audit   |
+| cargo    | Cargo.toml and Cargo.lock                                 | cargo with the audit subcommand |
 
-### 1. Vulnerability Summary
+These are root-level routes, not a recursive workspace or dependency-closure
+proof. Yarn/pnpm locks, Go modules, Poetry/Pipfile resolution, outdated-package
+research and abandoned-project research are not implemented by the bundled
+scanner. Exporting Python requirements is a separate operator action. Python
+scanning disables dependency resolution and pip use; incomplete or skipped
+packages do not count as verified absence of vulnerabilities.
 
-```
-DEPENDENCY VULNERABILITIES
-==========================
-Total Packages: 150
-Vulnerable: 5 (3.3%)
-  - Critical: 1
-  - High: 2
-  - Medium: 2
-```
+## Reports
 
-### 2. Detailed Findings
+The scanner returns 0 for complete/no known findings in selected scope, 1 for
+findings or review flags, and 2 for incomplete scanning or invalid usage. It emits
+one JSON document with scope, completion, findings, errors, warnings and tool exit
+codes when `--format json` is selected. `--severity` filters display only;
+unknown severity remains visible and hidden findings still fail the gate.
 
-```
-CRITICAL: SQL Injection in sequelize
-  Package: sequelize@5.21.3
-  CVE: CVE-2023-22578
-  CVSS: 9.8 (Critical)
-  Fix: Upgrade to sequelize@6.28.0
-  Command: npm install sequelize@6.28.0
-```
+The offline report formatter supports text, JSON, Markdown and CSV. Its default
+exit 0 means a valid complete report, even with findings; use
+`--fail-on-findings` for a finding gate. CSV exports finding rows and must be kept
+with the JSON coverage record and process status. A filtered normalized report
+cannot be reused to prove completeness because it omits findings.
 
-### 3. Outdated Packages
+The license checker inventories npm's installed tree and an explicitly selected
+Python environment. Unknown/compound declarations and non-permissive categories
+require review. Its result does not establish legal compatibility. It returns 2
+for incomplete enumeration and 1 for review flags, including without `--strict`.
+Python needs an existing absolute interpreter path and `piplicenses` available
+there; project-level package-selection defaults are not applied.
 
-```
-OUTDATED PACKAGES
-=================
-express: 4.17.1 → 4.18.2 (patch, security fixes)
-lodash: 4.17.19 → 4.17.21 (patch, security fixes)
-react: 17.0.2 → 18.2.0 (major, breaking changes)
-```
+Reports can contain private package names. Explicit output files are replaced
+atomically with private permissions; terminal control bytes in human-readable
+fields are escaped. This is not general secret redaction or a sandbox.
 
-### 4. License Issues
+See the [skill workflow](skills/analyzing-dependencies/SKILL.md),
+[CLI contracts](skills/analyzing-dependencies/scripts/README.md),
+[upstream references](skills/analyzing-dependencies/references/README.md) and
+[coverage-aware report template](skills/analyzing-dependencies/assets/report_template.md).
 
-```
-LICENSE COMPLIANCE
-==================
- GPL-3.0 dependencies found (3 packages)
-  - my-gpl-package@1.0.0 (GPL-3.0)
-  May conflict with MIT license
-```
+## Verification
 
-## Best Practices
-
-- Run checks before deployments
-- Update dependencies regularly (weekly/monthly)
-- Test thoroughly after updates
-- Use lock files for reproducible builds
-- Monitor security advisories
-- Document why specific versions are pinned
-
-## Example Workflow
+Repository regression fixtures invoke the actual bundled CLIs with fake local
+audit executables, covering all five routes, findings, native failures, missing
+tools, timeouts, malformed output and contradictory counters. They do not
+establish live advisory-service availability or a security certification.
 
 ```bash
-# 1. Check dependencies
-/depcheck
-
-# 2. Review vulnerability report
-
-# 3. Update vulnerable packages
-npm audit fix
-
-# 4. Recheck to verify fixes
-/depcheck
-
-# 5. Run tests
-npm test
-
-# 6. Commit updated dependencies
-git add package.json package-lock.json
-git commit -m "fix: update vulnerable dependencies"
+python3 -m pytest -q tests/test_standalone_dependency_checker.py
 ```
-
-## Requirements
-
-- Access to package manifest files
-- Read access to lock files
-- Network access for CVE database queries (optional)
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT. See [LICENSE](LICENSE).

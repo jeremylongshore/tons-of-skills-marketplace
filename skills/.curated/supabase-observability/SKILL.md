@@ -9,7 +9,7 @@ description: |
   "supabase observability", "supabase logs", "supabase alerts",
   "supabase inspect", "supabase log drain".
 allowed-tools: Read, Write, Edit, Bash(npx supabase:*), Bash(supabase:*), Grep
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -67,12 +67,9 @@ order by mean_exec_time desc limit 20;
 
 Forward logs to external aggregation with a log drain:
 
-```bash
-npx supabase log-drains add --name datadog-drain --type datadog \
-  --datadog-api-key "$DATADOG_API_KEY" --datadog-region us1 --linked
-```
+Configure an approved destination under **Project Settings > Log Drains** in the Dashboard. Review exported data, retention, credentials, and destination region before enabling forwarding; confirm arrival using synthetic events.
 
-The complete slow-query / high-frequency / connection-monitoring SQL set and every log-drain command (Datadog, webhook, list, remove) are in [references/query-analytics-and-log-drains.md](references/query-analytics-and-log-drains.md).
+The complete slow-query / high-frequency / connection-monitoring SQL set and the Dashboard log-drain configuration and verification workflow are in [references/query-analytics-and-log-drains.md](references/query-analytics-and-log-drains.md).
 
 ### Step 3: Custom Metrics, Alerting, and Health Checks
 
@@ -86,7 +83,7 @@ if (dbSize > DB_LIMIT_MB * 0.85) {
 }
 ```
 
-Schedule it every 15 minutes via `[functions.collect-metrics]` in `config.toml`. The complete collector, the multi-service health-check endpoint, and Realtime connection monitoring are in [references/custom-metrics-and-health-checks.md](references/custom-metrics-and-health-checks.md). For external alert rules, see the Prometheus AlertManager set in [references/alert-configuration.md](references/alert-configuration.md).
+Schedule approved invocations with `pg_cron` and `pg_net`, retrieving the URL and appropriate function credential from Vault; a function TOML schedule field is not supported. The complete collector, the multi-service health-check endpoint, and Realtime connection monitoring are in [references/custom-metrics-and-health-checks.md](references/custom-metrics-and-health-checks.md). For external alert rules, see the Prometheus AlertManager set in [references/alert-configuration.md](references/alert-configuration.md).
 
 ## Output
 
@@ -104,10 +101,10 @@ Schedule it every 15 minutes via `[functions.collect-metrics]` in `config.toml`.
 | ------- | ------- | ---------- |
 | `pg_stat_statements` returns no rows | Extension not enabled | Enable via Dashboard > Database > Extensions |
 | `supabase inspect db` fails | CLI not linked to project | Run `supabase link --project-ref <ref>` |
-| Log drain not receiving events | API key invalid or region mismatch | Verify credentials; check `supabase log-drains list` |
+| Log drain not receiving events | API key invalid or region mismatch | Verify the destination and drain status in Project Settings > Log Drains |
 | Cache hit ratio below 95% | Working set exceeds RAM | Upgrade compute add-on or optimize queries |
 | Health check returns 503 | One or more services degraded | Check `detail` field in response; verify service role key |
-| Edge Function cron not firing | Missing `schedule` in config.toml | Add `[functions.<name>]` with `schedule` field and redeploy |
+| Edge Function cron not firing | Cron job or HTTP/authentication failure | Inspect the reviewed cron job and invocation logs; verify Vault references and the function auth mode |
 | Long-running queries growing | Missing indexes or lock contention | Run `inspect db seq-scans` and `inspect db blocking` |
 
 ## Examples

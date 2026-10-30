@@ -1,39 +1,43 @@
-## Implementation Guide
+# Security Implementation Guide
 
-### Step 1: Configure Environment Variables
+## 1. Separate Configuration by Capability
 
-```bash
-# .env (NEVER commit to git)
-SUPABASE_API_KEY=sk_live_***
-SUPABASE_SECRET=***
+Use the actual project URL and publishable key (or supported legacy anon key) for
+normal application access. Public keys identify the project; database grants, RLS,
+and verified user identity authorize access. They are not secret read/write scopes.
+Store secret/service-role keys only in an isolated server environment, never browser
+bundles, committed examples, or diagnostic output. Management API personal access
+tokens are a separate credential, not the project's Data API key.
 
-# .gitignore
+```gitignore
 .env
 .env.local
 .env.*.local
 ```
 
-### Step 2: Implement Secret Rotation
+## 2. Rotate Through the Actual Project Workflow
 
-```bash
-# 1. Generate new key in Supabase dashboard
-# 2. Update environment variable
-export SUPABASE_API_KEY="new_key_here"
+Inventory which services use the key, create the replacement through the supported
+project key-management workflow, update the intended secret store, and verify a
+bounded authorized application operation before revoking the old key. Plan rollback
+and propagation; legacy JWT-key rotation has different consequences from replacing
+a new publishable/secret key. Do not test project credentials against a fabricated
+`https://api.supabase.com/health` endpoint or print them in a shell transcript.
 
-# 3. Verify new key works
-curl -H "Authorization: Bearer ${SUPABASE_API_KEY}" \
-  https://api.supabase.com/health
+## 3. Apply Least Privilege at the Correct Layer
 
-# 4. Revoke old key in dashboard
-```
+| Use                      | Boundary                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Browser                  | Publishable/anon key plus user identity and RLS                               |
+| Cookie-authenticated SSR | Request-scoped user client; propagate cookies through the framework adapter   |
+| Privileged maintenance   | Server-only secret/service-role client after explicit operation authorization |
+| Management automation    | Separately scoped authorized Management API identity                          |
 
-### Step 3: Apply Least Privilege
+There are no generic `read, write, admin` project-key scopes in this example.
+Staging is not a reason to grant admin access. Review table grants, Storage policies,
+RPC execute privileges, and tenant boundaries explicitly. Never use a privileged
+client to make an application authorization failure disappear.
 
-| Environment | Recommended Scopes |
-|-------------|-------------------|
-| Development | `read, write` |
-| Staging | `read, write, admin` |
-| Production | `read, write` |
-
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+[API keys](https://supabase.com/docs/guides/api/api-keys)
+[RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)
+[SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client)

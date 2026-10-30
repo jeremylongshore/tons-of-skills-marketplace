@@ -20,7 +20,7 @@ Prefer the option that:
 - **Prefer the option a new hire would understand without a meeting.**
 - **Prefer the option that fails loudly over one that fails silently.** Silent fallbacks are how production gets weirder over time.
 - **Prefer the option with fewer configuration knobs.** Every config key is a future bug surface.
-- **Prefer the option that does not need a comment to justify its existence.** Comments are a code smell when they're load-bearing.
+- **Prefer structure that explains ordinary behavior.** Preserve comments that explain non-obvious domain, security or interoperability constraints.
 - **Prefer the option that survives unchanged when the next adjacent feature ships.** Tight coupling to the next feature means you'll be back here in two months.
 
 ## Anti-Patterns — refuse on sight
@@ -29,20 +29,20 @@ These appear under different names but are the same shape: complexity preserved 
 
 ### Architectural anti-patterns
 
-- **Preserving dead compatibility paths forever** — "we might need it" without a concrete caller is not a reason
+- **Preserving compatibility without checking its purpose.** Establish supported consumers and obligations before either keeping or removing a path; unknown usage is not proof of dead code
 - **"Safe" wrappers that hide bad architecture** — moving the smell behind a facade doesn't remove it
 - **Generic frameworks for single-use problems** — the YAGNI principle, lived
 - **Feature flags that became permanent architecture** — a flag with no plan to remove it is a config knob in disguise
 - **Duplicated state ownership** — two stores believing they own the same field is a recipe for divergence
-- **Configuration-driven chaos** — when every value is in a YAML, refactoring the code doesn't help; the YAML *is* the code
+- **Configuration-driven chaos** — when every value is in a YAML, refactoring the code doesn't help; the YAML _is_ the code
 - **Indirection without operational value** — if removing the abstraction doesn't make anything worse, the abstraction wasn't doing work
 - **Abstractions created solely to avoid touching old code** — the abstraction is the debt
 
 ### Process anti-patterns specific to this skill
 
-- **Treating `git blame` as architectural authority.** *Who wrote this* is not *why it should stay*. The original author may have been correcting an even worse decision that's since been undone.
+- **Treating `git blame` as architectural authority.** _Who wrote this_ is not _why it should stay_. The original author may have been correcting an even worse decision that's since been undone.
 - **Refactoring tests to match the new code instead of validating intended behavior.** If the test breaks, the test might be right and the refactor wrong. Don't assume.
-- **Introducing a new abstraction in the same change that removes an old one** — split into two reviewable steps. Reviewers cannot evaluate "remove A and add B" as cleanly as "remove A" then "add B".
+- **Splitting a replacement into broken intermediate states.** Separate independently useful changes when possible; keep tightly coupled replacement and caller updates atomic when needed.
 - **Renaming without redirecting callers** — leaving a search-and-find trail of broken references. Every rename updates every caller in the same commit.
 - **Deleting telemetry, metrics, or alerts along with the code they instrumented** without acknowledging it. The dashboard breaks silently and on-call learns about it the hard way.
 - **Confusing "fewer lines" with "simpler."** Density is not clarity. A 200-line function can be simpler than ten 20-line ones that pass state through a chain.

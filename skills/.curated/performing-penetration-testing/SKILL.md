@@ -1,34 +1,20 @@
 ---
 name: performing-penetration-testing
 description: |
-  Orchestrate a penetration test by routing user intent to one or
-  more of the 25 narrow skills in this pack. Confirms authorization
-  + scope FIRST (cluster 5), runs the relevant scan skills (clusters
-  1-4), then composes findings into the customer deliverables
-  (cluster 6) plus an integrity-attestable engagement archive
-  (cluster 5). Backward-compatible with v2 invocations — "pentest",
-  "security scan", "audit dependencies" still work but now route to
-  the narrow skills instead of the v2 monolithic scripts.
-  Use when: starting a security engagement, running an ad-hoc
-  scan, planning a multi-day pentest, or operating the full
-  authorization-to-deliverable workflow end-to-end.
-  Trigger with: "pentest", "security scan", "vulnerability
-  check", "audit dependencies", "check headers", "find secrets",
-  "OWASP scan", "security audit".
+  Route approved security work to the pack's 25 narrow operators, with
+  authorization/scope gates, retained evidence and compatible report inputs.
+  Use when starting a pentest, auditing dependencies or source code, checking
+  an approved URL, or preparing engagement deliverables. Familiar requests
+  route to the appropriate operator; retained legacy CLIs keep separate
+  completion and JSON contracts. Trigger with "pentest", "security scan",
+  "audit dependencies", "check headers", "find secrets", or "OWASP coverage".
+argument-hint: "[engagement-directory] [approved security job]"
 allowed-tools:
   - Read
   - Write
-  - Edit
   - Glob
   - Grep
   - Bash(python3:*)
-  - Bash(pip:*)
-  - Bash(npm:*)
-  - Bash(bandit:*)
-  - Bash(pip-audit:*)
-  - Bash(pipdeptree:*)
-  - Bash(gpg:*)
-  - Bash(tar:*)
 disallowed-tools:
   - Bash(rm:*)
   - Bash(curl:*)
@@ -38,7 +24,7 @@ disallowed-tools:
   - Bash(sqlmap:*)
   - Write(.env)
   - Edit(.env)
-version: 3.30.0
+version: 3.33.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
@@ -53,74 +39,99 @@ tags:
 
 ## Overview
 
-v3.0.0 of `penetration-tester` is a 25-skill pack. Each skill is
-narrow and heavy-hitter compliant (≥250 LOC scripts, ≥2 reference
-docs, 8-field SKILL.md frontmatter). This orchestrator routes
-user intent to the right combination of narrow skills.
+Route an approved engagement across 25 narrow operator skills plus this
+orchestrator. Each invoked CLI has its own arguments, evidence requirements
+and exit status.
 
-The 25 skills group into 7 clusters:
+## Prerequisites
 
-- **Cluster 0** — this orchestrator
-- **Cluster 1 (5 skills)** — Network / transport
-- **Cluster 2 (4 skills)** — Information disclosure
-- **Cluster 3 (6 skills)** — Source-code static analysis
-- **Cluster 4 (4 skills)** — Dependency analysis
-- **Cluster 5 (3 skills)** — Engagement governance
-- **Cluster 6 (3 skills)** — Reporting
+Use Read for approved ROE and saved findings, Glob/Grep to select artifacts,
+and Write only for requested engagement outputs. These routing instructions
+depend on each CLI's own input and evidence checks; reports do not certify
+compliance.
 
-Cluster 5 + 6 are the v3 additions versus v2. Cluster 5 runs
-BEFORE any scan and refuses to proceed if authorization is
-missing or scope is malformed. Cluster 6 runs AFTER scans and
-produces the deliverable artifacts (vulnerability report, OWASP
-coverage report, executive summary, chain-of-custody archive).
+Obtain the owner's authorization and approved targets before scanning. The
+structural authorization checker validates metadata, scope and time windows;
+a successful check does not verify signing identity or establish legal authority.
+Keep the approved ROE, target handoffs and requested local repository/environment
+paths with the engagement evidence. Do not install missing scanners automatically.
 
 ## Instructions
 
-The orchestrator's job is intent routing — given a user utterance, decide which of the 25 narrow skills to invoke and in what order. Four steps:
+### Step 1 — Select the operator job
 
-### Step 1 — Parse the user intent
+Match the requested job in the routing table. Select only the relevant operators;
+no full scan, write/proxy experiment, signing or service activation follows merely
+from a broad request to inspect a project. The HTTP-method operator defaults to
+OPTIONS; each active method has its separate ROE, opt-in and ledger contract.
 
-Match the utterance against the intent-routing table below. The leftmost matching row determines the routing. If no exact match, default to the cluster-1-4 governance-first sequence and pare back based on context.
+### Step 2 — Complete authorization and scope gates
 
-### Step 2 — Run authorization-first
+Run `confirming-pentest-authorization` and `defining-pentest-scope` before any
+cluster 1–4 operator, including ad-hoc work. Require both CLI exit codes to be 0.
+A HIGH or CRITICAL governance finding, invalid ROE, unsupported target or any
+other nonzero gate stops the dependent scan; severity filtering cannot grant
+permission. Verify each network target with the authorization checker's
+`--check-target` and use only successfully emitted scope handoffs.
 
-Before any cluster 1-4 scan invocation, run `confirming-pentest-authorization`. If it emits any CRITICAL finding, HALT — do not invoke any scan skill. The user must resolve the authorization issue before proceeding.
+The scope CLI covers supported network identities. Approval of exact local
+repository and Python-environment paths must be established separately; do not
+claim it validates arbitrary filesystem paths or that changing cwd selects a
+Python environment.
 
-### Step 3 — Run the matched skills in order
+### Step 3 — Execute selected checks and retain their status
 
-Invoke each skill from the routing-table row, in the listed order. Each skill emits its findings as JSON/JSONL/markdown via `lib/report.py`. Persist per-skill output into `engagement/findings/<skill>-<date>.jsonl` so the cluster 6 skills can consume them.
+For narrow v3 operators, persist canonical Finding JSON/JSONL with the skill's
+actual `--output`/`--format` arguments. Preserve the unfiltered gate alongside
+its report. Exit 1 from a completed scan records security findings; it does not
+invalidate the preceding authorization. Exit 2 or missing completion evidence
+marks dependent conclusions incomplete. Other approved independent checks may
+continue only without hiding that incomplete coverage.
 
-### Step 4 — Compose deliverables
+The legacy routes retain separate v2 report shapes, with explicit completion and
+error metadata. Keep those reports separate from canonical Finding streams.
+Their CLI does not execute this orchestrator's ROE gate. Invoke them only after
+the governance steps; use narrow v3 operators when canonical report composition
+is required. The mapping table below describes related jobs, not schema parity.
 
-After scan skills complete, run cluster 6 in sequence: `mapping-findings-to-owasp-top10`, then `composing-vulnerability-report`, then `generating-executive-summary`, then `recording-pentest-engagement` for the chain-of-custody archive.
+### Step 4 — Compose evidence-backed deliverables
 
-## Intent routing (the table)
+Use verified canonical sources with `mapping-findings-to-owasp-top10`, then
+`composing-vulnerability-report`, then `generating-executive-summary`. Inspect
+the sources and each operational exit status; a later report writer returning 0
+does not erase a source scan's finding or incomplete gate. The aggregate outcome
+retains incomplete evidence before a known security-finding outcome before clean.
+Label partial deliverables and unknown coverage explicitly.
 
-| User intent / trigger phrase | Skills to invoke (in order) |
-|---|---|
-| "pentest", "full security scan" | confirming-pentest-authorization → defining-pentest-scope → cluster 1-4 (all) → mapping-findings-to-owasp-top10 → composing-vulnerability-report → generating-executive-summary → recording-pentest-engagement |
-| "check headers" / "scan URL" | confirming-pentest-authorization → checking-http-security-headers + analyzing-tls-config + detecting-ssl-cert-issues |
-| "CORS check" | confirming-pentest-authorization → auditing-cors-policy |
-| "check SSL" / "certificate" | analyzing-tls-config + detecting-ssl-cert-issues |
-| "audit npm dependencies" | auditing-npm-dependencies |
-| "audit python dependencies" / "pip-audit" | auditing-python-dependencies |
-| "find vulnerable deps" | auditing-npm-dependencies + auditing-python-dependencies + tracing-transitive-vulnerabilities |
-| "license check" / "GPL contamination" | checking-license-compliance |
-| "find hardcoded secrets" / "credential scan" | scanning-for-hardcoded-secrets |
-| "SQL injection scan" | detecting-sql-injection-patterns |
-| "command injection scan" | detecting-command-injection-patterns |
-| "code audit" / "static analysis" | cluster 3 (all 6 skills) |
-| "OWASP scan" / "OWASP coverage" | cluster 1-4 → mapping-findings-to-owasp-top10 |
-| "confirm authorization" / "verify ROE" | confirming-pentest-authorization |
-| "define scope" / "generate allowlist" | defining-pentest-scope |
-| "write report" / "generate exec summary" | composing-vulnerability-report → generating-executive-summary |
-| "archive engagement" / "chain of custody" | recording-pentest-engagement |
+Run `recording-pentest-engagement` for a checksum manifest. An archive is produced
+only when `--tar` is supplied, outside the evidence tree. Signing is optional and
+requires separately approved signer/key access; never create keys or infer
+signing authorization. A hash manifest or optional signature is not a certified
+chain of custody.
 
-When unsure which to invoke, prefer the governance-first sequence
-(authorization + scope) and add cluster-1-4 skills based on what
-the user described.
+## Intent routing
 
-## Full 25-skill index
+Every scan row requires the authorization and scope gates from Step 2.
+
+| Intent | Required inputs/gates | Operators in order |
+| --- | --- | --- |
+| Full engagement | Authorization + scope | Relevant cluster 1–4 operators, then evidence-backed reporting |
+| Headers / URL | Authorization + scope | checking-http-security-headers, analyzing-tls-config, detecting-ssl-cert-issues |
+| CORS | Authorization + scope | auditing-cors-policy |
+| TLS / certificate | Authorization + scope | analyzing-tls-config, detecting-ssl-cert-issues |
+| npm dependencies | Authorization + scope + approved project path | auditing-npm-dependencies |
+| Python dependencies | Authorization + scope + declared requirements/environment | auditing-python-dependencies |
+| Vulnerable dependency trace | Authorization + scope + saved advisory input | Dependency audit, then tracing-transitive-vulnerabilities |
+| License review | Authorization + scope + approved project path | checking-license-compliance |
+| Secret scan | Authorization + scope + approved source path | scanning-for-hardcoded-secrets |
+| SQL / command injection | Authorization + scope + approved source path | The matching cluster 3 pattern operator |
+| Static code audit | Authorization + scope + approved source path | Relevant cluster 3 operators |
+| OWASP coverage | Verified canonical findings and declared tested coverage | mapping-findings-to-owasp-top10; coverage is not proof all risks were tested |
+| ROE / scope review | Proposed engagement metadata | confirming-pentest-authorization, defining-pentest-scope |
+| Reports / summary | Verified canonical source artifacts | composing-vulnerability-report, generating-executive-summary |
+| Evidence archive | Reviewed evidence tree and explicit archive/signing choices | recording-pentest-engagement |
+
+## Skill index: 25 operators plus this orchestrator
 
 ### Cluster 0 — Orchestration
 
@@ -132,7 +143,7 @@ the user described.
 - `detecting-ssl-cert-issues` — cert validity, expiry, chain integrity
 - `auditing-cors-policy` — origin reflection, credential bypass, wildcard
 - `checking-http-security-headers` — CSP, HSTS, X-Frame-Options, etc.
-- `probing-dangerous-http-methods` — TRACE, DELETE, PUT exposure
+- `probing-dangerous-http-methods` — method discovery and approved disposable-fixture experiments
 
 ### Cluster 2 — Information disclosure (4)
 
@@ -210,149 +221,107 @@ For a typical engagement, the orchestrator routes through:
                   +----------------------------------+
 ```
 
-## Backward compatibility
+## Backward compatibility and migration
 
-The v2 monolithic scripts (`security_scanner.py`,
-`dependency_auditor.py`, `code_security_scanner.py`) remain in
-`scripts/` as the underlying engine for the original v2
-invocation patterns. The v3 narrow skills re-implement and
-extend that logic with the canonical `lib/finding.py` schema and
-the shared `lib/report.py` output module.
+Keep the three legacy paths and their existing flags for compatibility. Corrected
+failure behavior is deliberate: an unavailable/invalid selected scanner returns
+incomplete exit 2, even if old versions reported clean. Display filters do not
+change the unfiltered gate. Code matches are redacted; incomplete web checks have
+no numeric risk score. No scanner is installed automatically.
 
-If a downstream user has scripted invocations of the v2 scripts,
-those still work. New work should use the narrow skills directly.
+Python legacy auditing requires pinned `requirements.txt`, or an explicit
+`--python /approved/project/.venv/bin/python`. Requirements mode disables pip
+resolution and audits the supplied pins; it does not claim transitive closure.
+Environment mode audits the designated interpreter and runs pip check there,
+using isolated Python mode to exclude the project cwd, PYTHONPATH and user-site
+module lookup. The auditor must already be installed in that environment.
+It does not prove that environment matches a project's lockfile. Preserve the
+venv's lexical interpreter path. An advisory without severity remains unknown
+and requires triage; it is not assigned a fabricated moderate rating.
 
-The orchestrator's old "Step 1 / Step 2 / Step 3" instructions
-in v2 are subsumed by the intent-routing table above. The v2
-checks correspond to:
-
-| v2 invocation | v3 equivalent |
-|---|---|
-| `security_scanner.py URL --checks headers` | `checking-http-security-headers` |
-| `security_scanner.py URL --checks ssl` | `analyzing-tls-config` + `detecting-ssl-cert-issues` |
-| `security_scanner.py URL --checks cors` | `auditing-cors-policy` |
-| `security_scanner.py URL --checks endpoints` | `detecting-exposed-secrets-files` + `detecting-debug-endpoints` |
-| `security_scanner.py URL --checks methods` | `probing-dangerous-http-methods` |
-| `dependency_auditor.py DIR --scanners npm` | `auditing-npm-dependencies` |
-| `dependency_auditor.py DIR --scanners pip` | `auditing-python-dependencies` |
-| `code_security_scanner.py DIR --tools regex` | cluster 3 skills (per pattern type) |
-| `code_security_scanner.py DIR --tools bandit` | cluster 3 skills (bandit pattern subset) |
-
-## Prerequisites
-
-Per-skill prerequisites are documented in each skill's
-`SKILL.md`. The shared module `lib/` requires Python 3.9+ and
-the standard library only.
-
-Optional tools used by individual skills:
-
-- `bandit` (Python static-analysis backend, cluster 3)
-- `pip-audit` (cluster 4 Python dependency audit)
-- `pipdeptree` (cluster 4 transitive trace)
-- `gpg` (cluster 5 evidence signing)
-- `npm` (cluster 4 npm dependency audit)
-
-Each skill emits a graceful INFO Finding when an optional
-dependency is missing and falls back to a degraded but functional
-mode where possible.
-
-## Authorization is non-negotiable
-
-The orchestrator REFUSES to invoke cluster 1-4 skills until
-`confirming-pentest-authorization` has emitted no CRITICAL or
-HIGH findings against the ROE. The cost of running an authorized
-scan is delay until the ROE is verified. The cost of running an
-unauthorized scan is potential criminal liability under CFAA
-(US), Computer Misuse Act (UK), or equivalent foreign statutes.
-
-For details on the legal framework + ROE structure, see
-`confirming-pentest-authorization/references/THEORY.md`.
+| Retained legacy job | Related narrow v3 operators |
+| --- | --- |
+| security_scanner.py --checks headers | checking-http-security-headers |
+| security_scanner.py --checks ssl | analyzing-tls-config, detecting-ssl-cert-issues |
+| security_scanner.py --checks cors | auditing-cors-policy |
+| security_scanner.py --checks endpoints | detecting-exposed-secrets-files, detecting-debug-endpoints |
+| security_scanner.py --checks methods | probing-dangerous-http-methods; advertisement alone is not exploitation |
+| dependency_auditor.py --scanners npm | auditing-npm-dependencies |
+| dependency_auditor.py --scanners pip | auditing-python-dependencies, with its own input contract |
+| code_security_scanner.py | Relevant cluster 3 pattern operators |
 
 ## Examples
 
-### Example 1 — Full engagement, end to end
+### Governance before an approved network check
 
-```
-User: "Run a full pentest on engagements/acme-2026-q2/"
-```
-
-Orchestrator routes:
-
-1. `confirming-pentest-authorization --roe engagements/acme-2026-q2/roe.yaml`
-2. (if no CRITICAL findings) `defining-pentest-scope --roe engagements/acme-2026-q2/roe.yaml`
-3. Cluster 1-4 skills against each in-scope target, emitting per-skill JSONLs into `engagements/acme-2026-q2/findings/`
-4. `mapping-findings-to-owasp-top10 engagements/acme-2026-q2/`
-5. `composing-vulnerability-report engagements/acme-2026-q2/`
-6. `generating-executive-summary engagements/acme-2026-q2/`
-7. `recording-pentest-engagement engagements/acme-2026-q2/ --sign --tar ...`
-
-### Example 2 — Ad-hoc header check
-
-```
-User: "Check security headers on https://app.acme.example"
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/confirming-pentest-authorization/scripts/check_authorization.py \
+  --roe engagement/roe.yaml --check-target https://fixture.example.test \
+  --format json --output engagement/authorization.json
 ```
 
-Orchestrator routes:
+Inspect exit 0 and the actual result before running scope validation:
 
-1. `confirming-pentest-authorization` (operator must confirm authz; fast path for own-system testing)
-2. `checking-http-security-headers https://app.acme.example`
-
-### Example 3 — Dependency audit
-
-```
-User: "Audit dependencies in /path/to/project"
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/defining-pentest-scope/scripts/define_scope.py \
+  --roe engagement/roe.yaml --emit-allowlist engagement/approved-allowlist.txt \
+  --emit-targets engagement/approved-targets.json --format json
 ```
 
-Orchestrator routes:
+Run only the approved relevant operator after both gates pass. These are
+documentation examples, not authorization to scan that host.
 
-1. `auditing-npm-dependencies /path/to/project` (if `package.json` present)
-2. `auditing-python-dependencies /path/to/project` (if Python project present)
-3. (if either produced HIGH/CRITICAL findings) `tracing-transitive-vulnerabilities /path/to/project --audit-input <previous output>`
+### Legacy Python audit in an explicitly approved environment
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/dependency_auditor.py \
+  /approved/project --scanners pip --python /approved/project/.venv/bin/python \
+  --output engagement/legacy-python.json
+```
+
+Keep this v2 JSON report separate from canonical v3 Finding JSONL.
+
+### Canonical reporting from saved findings
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/mapping-findings-to-owasp-top10/scripts/map_owasp.py \
+  engagement --source engagement/findings/scan.jsonl \
+  --enrich-output engagement/findings/all-with-owasp.jsonl \
+  --coverage-output engagement/reports/owasp-coverage.md
+```
+
+Then use `compose_report.py engagement --source <canonical findings>
+--report-output <file>` and `exec_summary.py engagement --source <canonical
+findings> --coverage <coverage file> --summary-output <file>`, through their
+respective skill instructions. Verify the source and format expectations before
+composition; do not relabel legacy JSON as JSONL.
 
 ## Output
 
-The orchestrator's output is the COMPOSITION of the called skills'
-outputs. The canonical end-state deliverables of a full engagement:
-
-- `engagement/findings/all-with-owasp.jsonl` — enriched unified findings
-- `engagement/reports/vulnerability-report.md` — deep technical report
-- `engagement/reports/owasp-coverage.md` — OWASP A0X rollup
-- `engagement/reports/executive-summary.md` — C-level / board summary
-- `engagement/manifest.sha256` (+ optional `.asc`) — chain-of-custody manifest
-- `engagement/<archive>.tar.gz` — portable archive
+A full engagement can produce enriched canonical findings, an OWASP coverage
+report, a vulnerability report, an executive summary and a checksum manifest.
+Archive/signature artifacts are conditional on explicit options. Preserve source
+reports, incomplete outcomes, approval/scope evidence and the provenance of each
+included result; report creation alone does not prove a completed assessment.
 
 ## Error Handling
 
-The orchestrator delegates error handling to each invoked skill.
-Cluster 5 errors (missing ROE, missing scope) HALT the engagement.
-Cluster 1-4 errors (scanner missing, network unreachable) emit
-INFO findings and continue. Cluster 6 errors (missing source
-findings) emit HIGH operational findings and continue with a
-partial deliverable.
+- Governance nonzero: stop dependent scanning; repair the authorization/scope input.
+- Missing tool or failed transport/parser: incomplete, nonzero; no automatic install.
+- Completed HIGH/CRITICAL scan finding: retain the finding and its nonzero gate.
+- Unknown advisory severity: show the unknown result and incomplete assessment.
+- Missing or incompatible report input: stop dependent composition or clearly label
+  an explicitly requested partial deliverable; do not claim full coverage.
+- Failed archive/signature operation: preserve original evidence and report the
+  failure; do not replace a valid manifest or signature with a claimed success.
 
 ## Resources
 
-- `references/OWASP_TOP_10.md` — OWASP Top 10 risks (legacy v2
-  reference; the canonical OWASP table is now in
-  `mapping-findings-to-owasp-top10/references/THEORY.md`)
-- `references/SECURITY_HEADERS.md` — HTTP security header
-  implementation guide
-- `references/REMEDIATION_PLAYBOOK.md` — copy-paste fix templates
-- Per-skill `THEORY.md` + `PLAYBOOK.md` files under each
-  `skills/<skill-name>/references/`
+- [OWASP background](references/OWASP_TOP_10.md)
+- [Legacy header-check reference](references/SECURITY_HEADERS.md)
+- [Remediation reference](references/REMEDIATION_PLAYBOOK.md)
+- [pip-audit input and exit contracts](https://github.com/pypa/pip-audit#usage)
 
-## v3.0.0 release notes
-
-Released 2026-06-03. Major changes:
-
-- 25 narrow heavy-hitter skills replace the v2 3-script monolith
-- New cluster 5 (engagement governance) and cluster 6 (reporting)
-- Canonical `lib/finding.py` + `lib/report.py` schema across all skills
-- `disallowed-tools` defense-in-depth for high-risk patterns (rm, curl, wget, .env edits)
-- v2 scripts (`security_scanner.py`, `dependency_auditor.py`,
-  `code_security_scanner.py`) preserved as backward-compatible
-  scripts under `scripts/`
-
-Migration: existing v2 invocations continue to work. New work
-should use the narrow skills directly. See the backward-compat
-table above for the v2 → v3 mapping.
+For each narrow operator, read its own SKILL.md and references. This routing
+update preserves the 25 narrow jobs and the existing compatibility entry points;
+it does not approve a wider skill, MCP, signing or release phase.

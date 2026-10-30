@@ -34,7 +34,7 @@ disallowed-tools:
   - Edit(.env)
   - Bash(npm install:*)
   - Bash(pip install:*)
-version: 3.30.0
+version: 3.33.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

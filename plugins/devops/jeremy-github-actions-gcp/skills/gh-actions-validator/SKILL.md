@@ -9,7 +9,7 @@ description: 'Validate use when validating GitHub Actions workflows for Google C
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git:*), Bash(gcloud:*)
-version: 2.27.0
+version: 2.28.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -58,11 +58,11 @@ Before using this skill, ensure:
 
 ## Error Handling
 
-See `${CLAUDE_SKILL_DIR}/references/errors.md` for comprehensive error handling.
+See [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 
-See `${CLAUDE_SKILL_DIR}/references/examples.md` for detailed examples.
+See [`references/examples.md`](references/examples.md) for detailed examples.
 
 ## Resources
 

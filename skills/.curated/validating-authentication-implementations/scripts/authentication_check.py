@@ -1,22 +1,20 @@
 #!/usr/bin/env python3
-"""
-Authentication Validator Script
+"""Review explicitly supplied authentication declarations, not live enforcement.
 
-Automates validation of authentication implementations against security best practices.
-Checks JWT, OAuth, session-based, and API key implementations.
-
-Usage:
-    authentication_check.py --config auth.json
-    authentication_check.py --code app.py --output report.json
-    authentication_check.py --scan /path/to/project
+JSON-only local --config input; no code scan, login, provider or installation.
+0 no automated flags in supplied scope; 1 findings/review; 2 incomplete/usage.
 """
 
 import argparse
-import json
 import sys
-from pathlib import Path
 from typing import Dict, Any
 from datetime import datetime
+from urllib.parse import urlsplit
+
+from auth_runtime import InputError, load_object, write_report
+from auth_schema import check_config
+from jwt_analyzer import ALGORITHMS
+from password_policy_check import PasswordPolicyValidator
 
 
 class AuthenticationValidator:
@@ -41,16 +39,7 @@ class AuthenticationValidator:
         self.findings = []
         self.warnings = []
         self.info = []
-
-        if not config:
-            self.findings.append(
-                {
-                    "severity": "critical",
-                    "issue": "Empty authentication configuration",
-                    "description": "No authentication configuration found",
-                }
-            )
-            return self._generate_report()
+        check_config(config)
 
         # Determine auth method and validate accordingly
         auth_method = config.get("method", "unknown")
@@ -72,10 +61,15 @@ class AuthenticationValidator:
                 }
             )
 
-        # Generic authentication checks
-        self._check_password_policy(config)
-        self._check_mfa(config)
-        self._check_account_lockout(config)
+        # Only inspect supplied declarations. Their absence is explicit coverage,
+        # not proof an API client needs local password storage or interactive MFA.
+        if "password_policy" in config:
+            self._check_password_policy(config)
+        if "mfa" in config:
+            self._check_mfa(config)
+        if "account_lockout" in config:
+            self._check_account_lockout(config)
+        self.unassessed = [name for name in ("password_policy", "mfa", "account_lockout") if name not in config]
 
         return self._generate_report()
 
@@ -94,31 +88,13 @@ class AuthenticationValidator:
                     "recommendation": "Specify a strong algorithm (e.g., HS256, RS256)",
                 }
             )
-        elif algorithm in ["none", "HS256"] and jwt_config.get("use_public_key"):
+        elif algorithm not in ALGORITHMS or (algorithm.startswith("HS") and jwt_config.get("use_public_key")):
             self.findings.append(
-                {
-                    "severity": "critical",
-                    "issue": f"Weak JWT algorithm: {algorithm}",
-                    "description": "Using HS256 with public key verification is vulnerable",
-                    "recommendation": "Use RS256 or ES256 with proper key management",
-                }
-            )
-        elif algorithm in ["HS256"]:
-            self.warnings.append(
-                {
-                    "severity": "high",
-                    "issue": "HS256 algorithm used",
-                    "description": "HS256 is symmetric and less secure than RS256 or ES256",
-                    "recommendation": "Consider migrating to RS256 (RSA) or ES256 (ECDSA)",
-                }
+                {"severity": "critical", "issue": "Unsupported or incompatible JWT algorithm/key declaration"}
             )
         else:
             self.info.append(
-                {
-                    "severity": "info",
-                    "issue": "Strong JWT algorithm",
-                    "description": f"Using {algorithm} for JWT signing",
-                }
+                {"severity": "info", "issue": "Recognized declared JWT algorithm; implementation not verified"}
             )
 
         # Check token expiration
@@ -144,17 +120,9 @@ class AuthenticationValidator:
 
         # Check refresh token
         refresh_token = jwt_config.get("refresh_token", {})
-        if not refresh_token:
-            self.warnings.append(
-                {
-                    "severity": "medium",
-                    "issue": "No refresh token mechanism",
-                    "description": "Consider implementing refresh tokens for better security",
-                }
-            )
-        else:
+        if refresh_token:
             refresh_expiration = refresh_token.get("expiration_seconds")
-            if refresh_expiration and refresh_expiration <= expiration:
+            if refresh_expiration and expiration and refresh_expiration <= expiration:
                 self.findings.append(
                     {
                         "severity": "high",
@@ -189,69 +157,45 @@ class AuthenticationValidator:
         """Validate OAuth configuration."""
         oauth_config = config.get("oauth", {})
 
-        # Check client credentials security
-        client_secret = oauth_config.get("client_secret")
-        if not client_secret:
+        client_type = oauth_config["client_type"]
+        if client_type == "confidential" and not oauth_config.get("client_secret"):
             self.findings.append(
-                {
-                    "severity": "critical",
-                    "issue": "No client secret configured",
-                    "description": "OAuth client secret is missing",
-                }
+                {"severity": "critical", "issue": "Shared-secret confidential-client profile lacks its declared secret"}
             )
-
-        # Check redirect URIs
-        redirect_uris = oauth_config.get("redirect_uris", [])
-        if not redirect_uris:
-            self.findings.append(
-                {
-                    "severity": "high",
-                    "issue": "No redirect URIs configured",
-                    "description": "OAuth configuration missing redirect URIs",
-                    "recommendation": "Specify all allowed redirect URIs",
-                }
-            )
-        else:
-            for uri in redirect_uris:
-                if uri == "*" or uri.endswith("/*"):
-                    self.findings.append(
-                        {
-                            "severity": "critical",
-                            "issue": f"Wildcard redirect URI: {uri}",
-                            "description": "Wildcard redirect URIs enable open redirect attacks",
-                            "recommendation": "Specify exact redirect URIs only",
-                        }
-                    )
-                elif not uri.startswith("https://"):
-                    self.warnings.append(
-                        {
-                            "severity": "high",
-                            "issue": f"Non-HTTPS redirect URI: {uri}",
-                            "description": "HTTP redirect URIs can leak authorization codes",
-                            "recommendation": "Use HTTPS for all redirect URIs",
-                        }
-                    )
-
-        # Check scope configuration
-        scopes = oauth_config.get("scopes", [])
-        if not scopes:
+        if client_type == "public" and oauth_config.get("client_secret"):
             self.warnings.append(
                 {
-                    "severity": "medium",
-                    "issue": "No OAuth scopes defined",
-                    "description": "Scopes should be restricted to necessary permissions",
+                    "severity": "review",
+                    "issue": "Public-client embedded secret does not establish confidential-client identity",
                 }
             )
-
-        # Check PKCE
-        if not oauth_config.get("pkce_enabled"):
-            self.warnings.append(
-                {
-                    "severity": "high",
-                    "issue": "PKCE not enabled",
-                    "description": "PKCE should be enabled to prevent authorization code interception",
-                    "recommendation": "Enable PKCE for all OAuth flows",
-                }
+        redirects = oauth_config.get("redirect_uris", [])
+        if not redirects:
+            self.findings.append({"severity": "high", "issue": "No redirect URI declarations supplied"})
+        for uri in redirects:
+            try:
+                parsed = urlsplit(uri)
+                port = parsed.port
+            except ValueError as error:
+                raise InputError("malformed redirect URI") from error
+            if any(ord(char) <= 32 or ord(char) == 127 for char in uri):
+                raise InputError("redirect URI contains control/space characters")
+            if "*" in uri or parsed.fragment or parsed.username is not None or parsed.password is not None:
+                self.findings.append(
+                    {"severity": "high", "issue": "Redirect declaration contains wildcard, fragment or userinfo"}
+                )
+            elif parsed.scheme != "https" or not parsed.hostname or port == 0:
+                self.warnings.append(
+                    {"severity": "review", "issue": "Redirect is outside the supported HTTPS web-client review profile"}
+                )
+        if not oauth_config.get("scopes"):
+            self.warnings.append({"severity": "review", "issue": "OAuth permission scope is not declared"})
+        elif any("*" in scope for scope in oauth_config["scopes"]):
+            self.warnings.append({"severity": "review", "issue": "Wildcard OAuth scope requires justification"})
+        if not oauth_config.get("pkce_enabled") or oauth_config.get("pkce_method") != "S256":
+            target = self.findings if client_type == "public" else self.warnings
+            target.append(
+                {"severity": "high" if client_type == "public" else "review", "issue": "S256 PKCE is not declared"}
             )
 
     def _validate_session(self, config: Dict[str, Any]) -> None:
@@ -286,9 +230,9 @@ class AuthenticationValidator:
             self.findings.append(
                 {
                     "severity": "high",
-                    "issue": f"SameSite attribute not properly set: {samesite}",
-                    "description": "SameSite protection against CSRF is not configured",
-                    "recommendation": "Set SameSite to 'Strict' or 'Lax'",
+                    "issue": "SameSite declaration requires contextual CSRF review",
+                    "description": "SameSite metadata alone cannot establish CSRF protection",
+                    "recommendation": "Review cross-site requirements and independently enforced CSRF defenses",
                 }
             )
 
@@ -334,7 +278,7 @@ class AuthenticationValidator:
                     "severity": "critical",
                     "issue": "API keys stored in plaintext",
                     "description": "API keys should never be stored in plaintext",
-                    "recommendation": "Hash API keys using bcrypt or PBKDF2",
+                    "recommendation": "Review server-side storage for the actual key generation and verification design",
                 }
             )
 
@@ -346,19 +290,13 @@ class AuthenticationValidator:
                     "severity": "high",
                     "issue": f"Short API key minimum length: {min_length}",
                     "description": "API keys should be at least 32 characters",
-                    "recommendation": "Set minimum length to 64 or use UUID v4",
+                    "recommendation": "Verify generation entropy and key handling; character count alone is insufficient",
                 }
             )
 
-        # Check key rotation
-        if not api_key_config.get("rotation_enabled"):
-            self.warnings.append(
-                {
-                    "severity": "high",
-                    "issue": "API key rotation not enabled",
-                    "description": "API keys should be rotated periodically",
-                    "recommendation": "Implement automatic key rotation every 90 days",
-                }
+        if "rotation_enabled" in api_key_config:
+            self.info.append(
+                {"severity": "info", "issue": "Rotation metadata declared; lifecycle enforcement not tested"}
             )
 
         # Check rate limiting
@@ -373,56 +311,10 @@ class AuthenticationValidator:
 
     def _check_password_policy(self, config: Dict[str, Any]) -> None:
         """Check password policy configuration."""
-        password_policy = config.get("password_policy", {})
-
-        if not password_policy:
-            self.findings.append(
-                {
-                    "severity": "high",
-                    "issue": "No password policy defined",
-                    "description": "Password policies help ensure strong credentials",
-                }
-            )
-            return
-
-        # Check minimum length
-        min_length = password_policy.get("minimum_length", 0)
-        if min_length < 8:
-            self.findings.append(
-                {
-                    "severity": "high",
-                    "issue": f"Weak password minimum length: {min_length}",
-                    "description": "Passwords should be at least 12 characters",
-                    "recommendation": "Set minimum password length to 12-16 characters",
-                }
-            )
-
-        # Check complexity requirements
-        requires_uppercase = password_policy.get("require_uppercase", False)
-        requires_lowercase = password_policy.get("require_lowercase", False)
-        requires_numbers = password_policy.get("require_numbers", False)
-        password_policy.get("require_special_chars", False)
-
-        if not (requires_uppercase and requires_lowercase and requires_numbers):
-            self.warnings.append(
-                {
-                    "severity": "medium",
-                    "issue": "Weak password complexity requirements",
-                    "description": "Passwords should require mixed case, numbers, and special characters",
-                    "recommendation": "Enable uppercase, lowercase, numeric, and special character requirements",
-                }
-            )
-
-        # Check password history
-        history_count = password_policy.get("password_history_count", 0)
-        if history_count < 5:
-            self.warnings.append(
-                {
-                    "severity": "medium",
-                    "issue": f"Low password history requirement: {history_count}",
-                    "description": "Password history should prevent reuse of recent passwords",
-                }
-            )
+        result = PasswordPolicyValidator().validate_policy(config["password_policy"])
+        self.findings.extend(result["findings"])
+        self.warnings.extend(result["warnings"])
+        self.info.extend(result["info"])
 
     def _check_mfa(self, config: Dict[str, Any]) -> None:
         """Check multi-factor authentication configuration."""
@@ -447,12 +339,12 @@ class AuthenticationValidator:
                         "description": "At least one MFA method should be available",
                     }
                 )
-            elif "sms" in mfa_methods and "totp" not in mfa_methods:
+            elif set(mfa_methods) <= {"sms", "email"}:
                 self.warnings.append(
                     {
                         "severity": "medium",
-                        "issue": "Only SMS MFA available",
-                        "description": "TOTP should be offered as more secure alternative to SMS",
+                        "issue": "Only SMS/email MFA methods are declared",
+                        "description": "Review authenticator choice and phishing resistance in the actual implementation",
                     }
                 )
 
@@ -471,12 +363,12 @@ class AuthenticationValidator:
             )
         else:
             max_attempts = lockout_config.get("max_attempts", 0)
-            if max_attempts == 0 or max_attempts > 10:
+            if max_attempts == 0 or max_attempts > 100:
                 self.warnings.append(
                     {
                         "severity": "medium",
-                        "issue": f"High account lockout threshold: {max_attempts}",
-                        "description": "Account lockout should occur within 5 failed attempts",
+                        "issue": "Consecutive-attempt limit missing or above 100",
+                        "description": "Assess throttling and recovery; a lockout flag alone does not prove protection",
                     }
                 )
 
@@ -484,6 +376,10 @@ class AuthenticationValidator:
         """Generate validation report."""
         return {
             "timestamp": datetime.now().isoformat(),
+            "complete": True,
+            "scope": "supplied declared configuration only; runtime enforcement not verified",
+            "runtime_verified": False,
+            "unassessed_controls": getattr(self, "unassessed", []),
             "summary": {
                 "critical": len([f for f in self.findings if f.get("severity") == "critical"]),
                 "high": len([f for f in self.findings if f.get("severity") == "high"]),
@@ -520,35 +416,26 @@ Examples:
         parser.error("--config is required")
 
     try:
-        config_path = Path(args.config)
-        if not config_path.exists():
-            print(f"Error: Configuration file not found: {args.config}", file=sys.stderr)
-            return 1
-
-        with open(config_path, "r") as f:
-            config = json.load(f)
-
+        config = load_object(args.config)
         validator = AuthenticationValidator()
         report = validator.validate_config(config)
+        write_report(report, args.output, protected_inputs=(args.config,))
 
-        if args.output:
-            output_path = Path(args.output)
-            with open(output_path, "w") as f:
-                json.dump(report, f, indent=2)
-            print(f"Report written to: {args.output}")
+        # The gate covers every reported finding/review flag, not only CRITICAL.
+        return 0 if report["summary"]["passed"] else 1
+
+    except (InputError, OSError, TypeError, ValueError, RecursionError, OverflowError):
+        report = {
+            "complete": False,
+            "status": "incomplete",
+            "summary": {"passed": False},
+            "errors": ["authentication configuration or report could not be assessed"],
+        }
+        if not args.output:
+            write_report(report)
         else:
-            print(json.dumps(report, indent=2))
-
-        if report["summary"]["critical"] > 0:
-            return 1
-        return 0
-
-    except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in {args.config}: {e}", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
+            print("ERROR: authentication configuration or report could not be assessed", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

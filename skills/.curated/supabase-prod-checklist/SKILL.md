@@ -8,7 +8,7 @@ description: |
   production", "supabase go-live", "supabase launch checklist", "supabase prod
   ready", "deploy supabase", "supabase production readiness".
 allowed-tools: Read, Write, Edit, Bash(npx supabase:*), Bash(curl:*), Grep
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

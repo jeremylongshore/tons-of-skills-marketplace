@@ -1,7 +1,7 @@
 {
   "name": "j-rig",
-  "version": "0.1.0",
-  "description": "Skill Refiner — the eval-guided SKILL.md improvement loop, delivered as a thin wrapper over the published @intentsolutions/refiner CLI with a 3-layer cost-tiered hook architecture (sinker/line/hook)",
+  "version": "0.2.0",
+  "description": "Use the J-Rig refiner CLI for evaluation metadata, authorized scoring, edit proposals and candidate inspection; bundled hooks are experimental.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"
@@ -9,12 +9,6 @@
   "repository": "https://github.com/jeremylongshore/claude-code-plugins-plus-skills",
   "homepage": "https://tonsofskills.com/plugins/j-rig",
   "license": "Apache-2.0",
-  "keywords": [
-    "skill-refiner",
-    "eval-guided",
-    "skill-md",
-    "meta-tooling",
-    "hooks"
-  ],
+  "keywords": ["skill-refiner", "eval-guided", "skill-md", "meta-tooling", "hooks"],
   "hooks": "./hooks/hooks.json"
 }

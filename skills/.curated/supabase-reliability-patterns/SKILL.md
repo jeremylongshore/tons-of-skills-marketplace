@@ -1,6 +1,6 @@
 ---
 name: supabase-reliability-patterns
-description: 'Build resilient Supabase integrations: circuit breakers wrapping createClient
+description: 'Build resilient Supabase integrations: circuit breakers wrapping database
 
   calls, offline queue with IndexedDB, graceful degradation with cached fallbacks,
 
@@ -20,294 +20,235 @@ description: 'Build resilient Supabase integrations: circuit breakers wrapping c
 
   '
 allowed-tools: Read, Write, Edit, Bash(supabase:*), Bash(curl:*), Grep
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- saas
-- supabase
-- reliability
-- resilience
-- circuit-breaker
-- offline
-- retry
+  - saas
+  - supabase
+  - reliability
+  - resilience
+  - circuit-breaker
+  - offline
+  - retry
 compatibility: Designed for Claude Code
 ---
+
 # Supabase Reliability Patterns
 
 ## Overview
 
-Production Supabase apps need six reliability layers: **circuit breakers** (stop calling Supabase when it's down to prevent cascading failures), **offline queue** (buffer writes when the network is unavailable and replay when reconnected), **graceful degradation** (serve cached or fallback data during outages), **health checks** (detect Supabase availability before routing traffic), **retry with exponential backoff** (handle transient errors without overwhelming the service), and **dual-write** (write critical data to both Supabase and a backup store). All patterns use real `createClient` from `@supabase/supabase-js`.
+Use bounded retries for explicitly idempotent reads, and a circuit breaker that
+recognizes Supabase database queries' returned `{ data, error }` failures. Do not
+retry arbitrary writes, Auth failures, or RLS denials. Browser/session clients must
+not be shared across unrelated server requests; use request-scoped SSR clients.
 
 ## Prerequisites
 
-- `@supabase/supabase-js` v2+ installed
-- TypeScript project with Supabase client configured
-- For offline queue: browser environment with IndexedDB or server with Redis
-- For dual-write: secondary data store (Redis, DynamoDB, or local SQLite)
+- A configured client scoped to the authenticated request or a stateless public read
+- Reviewed idempotency and retry budgets for each operation
+- Explicit UI treatment of unavailable/stale data; an outage is not an empty dataset
 
 ## Instructions
 
-### Step 1 — Circuit Breaker and Retry with Exponential Backoff
+### Step 1: Bound Read Retries
 
-A circuit breaker tracks failures per Supabase service (database, auth, storage) and stops making calls when a threshold is exceeded. Combined with retry logic, it prevents both cascading failures and unnecessary retries during extended outages.
-
-#### Circuit Breaker Implementation
+This helper retries only returned error codes in the explicit transient-read set.
+`PGRST301` is an invalid/undecodable JWT, not a connection failure. Auth, RLS, schema,
+and validation errors are not retried. A thrown transport exception propagates to
+the caller; deciding whether it is safe to retry requires an operation-specific
+policy. `maxRetries` means additional attempts after the first, capped here at five.
 
 ```typescript
-// lib/circuit-breaker.ts
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from './database.types'
+export type QueryResult<T> = {
+  data: T | null;
+  error: { code?: string; message?: string } | null;
+};
+export type RetryOptions = { maxRetries: number; baseDelayMs: number; maxDelayMs: number };
+const TRANSIENT_READ_CODES = new Set(['08006', '53300', 'PGRST001', 'PGRST002', 'PGRST003']);
 
-type CircuitState = 'CLOSED' | 'OPEN' | 'HALF_OPEN'
-
-interface CircuitBreakerOptions {
-  failureThreshold: number    // failures before opening
-  resetTimeoutMs: number      // ms before trying again (half-open)
-  halfOpenSuccesses: number   // successes in half-open to close
-  name: string                // for logging
+export async function withReadRetry<T>(
+  fn: () => Promise<QueryResult<T>>,
+  opts: RetryOptions = { maxRetries: 3, baseDelayMs: 200, maxDelayMs: 5000 },
+  sleep: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  random: () => number = Math.random,
+): Promise<QueryResult<T>> {
+  if (
+    !Number.isInteger(opts.maxRetries) ||
+    opts.maxRetries < 0 ||
+    opts.maxRetries > 5 ||
+    !Number.isFinite(opts.baseDelayMs) ||
+    opts.baseDelayMs < 0 ||
+    !Number.isFinite(opts.maxDelayMs) ||
+    opts.maxDelayMs < opts.baseDelayMs
+  ) {
+    throw new Error('Invalid retry budget');
+  }
+  for (let attempt = 0; ; attempt++) {
+    const result = await fn();
+    if (
+      !result.error ||
+      !TRANSIENT_READ_CODES.has(result.error.code ?? '') ||
+      attempt >= opts.maxRetries
+    )
+      return result;
+    const jitter = random();
+    if (!Number.isFinite(jitter) || jitter < 0 || jitter > 1) throw new Error('Invalid jitter');
+    await sleep(Math.min(opts.maxDelayMs, opts.baseDelayMs * 2 ** attempt) * jitter);
+  }
 }
+```
 
-class CircuitBreaker {
-  private state: CircuitState = 'CLOSED'
-  private failures = 0
-  private lastFailureTime = 0
-  private halfOpenSuccesses = 0
+A deadline/abort policy is still required for each query and the whole request;
+finite attempts do not bound a stalled network call. The injectable sleep/random
+functions permit local deterministic tests without waiting or provider requests.
 
-  constructor(private opts: CircuitBreakerOptions) {}
+### Step 2: Count Returned Errors in a Circuit Breaker
 
-  async call<T>(fn: () => Promise<T>, fallback?: () => T): Promise<T> {
-    // Check if circuit should transition from OPEN to HALF_OPEN
-    if (this.state === 'OPEN') {
-      if (Date.now() - this.lastFailureTime > this.opts.resetTimeoutMs) {
-        this.state = 'HALF_OPEN'
-        this.halfOpenSuccesses = 0
-        console.log(`[CircuitBreaker:${this.opts.name}] OPEN → HALF_OPEN`)
-      } else {
-        if (fallback) return fallback()
-        throw new Error(`Circuit breaker ${this.opts.name} is OPEN`)
-      }
+This single-process illustrative circuit throws a generic error for failed database
+results, so a returned SDK error cannot be counted as success. Only exhausted
+transient failures open it; nonretryable Auth/RLS failures propagate without being
+presented as an outage. One half-open probe runs at a time. This is not a distributed
+admission controller or a substitute for request cancellation. Generation and
+probe ownership fence older in-flight completions from changing a newer circuit
+state or releasing its half-open probe.
+
+```typescript
+export class ReadCircuit {
+  private failures = 0;
+  private openedAt: number | null = null;
+  private generation = 0;
+  private probe: object | null = null;
+  constructor(
+    private threshold = 3,
+    private resetMs = 30_000,
+    private now: () => number = Date.now,
+  ) {
+    if (!Number.isInteger(threshold) || threshold < 1 || !Number.isFinite(resetMs) || resetMs < 0) {
+      throw new Error('Invalid circuit budget');
     }
-
+  }
+  async call<T>(fn: () => Promise<QueryResult<T>>): Promise<T | null> {
+    const generation = this.generation;
+    const wasOpen = this.openedAt !== null;
+    let ownedProbe: object | null = null;
+    if (wasOpen) {
+      if (this.now() - this.openedAt! < this.resetMs || this.probe !== null) {
+        throw new Error('Circuit open');
+      }
+      ownedProbe = {};
+      this.probe = ownedProbe;
+    }
+    const ownsState = () =>
+      this.generation === generation && (!wasOpen || this.probe === ownedProbe);
     try {
-      const result = await fn()
-
-      // Success in HALF_OPEN: count toward recovery
-      if (this.state === 'HALF_OPEN') {
-        this.halfOpenSuccesses++
-        if (this.halfOpenSuccesses >= this.opts.halfOpenSuccesses) {
-          this.state = 'CLOSED'
-          this.failures = 0
-          console.log(`[CircuitBreaker:${this.opts.name}] HALF_OPEN → CLOSED`)
+      const result = await fn();
+      if (result.error) {
+        if (ownsState()) {
+          if (TRANSIENT_READ_CODES.has(result.error.code ?? '')) {
+            this.failures++;
+            if (wasOpen || this.failures >= this.threshold) {
+              this.openedAt = this.now();
+              this.generation++;
+            }
+          } else if (wasOpen) {
+            // Service responded, but this operation was denied/invalid.
+            this.openedAt = null;
+            this.failures = 0;
+            this.generation++;
+          }
         }
-      } else {
-        this.failures = 0  // reset on success in CLOSED state
+        throw new Error('Database read failed');
       }
-
-      return result
+      if (ownsState()) {
+        this.failures = 0;
+        this.openedAt = null;
+        if (wasOpen) this.generation++;
+      }
+      return result.data;
     } catch (error) {
-      this.failures++
-      this.lastFailureTime = Date.now()
-
-      if (this.failures >= this.opts.failureThreshold) {
-        this.state = 'OPEN'
-        console.error(
-          `[CircuitBreaker:${this.opts.name}] CLOSED → OPEN after ${this.failures} failures`
-        )
+      if (wasOpen && ownsState() && this.openedAt !== null) {
+        this.openedAt = this.now();
+        this.generation++;
       }
-
-      if (fallback) return fallback()
-      throw error
+      throw error;
+    } finally {
+      // A stale closed request cannot release another request's half-open probe.
+      if (ownedProbe !== null && this.probe === ownedProbe) this.probe = null;
     }
   }
-
-  get currentState() {
-    return { state: this.state, failures: this.failures }
-  }
 }
-
-// One circuit breaker per Supabase service domain
-export const dbCircuit = new CircuitBreaker({
-  name: 'database',
-  failureThreshold: 5,
-  resetTimeoutMs: 30_000,
-  halfOpenSuccesses: 3,
-})
-
-export const authCircuit = new CircuitBreaker({
-  name: 'auth',
-  failureThreshold: 3,
-  resetTimeoutMs: 15_000,
-  halfOpenSuccesses: 2,
-})
-
-export const storageCircuit = new CircuitBreaker({
-  name: 'storage',
-  failureThreshold: 3,
-  resetTimeoutMs: 60_000,
-  halfOpenSuccesses: 2,
-})
 ```
 
-#### Retry with Exponential Backoff and Jitter
+Thrown transport exceptions propagate; this example deliberately does not classify
+every exception as a transient outage. A failed half-open transport probe leaves the
+circuit open, and the next caller must still respect the reset budget.
+
+### Step 3: Compose Only an Authorized Read
 
 ```typescript
-// lib/retry.ts
-interface RetryOptions {
-  maxRetries: number
-  baseDelayMs: number
-  maxDelayMs: number
-  retryableErrors?: string[]  // Supabase error codes to retry
-}
+import type { SupabaseClient } from '@supabase/supabase-js';
+// Import the helpers above from your application's reliability module.
 
-const DEFAULT_RETRYABLE = [
-  'PGRST301',   // connection error
-  '08006',      // connection failure
-  '57014',      // query cancelled (timeout)
-  '40001',      // serialization failure
-  '53300',      // too many connections
-]
-
-export async function withRetry<T>(
-  fn: () => Promise<{ data: T | null; error: any }>,
-  opts: RetryOptions = { maxRetries: 3, baseDelayMs: 200, maxDelayMs: 5000 }
-): Promise<{ data: T | null; error: any }> {
-  const retryable = opts.retryableErrors ?? DEFAULT_RETRYABLE
-
-  for (let attempt = 0; attempt <= opts.maxRetries; attempt++) {
-    const result = await fn()
-
-    if (!result.error) return result
-
-    // Don't retry non-retryable errors (auth, RLS, validation)
-    const errorCode = result.error.code ?? ''
-    if (!retryable.includes(errorCode) && attempt > 0) {
-      return result
-    }
-
-    if (attempt < opts.maxRetries) {
-      // Exponential backoff with full jitter
-      const delay = Math.min(
-        opts.baseDelayMs * Math.pow(2, attempt) * (0.5 + Math.random() * 0.5),
-        opts.maxDelayMs
-      )
-      console.warn(
-        `[Retry] Attempt ${attempt + 1}/${opts.maxRetries} failed (${errorCode}), ` +
-        `retrying in ${Math.round(delay)}ms`
-      )
-      await new Promise(resolve => setTimeout(resolve, delay))
-    }
-  }
-
-  // Should not reach here, but return last result
-  return fn()
+export async function listOwnTodos(client: SupabaseClient, circuit: ReadCircuit) {
+  const {
+    data: { user },
+    error,
+  } = await client.auth.getUser();
+  if (error || !user) throw new Error('Verified user required');
+  return circuit.call(() =>
+    withReadRetry(
+      async () =>
+        await client
+          .from('todos')
+          .select('id, title, is_complete')
+          .eq('user_id', user.id)
+          .order('id')
+          .limit(100),
+    ),
+  );
 }
 ```
 
-#### Combining Circuit Breaker + Retry
-
-```typescript
-// services/todo-service.ts
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '../lib/database.types'
-import { dbCircuit } from '../lib/circuit-breaker'
-import { withRetry } from '../lib/retry'
-
-const supabase = createClient<Database>(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-)
-
-export const TodoService = {
-  async list(userId: string) {
-    return dbCircuit.call(
-      // Retry transient errors inside the circuit breaker
-      () => withRetry(() =>
-        supabase
-          .from('todos')
-          .select('id, title, is_complete, created_at')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false })
-      ),
-      // Fallback when circuit is OPEN: return empty list
-      () => ({ data: [], error: null })
-    )
-  },
-
-  async create(todo: { title: string; user_id: string }) {
-    return dbCircuit.call(
-      () => withRetry(() =>
-        supabase
-          .from('todos')
-          .insert(todo)
-          .select('id, title, is_complete, created_at')
-          .single()
-      )
-      // No fallback for writes — let the error propagate to the offline queue
-    )
-  },
-}
-```
-
-### Step 2 — Offline Queue and Graceful Degradation
-
-See [offline queue, graceful degradation, health checks, and dual-write](references/offline-degradation-health-dualwrite.md) for IndexedDB offline queue with auto-flush, cached fallback patterns, health check endpoints monitoring database/auth/storage, dual-write for critical data with Redis backup, and reconciliation jobs.
+The existing table needs matching RLS. Do not share cached results across identities.
+Do not wrap `.insert()` in this read-retry helper: a timeout can follow a committed
+write. A write queue needs durable operation IDs, authorization on replay, bounded
+retention, reconciliation and application-owned idempotency before retries.
 
 ## Output
 
-- Circuit breaker protecting database, auth, and storage calls independently
-- Retry with exponential backoff and jitter for transient Supabase errors
-- Offline queue buffering writes during network outages with auto-flush on reconnect
-- Graceful degradation serving cached or fallback data when Supabase is unavailable
-- Health check endpoint monitoring all three Supabase services
-- Dual-write pattern ensuring critical data survives Supabase outages
-- Reconciliation job detecting and replaying missing records
+- Explicit attempt limits and nonretryable errors returned on the first failure
+- Returned SDK failures counted by the read circuit rather than mistaken for success
+- Unavailable data distinguished from a genuinely empty successful result
+- Separate reviewed write-replay, cache, deadline, and recovery policies
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Circuit stays OPEN indefinitely | Supabase extended outage | Monitor `status.supabase.com`; circuit auto-recovers via HALF_OPEN |
-| Offline queue grows unbounded | User offline for hours | Cap queue at 1000 items; show UI warning at 100 |
-| Stale cache served too long | Cache TTL too generous | Reduce `cacheTtlMs`; show "last updated" timestamp |
-| Dual-write divergence | Network partition | Run reconciliation job every 5 min; alert on divergence count |
-| Health check false positive | Transient network blip | Require 3 consecutive failures before marking unhealthy |
-| Retry storm | All clients retry simultaneously | Jitter prevents thundering herd; circuit breaker stops retries when open |
+| Failure                  | Disposition                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| PGRST301 / auth / RLS    | Correct identity/policy; no blind retry                      |
+| Exhausted transient read | Surface unavailable; circuit may open                        |
+| Circuit open             | No provider query; return an explicit unavailable state      |
+| Write timeout            | Reconcile operation ID before deciding whether to repeat     |
+| Stale cache              | Label age/scope; never pretend it is a fresh successful read |
 
 ## Examples
 
-**Example 1 — List todos with outage fallback.** During a Supabase outage the circuit opens after 5 failures and the fallback serves an empty list instead of cascading errors:
+Test first-attempt success, zero retries, nonretryable first failure, exact exhaustion,
+transient recovery, thrown exceptions, returned-error opening, and half-open recovery
+with injected clock/sleep. Test cross-user isolation separately.
 
-```typescript
-import { TodoService } from './services/todo-service'
-
-const { data, error } = await TodoService.list(userId)
-// Healthy: data from Supabase (transient errors retried with backoff).
-// Circuit OPEN: fallback returns { data: [], error: null } — UI renders
-// an empty state instead of crashing.
-```
-
-**Example 2 — Check circuit state before an expensive operation:**
-
-```typescript
-import { dbCircuit, storageCircuit } from './lib/circuit-breaker'
-
-const { state, failures } = dbCircuit.currentState
-if (state === 'OPEN') {
-  console.warn(`Database circuit OPEN (${failures} failures) — deferring bulk import`)
-} else if (storageCircuit.currentState.state !== 'OPEN') {
-  await runBulkImport()
-}
-```
+Additional patterns in [offline recovery guidance](references/offline-degradation-health-dualwrite.md)
+need their own durability and replay review; illustrative dual writes alone cannot
+guarantee that critical data survives an outage or that effects happen exactly once.
 
 ## Resources
 
-- [Circuit Breaker Pattern (Martin Fowler)](https://martinfowler.com/bliki/CircuitBreaker.html)
-- [Exponential Backoff (AWS)](https://docs.aws.amazon.com/general/latest/gr/api-retries.html)
-- [Supabase Status Page](https://status.supabase.com)
-- [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
-- [Supabase Realtime (connection recovery)](https://supabase.com/docs/guides/realtime)
+- [PostgREST errors](https://docs.postgrest.org/en/stable/references/errors.html)
+- [JavaScript queries](https://supabase.com/docs/reference/javascript/select)
+- [Supabase status](https://status.supabase.com)
 
 ## Next Steps
 
-For organizational governance and policy guardrails, see `supabase-policy-guardrails`.
+Document operation-specific deadlines, recovery ownership, and safe write semantics
+before applying retries to additional surfaces.

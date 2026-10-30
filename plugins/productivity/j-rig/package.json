@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/j-rig",
-  "version": "0.1.0",
-  "description": "Skill Refiner \u2014 the eval-guided SKILL.md improvement loop, delivered as a thin wrapper over the published @intentsolutions/refiner CLI with a 3-layer cost-tiered hook architecture (sinker/line/hook)",
+  "version": "0.1.1",
+  "description": "Use the J-Rig refiner CLI for evaluation metadata, authorized scoring, edit proposals and candidate inspection; bundled hooks are experimental.",
   "keywords": [
     "skill-refiner",
     "eval-guided",
@@ -34,6 +34,6 @@
     "hooks"
   ],
   "scripts": {
-    "postinstall": "node -e \"console.log(\\\"\\\\n\u2192 This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install j-rig\\\\n  or /plugin install j-rig@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install j-rig\\\\n  or /plugin install j-rig@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
   }
 }

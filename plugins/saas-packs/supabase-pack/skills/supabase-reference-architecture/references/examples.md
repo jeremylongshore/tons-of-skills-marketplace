@@ -3,37 +3,21 @@
 ## Complete Multi-Tenant Setup (TypeScript)
 
 ```typescript
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from './database.types'
+// Use the current request's authenticated, non-admin client.
+import { getSupabaseServer } from './supabase-server'
 
-const supabase = createClient<Database>(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-)
+export async function readTenantProjects(tenantId: string) {
+  const supabase = await getSupabaseServer()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) throw new Error('Authentication required')
 
-// 1. Sign in
-const { data: { session } } = await supabase.auth.signInWithPassword({
-  email: 'user@example.com',
-  password: 'secure-password'
-})
-
-// 2. Switch tenant context
-const { error: claimError } = await supabase.rpc('set_tenant_claim', {
-  tenant_id: 'tenant-uuid-here'
-})
-if (claimError) throw claimError
-
-// 3. Refresh session to pick up new JWT claims
-await supabase.auth.refreshSession()
-
-// 4. All subsequent queries are automatically scoped to this tenant
-const { data: projects } = await supabase
-  .from('projects')
-  .select('id, name, created_at')
-  .order('created_at', { ascending: false })
-
-console.log('Tenant projects:', projects)
-// Only returns projects where org_id matches the JWT claim
+  const { data, error } = await supabase.from('projects')
+    .select('id, name, created_at')
+    .eq('org_id', tenantId) // Query scope only; membership RLS authorizes access.
+    .order('created_at', { ascending: false })
+  if (error) throw new Error('Project query failed')
+  return data
+}
 ```
 
 ## Job Queue Consumer (TypeScript)
@@ -87,30 +71,38 @@ processJobs().catch(console.error)
 
 ## SvelteKit Integration
 
+Use a request-scoped cookie adapter, not a raw `Cookie` header. Keep privileged clients in a separate server-only module, never in ordinary request locals.
+
 ```typescript
-// src/hooks.server.ts — SvelteKit server hooks
-import { createClient } from '@supabase/supabase-js'
+// src/hooks.server.ts — application supplies its Database and App.Locals types.
+import { createServerClient } from '@supabase/ssr'
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/static/public'
 import type { Handle } from '@sveltejs/kit'
 import type { Database } from '@my-platform/supabase'
 
 export const handle: Handle = async ({ event, resolve }) => {
-  event.locals.supabase = createClient<Database>(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY,
-    {
-      global: {
-        headers: { cookie: event.request.headers.get('cookie') ?? '' }
+  event.locals.supabase = createServerClient<Database>(
+    PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
+      cookies: {
+        getAll: () => event.cookies.getAll(),
+        setAll: (updates) => {
+          for (const { name, value, options } of updates) {
+            event.cookies.set(name, value, { ...options, path: '/' })
+          }
+        }
       }
     }
   )
-
-  // Server-side admin client for privileged operations
-  event.locals.supabaseAdmin = createClient<Database>(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
-
-  return resolve(event)
+  const response = await resolve(event)
+  // Manual cache protection also covers resolved error/redirect responses.
+  const headers = new Headers(response.headers)
+  headers.set('Cache-Control', 'private, no-store')
+  return new Response(response.body, {
+    status: response.status, statusText: response.statusText, headers
+  })
 }
 ```
+
+Each protected server load/action must call `event.locals.supabase.auth.getUser()` and reject errors or an absent user before using user data. This hook alone does not authorize a route. Use the configured legacy anon key if the project has not adopted publishable keys; never use a service-role key for this client. Follow the [current SvelteKit adapter](https://supabase.com/docs/guides/auth/server-side/creating-a-client?queryGroups=framework&framework=sveltekit) for framework typing and response handling.
+
+The hook applies manual `private, no-store` protection rather than relying on `setAll` cache-header arguments. Disable shared/CDN caching for authenticated routes and verify the deployed cache policy; a CDN configuration can override origin headers.

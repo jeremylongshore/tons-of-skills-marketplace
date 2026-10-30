@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/penetration-tester",
-  "version": "3.0.4",
+  "version": "3.0.7",
   "description": "25-skill pentest pack with engagement governance, network/code/dependency scans, OWASP Top 10 mapping, and exec-readable reporting. Heavy-hitter compliant; chain-of-custody attestable.",
   "keywords": [
     "security",

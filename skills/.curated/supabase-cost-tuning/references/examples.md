@@ -1,74 +1,99 @@
-# Examples — Cost Checks and Estimation
+# Cost Checks and Explicit-Input Estimation
 
-Worked scripts referenced from the skill's Examples section.
+## Read the Actual Billing Surface
 
-## Quick cost check for a growing project
+Use the current project's billing/usage dashboard and approved SQL catalog queries
+for database size. A bucket COUNT is not stored bytes; a Data API RPC named
+`get_db_size` does not exist unless your application explicitly defines and protects
+it. Do not create an unreviewed privileged RPC or export service-role credentials
+merely to generate a cost report. Inventory object size through approved bounded
+pagination when needed, without printing private object names or contents.
 
-```typescript
-import { createClient } from '@supabase/supabase-js'
+[Current pricing](https://supabase.com/pricing) and
+[compute usage](https://supabase.com/docs/guides/platform/manage-your-usage/compute)
+are mutable. Capture source/date, currency, units, billing interval and applicable
+organization-level credits. Separate compute active hours from usage included with
+a plan; do not apply one shared credit to every project independently.
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+## Calculator With Caller-Supplied Rates and Units
 
-// Check database size against plan limit
-const { data: dbSize } = await supabase.rpc('get_db_size')
-// CREATE FUNCTION get_db_size() RETURNS text AS $$
-//   SELECT pg_size_pretty(pg_database_size(current_database()));
-// $$ LANGUAGE sql;
-
-console.log(`Database size: ${dbSize}`)
-
-// Check if you're approaching storage limits
-const { data: buckets } = await supabase.storage.listBuckets()
-console.log(`Storage buckets: ${buckets?.length ?? 0}`)
-```
-
-## Monthly cost estimation script
+This arithmetic helper supplies NO Supabase plan prices, universal allowances or
+pricing API. Each line's quantity and included quantity must be measured in the
+SAME named unit for the SAME billing interval; `pricePerUnit` uses the supplied
+currency per that unit (for example per invocation, not per million invocations
+unless quantities are also expressed in millions). Fixed fees must include all
+intended fees; this result covers only the input lines, not the full invoice.
 
 ```typescript
-function estimateMonthlyCost(usage: {
-  dbSizeGb: number
-  storageGb: number
-  bandwidthGb: number
-  edgeFnInvocations: number
-  mau: number
+export type UsageLine = {
+  name: string;
+  unit: string;
+  quantity: number;
+  included: number;
+  pricePerUnit: number;
+};
+
+export function estimateProvidedCosts(input: {
+  currency: string;
+  interval: string;
+  rateSource: string;
+  fixedFees: number;
+  credit: number;
+  lines: UsageLine[];
 }) {
-  const pro = {
-    base: 25,
-    dbOverage: Math.max(0, usage.dbSizeGb - 8) * 0.125,
-    storageOverage: Math.max(0, usage.storageGb - 100) * 0.021,
-    bandwidthOverage: Math.max(0, usage.bandwidthGb - 250) * 0.09,
-    edgeFnOverage: Math.max(0, usage.edgeFnInvocations - 2_000_000) / 1_000_000 * 2,
+  if (
+    !/^[A-Z]{3}$/.test(input.currency) ||
+    typeof input.interval !== 'string' ||
+    !input.interval.trim() ||
+    typeof input.rateSource !== 'string' ||
+    !input.rateSource.trim() ||
+    !Array.isArray(input.lines) ||
+    input.lines.length > 100
+  )
+    throw new Error('Invalid scope');
+  const finiteNonnegative = (n: number) => typeof n === 'number' && Number.isFinite(n) && n >= 0;
+  if (!finiteNonnegative(input.fixedFees) || !finiteNonnegative(input.credit)) {
+    throw new Error('Invalid fees/credit');
   }
-
-  const total = pro.base + pro.dbOverage + pro.storageOverage
-    + pro.bandwidthOverage + pro.edgeFnOverage
-
-  console.log('Estimated monthly cost breakdown:')
-  console.log(`  Base Pro plan:     $${pro.base}`)
-  console.log(`  DB overage:        $${pro.dbOverage.toFixed(2)}`)
-  console.log(`  Storage overage:   $${pro.storageOverage.toFixed(2)}`)
-  console.log(`  Bandwidth overage: $${pro.bandwidthOverage.toFixed(2)}`)
-  console.log(`  Edge Fn overage:   $${pro.edgeFnOverage.toFixed(2)}`)
-  console.log(`  TOTAL:             $${total.toFixed(2)}/mo`)
-
-  return total
+  const names = new Set<string>();
+  const lines = input.lines.map((line) => {
+    if (
+      typeof line.name !== 'string' ||
+      !line.name ||
+      names.has(line.name) ||
+      typeof line.unit !== 'string' ||
+      !line.unit ||
+      ![line.quantity, line.included, line.pricePerUnit].every(finiteNonnegative)
+    ) {
+      throw new Error('Invalid line');
+    }
+    names.add(line.name);
+    const charge = Math.max(0, line.quantity - line.included) * line.pricePerUnit;
+    if (!Number.isFinite(charge)) throw new Error('Charge overflow');
+    return { name: line.name, unit: line.unit, charge };
+  });
+  const beforeCredit = input.fixedFees + lines.reduce((sum, line) => sum + line.charge, 0);
+  if (!Number.isFinite(beforeCredit)) throw new Error('Total overflow');
+  return {
+    currency: input.currency,
+    interval: input.interval,
+    rateSource: input.rateSource,
+    lines,
+    beforeCredit,
+    appliedCredit: Math.min(input.credit, beforeCredit),
+    estimatedInputScopeTotal: Math.max(0, beforeCredit - input.credit),
+  };
 }
-
-// Example: project with 12GB DB, 150GB storage, 300GB bandwidth
-estimateMonthlyCost({
-  dbSizeGb: 12,
-  storageGb: 150,
-  bandwidthGb: 300,
-  edgeFnInvocations: 1_500_000,
-  mau: 80_000,
-})
-// Base Pro plan:     $25
-// DB overage:        $0.50
-// Storage overage:   $1.05
-// Bandwidth overage: $4.50
-// Edge Fn overage:   $0.00
-// TOTAL:             $31.05/mo
 ```
+
+Only pass a credit to this helper after allocating it to the appropriate eligible
+input scope. For example, a compute credit must not accidentally discount unrelated
+storage/egress: calculate the eligible compute scope separately, then combine its
+post-credit result with other charges. Account for tax, discounts, tiered rates,
+region-specific charges, minimums and other invoice adjustments separately. Floating
+point arithmetic is illustrative, not accounting-grade decimal rounding.
+
+For local tests, use explicitly synthetic rates and quantities. A passing arithmetic
+test is not evidence that the supplied rates are current or that the estimate equals
+an invoice. Keep provider credentials, customer identifiers and invoice documents
+out of public fixtures and stdout.

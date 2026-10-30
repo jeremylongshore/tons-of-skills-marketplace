@@ -12,7 +12,7 @@ description: 'Execute automatically formats and validates code files using Prett
 
   '
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash(cmd:*)
-version: 2.26.0
+version: 2.27.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -37,7 +37,7 @@ Formats and validates code files using Prettier and related formatting tools. Su
 ## Instructions
 
 1. Check whether Prettier is available by running `npx prettier --version`. If missing, install it locally with `npm install --save-dev prettier` or globally with `npm install -g prettier`.
-2. Detect existing configuration by searching for `.prettierrc`, `.prettierrc.json`, `prettier.config.js`, or a `"prettier"` key in `package.json`. If no configuration exists, create a `.prettierrc` with sensible defaults (see `${CLAUDE_SKILL_DIR}/references/implementation.md`).
+2. Detect existing configuration by searching for `.prettierrc`, `.prettierrc.json`, `prettier.config.js`, or a `"prettier"` key in `package.json`. If no configuration exists, create a `.prettierrc` with sensible defaults (see [`references/implementation.md`](references/implementation.md)).
 3. Run `npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}" --ignore-path .prettierignore` to identify files that need formatting. Report the count and list of non-conforming files.
 4. Apply formatting to identified files using `npx prettier --write` on the target paths. For single files, specify the exact path; for directories, use glob patterns.
 5. Create or update `.prettierignore` to exclude generated outputs (`dist/`, `build/`, `*.min.js`, `*.min.css`), dependencies (`node_modules/`, `vendor/`), and lock files.
@@ -80,8 +80,8 @@ Process: Run `npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}"`. Report n
 
 ## Resources
 
-- `${CLAUDE_SKILL_DIR}/references/implementation.md` -- detailed implementation guide with configuration examples
-- `${CLAUDE_SKILL_DIR}/references/errors.md` -- common error scenarios and solutions
+- [`references/implementation.md`](references/implementation.md) -- detailed implementation guide with configuration examples
+- [`references/errors.md`](references/errors.md) -- common error scenarios and solutions
 - [Prettier documentation](https://prettier.io/docs/en/) -- official configuration and CLI reference
 - [ESLint](https://eslint.org/) -- complementary linting and code quality tool
 - [Husky](https://typicode.github.io/husky/) -- git hooks for pre-commit formatting enforcement

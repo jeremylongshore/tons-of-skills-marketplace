@@ -1,207 +1,117 @@
 ---
 name: plain-english
-description: 'Translates every clause of a contract into plain language at an 8th-grade
-
-  reading level and flags deliberately confusing language patterns. Use when
-
-  a user says "explain this contract", "what does this mean", or needs a
-
-  non-lawyer to understand an agreement. Trigger with "/plain-english" or
-
-  "translate this contract to plain English".
-
-  '
-allowed-tools: Read, Glob, Grep
-version: 1.1.0
+description: >
+  Explain supplied contract clauses in clear language while preserving conditions,
+  exceptions and source locators. Use when a non-lawyer wants to understand an
+  agreement. Trigger with "explain this contract", "plain-english" or "translate
+  this contract to plain English".
+allowed-tools: Read, Glob, Grep, Write
+version: 1.2.0
 author: Intent Solutions <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- legal
-- contracts
-- plain-language
-- readability
-- translation
-- accessibility
+  - legal
+  - contracts
+  - plain-language
+  - readability
+  - translation
+  - accessibility
 compatibility: Designed for Claude Code
 ---
-# Plain English — Legalese to Plain Language Translator
 
-Translates every material clause in a contract into clear, jargon-free language
-that a non-lawyer can understand, while flagging clauses that appear to be
-deliberately confusing or that hide significant obligations behind complex
-wording.
+# Plain-English Contract Explanation
 
 ## Overview
 
-Legal language exists for precision, but it is also routinely weaponized. Dense
-legalese discourages the other party from reading carefully, hides unfavorable
-terms behind jargon, and creates information asymmetry that favors the drafter.
-
-This skill neutralizes that advantage by producing a clause-by-clause
-translation at an 8th-grade reading level (Flesch-Kincaid grade 8 or below),
-accompanied by flags that highlight where the original language is not just
-complex but strategically confusing.
-
-The goal is not to replace legal review but to ensure the signer actually
-understands what they are agreeing to before deciding whether to consult an
-attorney.
+Explain readable supplied clauses for the intended audience and preserve the
+qualifications that affect meaning. Tie each explanation to the original text,
+mark ambiguity and distinguish an explanatory draft from a legal conclusion.
 
 ## Prerequisites
 
-- A contract must be provided as a file path or pasted text.
-- No special knowledge from the user is required — the entire point of this
-  skill is to make the contract accessible to anyone.
+- A selected contract file or pasted text, with relevant schedules when available.
+- The audience and any party perspective the user has supplied. If the party is
+  unknown, use neutral party labels instead of assuming what "you" must do.
+- Requested coverage and output path. Record missing pages, unreadable images,
+  table extraction, comments/redline mode and unavailable incorporated terms.
+
+Use only supplied or authorized inputs. Do not upload contracts to external
+conversion services, alter originals or infer that confidentiality is guaranteed
+by the model or file format.
 
 ## Instructions
 
-1. **Read the full contract.** Use the Read tool if a file path is provided.
-
-2. **Identify all material clauses.** Break the contract into individual
-   sections and clauses. Skip boilerplate headers, signature blocks, and
-   formatting-only content.
-
-3. **Translate each clause to plain English.** For every material clause:
-   - Rewrite in short, direct sentences (target: 8th-grade reading level).
-   - Replace legal jargon with everyday equivalents:
-     - "indemnify and hold harmless" -> "pay for any losses and protect from lawsuits"
-     - "notwithstanding anything to the contrary" -> "even if other parts of this contract say differently"
-     - "shall not be construed to" -> "does not mean"
-     - "in the event of" -> "if"
-     - "prior to" -> "before"
-     - "pursuant to" -> "under" or "according to"
-     - "herein", "hereof", "hereunder" -> "in this contract"
-     - "mutatis mutandis" -> "with the necessary changes"
-   - Preserve the legal meaning — do not simplify away obligations or rights.
-   - State who must do what, by when, and what happens if they do not.
-
-4. **Apply the 5 flag types.** After translating each clause, check whether any
-   of these flags apply:
-
-   | Flag | Icon | When to Apply |
-   |------|------|---------------|
-   | **DELIBERATELY CONFUSING** | :no_entry: | Language is unnecessarily complex in ways that obscure meaning; simpler alternatives exist and the drafter chose not to use them |
-   | **WATCH OUT** | :warning: | Clause creates a significant obligation, cost, or restriction that a casual reader would likely miss |
-   | **SURPRISINGLY BROAD** | :mag: | Scope is wider than what a reasonable person would expect from the section heading or context |
-   | **HIDDEN OBLIGATION** | :lock: | An obligation is embedded inside a clause that appears to be about something else (e.g., a payment term hidden in a definitions section) |
-   | **CONTRADICTS EXPECTATIONS** | :boom: | The clause says the opposite of what most people would assume based on the section title or common practice |
-
-5. **Score overall readability.** After translating all clauses, calculate:
-   - Estimated Flesch-Kincaid grade level of the original document
-   - Number of jargon terms replaced
-   - Number of flags raised (broken down by type)
-   - Percentage of clauses flagged
-
-6. **Generate the quick-reference summary.** Create a one-page "What You Are
-   Actually Agreeing To" summary covering:
-   - What you must do (your obligations)
-   - What you must not do (your restrictions)
-   - What they must do (their obligations)
-   - What happens if things go wrong (liability, termination, disputes)
-   - What you give up (waivers, assignments, releases)
-   - How long this lasts and how to get out
+1. Use Glob within the selected location if discovery is needed, then Read the
+   supplied material. State the pages/sections actually reviewed. If an attachment
+   or image cannot be read, request usable text or leave that part unreviewed.
+2. Map clauses and their definitions/cross-references. Use Grep to locate terms in
+   readable supplied text and Read surrounding provisions. Do not automatically
+   skip signatures, notices, order forms or headings when they contain party names,
+   effective dates, exceptions or other operative details.
+3. Explain clauses using short sentences and the audience's vocabulary. Preserve
+   who must or may act, the action, trigger, deadline, amount/unit, conditions,
+   exceptions, limits, negations and referenced definitions. Keep a specialized
+   term alongside its explanation when a casual synonym would change its scope.
+4. Follow [the explanation checks](references/clause-explanation-checks.md). Do
+   not translate indemnity, damages exclusions or ownership language into a
+   universal outcome. When wording supports several readings, show the ambiguity
+   and the specific missing context instead of choosing one as established law.
+5. Flag observed obligations, dependencies, exceptions, conflicting text or unclear
+   meaning with a source locator. Dense wording alone is not proof of deception,
+   deliberate concealment or a drafter's intent. Explain the concrete concern.
+6. Build a quick-reference summary of the mapped parties' actions, restrictions,
+   dates, payments, exit/renewal process and unresolved questions. Trace important
+   summary statements back to clauses. Do not infer a right or remedy merely
+   because one section does not mention it.
+7. Review the explanation against the source. If readability metrics are requested
+   and actually measured, report the method/tool, text sample and limits. Otherwise
+   mark them unmeasured; do not invent a Flesch-Kincaid grade or promise a measured
+   grade-eight result. A formula alone does not prove reader comprehension.
+8. Return the requested report. When saving is requested, use Write at the chosen
+   path; suggest `plain-english-{matter-slug}.md` for new work and inspect an
+   existing destination before replacing it. Preserve the original contract.
 
 ## Output
 
-**Filename:** `PLAIN-ENGLISH-{contract-name-or-type}.md`
+An explanatory draft containing document identity, audience/party mapping,
+reviewed coverage and gaps, a quick-reference summary and clause-by-clause notes.
+For each note include a section/page locator, a minimal exact source excerpt,
+plain explanation, dependencies and unresolved meaning. Label paraphrases and
+examples clearly. Include measured readability results only when they exist.
 
-```
-# Plain English Translation
-## Quick Reference: What You Are Actually Agreeing To
-### Your Obligations
-### Your Restrictions
-### Their Obligations
-### If Things Go Wrong
-### What You Give Up
-### Duration and Exit
-## Readability Statistics
-| Metric | Value |
-## Clause-by-Clause Translation
-### Section 1: [title]
-**Original:** [quoted legalese]
-**Plain English:** [translation]
-**Flags:** [any applicable flags]
-### Section 2: [title]
-...
-## Flag Summary
-## Disclaimer
-```
+The report does not amend the contract, establish enforceability or create an
+attorney-client relationship. Identify decisions needing qualified legal review
+without presenting the explanation as a replacement for that review.
 
 ## Error Handling
 
-| Failure Mode | Cause | Resolution |
-|--------------|-------|------------|
-| Untranslatable jargon | Highly specialized legal term with no plain equivalent | Provide the best approximation with a parenthetical noting the term is specialized |
-| Ambiguous clause | Language is genuinely ambiguous even to legal professionals | Note that the clause has multiple possible interpretations and explain each |
-| Missing context | Clause references external documents or schedules not provided | Note the dependency and translate what is available |
-| Foreign language terms | Latin or other non-English legal phrases | Translate to English with the original term in parentheses |
-| Extremely long contract | Document exceeds practical analysis limits | Prioritize flagged clauses and high-risk sections; note sections skipped |
+| Situation                                         | Recovery                                                                            |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Party identity is missing                         | Use neutral labels; ask before assigning obligations to the user.                   |
+| Clause relies on a missing schedule or definition | Explain the visible wording and mark the dependency unresolved.                     |
+| Specialized term has no faithful short synonym    | Preserve the term and give a limited contextual explanation.                        |
+| Multiple plausible readings remain                | Show the competing readings and question for qualified review.                      |
+| Extraction or context is incomplete               | Label coverage and request the needed text rather than claiming a full translation. |
+| No readability scorer is available                | Report unmeasured and review clarity directly; do not fabricate statistics.         |
 
 ## Examples
 
-**Example 1 — SaaS Terms of Service clause:**
+**Damages exclusion:** A clause lists several excluded damage types. Explain what
+it purports to exclude and preserve its exceptions and relationship to any cap.
+Do not turn that wording into "the company owes you nothing" or assume a refund
+is the only remaining remedy.
 
-**Original:**
-> Notwithstanding anything to the contrary herein, Company shall not be liable
-> for any indirect, incidental, special, consequential, or punitive damages,
-> including without limitation loss of profits, data, business opportunities,
-> or goodwill, arising out of or in connection with this Agreement, whether
-> based on warranty, contract, tort, or any other legal theory, even if Company
-> has been advised of the possibility of such damages.
+**Definition dependency:** A definition of Services includes customer-created
+integrations. Explain the expanded label, then inspect the supplied provisions
+that use it. Ownership and licensing effects remain conditional on those clauses;
+the definition alone does not establish who owns the integrations.
 
-**Plain English:**
-> Even if other parts of this contract seem to say differently: if something
-> goes wrong because of this company's product or service, they will not pay
-> for any losses beyond direct, immediate damage. They will not cover lost
-> profits, lost data, missed business opportunities, or harm to your
-> reputation — even if they knew these losses were possible.
-
-**Flags:**
-
-- :warning: **WATCH OUT** — This means if their software deletes your data,
-  they owe you nothing for the data itself or the business impact. Only direct
-  damages (like a refund of fees paid) would apply.
-- :mag: **SURPRISINGLY BROAD** — "arising out of or in connection with" is
-  broader than "caused by." This covers situations where their product was only
-  tangentially related to the harm.
-
-**Example 2 — Hidden obligation in definitions:**
-
-**Original (from Definitions section):**
-> "Services" shall mean the software platform and any configurations,
-> customizations, or integrations developed by Client using the platform tools.
-
-**Plain English:**
-> "Services" means not just the software itself, but also anything you build
-> using their tools. By defining your work as part of their "Services," other
-> clauses about Services (like ownership, licensing, and liability) now apply
-> to your custom work too.
-
-**Flags:**
-
-- :lock: **HIDDEN OBLIGATION** — This definition makes your custom work subject
-  to the vendor's terms about "Services" throughout the contract.
-- :boom: **CONTRADICTS EXPECTATIONS** — Most people would expect "Services" to
-  mean what the vendor provides, not what the customer builds.
+**Obligation summary:** A supplied clause requires written notice thirty days
+before renewal, subject to an exception in a schedule. Preserve the notice form,
+period, renewal reference and missing exception; do not replace it with "cancel
+anytime" or invent a calendar deadline without the relevant dates.
 
 ## Resources
 
-- [Plain Language Action and Information Network (PLAIN)](https://www.plainlanguage.gov/)
-  — U.S. federal government plain language guidelines and resources.
-- [Federal Plain Writing Act of 2010](https://www.govinfo.gov/content/pkg/PLAW-111publ274/pdf/PLAW-111publ274.pdf)
-  — Legal basis for plain language requirements in government communications.
-- [Flesch-Kincaid Readability Standards](https://readable.com/readability/flesch-reading-ease-flesch-kincaid-grade-level/)
-  — Readability scoring methodology reference.
-- [CommonPaper Plain Language Contracts](https://commonpaper.com/) — Examples
-  of contracts written in accessible language (CC BY 4.0).
-- [Consumer Financial Protection Bureau — Plain Language Requirements](https://www.consumerfinance.gov/)
-  — CFPB guidance on clear disclosure language.
-
----
-
-**Legal Disclaimer:** This skill provides AI-generated plain-language
-translations for informational and educational purposes only. Translations are
-approximations — they aim for clarity but may not capture every legal nuance of
-the original text. This does not constitute legal advice, create an
-attorney-client relationship, or substitute for consultation with a qualified
-attorney. The original contract language, not this translation, is what governs
-the legal relationship between the parties.
+- [Clause explanation and readability checks](references/clause-explanation-checks.md)
+- The supplied clauses, definitions, schedules and actual user questions.

@@ -10,8 +10,9 @@ License: MIT
 """
 
 import argparse
+import re
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -87,7 +88,7 @@ Examples:
 
 def get_time_threshold(period: str) -> datetime:
     """Convert period string to datetime threshold."""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     if period == "1h":
         return now - timedelta(hours=1)
     elif period == "4h":
@@ -104,38 +105,29 @@ def load_sources() -> List[Dict[str, Any]]:
     """Load RSS sources from config."""
     config_path = SCRIPT_DIR.parent / "config" / "sources.yaml"
 
-    if config_path.exists():
-        try:
-            import yaml
+    import yaml
 
-            with open(config_path, "r") as f:
-                config = yaml.safe_load(f)
-                return config.get("sources", [])
-        except ImportError:
-            pass
-        except Exception:
-            pass
-
-    # Default sources if config not available
-    return [
-        {
-            "name": "CoinDesk",
-            "url": "https://www.coindesk.com/arc/outboundfeeds/rss/",
-            "category": "market",
-            "quality": 9,
-        },
-        {"name": "CoinTelegraph", "url": "https://cointelegraph.com/rss", "category": "market", "quality": 8},
-        {"name": "The Block", "url": "https://www.theblock.co/rss.xml", "category": "market", "quality": 9},
-        {"name": "Decrypt", "url": "https://decrypt.co/feed", "category": "market", "quality": 8},
-        {"name": "Bitcoin Magazine", "url": "https://bitcoinmagazine.com/feed", "category": "market", "quality": 8},
-        {"name": "CryptoSlate", "url": "https://cryptoslate.com/feed/", "category": "market", "quality": 7},
-        {"name": "NewsBTC", "url": "https://www.newsbtc.com/feed/", "category": "market", "quality": 6},
-        {"name": "CryptoPotato", "url": "https://cryptopotato.com/feed/", "category": "market", "quality": 6},
-        {"name": "U.Today", "url": "https://u.today/rss", "category": "market", "quality": 6},
-        {"name": "Blockworks", "url": "https://blockworks.co/feed/", "category": "market", "quality": 8},
-        {"name": "DeFi Pulse", "url": "https://defipulse.com/blog/feed/", "category": "defi", "quality": 8},
-        {"name": "DL News", "url": "https://www.dlnews.com/feed/", "category": "market", "quality": 7},
-    ]
+    # A broken/missing config must not silently replace the configured source set.
+    try:
+        with config_path.open() as handle:
+            config = yaml.safe_load(handle)
+    except yaml.YAMLError as error:
+        raise ValueError("Invalid sources YAML") from error
+    sources = config.get("sources") if isinstance(config, dict) else None
+    if not isinstance(sources, list) or not sources:
+        raise ValueError("sources.yaml must contain a nonempty sources list")
+    names = set()
+    for source in sources:
+        if not isinstance(source, dict) or not all(
+            isinstance(source.get(key), str) and source[key].strip() for key in ("name", "url")
+        ):
+            raise ValueError("Each feed needs a name and URL")
+        if source["name"] in names or not source["url"].startswith("https://"):
+            raise ValueError("Feed names must be unique and URLs must use HTTPS")
+        if "enabled" in source and not isinstance(source["enabled"], bool):
+            raise ValueError("Feed enabled must be boolean")
+        names.add(source["name"])
+    return sources
 
 
 def main() -> None:
@@ -153,7 +145,11 @@ def main() -> None:
     time_threshold = get_time_threshold(args.period)
 
     # Load sources
-    sources = load_sources()
+    try:
+        sources = load_sources()
+    except (ImportError, OSError, ValueError) as error:
+        print(f"Cannot load feed configuration: {type(error).__name__}", file=sys.stderr)
+        raise SystemExit(1) from error
 
     if args.verbose:
         print(f"Loaded {len(sources)} sources", file=sys.stderr)
@@ -184,6 +180,12 @@ def main() -> None:
             source_quality=source_info.get("quality", 5),
         )
         all_articles.extend(articles)
+        health = next(row for row in fetcher.diagnostics if row["source"] == source_name)
+        health["articles_parsed"] = len(articles)
+        dates = [article["published"] for article in articles if article.get("published")]
+        health["latest_published"] = max(dates).isoformat() if dates else None
+        health["undated_articles"] = len(articles) - len(dates)
+        health["articles_in_window"] = sum(time_threshold <= date <= datetime.now(timezone.utc) for date in dates)
 
     if args.verbose:
         print(f"Parsed {len(all_articles)} total articles", file=sys.stderr)
@@ -208,13 +210,16 @@ def main() -> None:
     for article in unique_articles:
         # Time filter
         pub_date = article.get("published")
-        if pub_date and pub_date < time_threshold:
+        if pub_date is None or pub_date < time_threshold or pub_date > datetime.now(timezone.utc):
             continue
 
         # Coin filter
         if coins:
             text = f"{article.get('title', '')} {article.get('summary', '')}".upper()
-            if not any(coin in text for coin in coins):
+            if not any(
+                coin in article.get("coins_mentioned", []) or re.search(r"\b" + re.escape(coin) + r"\b", text)
+                for coin in coins
+            ):
                 continue
 
         # Category filter
@@ -247,7 +252,10 @@ def main() -> None:
     if args.sort_by == "relevance":
         filtered.sort(key=lambda x: x.get("relevance_score", 0), reverse=True)
     else:
-        filtered.sort(key=lambda x: x.get("published") or datetime.min, reverse=True)
+        filtered.sort(key=lambda x: x.get("published") or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+
+    for health in fetcher.diagnostics:
+        health["articles_matched"] = sum(article["source"] == health["source"] for article in filtered)
 
     # Limit results
     result_articles = filtered[: args.top]
@@ -261,7 +269,12 @@ def main() -> None:
         "articles": result_articles,
         "meta": {
             "period": args.period,
-            "sources_checked": len(sources),
+            "sources_checked": sum(row["status"] != "disabled" for row in fetcher.diagnostics),
+            "sources_configured": len(sources),
+            "sources_succeeded": len(raw_feeds),
+            "sources_failed": sum(row["status"] == "failed" for row in fetcher.diagnostics),
+            "sources_disabled": sum(row["status"] == "disabled" for row in fetcher.diagnostics),
+            "feed_health": fetcher.diagnostics,
             "total_fetched": len(all_articles),
             "after_dedup": len(unique_articles),
             "after_filter": len(filtered),
@@ -269,6 +282,12 @@ def main() -> None:
             "filters": {"coins": coins if coins else None, "category": args.category, "min_score": args.min_score},
         },
     }
+
+    for health in fetcher.diagnostics:
+        if health["status"] == "failed":
+            print(f"Feed failed: {health['source']}: {health['reason']}", file=sys.stderr)
+    if not raw_feeds:
+        print("No usable feeds fetched; this is a source failure, not an empty news result.", file=sys.stderr)
 
     # Format output
     output = formatter.format(result, format_type=args.format)
@@ -282,6 +301,9 @@ def main() -> None:
         print(f"Output written to {output_path}", file=sys.stderr)
     else:
         print(output)
+
+    if not raw_feeds:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

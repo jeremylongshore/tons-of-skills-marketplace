@@ -12,7 +12,7 @@ License: MIT
 import json
 import csv
 import io
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any
 
 
@@ -40,7 +40,7 @@ class NewsFormatter:
     def _format_table(self, result: Dict[str, Any]) -> str:
         """Format results as aligned table."""
         lines = []
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         meta = result.get("meta", {})
 
         # Header
@@ -79,7 +79,21 @@ class NewsFormatter:
         sources = meta.get("sources_checked", 0)
         total = meta.get("after_filter", 0)
 
-        lines.append(f"  Summary: {shown} articles shown | Scanned: {sources} sources | Matched: {total}")
+        lines.append(f"  Summary: {shown} articles shown | Attempted: {sources} sources | Matched: {total}")
+
+        lines.append(
+            f"  Feed health: {meta.get('sources_succeeded', 0)} fetched | "
+            f"{meta.get('sources_failed', 0)} failed | {meta.get('sources_disabled', 0)} disabled | "
+            f"{meta.get('sources_configured', sources)} configured"
+        )
+        for health in meta.get("feed_health", []):
+            if health["status"] != "ok":
+                lines.append(f"  {health['source']}: {health['status']} — {health.get('reason', '')}")
+            elif health.get("articles_in_window") == 0:
+                lines.append(
+                    f"  {health['source']}: no dated articles in window; "
+                    f"latest={health.get('latest_published') or 'unknown'}"
+                )
 
         # Filters applied
         filters = meta.get("filters", {})
@@ -120,12 +134,12 @@ class NewsFormatter:
             # Convert datetime to ISO format
             pub = article.get("published")
             if pub:
-                serializable["published"] = pub.isoformat() + "Z"
+                serializable["published"] = pub.isoformat()
 
             output["articles"].append(serializable)
 
         # Add timestamp
-        output["meta"]["generated_at"] = datetime.utcnow().isoformat() + "Z"
+        output["meta"]["generated_at"] = datetime.now(timezone.utc).isoformat()
 
         return json.dumps(output, indent=2)
 
@@ -173,7 +187,9 @@ class NewsFormatter:
         if not published:
             return "unknown"
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
+        if published.tzinfo is None:
+            published = published.replace(tzinfo=timezone.utc)
         age = now - published
 
         if age < timedelta(minutes=1):

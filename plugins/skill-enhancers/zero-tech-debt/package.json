@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/zero-tech-debt",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Rebuild a feature as if the correct product architecture existed from day one. Removes compatibility cruft, dead abstractions, and historical compromises instead of preserving them. Methodology-only —",
   "keywords": [
     "refactoring",

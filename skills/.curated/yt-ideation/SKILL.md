@@ -1,188 +1,137 @@
 ---
 name: yt-ideation
-description: 'Generate and validate YouTube video ideas aligned with content pillars,
-  audience strategy,
-
-  and priority tiers. Use this skill whenever the user says "generate ideas", "brainstorm
-  videos",
-
-  "what should I make next", "video ideas", "content ideas", "ideation", "what topics
-  should I cover",
-
-  or wants to come up with new video concepts. Use when working with yt ideation.
-  Trigger with ''yt'', ''ideation''.
-
-  '
+description: Generate filmable YouTube video ideas, explain their evidence and priority,
+  and save user selections for briefing. Use when planning content from research or
+  a topic. Trigger with "video ideas", "what should I make next" or "brainstorm videos".
 allowed-tools: WebSearch, Read, Write, Task
-version: 1.10.0
+version: 1.11.0
 author: Claude Code Plugins <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- productivity
-- yt-ideation
+  - productivity
+  - yt-ideation
+  - youtube
+  - content-strategy
 compatibility: Designed for Claude Code
 ---
+
 # YouTube Ideation
-
-You are generating and validating video ideas for a YouTube channel. Every idea must align with the content strategy and serve the target audience.
-
-## Before You Start
-
-You need from the user:
-
-1. **Focus area** - What tool, niche, or topic to ideate around (e.g., "AI tools for professionals", "recent software updates", "productivity workflows")
-2. **Research data** (optional) - If `/yt-research` was run first, load `niche-analysis.json` and `niche-report.md` for data-informed ideation
-3. **Constraints** (optional) - Any specific requirements (e.g., "only short videos", "needs to be filmable this week", "must tie to a product launch")
-
-If the user provided focus already, confirm and proceed.
-
-## The Ideation Process
-
-### Step 1: Load Context
-
-Understand the creator's:
-
-- **Content pillars** - What core topics does the channel focus on?
-- **Audience** - Who are the viewers? What's their skill level?
-- **Content types** - What formats work best? (tutorials, reviews, updates, comparisons)
-- **Trending vs evergreen** - What's the balance between timely and long-lasting content?
-
-### Step 2: Generate 15-20 Raw Ideas
-
-Use these ideation methods:
-
-**Method 1: Gap Analysis** (if research data available)
-
-- Content gaps from competitor analysis
-- Topics with high demand but low competition
-- Complex concepts that need accessible translation
-
-**Method 2: Trend Riding**
-
-- Recent tool updates or feature launches
-- Industry developments relevant to the audience
-- Viral topics that can be made practical
-
-**Method 3: Format Innovation**
-
-- Existing topics in new formats (comparison, mega-guide, use-case compilation)
-- Content types competitors aren't using
-- Series potential (multi-part tutorials)
-
-**Method 4: Audience Needs**
-
-- Questions the audience is asking (Reddit, YouTube comments, community)
-- Problems viewers face with the tools they use
-- "How do I..." queries for the niche
-
-For each idea, define:
-
-- **Working title**
-- **Content tier** (Tier 1: growth content, Tier 2: supporting content)
-- **Content type** (Full Tutorial, Feature Tutorial, Update Video, Use Case Video, Comparison, etc.)
-- **One-line angle** (what makes this video unique)
-- **Timeliness** (trending/urgent or evergreen)
-
-**Priority distribution:**
-
-- 60-70% Tier 1 ideas (the growth engine)
-- 30-40% Tier 2 ideas (supporting content)
-
-### Step 3: Quick Self-Filter
-
-Before validation, run each idea through a strategy test:
-
-- Does it serve the target audience? (Must be yes)
-- Can it be practically demonstrated? (Prefer yes)
-- Does it support the content funnel? (Can we give away an asset?)
-- Is it filmable in the current format?
-
-Remove ideas that fail the test. Note why for transparency.
-
-### Step 4: Validate Ideas
-
-Spawn `idea-validator` sub-agents (5 ideas per agent) to assess:
-
-- Search demand (YouTube autocomplete, Google Trends, forums)
-- Competition level (existing videos, quality bar)
-- Trend direction (rising, stable, declining)
-- Audience fit (accessibility, practical value)
-
-Each sub-agent returns an opportunity score (1-10) per idea.
-
-### Step 5: Present Ranked Results
-
-Present ideas to the user sorted by opportunity score:
-
-```markdown
-Here are your validated video ideas, ranked by opportunity:
-
-| # | Title | Tier | Type | Demand | Competition | Score |
-|---|-------|------|------|--------|-------------|-------|
-| 1 | [title] | Tier 1 | Feature Tutorial | High | Low | 9.2 |
-| 2 | [title] | Tier 1 | Update Video | High | Medium | 8.5 |
-...
-
-Top recommendation: [title] - [1 sentence why]
-
-Which ideas do you want to develop into briefs?
-```
-
-Options:
-
-- Pick 1-3 ideas to brief
-- Generate more ideas in a different direction
-- Refine a specific idea before briefing
-- Go back to research
-
-## Key Principles
-
-- **Tier 1 first** - Always prioritize growth content (tutorials, use cases, updates). These drive channel growth.
-- **Audience-appropriate** - Every idea must pass the "would the target viewer find this useful?" test.
-- **Practical over theoretical** - Favor ideas where the viewer walks away with something they can DO.
-- **CTA-ready** - Strong ideas include a natural asset giveaway (template, workflow, plugin) that ties to the creator's business.
-- **Data-informed** - When research data is available, use it. Gut-feel ideation is a fallback, not the default.
 
 ## Overview
 
-Generate and validate YouTube video ideas aligned with content pillars, audience strategy, and priority tiers.
+Develop useful, filmable video ideas from the creator's audience, research and
+production constraints. Distinguish supported opportunities from creative
+hypotheses and save the selected ideas for the briefing stage.
 
 ## Prerequisites
 
-- Access to the ORM environment or API
-- Required CLI tools installed and authenticated
-- Familiarity with ORM concepts and terminology
+- A topic or niche, intended viewer and desired viewer outcome.
+- Optional `niche-analysis.json` and `niche-report.md`, or explicit research paths.
+- Constraints such as target length, deadline, available demos and channel goals.
+
+Reuse supplied context and Read the selected research before generating ideas.
+Without research, proceed with explicitly labeled hypotheses; do not imply that
+search demand or competition has been measured. No ORM, API account or CLI
+installation is required to develop ideas.
 
 ## Instructions
 
-1. Assess the current state of the ORM configuration
-2. Identify the specific requirements and constraints
-3. Apply the recommended patterns from this skill
-4. Validate the changes against expected behavior
-5. Document the configuration for team reference
+1. Establish the creator's content pillars, audience, practical outcomes and
+   production limits. Use their existing content types and tiers if supplied;
+   otherwise describe the format directly instead of inventing a growth taxonomy
+   or requiring a fixed percentage mix.
+2. Generate the requested number of ideas, or a manageable shortlist when no
+   quantity is specified. Draw from observed coverage gaps, audience questions,
+   verified updates, comparisons and practical workflows. Keep the angle specific
+   enough that a teammate can explain what the viewer will learn or build.
+3. Use WebSearch when current features, competing videos or an audience question
+   need checking. Save URLs and observation dates. Treat anecdotes, visible views
+   and search snippets as different evidence types; none alone measures demand
+   for a new video. Mark unsupported trend/demand claims as hypotheses.
+4. Evaluate ideas against audience fit, evidence, differentiation, filmability,
+   demo access and useful scope within the deadline. Reject or defer infeasible
+   ideas with a reason. Use Task for bounded idea validation only if delegation is
+   available and permitted; direct evaluation is a valid route. A delegated
+   score is a heuristic, not measured demand or a growth forecast.
+5. Present a prioritized shortlist with each working title, angle, format,
+   supporting evidence, open questions and feasibility tradeoffs. Explain the
+   ordering qualitatively. Use numeric scores only if the user asks for a defined
+   rubric, and label the criteria/assumptions rather than presenting them as
+   predictions of views or CTR.
+6. Ask which ideas to develop into briefs, unless the user already selected them
+   or explicitly delegated that selection. Give every idea a unique, filename-safe
+   lowercase video ID such as `mcp-reporting`; preserve IDs on revisions. Record
+   whether selection was made by the user or delegated to the assistant.
+7. Use Write to save `validated_ideas.json` in the working directory. Include all
+   shortlisted ideas, their evidence status and actual selection state. Before
+   overwriting a prior project, Read it and preserve unrelated ideas or use a
+   separate project directory. Report the saved path and selected IDs for the
+   brief stage, which writes `video-brief-{slug}.md` using the same ID.
 
 ## Output
 
-- Configuration files or code changes applied to the project
-- Validation report confirming correct implementation
-- Summary of changes made and their rationale
+`validated_ideas.json` is the handoff to briefing. The name is retained for the
+existing workflow; each record must distinguish checked evidence from an
+unvalidated hypothesis. Include:
+
+- Focus, audience and exact research input paths (or an explicit research gap).
+- Each idea's id, working_title, angle, content_type and any user-defined tier.
+- evidence_status, source URLs, feasibility, priority rationale and open questions.
+- selected and selection_basis, reflecting an actual choice rather than merely
+  the assistant's recommendation.
+
+This illustrative record is a hypothesis, not a validated market result:
+
+```json
+{
+  "focus": "reporting workflows",
+  "research_inputs": [],
+  "ideas": [
+    {
+      "id": "mcp-reporting",
+      "working_title": "Build a Weekly Report From One CSV",
+      "angle": "Show one report outcome for a solo operator",
+      "content_type": "practical tutorial",
+      "evidence_status": "hypothesis",
+      "source_urls": [],
+      "feasibility": "demo rehearsal still required",
+      "priority_rationale": "fits the proposed audience; demand remains unmeasured",
+      "selected": false,
+      "selection_basis": "awaiting selection"
+    }
+  ]
+}
+```
+
+A recommendation does not set selected to true. If selection is explicitly
+delegated, record that basis; if no selection exists, save the shortlist and stop
+before drafting briefs for unchosen ideas.
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| Authentication failure | Invalid or expired credentials | Refresh tokens or re-authenticate with ORM |
-| Configuration conflict | Incompatible settings detected | Review and resolve conflicting parameters |
-| Resource not found | Referenced resource missing | Verify resource exists and permissions are correct |
+| Situation                                      | Recovery                                                             |
+| ---------------------------------------------- | -------------------------------------------------------------------- |
+| Research missing                               | Label hypotheses and identify the most useful verification question. |
+| Idea promises an unavailable feature or result | Narrow it to a supported outcome or defer it.                        |
+| Demo cannot be filmed within constraints       | Offer a smaller demonstration or explain the dependency.             |
+| Several ideas share an ID                      | Assign distinct IDs before saving so later artifacts cannot collide. |
+| User has not selected an idea                  | Save the shortlist with selected false and ask for the choice.       |
+| Existing file belongs to another project       | Preserve it and choose the intended project directory.               |
 
 ## Examples
 
-**Basic usage**: Apply yt ideation to a standard project setup with default configuration options.
+**Research-backed shortlist:** “Use the niche report and suggest five beginner
+video ideas we can film this week.” Read the selected research, propose filmable
+angles with source links and explain the priority. Save the shortlist and actual
+selections to `validated_ideas.json`.
 
-**Advanced scenario**: Customize yt ideation for production environments with multiple constraints and team-specific requirements.
+**Direct idea:** “Develop an idea about weekly reporting without doing research.”
+Use the supplied audience and goal, label demand and competition unmeasured, and
+avoid manufactured opportunity scores. Carry the selected ID into briefing.
 
 ## Resources
 
-- Official ORM documentation
-- Community best practices and patterns
-- Related skills in this plugin pack
+Use the creator's content pillars, selected research files and observed primary
+sources. The briefing skill reads `validated_ideas.json`; approved production
+briefs then feed packaging and outlining. This stage creates a documented
+creative shortlist rather than changing an application configuration.

@@ -1,6 +1,6 @@
 {
   "name": "jeremy-github-actions-gcp",
-  "version": "2.27.0",
+  "version": "2.28.0",
   "description": "GitHub Actions CI/CD workflows for Google Cloud and Vertex AI deployments",
   "author": {
     "name": "Jeremy Longshore",

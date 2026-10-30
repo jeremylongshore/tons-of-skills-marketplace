@@ -1,7 +1,7 @@
 {
   "name": "authentication-validator",
-  "version": "1.27.0",
-  "description": "Validate authentication implementations",
+  "version": "1.28.0",
+  "description": "Review authentication declarations and verify explicit local JWT profiles",
   "author": {
     "name": "Jeremy Longshore",
     "email": "[email protected]"

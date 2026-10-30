@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "507d1fe0629f50af170d9247e7979d70a9badd7cee50097db76de2fc322188e3"
+      "sha256": "9658ca123b1ec72924e4044b87f7c5d064e1615fbb1c17d4a2d137d9bc88f90c"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -42,10 +42,10 @@
     "site_containers": 17,
     "workflows": 3,
     "jobs": 28,
-    "containers": 237,
-    "run_containers": 164,
+    "containers": 238,
+    "run_containers": 165,
     "opaque_actions": 73,
-    "conditional_envelopes": 44
+    "conditional_envelopes": 45
   },
   "sites": [
     {
@@ -130,9 +130,9 @@
       "id": "test-status-accumulator",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 9,
+      "step": 10,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "e9f706b04649c111cefb3b9db02e0d5e46a570d7a691be6390c6ae9143e7c116",
       "run_sha256": "0dcfbc304f8ac40a710d9f608d0aace39c58181aa769349bff1dbd3977817052",
       "anchor": {
@@ -146,7 +146,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 960,
+          "line": 965,
           "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
         }
       ],
@@ -239,9 +239,9 @@
       "id": "python-test-discovery",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 17,
+      "step": 18,
       "step_name": "Run Python tests",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "84d634f64c05089931a10f8d658c32adc00033838d084019727135c2f0b4b639",
       "run_sha256": "1f3d09305dde4e29d0ab05ef255ed72204d231ad36a6c7a61d4118c03ca656c5",
       "anchor": {
@@ -255,7 +255,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 1164,
+          "line": 1170,
           "text": "          # Normalize only grep's no-match status, never a find traversal error."
         },
         {
@@ -393,11 +393,11 @@
       "id": "python-dependency-install",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 14,
+      "step": 15,
       "step_name": "Install Python test dependencies",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
-      "step_sha256": "1158989e337910dcf438616a652722f706073ac0771510fec9a40ed1b0556554",
-      "run_sha256": "6f80678450cc05e426439057fe99ec7ebabfafb58864f117442ee85044ef7906",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
+      "step_sha256": "7f1f3d1d0ca6936e80a9343a1685132283528c086779b30a0bcc8635aa419c1b",
+      "run_sha256": "53cd91fd8cf412a2c5ec2b754f75bd99c83b1c418f1a61039d73517b48bc2e72",
       "anchor": {
         "line": 14,
         "text": "    pip install -r \"$req\" || true"
@@ -413,9 +413,9 @@
       "id": "enterprise-validator-advisory",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 23,
+      "step": 24,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -433,9 +433,9 @@
       "id": "cli-strict-advisory",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 23,
+      "step": 24,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -448,7 +448,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 1262,
+        "line": 1268,
         "sha256": "bc0bb0c3f03adb8e4cfe7c48574c54154d1c17f1f641b4445c6173502e78e054"
       }
     },
@@ -556,9 +556,9 @@
       "id": "package-test-script-discovery",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "test",
-      "step": 9,
+      "step": 10,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "fd09832ffe112b8df35e9eb1832e9b87f244f9ed7232cfe1e14b9dd343a1b504",
       "step_sha256": "e9f706b04649c111cefb3b9db02e0d5e46a570d7a691be6390c6ae9143e7c116",
       "run_sha256": "0dcfbc304f8ac40a710d9f608d0aace39c58181aa769349bff1dbd3977817052",
       "anchor": {
@@ -578,7 +578,7 @@
       "job": "scan-synced-content",
       "step": 4,
       "step_name": "Scan pushed plugin content (push to main)",
-      "job_sha256": "c160b48037fd066244badd704722120314e93ee91661a734160d2cc6085cdf37",
+      "job_sha256": "235a080748b5e77d832a227234263990e5607eabf1a3275e0dda57f79449f6d0",
       "step_sha256": "86d3fbe988376afb44bbd4448d9ab4316f31e324847dbcd862c2593e077c605e",
       "run_sha256": "cfdfb284ae8da9b8db8f6be85160732ce98262798930828c8215efe46f241662",
       "anchor": {
@@ -619,15 +619,15 @@
       "job": "scan-synced-content",
       "step": 3,
       "step_name": "Scan changed plugin content",
-      "job_sha256": "c160b48037fd066244badd704722120314e93ee91661a734160d2cc6085cdf37",
-      "step_sha256": "46d31d7d5b268c0eca6ade14395c4023b78ce4b5b3c9e2347eaf914a2b02c146",
-      "run_sha256": "c03aa9da1a13a88544716aa96ad34bb46798ab28865ced93fa8ba4166511754a",
+      "job_sha256": "235a080748b5e77d832a227234263990e5607eabf1a3275e0dda57f79449f6d0",
+      "step_sha256": "593ba6126912a738c7d4cbed5548701da3362146d4db470ca8af5413d645d544",
+      "run_sha256": "647136af7a9864fcad2e0eab25bbd5f589b17d2fbe7c3cd968665a5f11ffa82f",
       "anchor": {
-        "line": 8,
-        "text": "  automation/sync-external-*) WARN=\"--warn-only\" ;;"
+        "line": 14,
+        "text": "          advisory) MODE=\"advisory\" ;;"
       },
       "classification": "unresolved",
-      "rationale": "Branch-name selected warn-only mode lacks established current ownership, bound and actor authorization.",
+      "rationale": "Trusted producer provenance limits the existing sync advisory scanner mode to its actual same-repository PR and exact head; missing proof retains full grading. Authentication does not settle the remaining advisory ownership/bound or human CHALLENGE approval policy, so this site remains unresolved.",
       "owner": null,
       "promotion": null,
       "authority": [],

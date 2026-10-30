@@ -221,7 +221,6 @@ jobs:
           PY
           echo "Wrote PR comment body to /tmp/pr-comment.md"
 
-
       - name: Post prescreen-grade commit status
         if: steps.read-verdict.outputs.verdict != '' && steps.read-verdict.outputs.diff_count != '0'
         env:

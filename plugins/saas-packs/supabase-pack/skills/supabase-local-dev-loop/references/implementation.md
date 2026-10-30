@@ -1,60 +1,50 @@
-## Implementation Guide
+# Local Development Implementation
 
-### Step 1: Create Project Structure
+## Project Structure and Configuration
 
-```
-my-supabase-project/
-├── src/
-│   ├── supabase/
-│   │   ├── client.ts       # Supabase client wrapper
-│   │   ├── config.ts       # Configuration management
-│   │   └── utils.ts        # Helper functions
-│   └── index.ts
-├── tests/
-│   └── supabase.test.ts
-├── .env.local              # Local secrets (git-ignored)
-├── .env.example            # Template for team
-└── package.json
-```
+Keep application migrations and tests in the project. Store actual credentials in
+ignored local configuration, not committed fixtures. Install the SDK and CLI through
+your chosen supported package workflow; use the [local development guide](../SKILL.md)
+for stack startup, migration, and reset procedures. Do not run those operations just
+to check that a client object can be constructed.
 
-### Step 2: Configure Environment
-
-```bash
-# Copy environment template
-cp .env.example .env.local
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+```text
+src/supabase/client.ts
+src/index.ts
+tests/supabase.test.ts
+supabase/migrations/
+.env.example
+.env.local              # ignored; actual configuration
 ```
 
-### Step 3: Setup Hot Reload
+A development script can use `tsx watch src/index.ts`; that requires a deliberately
+installed project dev dependency. A test runner such as Vitest is likewise an
+explicit project prerequisite, not an SDK feature.
 
-```json
-{
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "test": "vitest",
-    "test:watch": "vitest --watch"
-  }
-}
-```
+## Client Construction Test Without Provider Requests
 
-### Step 4: Configure Testing
+This Vitest example calls no query, auth, storage, or Realtime methods. It verifies
+only local construction, not connectivity or the validity of a key. The key is a
+synthetic non-secret fixture, and persistence/refresh are disabled.
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { SupabaseClient } from '../src/supabase/client';
+import { describe, it, expect } from 'vitest';
+import { createClient } from '@supabase/supabase-js';
 
-describe('Supabase Client', () => {
-  it('should initialize with API key', () => {
-    const client = new SupabaseClient({ apiKey: 'test-key' });
-    expect(client).toBeDefined();
+describe('Supabase client construction', () => {
+  it('constructs an HTTP client without calling the provider', () => {
+    const client = createClient('http://127.0.0.1:54321', 'synthetic-public-test-key', {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    });
+    expect(typeof client.from).toBe('function');
   });
 });
 ```
 
+Keep local-stack integration tests separate. Those tests need an explicitly started
+local stack, migrated fixture tables, and the keys emitted for that stack. Never
+point them at production or infer that this construction test exercises SQL or RLS.
+
 ---
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+
+_[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)_

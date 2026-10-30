@@ -35,22 +35,35 @@ This plugin provides **7 MCP tools** for experiment management:
 
 ## Installation
 
-### 1. Install Dependencies
+### 1. Copy the Plugin
 
-```bash
-cd plugins/mcp/ai-experiment-logger
-pnpm install
-```
+The tracked plugin includes a self-contained `dist/index.js` stdio server.
+Copy the tracked plugin directory, and use
+Node.js **22.12 or newer**. No dependency installation or build is needed for
+this manual stdio launch. Keep `package.json` with the entrypoint; it declares
+ES modules.
 
-### 2. Build the Plugin
+### 2. Locate the Entrypoint
 
-```bash
-pnpm build
-```
+Use the absolute path to `dist/index.js` in your copied plugin directory in the
+manual MCP configuration below. Installation does not automatically register
+or start this server.
 
 ### 3. Configure MCP Server
 
-Add to your Claude Code MCP configuration file (`~/.claude/mcp_config.json`):
+For Claude Code, explicitly register the manual entry with the supported CLI
+(substitute the absolute path to your copied or installed plugin):
+
+```bash
+claude mcp add --transport stdio --scope user ai-experiment-logger -- node "/absolute/path/to/ai-experiment-logger/dist/index.js"
+```
+
+See the [Claude Code MCP setup reference](https://code.claude.com/docs/en/mcp#option-3-add-a-local-stdio-server)
+for scopes and configuration. The command above is a registration example; copying
+or installing the plugin alone does not run it.
+
+For another MCP host, use its documented configuration location with this generic
+stdio configuration:
 
 ```json
 {
@@ -246,12 +259,17 @@ Download CSV export
 
 ### Environment Variables
 
+The optional web UI is a separate developer workflow: it still requires
+dependencies and a build. The committed stdio bundle does not start an HTTP
+listener. This distribution fix does not validate web static-asset packaging.
+
 ```bash
 # Web server port (default: 3000)
 PORT=3000
 
 # Data storage directory (default: ~/.ai-experiment-logger)
-DATA_DIR=/custom/path/to/data
+# Storage is fixed at ~/.ai-experiment-logger/experiments.json.
+# DATA_DIR is not a supported override.
 ```
 
 ### Customization
@@ -267,8 +285,8 @@ You can modify the source code to:
 
 ### MCP Server Not Appearing
 
-1. Check the absolute path in `mcp_config.json` is correct
-2. Verify the build completed: `ls dist/index.js`
+1. Run `claude mcp get ai-experiment-logger` and check the configured absolute path
+2. Verify the copied entry exists: `ls dist/index.js`
 3. Check Claude Code logs for error messages
 4. Restart Claude Code completely
 
@@ -316,6 +334,9 @@ pnpm install
 
 # Build TypeScript
 pnpm build
+
+# Run isolated clean-copy stdio and storage probes (temporary home only)
+pnpm test
 
 # Watch mode (auto-rebuild on changes)
 pnpm dev
@@ -370,3 +391,15 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 **Built with ❤️ for the Claude Code community**
+
+## Data safety and recovery
+
+The manual stdio server stores plaintext JSON under the current user's home directory. New directories use mode0700 and new/replaced files use0600 on POSIX; review permissions on older existing directories separately. This does not encrypt data or protect it from another process running as the same user.
+
+Malformed JSON, unsupported stored shapes, symlinked storage targets and disappeared initialized data fail closed. Existing data is preserved instead of being reset. Writes use a private temporary file, file fsync and atomic replacement; filesystem and power-loss guarantees remain platform dependent. In-process writes are queued. Cooperating instances take an exclusive short-lived writer lock and reload the latest committed state before changing it. Reads reload committed data. Stop older logger processes before upgrading; they do not participate in this locking protocol.
+
+A busy request has not written data. Stop all writers and inspect a stale `.experiments.lock` before recovering it; never delete `experiments.json` to repair startup. A cleanup warning after a completed replacement may leave a lock requiring recovery. Retrying after an uncertain transport result can still create duplicate records; this is not an exactly-once service.
+
+CSV output quotes textual fields, escapes quotes and prefixes common formula-leading text with an apostrophe. Stored prompts/results remain unchanged. Exported text still requires appropriate handling by its downstream consumer.
+
+The standalone bundle uses main's pinned Zod4.6.6 dependency. Its bundled SDK still includes Ajv's schema compiler; the application registers only the seven listed tools, parses tool arguments with local Zod schemas and never calls elicitation or accepts compiler options. This is an application boundary review, not a universal SDK security certification. The optional web dashboard's separate limitations remain; this repair does not start or certify an Express listener or add native MCP registration.

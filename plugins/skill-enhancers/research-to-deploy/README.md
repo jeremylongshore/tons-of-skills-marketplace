@@ -1,69 +1,36 @@
-# 🚀 Research to Deploy
+# Research to Deploy
 
-**Status:** 🚧 Under Development (Enterprise Tier)
+Research current infrastructure documentation, generate reviewable configurations
+and runbooks, and execute scoped deployments when authorized.
 
-> Enhances Claude's `web_search` Skill by researching infrastructure best practices and automatically deploying to cloud providers.
+## Installation
 
-## 🎯 Planned Features
-
-### Example Usage
-
-```bash
-claude: "research GCP Cloud Run best practices and deploy to staging"
-
-# Claude searches for Cloud Run patterns
-# Plugin generates Terraform configs
-# Applies infrastructure changes
-# ✅ Deployed to GCP with monitoring
+```text
+/plugin install research-to-deploy@claude-code-plugins-plus
 ```
 
-### Capabilities
+## Usage
 
-- 🏗️ Infrastructure as Code generation (Terraform, Pulumi)
-- ☁️ Multi-cloud deployment (GCP, AWS, Azure)
-- 📊 Monitoring setup (Cloud Monitoring, Datadog)
-- 🔒 Security best practices applied
-- 📝 Documentation auto-generated
-- 🔄 CI/CD pipeline creation
+- "Research Cloud Run options and generate Terraform for this API."
+- "Prepare a Fargate staging deployment using our existing IaC."
+- "Draft AKS manifests and a runbook without accessing a cluster."
 
-### Supported Platforms
+The skill reads application and infrastructure context, checks primary provider
+sources, explains architecture choices and produces the artifacts the task needs.
+It can use Terraform, containers or Kubernetes within the user's authorized scope.
+There is no bundled cloud deployment service or separate cloud account provisioning.
 
-- Google Cloud Platform (Cloud Run, GKE, App Engine)
-- AWS (ECS, EKS, Lambda, Fargate)
-- Azure (Container Instances, AKS, Functions)
-- DigitalOcean, Railway, Fly.io
+## Deliverables
 
-## 🏢 Enterprise Tier Plugin
+Research notes, configuration files, a cost model when inputs support it, optional
+CI/CD configuration, and a validation/deployment/recovery runbook. Evidence reports
+which checks ran and whether anything was actually deployed. Missing tools or
+credentials are recorded as limitations; generation does not require cloud login.
 
-This plugin will be available to Enterprise tier sponsors ($199/month):
+Generated files do not establish production readiness, compliance, a spending cap
+or an SLA. Deployment depends on the selected environment, toolchain, authorization
+and actual validation results.
 
-**Enterprise Benefits:**
+## License
 
-- ✅ All Pro features +
-- ✅ Custom plugin development (1/month)
-- ✅ Private plugin hosting (claude-code-marketplace repo)
-- ✅ Dedicated support channel
-- ✅ 2 hours consulting/month
-- ✅ SLA guarantees (99.9% uptime)
-- ✅ Team training (2-hour workshop/quarter)
-- ✅ Priority bug fixes (same-day response)
-- ✅ Logo on website
-
-[Contact for Enterprise →](mailto:jeremy@intentsolutions.io)
-
-## 📅 Expected Release
-
-**Q1 2025** (January-March 2025)
-
-Want this prioritized? [Sponsor at Enterprise tier](https://github.com/sponsors/jeremylongshore) and request this feature!
-
-## 🔔 Get Notified
-
-Watch this repo to be notified when this plugin is released:
-
-[![Watch Releases](https://img.shields.io/github/watchers/jeremylongshore/claude-code-plugins?style=social)](https://github.com/jeremylongshore/claude-code-plugins/subscription)
-
----
-
-**Part of the [Skill Enhancers](../) collection**
-[View all available plugins →](https://tonsofskills.com/skill-enhancers)
+MIT. See [LICENSE](LICENSE).

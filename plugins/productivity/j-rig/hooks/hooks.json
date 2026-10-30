@@ -3,37 +3,47 @@
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
-        "description": "L1 Sinker ($0, no model call): after any Edit/Write, if the touched file is a SKILL.md, run the deterministic validate-skillmd Tier-2 frontmatter check and surface warnings to context.",
+        "description": "Advisory deterministic validation after an Edit or Write touches SKILL.md; reports findings without a blocking decision.",
         "hooks": [
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/sinker.sh\"",
-            "timeout": 20
+            "timeout": 20,
+            "description": "Advisory deterministic validation after an Edit or Write touches SKILL.md; reports findings without a blocking decision.",
+            "enabled": true,
+            "blocking": false
           }
         ]
       }
     ],
     "Stop": [
       {
-        "description": "L2 Line ($ mid-tier): at end of turn, capture scored rollouts for any skill invoked this turn into .j-rig/refiner/log.jsonl; once N rollouts accumulate on a skill, fire the refiner in the background and surface the candidate next turn.",
+        "description": "When a supplied skill identifier is valid, record a local rollout event and invoke a background proposal after the configured threshold; this hook does not score rollouts.",
         "hooks": [
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/line.sh\"",
-            "timeout": 30
+            "timeout": 30,
+            "description": "When a supplied skill identifier is valid, record a local rollout event and invoke a background proposal after the configured threshold; this hook does not score rollouts.",
+            "enabled": true,
+            "blocking": false
           }
-        ]
+        ],
+        "matcher": ".*"
       }
     ],
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "description": "L3 Hook ($$ top-tier, rate-limited): before a git commit/push, if the staged diff modifies a SKILL.md, run the agentic gate (surrounding-dir read + regression-against-rejected-buffer + optional shadow-validation). PreToolUse can BLOCK via exit code 2 — chosen over PostToolUse:Bash, which fires after the bash already ran and cannot prevent the commit.",
+        "description": "Advisory-only status check and rate-limit stamp for staged skills before Bash git commit or push; an enforced regression gate is not implemented.",
         "hooks": [
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/hook.sh\"",
-            "timeout": 120
+            "timeout": 120,
+            "description": "Advisory-only status check and rate-limit stamp for staged skills before Bash git commit or push; an enforced regression gate is not implemented.",
+            "enabled": true,
+            "blocking": false
           }
         ]
       }

@@ -155,8 +155,9 @@ jobs:
       # decode-then-exec, secret exfil, crypto-miner) — so a poisoned upstream
       # fails the sync itself and no PR is opened. --warn-only means dual-use
       # CHALLENGE findings (a new hook, a remote MCP url, an outbound call) do
-      # NOT halt the weekly sync on routine upstream churn; they still print here
-      # and are re-graded (blocking) on the resulting PR for a human to sign off.
+      # NOT halt routine sync creation. Only provenance-authenticated automation
+      # PRs retain the accepted advisory scanner mode; other PRs get full grading.
+      # This mode does not grant scoped human approval under699.
       # A failed step halts the job, so the commit/PR-create steps below never run.
       - name: Scan synced content for injected payloads
         if: inputs.dry_run != true && steps.sync.outputs.errors == '0'
@@ -215,6 +216,7 @@ jobs:
             done
 
       - name: Create Pull Request
+        id: create_pr
         if: steps.changes.outputs.has_changes == 'true' && inputs.dry_run != true && steps.sync.outputs.errors == '0'
         # Hand-rolled commit + push + PR-create instead of peter-evans/create-pull-request.
         #
@@ -280,7 +282,35 @@ jobs:
 
           ---
           *This PR was automatically created by the \`Sync External Plugins\` workflow.*"
+            PR_NUMBER=$(gh pr view "$BRANCH" --json number --jq '.number')
+            echo "created=true" >> "$GITHUB_OUTPUT"
+            echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           fi
+
+      # Receipt availability can race the opened event. Missing proof retains
+      # full PR grading; this never creates a pending-proof amnesty.
+      - name: Record sync PR provenance
+        if: steps.create_pr.outputs.created == 'true' && steps.sync.outputs.errors == '0' && inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          SYNC_PR_NUMBER: ${{ steps.create_pr.outputs.number }}
+          SYNC_BASE_COMMIT_SHA: ${{ github.sha }}
+          SYNC_RECEIPT_PATH: ${{ runner.temp }}/sync-pr-provenance/sync-pr-provenance.json
+        run: |
+          set -euo pipefail
+          SYNC_HEAD_SHA=$(git rev-parse HEAD)
+          SYNC_HEAD_REF=$(git branch --show-current)
+          export SYNC_HEAD_SHA SYNC_HEAD_REF
+          mkdir -p "$(dirname "$SYNC_RECEIPT_PATH")"
+          python3 -I scripts/ci/sync_pr_provenance.py produce
+
+      - name: Publish sync PR provenance
+        if: steps.create_pr.outputs.created == 'true' && steps.sync.outputs.errors == '0' && inputs.dry_run != true
+        uses: actions/upload-artifact@v7
+        with:
+          name: sync-pr-provenance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/sync-pr-provenance/sync-pr-provenance.json
+          if-no-files-found: error
 
       # A partial sync (one or more sources errored / found zero files) must NOT
       # be committed and auto-PR'd as if it were a clean full sync. The commit +

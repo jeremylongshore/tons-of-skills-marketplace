@@ -921,6 +921,11 @@ jobs:
         if: matrix.test-type == 'mcp-plugins'
         run: pnpm install --frozen-lockfile
 
+      - name: Test Supabase documentation examples offline
+        timeout-minutes: 2
+        if: matrix.test-type == 'mcp-plugins'
+        run: node --test scripts/supabase-pack-examples.test.mjs
+
       - name: Build MCP plugins
         if: matrix.test-type == 'mcp-plugins'
         env:
@@ -1102,7 +1107,8 @@ jobs:
           pip install \
             -r plugins/mcp/lumera-agent-memory/requirements.txt \
             -r plugins/security/penetration-tester/skills/performing-penetration-testing/scripts/requirements.txt \
-            -r plugins/crypto/trading-strategy-backtester/requirements.txt
+            -r plugins/crypto/trading-strategy-backtester/requirements.txt \
+            -r plugins/crypto/crypto-news-aggregator/requirements.txt
 
           # Install additional testing tools
           pip install pyyaml jsonschema
@@ -1820,11 +1826,14 @@ jobs:
   #   exfil, crypto-miner) → exit 2, fails the job. CHALLENGE (dual-use: hooks,
   #   remote MCP url, outbound calls, dynamic exec) → exit 1, fails the job UNLESS
   #   a `path:rule  reason` waiver is added to scripts/scan-allowlist.txt in the
-  #   same PR. The bot's own sync PR (branch automation/sync-external-*) runs with
-  #   --warn-only so routine dual-use churn doesn't wall it — REFUSE still blocks.
+  #   same PR. Only a provenance-authenticated automation PR may retain the
+  #   existing --warn-only role. This is not human CHALLENGE approval; REFUSE blocks.
   scan-synced-content:
     runs-on: ubuntu-latest
     name: scan-synced-content (supply-chain)
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v7
         with:
@@ -1843,17 +1852,43 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
           HEAD_REF: ${{ github.head_ref }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          SYNC_PR_NUMBER: ${{ github.event.pull_request.number }}
+          SYNC_EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          SYNC_BASE_COMMIT_SHA: ${{ github.event.pull_request.base.sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git fetch --no-tags origin "$BASE_REF"
-          # The bot's own sync PR already REFUSE-scanned upstream at sync time;
-          # re-grade it with --warn-only so dual-use CHALLENGE churn doesn't wall
-          # the automated PR (REFUSE still hard-blocks). Human PRs get full grading.
-          WARN=""
-          case "$HEAD_REF" in
-            automation/sync-external-*) WARN="--warn-only" ;;
-          esac
-          node scripts/scan-synced-content.mjs --changed-only --base "origin/$BASE_REF" $WARN
+          # A PR cannot supply its own trust-granting helper. The first PR adding
+          # this helper stays fully graded because its trusted base lacks it.
+          MODE="full"
+          HELPER="scripts/ci/sync_pr_provenance.py"
+          if [[ "$HEAD_REF" =~ ^automation/sync-external-[1-9][0-9]*$ ]]; then
+            if [[ "$PR_BASE_SHA" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
+              if git cat-file -e "$PR_BASE_SHA:$HELPER" 2>/dev/null; then
+                TRUSTED_HELPER=$(mktemp "$RUNNER_TEMP/sync-pr-provenance.XXXXXX.py")
+                trap 'rm -f "$TRUSTED_HELPER"' EXIT
+                if git show "$PR_BASE_SHA:$HELPER" > "$TRUSTED_HELPER" && PROOF_MODE=$(python3 -I "$TRUSTED_HELPER" consume); then
+                  case "$PROOF_MODE" in
+                    advisory) MODE="advisory" ;;
+                    full) ;;
+                    *) echo "sync provenance: invalid-mode" ;;
+                  esac
+                else
+                  echo "sync provenance: proof-execution-failed"
+                fi
+              else
+                echo "sync provenance: bootstrap-helper-absent"
+              fi
+            else
+              echo "sync provenance: trusted-base-unavailable"
+            fi
+          fi
+          WARN=()
+          if [ "$MODE" = "advisory" ]; then WARN=(--warn-only); fi
+          # Advisory execution never grants scoped human approval under699.
+          node scripts/scan-synced-content.mjs --changed-only --base "origin/$BASE_REF" "${WARN[@]}"
 
       # E4.7 (blueprint 727): the workflow already fires on push:main, but the
       # scan above skipped itself outside pull_request — so nothing ever

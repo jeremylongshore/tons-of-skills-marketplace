@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/supabase-pack",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Claude Code skill pack for Supabase - 30 skills covering database operations, authentication, edge functions, realtime subscriptions, and production operations",
   "main": "README.md",
   "type": "module",

@@ -3,8 +3,9 @@
  * Handles data persistence to JSON file
  */
 
-import { readFile, writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { open, mkdir, lstat, rename, unlink } from 'fs/promises';
+import { constants } from 'fs';
+import { randomUUID } from 'crypto';
 import { join } from 'path';
 import { homedir } from 'os';
 import type { Experiment, ExperimentInput, ExperimentFilters, ExperimentStatistics, StorageData } from './types.js';
@@ -19,29 +20,141 @@ export class ExperimentStorage {
     version: VERSION
   };
 
-  async initialize(): Promise<void> {
-    // Ensure data directory exists
-    if (!existsSync(DATA_DIR)) {
-      await mkdir(DATA_DIR, { recursive: true });
-    }
+  private writes: Promise<void> = Promise.resolve();
 
-    // Load existing data
-    if (existsSync(DATA_FILE)) {
-      try {
-        const content = await readFile(DATA_FILE, 'utf-8');
-        this.data = JSON.parse(content);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        // Start with fresh data
-        await this.save();
-      }
-    } else {
-      await this.save();
+  private async ensureDirectory(): Promise<void> {
+    await mkdir(DATA_DIR, { recursive: true, mode: 0o700 });
+    const info = await lstat(DATA_DIR);
+    if (!info.isDirectory() || info.isSymbolicLink()) {
+      throw new Error('Experiment storage directory is unsafe; nothing was changed.');
     }
   }
 
-  private async save(): Promise<void> {
-    await writeFile(DATA_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
+  private async readData(): Promise<StorageData | null> {
+    let file;
+    try {
+      // Open first: all content reads use this descriptor, never a path that
+      // was checked earlier. O_NOFOLLOW also rejects final-component symlinks.
+      file = await open(DATA_FILE, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+    } catch (error) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') return null;
+      throw new Error('Cannot safely read experiment data; existing files were not changed.');
+    }
+    try {
+      const opened = await file.stat();
+      const current = await lstat(DATA_FILE);
+      if (!opened.isFile() || !current.isFile() || current.isSymbolicLink() ||
+          opened.ino !== current.ino || opened.dev !== current.dev) {
+        throw new Error('Cannot safely read experiment data; existing files were not changed.');
+      }
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(await file.readFile('utf8'));
+      } catch {
+        throw new Error('Stored experiment data is invalid; existing files were not changed.');
+      }
+      if (!parsed || typeof parsed !== 'object' || !('version' in parsed) || parsed.version !== VERSION ||
+          !('experiments' in parsed) || !Array.isArray(parsed.experiments) ||
+          !parsed.experiments.every((item: unknown) => {
+            if (!item || typeof item !== 'object') return false;
+            const row = item as Record<string, unknown>;
+            return ['id', 'date', 'aiTool', 'prompt', 'result', 'createdAt', 'updatedAt']
+              .every(key => typeof row[key] === 'string') &&
+              typeof row.rating === 'number' && Number.isFinite(row.rating) && row.rating >= 1 && row.rating <= 5 &&
+              Array.isArray(row.tags) && row.tags.every((tag: unknown) => typeof tag === 'string');
+          })) {
+        throw new Error('Stored experiment data has an invalid shape; existing files were not changed.');
+      }
+      return parsed as StorageData;
+    } finally {
+      await file.close();
+    }
+  }
+
+  private async withWriteLock<T>(operation: () => Promise<T>): Promise<T> {
+    await this.ensureDirectory();
+    const lockPath = join(DATA_DIR, '.experiments.lock');
+    let lock;
+    try {
+      lock = await open(lockPath, 'wx', 0o600);
+    } catch {
+      throw new Error('Experiment storage is busy or unavailable; nothing was written. Stop stale writers before recovering a lock.');
+    }
+    let identity;
+    try {
+      identity = await lock.stat();
+      await lock.writeFile(JSON.stringify({ pid: process.pid }) + '\n');
+      return await operation();
+    } finally {
+      await lock.close().catch(() => {
+        console.error('Experiment storage lock descriptor cleanup failed; inspect it with all writers stopped.');
+      });
+      try {
+        const current = await lstat(lockPath);
+        if (identity && current.isFile() && current.ino === identity.ino && current.dev === identity.dev) {
+          await unlink(lockPath);
+        }
+      } catch {
+        // A completed write must not be reported as uncommitted solely because
+        // cleanup failed. The remaining lock fails future writes closed.
+        console.error('Experiment storage lock cleanup failed; inspect it with all writers stopped.');
+      }
+    }
+  }
+
+  private async writeSnapshot(data: StorageData): Promise<void> {
+    const temporary = join(DATA_DIR, `.experiments-${randomUUID()}.tmp`);
+    let file;
+    let committed = false;
+    try {
+      file = await open(temporary, 'wx', 0o600);
+      await file.writeFile(JSON.stringify(data, null, 2), 'utf8');
+      await file.sync();
+      await file.close();
+      file = undefined;
+      await rename(temporary, DATA_FILE);
+      committed = true;
+    } catch {
+      throw new Error('Unable to save experiment data; previous records were preserved.');
+    } finally {
+      if (file) await file.close().catch(() => {});
+      if (!committed) await unlink(temporary).catch(() => {});
+    }
+  }
+
+  async initialize(): Promise<void> {
+    await this.ensureDirectory();
+    const existing = await this.readData();
+    if (existing) {
+      this.data = existing;
+      return;
+    }
+    await this.withWriteLock(async () => {
+      const current = await this.readData();
+      if (current) this.data = current;
+      else await this.writeSnapshot(this.data);
+    });
+  }
+
+  private async refresh(): Promise<void> {
+    await this.ensureDirectory();
+    const current = await this.readData();
+    if (!current) throw new Error('Experiment data disappeared; existing records were not replaced.');
+    this.data = current;
+  }
+
+  private mutate<T>(change: (draft: StorageData) => { value: T; changed: boolean }): Promise<T> {
+    const operation = this.writes.then(() => this.withWriteLock(async () => {
+      const current = await this.readData();
+      if (!current) throw new Error('Experiment data disappeared; existing records were not replaced.');
+      const draft = structuredClone(current);
+      const result = change(draft);
+      if (result.changed) await this.writeSnapshot(draft);
+      this.data = draft;
+      return structuredClone(result.value);
+    }));
+    this.writes = operation.then(() => {}, () => {});
+    return operation;
   }
 
   private generateId(): string {
@@ -57,22 +170,25 @@ export class ExperimentStorage {
       prompt: input.prompt,
       result: input.result,
       rating: input.rating,
-      tags: input.tags || [],
+      tags: [...(input.tags || [])],
       createdAt: now,
       updatedAt: now
     };
 
-    this.data.experiments.push(experiment);
-    await this.save();
-    return experiment;
+    return this.mutate(draft => {
+      draft.experiments.push(experiment);
+      return { value: experiment, changed: true };
+    });
   }
 
   async getExperiment(id: string): Promise<Experiment | null> {
-    return this.data.experiments.find(exp => exp.id === id) || null;
+    await this.refresh();
+    return structuredClone(this.data.experiments.find(exp => exp.id === id) || null);
   }
 
   async listExperiments(filters?: ExperimentFilters): Promise<Experiment[]> {
-    let experiments = [...this.data.experiments];
+    await this.refresh();
+    let experiments = structuredClone(this.data.experiments);
 
     if (filters) {
       if (filters.aiTool) {
@@ -117,31 +233,26 @@ export class ExperimentStorage {
   }
 
   async updateExperiment(id: string, updates: Partial<ExperimentInput>): Promise<Experiment | null> {
-    const index = this.data.experiments.findIndex(exp => exp.id === id);
-    if (index === -1) return null;
-
-    const experiment = this.data.experiments[index];
-    const updated: Experiment = {
-      ...experiment,
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-
-    this.data.experiments[index] = updated;
-    await this.save();
-    return updated;
+    return this.mutate<Experiment | null>(draft => {
+      const index = draft.experiments.findIndex(exp => exp.id === id);
+      if (index === -1) return { value: null, changed: false };
+      const updated: Experiment = { ...draft.experiments[index], ...updates, updatedAt: new Date().toISOString() };
+      draft.experiments[index] = updated;
+      return { value: updated, changed: true };
+    });
   }
 
   async deleteExperiment(id: string): Promise<boolean> {
-    const index = this.data.experiments.findIndex(exp => exp.id === id);
-    if (index === -1) return false;
-
-    this.data.experiments.splice(index, 1);
-    await this.save();
-    return true;
+    return this.mutate(draft => {
+      const index = draft.experiments.findIndex(exp => exp.id === id);
+      if (index === -1) return { value: false, changed: false };
+      draft.experiments.splice(index, 1);
+      return { value: true, changed: true };
+    });
   }
 
   async getStatistics(): Promise<ExperimentStatistics> {
+    await this.refresh();
     const experiments = this.data.experiments;
     const totalExperiments = experiments.length;
 
@@ -232,18 +343,17 @@ export class ExperimentStorage {
     // CSV header
     let csv = 'ID,Date,AI Tool,Prompt,Result,Rating,Tags,Created At,Updated At\n';
 
-    // CSV rows
+    // Quote every textual column, including dates/tags, and neutralize common
+    // spreadsheet formula prefixes. This is data export, never executable input.
+    const textCell = (value: string) => {
+      const safe = /^\s*[=+\-@]/u.test(value) ? "'" + value : value;
+      return `"${safe.replace(/"/g, '""')}"`;
+    };
     experiments.forEach(exp => {
       const row = [
-        exp.id,
-        exp.date,
-        `"${exp.aiTool.replace(/"/g, '""')}"`,
-        `"${exp.prompt.replace(/"/g, '""')}"`,
-        `"${exp.result.replace(/"/g, '""')}"`,
-        exp.rating,
-        `"${exp.tags.join(', ')}"`,
-        exp.createdAt,
-        exp.updatedAt
+        textCell(exp.id), textCell(exp.date), textCell(exp.aiTool),
+        textCell(exp.prompt), textCell(exp.result), exp.rating,
+        textCell(exp.tags.join(', ')), textCell(exp.createdAt), textCell(exp.updatedAt)
       ].join(',');
       csv += row + '\n';
     });

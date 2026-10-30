@@ -1,223 +1,61 @@
 # Data Handling Reference
 
-## Overview
+## Classify Before Reading or Writing
 
-Handle sensitive data correctly when integrating with Supabase.
+Inventory the application's actual tables, buckets, Auth data, caches, queues,
+backups, and external processors. Classify personal, credential, operational, and
+public data; define purpose, authorized readers/writers, retention owner, and
+deletion/export dependencies for each. Supabase has no generic `getUserData()` or
+`deleteUser()` client method that discovers and processes this graph.
 
-## Prerequisites
+## Minimize Output Rather Than Logging Whole Responses
 
-- Understanding of GDPR/CCPA requirements
-- Supabase SDK with data export capabilities
-- Database for audit logging
-- Scheduled job infrastructure for cleanup
-
-## Data Classification
-
-| Category | Examples | Handling |
-|----------|----------|----------|
-| PII | Email, name, phone | Encrypt, minimize |
-| Sensitive | API keys, tokens | Never log, rotate |
-| Business | Usage metrics | Aggregate when possible |
-| Public | Product names | Standard handling |
-
-## PII Detection
+Use an explicit allowlist of operational fields. Regex PII detection is incomplete,
+and replacing a few top-level keys does not sanitize nested objects, tokens, free
+text, or arbitrary SDK error messages. Do not log request bodies or query results
+under the label "redacted" merely because an email field was removed.
 
 ```typescript
-const PII_PATTERNS = [
-  { type: 'email', regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
-  { type: 'phone', regex: /\d{3}[-.]?\d{3}[-.]?\d{4}/g },
-  { type: 'ssn', regex: /\d{3}-\d{2}-\d{4}/g },
-  { type: 'credit_card', regex: /\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}/g },
-];
-
-function detectPII(text: string): { type: string; match: string }[] {
-  const findings: { type: string; match: string }[] = [];
-
-  for (const pattern of PII_PATTERNS) {
-    const matches = text.matchAll(pattern.regex);
-    for (const match of matches) {
-      findings.push({ type: pattern.type, match: match[0] });
-    }
-  }
-
-  return findings;
+export function operationSummary(operation: 'export' | 'inventory', count: number) {
+  if (!Number.isSafeInteger(count) || count < 0) throw new Error('Invalid count');
+  return { operation, count }; // no subject IDs, rows, keys, or paths
 }
 ```
 
-## Data Redaction
+Read only approved columns under user-scoped RLS; `select('id, display_name')` is
+column selection, not field-level authorization. Do not pass a service-role client
+to ordinary request code or trust a caller-supplied subject ID.
 
-```typescript
-function redactPII(data: Record<string, any>): Record<string, any> {
-  const sensitiveFields = ['email', 'phone', 'ssn', 'password', 'apiKey'];
-  const redacted = { ...data };
+## Retention Is an Application Decision
 
-  for (const field of sensitiveFields) {
-    if (redacted[field]) {
-      redacted[field] = '[REDACTED]';
-    }
-  }
+Document retention periods by data class and lawful purpose with the accountable
+owner. "Audit logs seven years", "PII until a request", and "logs thirty days" are
+not universal Supabase/GDPR/CCPA requirements. Apply legal holds, backup expiry,
+processor obligations, and audit-access controls explicitly. Schedule cleanup only
+after a reviewed inventory, dry-run counts, rollback limits, and authorization;
+a cron expression alone does not establish safe retention enforcement.
 
-  return redacted;
-}
+## Export and Erasure Receipts
 
-// Use in logging
-console.log('Supabase request:', redactPII(requestData));
-```
+Use [the bounded inventory and erasure workflow](deletion-and-export.md). It checks
+identity, paginates approved tables and nested Storage paths, stops on errors or
+budgets, and explicitly reports partial scope. It does not delete Auth automatically
+or certify complete erasure. An export must include approved object bytes and
+reconcile concurrent changes before it can claim its declared scope is complete.
 
-## Data Retention Policy
-
-### Retention Periods
-
-| Data Type | Retention | Reason |
-|-----------|-----------|--------|
-| API logs | 30 days | Debugging |
-| Error logs | 90 days | Root cause analysis |
-| Audit logs | 7 years | Compliance |
-| PII | Until deletion request | GDPR/CCPA |
-
-### Automatic Cleanup
-
-```typescript
-async function cleanupSupabaseData(retentionDays: number): Promise<void> {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - retentionDays);
-
-  await db.supabaseLogs.deleteMany({
-    createdAt: { $lt: cutoff },
-    type: { $nin: ['audit', 'compliance'] },
-  });
-}
-
-// Schedule daily cleanup
-cron.schedule('0 3 * * *', () => cleanupSupabaseData(30));
-```
-
-## GDPR/CCPA Compliance
-
-### Data Subject Access Request (DSAR)
-
-```typescript
-async function exportUserData(userId: string): Promise<DataExport> {
-  const supabaseData = await supabaseClient.getUserData(userId);
-
-  return {
-    source: 'Supabase',
-    exportedAt: new Date().toISOString(),
-    data: {
-      profile: supabaseData.profile,
-      activities: supabaseData.activities,
-      // Include all user-related data
-    },
-  };
-}
-```
-
-### Right to Deletion
-
-```typescript
-async function deleteUserData(userId: string): Promise<DeletionResult> {
-  // 1. Delete from Supabase
-  await supabaseClient.deleteUser(userId);
-
-  // 2. Delete local copies
-  await db.supabaseUserCache.deleteMany({ userId });
-
-  // 3. Audit log (required to keep)
-  await auditLog.record({
-    action: 'GDPR_DELETION',
-    userId,
-    service: 'supabase',
-    timestamp: new Date(),
-  });
-
-  return { success: true, deletedAt: new Date() };
-}
-```
-
-## Data Minimization
-
-```typescript
-// Only request needed fields
-const user = await supabaseClient.getUser(userId, {
-  fields: ['id', 'name'], // Not email, phone, address
-});
-
-// Don't store unnecessary data
-const cacheData = {
-  id: user.id,
-  name: user.name,
-  // Omit sensitive fields
-};
-```
-
-## Instructions
-
-### Step 1: Classify Data
-
-Categorize all Supabase data by sensitivity level.
-
-### Step 2: Implement PII Detection
-
-Add regex patterns to detect sensitive data in logs.
-
-### Step 3: Configure Redaction
-
-Apply redaction to sensitive fields before logging.
-
-### Step 4: Set Up Retention
-
-Configure automatic cleanup with appropriate retention periods.
-
-## Output
-
-- Data classification documented
-- PII detection implemented
-- Redaction in logging active
-- Retention policy enforced
+Keep receipt contents private. Record per-resource success/failure, remaining scope,
+actor/operation authorization and retained exceptions; check the audit write itself.
+Do not print personal data, swallowed error bodies, or export archives to stdout.
 
 ## Error Handling
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| PII in logs | Missing redaction | Wrap logging with redact |
-| Deletion failed | Data locked | Check dependencies |
-| Export incomplete | Timeout | Increase batch size |
-| Audit gap | Missing entries | Review log pipeline |
+| Situation                        | Required disposition                                                           |
+| -------------------------------- | ------------------------------------------------------------------------------ |
+| Read/delete denied or failed     | Explicit partial failure; do not finalize Auth deletion                        |
+| Pagination budget exhausted      | Resume through a reviewed checkpoint or revise the budget; never call it empty |
+| Concurrent changes               | Quiesce or reconcile against a defined cutoff                                  |
+| External/backup copy not covered | Record remaining scope and retention owner                                     |
+| Receipt persistence failed       | No success/compliance claim                                                    |
 
-## Examples
-
-### Quick PII Scan
-
-```typescript
-const findings = detectPII(JSON.stringify(userData));
-if (findings.length > 0) {
-  console.warn(`PII detected: ${findings.map(f => f.type).join(', ')}`);
-}
-```
-
-### Redact Before Logging
-
-```typescript
-const safeData = redactPII(apiResponse);
-logger.info('Supabase response:', safeData);
-```
-
-### GDPR Data Export
-
-```typescript
-const userExport = await exportUserData('user-123');
-await sendToUser(userExport);
-```
-
-## Resources
-
-- GDPR Developer Guide
-- [CCPA Compliance Guide](https://oag.ca.gov/privacy/ccpa)
-- Supabase Privacy Guide
-
-## Next Steps
-
-For enterprise access control, see `supabase-enterprise-rbac`.
-
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+[Supabase data security](https://supabase.com/docs/guides/database/postgres/row-level-security)
+[Storage access control](https://supabase.com/docs/guides/storage/security/access-control)

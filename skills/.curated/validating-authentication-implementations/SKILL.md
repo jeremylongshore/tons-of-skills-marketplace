@@ -1,94 +1,138 @@
 ---
 name: validating-authentication-implementations
-description: Validate authentication mechanisms for security weaknesses and compliance.
+description: Review authentication declarations and verify explicit local JWT trust profiles.
   Use when reviewing login systems or auth flows. Trigger with 'validate authentication',
   'check auth security', or 'review login'.
-version: 1.27.0
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(security:*), Bash(scan:*), Bash(audit:*)
+version: 1.28.0
+allowed-tools: Read, Grep, Glob, Bash(security:*), Bash(scan:*), Bash(audit:*)
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
-- security
-- authentication
-- compliance
+  - security
+  - authentication
+  - compliance
 compatibility: Designed for Claude Code
 ---
+
 # Validating Authentication Implementations
 
 ## Overview
 
-Validate authentication mechanisms across web applications, APIs, and backend
-services for security weaknesses, compliance gaps, and implementation flaws.
-This skill examines password hashing, JWT token handling, session management,
-OAuth flows, MFA implementation, and account security controls against OWASP
-and NIST standards.
+Review authentication source/configuration and use the bundled local CLIs for
+explicit declarations, JWT verification profiles and password-policy checks.
+Keep input evidence, cryptographic verification and deployed enforcement separate.
 
 ## Prerequisites
 
-- Access to the target codebase and configuration files in `${CLAUDE_SKILL_DIR}/`
-- Familiarity with the authentication framework in use (Passport.js, Spring Security, Django Auth, NextAuth, etc.)
-- Standard shell utilities and Grep/Glob available for codebase scanning
-- Reference: [`references/README.md`](references/README.md) for OWASP authentication cheat sheet, NIST password guidelines, and JWT RFC specifications
+- Identify the user's target project. `${CLAUDE_SKILL_DIR}` locates this skill's
+  resources; it does not select the target codebase.
+- Use Python 3.11+ for the supported verification environment. Local declaration
+  review and token inspection use the standard library. Verification requires
+  supported PyJWT and the pinned optional backend prerequisites listed in
+  [scripts/requirements.txt](scripts/requirements.txt).
+- Keep tokens, keys, candidates and configuration in private files. Confirm the
+  intended local inputs and output destination. Script execution uses the
+  operator's normal permission boundaries; scoped grants do not preapprove
+  arbitrary shell commands or installing dependencies.
+- Do not make live login, IdP, token refresh/revocation or breach-service calls.
+  These helpers do not fetch JWKS, install tools, modify the audited project or
+  provide an OS sandbox.
 
 ## Instructions
 
-1. Identify all authentication entry points by scanning for login routes, token endpoints, session initialization, and OAuth callback handlers using Grep across route definitions and controller files.
-2. Examine password storage by locating hashing function calls -- verify use of bcrypt, scrypt, or Argon2id with appropriate cost factors. Flag any use of MD5, SHA-1, SHA-256 without key stretching, or plaintext storage as CWE-916 (Use of Password Hash With Insufficient Computational Effort).
-3. Validate JWT implementations: check signing algorithms (reject `none`, flag HS256 with weak secrets), verify `exp`, `iat`, `aud`, and `iss` claims are validated, confirm tokens are not stored in localStorage (XSS exposure), and check for proper refresh token rotation.
-4. Assess session management: verify session IDs are regenerated after authentication, sessions have appropriate timeouts (idle and absolute), cookies use `HttpOnly`, `Secure`, and `SameSite=Strict` or `SameSite=Lax` attributes, and session fixation protections are in place.
-5. Review OAuth/OIDC flows: confirm `state` parameter usage for CSRF protection, validate redirect URI whitelisting, check PKCE implementation for public clients, and verify token storage security.
-6. Evaluate MFA implementation: confirm MFA is available for privileged accounts, check TOTP secret storage encryption, verify backup code generation uses cryptographically secure randomness, and flag any MFA bypass paths.
-7. Check account security controls: verify rate limiting on login endpoints, account lockout policies after failed attempts, secure password reset flows (time-limited tokens, no user enumeration), and brute-force protections.
-8. Validate credential transmission: confirm all auth endpoints enforce HTTPS, passwords are never logged or included in URLs, and API keys use secure header transmission rather than query parameters.
-9. Classify each finding by severity and map to CWE identifiers and OWASP ASVS requirements.
-10. Produce a remediation plan with specific code changes for each finding.
+1. Use Glob to locate relevant project files, Read to inspect them and Grep to
+   find authentication call sites without printing credential values. Record
+   which flows and controls were actually reviewed; absence of a matching string
+   does not prove absence of a control.
+2. For configuration review, supply explicit JSON to `authentication_check.py`.
+   It checks declared JWT, HTTPS web OAuth, session and API-key settings. Unknown
+   methods/fields and malformed types are incomplete. Missing optional password,
+   MFA or lockout sections are unassessed; configuration success never proves
+   implementation, deployment or server-side enforcement.
+3. For a local JWT, prefer `--file`. Default inspection reveals controlled
+   metadata and supplied temporal problems, omits raw payload/signature data and
+   returns unverified/nonzero. Decoding a claim is never authentication.
+4. To verify a JWT, independently select a trusted local key file, one allowed
+   algorithm, expected issuer and expected audience. Supply all four explicitly.
+   The tool supports the existing twelve HS/RS/PS/ES routes through maintained
+   PyJWT, requires expiration, checks provided temporal claims and rejects
+   unsupported critical semantics. It never derives trust from received `alg`,
+   `kid`, key URLs or embedded keys. Algorithm labels and key length do not prove
+   key entropy, ownership or suitable trust for a real service.
+5. Inspect the verification status and exit code. Missing/old backends, missing
+   trust or unavailable input remain incomplete/unverified. Invalid signatures
+   and rejected claims fail. Verification is local to the selected profile; it
+   does not check revocation, replay state or a live authorization decision.
+6. For password review, provide a typed local policy. The limited guidance
+   profile distinguishes single-factor from declared MFA context, does not
+   require arbitrary rotation/composition and checks supported declared KDF
+   parameters. It cannot establish runtime hashing, rate limiting, salt quality,
+   MFA assurance or full NIST compliance.
+7. For candidate checks, prefer `--password-file` or `--password-stdin`; input is
+   exact UTF-8 and whitespace is not stripped. Explicit local composition rules
+   remain enforceable even when they generate a policy review flag. The legacy
+   `rejected_patterns` field means exact blocked values, never regex or substring
+   matching. Supplied blocklist coverage is limited to those values. History
+   requirements cannot be checked from one candidate and stay incomplete.
+8. Combine manual findings and tool reports without inventing a global score or
+   compliance pass. Cite actual file/line and framework edition for any manual
+   control mapping. Keep supplied declarations, verified observations and
+   unassessed controls distinct. Propose remediation for review; do not apply it
+   or change credentials automatically.
 
 ## Output
 
-- **Authentication inventory**: List of all auth mechanisms, endpoints, and flows in the codebase
-- **Findings report**: Each finding includes severity, CWE reference (e.g., CWE-287 Improper Authentication, CWE-384 Session Fixation, CWE-916 Weak Password Hash), affected file/line, and remediation steps
-- **OWASP ASVS compliance matrix**: Pass/fail status for ASVS V2 (Authentication) and V3 (Session Management) requirements
-- **Token security analysis**: JWT algorithm, claim validation status, storage mechanism, and expiration policy
-- **Executive summary**: Risk rating, total findings by severity, and top priority fixes
+Retain one JSON report plus process exit status, selected input scope and tool
+versions. Explicit `--output` uses atomic private replacement and refuses a
+symlink destination or alias of a selected input file. Reports omit raw JWT payloads, signature values, keys and
+password candidates; arbitrary error excerpts are suppressed. Protect inputs,
+filenames and environment separately rather than assuming general redaction.
+
+| Route               | 0                                              | 1                             | 2                                                       |
+| ------------------- | ---------------------------------------------- | ----------------------------- | ------------------------------------------------------- |
+| JWT                 | Verified under explicit local profile          | Invalid under selected checks | Unverified/incomplete/usage                             |
+| Declarations/policy | No automated flags in supplied scope           | Findings/review               | Incomplete/usage                                        |
+| Candidate           | Supplied local rules pass without policy flags | Rule failure/policy review    | Unassessed requested history/blocklist or input failure |
+
+The `valid` JWT field is never true for decode-only inspection. Configuration
+`runtime_verified` remains false. A candidate `password_valid` value addresses
+local matching, not authentication; incomplete reports cannot pass the gate.
+The candidate `score` is null because no strength/entropy estimate is computed.
+No DoD/STIG/FIPS, ASVS, NIST or legal certification follows from these results.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| No authentication code found | Incorrect scan scope or unconventional auth patterns | Broaden Grep patterns; check for third-party auth services (Auth0, Firebase Auth, Cognito) configured externally |
-| Cannot determine hashing algorithm | Hashing abstracted behind framework | Inspect framework configuration files (e.g., `config/auth.php`, `settings.py`) for algorithm settings |
-| JWT library version unknown | Dynamic dependency resolution | Check lock files (`package-lock.json`, `poetry.lock`) for pinned versions and cross-reference known vulnerabilities |
-| Session config not in codebase | Session management handled by infrastructure | Check reverse proxy configs (nginx, Apache), cloud session stores (Redis, DynamoDB), or PaaS settings |
-| Rate limiting not detectable | Rate limiting at infrastructure layer | Note as "unverifiable from codebase" and recommend confirming at the infrastructure level |
+- Missing trust/backend: keep verification unverified/incomplete and nonzero.
+  Do not infer issuer/audience from the received token or auto-install a library.
+- Malformed JSON, duplicate fields, wrong types, non-finite numbers or unsupported
+  declarations: stop the selected check and report incomplete/invalid scope;
+  never use truthy strings as booleans.
+- Unsupported framework/flow: use a separately scoped manual review and primary
+  references. Native OAuth redirects, alternate client-authentication methods
+  and arbitrary application/framework formats are not implemented by these CLIs.
+- Missing runtime evidence: record it as unassessed. Do not claim OAuth state,
+  PKCE, MFA, cookie or password-storage enforcement from a configuration flag.
+- Private output failure: return nonzero and preserve existing symlink targets;
+  do not fall back to publishing sensitive inputs or report bodies elsewhere.
 
 ## Examples
 
-### JWT Implementation Review
+From the selected project directory, locate scripts via the resource directory:
 
-Scan `${CLAUDE_SKILL_DIR}/src/auth/` and `${CLAUDE_SKILL_DIR}/src/middleware/` for JWT signing and
-verification logic. Flag any use of `jwt.sign()` with `algorithm: 'none'` or
-`HS256` paired with a secret shorter than 256 bits as CWE-327 (Use of Broken
-Crypto Algorithm), severity critical. Verify that `jwt.verify()` validates
-`exp`, `aud`, and `iss` claims.
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/authentication_check.py" --config /private/auth.json --output /private/auth-report.json
+python3 "${CLAUDE_SKILL_DIR}/scripts/jwt_analyzer.py" --file /private/token.jwt --output /private/inspection.json
+python3 "${CLAUDE_SKILL_DIR}/scripts/jwt_analyzer.py" --file /private/token.jwt --key /private/issuer-public.pem --algorithm RS256 --issuer https://issuer.example.invalid --audience example-app --output /private/verification.json
+python3 "${CLAUDE_SKILL_DIR}/scripts/password_policy_check.py" --policy /private/policy.json --password-file /private/candidate.txt --output /private/policy-result.json
+```
 
-### Password Storage Audit
-
-Grep for `bcrypt`, `argon2`, `scrypt`, `hashSync`, `pbkdf2` across the
-codebase. If password hashing uses `crypto.createHash('md5')` or
-`hashlib.sha256()` without PBKDF2 wrapping, flag as CWE-916, severity critical.
-Verify salt generation uses `crypto.randomBytes()` or equivalent CSPRNG.
-
-### Session Cookie Hardening
-
-Locate session configuration in `${CLAUDE_SKILL_DIR}/config/` or middleware setup files.
-Verify cookie attributes include `httpOnly: true`, `secure: true`,
-`sameSite: 'strict'`, and `maxAge` under 24 hours. Flag missing `httpOnly` as
-CWE-1004 (Sensitive Cookie Without HttpOnly), severity high.
+The inspection example returns 2 without a verification profile. Example paths
+and trust strings are placeholders to replace deliberately, not discovered keys
+or evidence that an issuer is trusted. Dependency installation, if needed,
+requires a separate approved action in the selected environment.
 
 ## Resources
 
-- [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
-- [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
-- [NIST SP 800-63B: Digital Identity Guidelines](https://pages.nist.gov/800-63-3/sp800-63b.html)
-- [CWE-287: Improper Authentication](https://cwe.mitre.org/data/definitions/287.html)
-- [RFC 7519: JSON Web Token (JWT)](https://datatracker.ietf.org/doc/html/rfc7519)
+- [CLI contracts and example declarations](scripts/README.md)
+- [Primary references and supported review profiles](references/README.md)
+- [Report-use guidance](assets/README.md)

@@ -1,5 +1,11 @@
 # Remediation Playbook
 
+Legacy reference context: approve scope and local inputs before the examples.
+Missing/failed selected analyses remain incomplete, not clean. The retained web
+scanner emits a numeric risk score only for completed checks, and its method
+check observes advertisement only. Python auditing requires pinned requirements
+or an explicit approved interpreter; legacy and canonical Finding schemas differ.
+
 Copy-paste fix templates for common security vulnerabilities. Each entry includes
 the vulnerable pattern, the fix, and a verification command.
 

@@ -1,165 +1,144 @@
-# Signature Verification
+# Signature Verification for an Application-Owned Protocol
 
-## Why Verify Webhook Signatures
+Supabase Database Webhooks let you configure an HTTP request; they do not implicitly
+supply the signing protocol below. Use this example only when you own the sender
+and receiver and deploy BOTH to the same byte-level contract. For another provider,
+implement its actual signature, header, version and replay requirements instead.
 
-Any public Edge Function URL can receive HTTP requests from anyone. Without signature verification, an attacker could send fake webhook payloads to trigger unintended side effects (creating orders, modifying data, sending emails). Always verify the HMAC signature before processing.
+## Exact Contract
 
-## Deno (Edge Functions)
+- `x-app-timestamp`: canonical nonnegative integer Unix seconds.
+- `x-app-signature`: 64-character hex HMAC-SHA256 over the UTF-8 bytes of
+  `<timestamp>.` followed by the ORIGINAL body bytes, without text re-encoding.
+- Reject timestamps more than 300 seconds in either the past or future relative to
+  a trusted receiver clock. This is a freshness bound, not durable replay prevention.
+- JSON body: producer-generated unique `eventId` UUID, `type: "order.created"`,
+  and `orderId` UUID. Persist that event ID at the producer and reuse it on delivery
+  retries; a new change gets a new ID, not just the row ID or table/event type.
+- The receiver stores a unique durable inbox row before acknowledging acceptance.
+  The producer must retain/reconcile the event ID when delivery times out.
 
-```typescript
-// Deno-native using Web Crypto API (no npm dependencies)
-async function verifyWebhookSignature(
-  rawBody: string,
-  signature: string,
-  secret: string
-): Promise<boolean> {
-  const encoder = new TextEncoder();
+## Shared Node/Deno Web Crypto Module
 
-  // Import the secret as an HMAC key
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-
-  // Sign the raw body
-  const signed = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    encoder.encode(rawBody)
-  );
-
-  // Convert to hex string
-  const expected = Array.from(new Uint8Array(signed))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-
-  // Constant-time comparison to prevent timing attacks
-  if (signature.length !== expected.length) return false;
-  let mismatch = 0;
-  for (let i = 0; i < signature.length; i++) {
-    mismatch |= signature.charCodeAt(i) ^ expected.charCodeAt(i);
-  }
-  return mismatch === 0;
-}
-
-// Usage in Edge Function
-serve(async (req) => {
-  const secret = Deno.env.get("WEBHOOK_SECRET")!;
-  const body = await req.text();
-  const sig = req.headers.get("x-webhook-signature") ?? "";
-
-  if (!(await verifyWebhookSignature(body, sig, secret))) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  const payload = JSON.parse(body);
-  // ... process verified payload
-});
-```
-
-## Node.js (External Webhook Receivers)
+Place this code in an application-owned `custom-protocol.ts`, imported by both the
+sender and [receiver](edge-function-receivers.md). Modern Node exposes Web Crypto;
+Deno provides it natively. Do not replace request bytes with `req.text()` or parsed
+JSON before verification. No provider requests occur in these helpers.
 
 ```typescript
-import crypto from "node:crypto";
+const encoder = new TextEncoder();
 
-function verifySupabaseSignature(
-  rawBody: Buffer | string,
-  signature: string,
+export async function signOwnedWebhook(
+  raw: Uint8Array,
   timestamp: string,
-  secret: string
-): boolean {
-  // Reject old timestamps (replay attack protection — 5 min window)
-  const age = Date.now() - parseInt(timestamp, 10) * 1000;
-  if (age > 300_000) {
-    console.error("Webhook timestamp too old:", age, "ms");
-    return false;
+  secret: string,
+): Promise<string> {
+  if (
+    !(raw instanceof Uint8Array) ||
+    !/^(0|[1-9][0-9]{0,15})$/.test(timestamp) ||
+    !Number.isSafeInteger(Number(timestamp)) ||
+    typeof secret !== 'string' ||
+    !secret
+  ) {
+    throw new Error('Invalid signing input');
   }
-
-  // Compute expected HMAC using timestamp.body format
-  const signedPayload = `${timestamp}.${rawBody.toString()}`;
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(signedPayload)
-    .digest("hex");
-
-  // Timing-safe comparison
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected)
+  const prefix = encoder.encode(`${timestamp}.`);
+  const bytes = new Uint8Array(prefix.length + raw.length);
+  bytes.set(prefix);
+  bytes.set(raw, prefix.length);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
   );
+  const digest = await crypto.subtle.sign('HMAC', key, bytes);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-// Usage in Express
-app.post("/webhook/supabase", (req, res) => {
-  const signature = req.headers["x-webhook-signature"] as string;
-  const timestamp = req.headers["x-webhook-timestamp"] as string;
-
-  if (!verifySupabaseSignature(req.body, signature, timestamp, WEBHOOK_SECRET)) {
-    return res.status(401).json({ error: "Invalid signature" });
-  }
-
-  const payload = JSON.parse(req.body.toString());
-  // ... process verified payload
-  res.json({ ok: true });
-});
-```
-
-## Generating the Webhook Secret
-
-```bash
-# Generate a secure random secret
-openssl rand -hex 32
-# Example: a1b2c3d4e5f6...
-
-# Set as Edge Function secret
-supabase secrets set WEBHOOK_SECRET=a1b2c3d4e5f6...
-
-# Set in the trigger function (use Supabase Vault for production)
--- Dashboard > SQL Editor
-SELECT vault.create_secret('a1b2c3d4e5f6...', 'webhook_secret');
-```
-
-## Signing Outgoing Webhooks from Triggers
-
-If you need the trigger to sign the payload so the receiver can verify:
-
-```sql
-CREATE OR REPLACE FUNCTION public.signed_webhook()
-RETURNS trigger AS $$
-DECLARE
-  payload jsonb;
-  secret text;
-  signature text;
-BEGIN
-  payload := jsonb_build_object('type', TG_OP, 'record', row_to_json(NEW)::jsonb);
-
-  -- Retrieve secret from Vault
-  SELECT decrypted_secret INTO secret
-  FROM vault.decrypted_secrets
-  WHERE name = 'webhook_secret';
-
-  -- Compute HMAC-SHA256 signature
-  signature := encode(
-    hmac(payload::text, secret, 'sha256'),
-    'hex'
+export async function verifyOwnedWebhook(
+  raw: unknown,
+  signature: unknown,
+  timestamp: unknown,
+  secret: unknown,
+  nowMs: number,
+): Promise<boolean> {
+  if (
+    !(raw instanceof Uint8Array) ||
+    typeof signature !== 'string' ||
+    !/^[0-9a-fA-F]{64}$/.test(signature) ||
+    typeof timestamp !== 'string' ||
+    !/^(0|[1-9][0-9]{0,15})$/.test(timestamp) ||
+    typeof secret !== 'string' ||
+    !secret ||
+    !Number.isFinite(nowMs)
+  )
+    return false;
+  const seconds = Number(timestamp);
+  if (
+    !Number.isSafeInteger(seconds) ||
+    !Number.isSafeInteger(seconds * 1000) ||
+    Math.abs(nowMs - seconds * 1000) > 300_000
+  )
+    return false;
+  const received = Uint8Array.from(signature.match(/../g)!, (pair) => parseInt(pair, 16));
+  const prefix = encoder.encode(`${timestamp}.`);
+  const bytes = new Uint8Array(prefix.length + raw.length);
+  bytes.set(prefix);
+  bytes.set(raw, prefix.length);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['verify'],
   );
-
-  PERFORM net.http_post(
-    url     := 'https://your-receiver.com/webhook',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'x-webhook-signature', signature
-    ),
-    body    := payload
-  );
-
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+  // Delegate signature comparison to the cryptographic primitive, not string equality.
+  return crypto.subtle.verify('HMAC', key, received, bytes);
+}
 ```
 
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+Web Crypto verification recomputes the digest from the exact signed bytes. Keep sender and receiver using
+the same algorithm and byte contract. Secret provisioning and rotation belong to the
+application's secret store; do not paste real secrets into SQL, shell history, logs,
+or committed examples.
+
+## Sender: Construct Once, Send the Same Bytes
+
+```typescript
+import { signOwnedWebhook } from './custom-protocol.ts';
+
+export async function buildOwnedDelivery(
+  url: string,
+  event: { eventId: string; type: 'order.created'; orderId: string },
+  secret: string,
+  nowMs: number,
+): Promise<Request> {
+  if (!Number.isFinite(nowMs) || nowMs < 0) throw new Error('Invalid clock');
+  const destination = new URL(url);
+  if (destination.protocol !== 'https:') throw new Error('HTTPS receiver required');
+  const timestamp = String(Math.floor(nowMs / 1000));
+  const raw = new TextEncoder().encode(JSON.stringify(event));
+  const signature = await signOwnedWebhook(raw, timestamp, secret);
+  return new Request(destination, {
+    method: 'POST',
+    body: raw,
+    headers: {
+      'content-type': 'application/json',
+      'x-app-timestamp': timestamp,
+      'x-app-signature': signature,
+    },
+  });
+}
+```
+
+This builds a request without sending it. The actual producer needs a durable outbox,
+retry/dead-letter policy and stable event ID. A Database Webhook trigger that signs
+`jsonb::text` and then lets another transport serialize JSON again does not prove
+byte identity; do not claim that such a trigger interoperates without a verified
+raw-byte transport. Native webhook retry/delivery semantics must be assessed
+separately, not inferred from these helpers.
+
+[Database Webhooks](https://supabase.com/docs/guides/database/webhooks)
+[Web Crypto HMAC](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/verify)

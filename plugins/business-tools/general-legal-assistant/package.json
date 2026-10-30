@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/general-legal-assistant",
-  "version": "1.0.6",
-  "description": "AI-powered contract review, risk analysis, document generation, and compliance auditing with 12 skills and 5 parallel agents",
+  "version": "1.0.7",
+  "description": "AI-assisted contract review, risk analysis, document drafting, and compliance readiness review with 12 skills and 5 bundled review agents.",
   "keywords": [
     "legal",
     "contracts",

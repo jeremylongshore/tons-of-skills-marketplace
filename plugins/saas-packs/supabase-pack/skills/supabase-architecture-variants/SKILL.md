@@ -9,7 +9,7 @@ description: |
   "supabase SPA", "supabase serverless", "supabase multi-tenant", "supabase server component",
   "supabase architecture", "supabase service_role server".
 allowed-tools: Read, Write, Edit, Bash(supabase:*), Bash(npx:*), Grep
-version: 1.54.0
+version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

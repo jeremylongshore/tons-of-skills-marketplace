@@ -104,7 +104,6 @@
       "Bash(crypto:explorer-*)",
       "Bash(crypto:flashloan-*)",
       "Bash(crypto:liquidity-*)",
-      "Bash(crypto:news-*)",
       "Bash(crypto:onchain-*)",
       "Bash(crypto:options-*)",
       "Bash(crypto:portfolio-*)",
@@ -219,6 +218,7 @@
       "Bash(pip:*)",
       "Bash(pipdeptree:*)",
       "Bash(pkill:*)",
+      "Bash(pnpm exec j-rig:*)",
       "Bash(pnpm:*)",
       "Bash(profiling:*)",
       "Bash(prometheus:*)",
@@ -1413,6 +1413,7 @@
       "routing",
       "row-level-security",
       "rpc",
+      "rss",
       "rugpull",
       "rules",
       "rum",
@@ -2989,7 +2990,7 @@
       "slug": "authentication-validator",
       "name": "authentication-validator",
       "displayName": "authentication validator",
-      "description": "Validate authentication implementations",
+      "description": "Review authentication declarations and verify explicit local JWT profiles",
       "category": "security",
       "keywords": [
         "security",
@@ -3001,7 +3002,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -3009,7 +3010,7 @@
       "verificationScore": 100,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "authentication validator validate authentication implementations security security compliance auditing"
+      "searchText": "authentication validator review authentication declarations and verify explicit local jwt profiles security security compliance auditing"
     },
     {
       "type": "plugin",
@@ -3844,12 +3845,12 @@
       "slug": "crypto-news-aggregator",
       "name": "crypto-news-aggregator",
       "displayName": "crypto news aggregator",
-      "description": "Aggregate and analyze crypto news from multiple sources with sentiment analysis",
+      "description": "Fetch crypto RSS headlines with coin/category filters and per-source health reporting",
       "category": "crypto",
       "keywords": [
         "news",
         "aggregator",
-        "sentiment",
+        "rss",
         "crypto",
         "media"
       ],
@@ -3858,15 +3859,15 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 96,
+      "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "crypto news aggregator aggregate and analyze crypto news from multiple sources with sentiment analysis crypto news aggregator sentiment crypto media"
+      "searchText": "crypto news aggregator fetch crypto rss headlines with coin/category filters and per-source health reporting crypto news aggregator rss crypto media"
     },
     {
       "type": "plugin",
@@ -4807,7 +4808,7 @@
       "slug": "dependency-checker",
       "name": "dependency-checker",
       "displayName": "dependency checker",
-      "description": "Check dependencies for known vulnerabilities, outdated packages, and license compliance",
+      "description": "Audit selected dependency reports and review declared license metadata",
       "category": "security",
       "keywords": [
         "security",
@@ -4822,7 +4823,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -4830,7 +4831,7 @@
       "verificationScore": 100,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "dependency checker check dependencies for known vulnerabilities, outdated packages, and license compliance security security dependencies npm pip composer vulnerabilities"
+      "searchText": "dependency checker audit selected dependency reports and review declared license metadata security security dependencies npm pip composer vulnerabilities"
     },
     {
       "type": "plugin",
@@ -5358,7 +5359,7 @@
       "slug": "brand-strategy-framework",
       "name": "brand-strategy-framework",
       "displayName": "brand strategy framework",
-      "description": "A 7-part brand strategy framework for building comprehensive brand foundations - the same methodology top agencies use with Fortune 500 clients.",
+      "description": "A seven-part brand strategy framework for identity, audience, positioning, messaging, visual principles, channels and measurement.",
       "category": "business-tools",
       "keywords": [
         "brand-strategy",
@@ -5375,15 +5376,15 @@
         "email": "rowanbrooks100@github.com"
       },
       "authorType": "community",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 83,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "brand strategy framework a 7-part brand strategy framework for building comprehensive brand foundations - the same methodology top agencies use with fortune 500 clients. business-tools brand-strategy marketing branding positioning messaging brand-guidelines audience-architecture brand-identity"
+      "verificationScore": 96,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "brand strategy framework a seven-part brand strategy framework for identity, audience, positioning, messaging, visual principles, channels and measurement. business-tools brand-strategy marketing branding positioning messaging brand-guidelines audience-architecture brand-identity"
     },
     {
       "type": "plugin",
@@ -5613,7 +5614,7 @@
         "name": "Claude Code Plugins"
       },
       "authorType": "official",
-      "version": "2.26.0",
+      "version": "2.27.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -7314,7 +7315,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "3.30.0",
+      "version": "3.33.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -7696,7 +7697,7 @@
       "slug": "research-to-deploy",
       "name": "research-to-deploy",
       "displayName": "research to deploy",
-      "description": "Transforms research findings into deployed solutions automatically",
+      "description": "Research infrastructure documentation, generate reviewable deployment configurations and runbooks, and execute scoped deployments when authorized.",
       "category": "skill-enhancers",
       "keywords": [
         "research",
@@ -7707,15 +7708,15 @@
         "name": "Claude Code Plugins Team"
       },
       "authorType": "official",
-      "version": "0.14.0",
+      "version": "0.15.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 89,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "research to deploy transforms research findings into deployed solutions automatically skill-enhancers research automation deployment"
+      "verificationScore": 100,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "research to deploy research infrastructure documentation, generate reviewable deployment configurations and runbooks, and execute scoped deployments when authorized. skill-enhancers research automation deployment"
     },
     {
       "type": "plugin",
@@ -9747,7 +9748,7 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "2.27.0",
+      "version": "2.28.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -10177,7 +10178,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.54.0",
+      "version": "1.55.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -11566,14 +11567,14 @@
         "name": "Claude Code Plugins"
       },
       "authorType": "official",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 5,
-      "verificationScore": 89,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
+      "verificationScore": 94,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "youtube strategy complete youtube content production workflow: research competitors, generate video ideas, build briefs, craft titles and thumbnails, and create detailed video outlines with demo prep checklists. productivity youtube content-strategy video-production ideation research thumbnails titles outlining content-creation"
     },
     {
@@ -13459,14 +13460,14 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 82,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
       "searchText": "zero tech debt rebuild a feature as if the correct product architecture existed from day one. removes compatibility cruft, dead abstractions, and historical compromises instead of preserving them. methodology-only — surfaces refactor candidates and walks a 7-step workflow before any deletion. skill-enhancers refactoring tech-debt architecture cleanup modernization code-quality"
     },
     {
@@ -14579,7 +14580,7 @@
       "slug": "j-rig",
       "name": "j-rig",
       "displayName": "j rig",
-      "description": "Skill Refiner — the eval-guided SKILL.md improvement loop. Thin wrapper over the published @intentsolutions/refiner CLI (bootstrap/score/propose/apply/status) with a 3-layer cost-tiered hook architecture (sinker/line/hook) that gates skill quality at edit time, end of turn, and commit time.",
+      "description": "Use the J-Rig refiner CLI for evaluation metadata, authorized scoring, edit proposals and candidate inspection; bundled hooks are experimental.",
       "category": "productivity",
       "keywords": [
         "skill-refiner",
@@ -14593,15 +14594,15 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 81,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "j rig skill refiner — the eval-guided skill.md improvement loop. thin wrapper over the published @intentsolutions/refiner cli (bootstrap/score/propose/apply/status) with a 3-layer cost-tiered hook architecture (sinker/line/hook) that gates skill quality at edit time, end of turn, and commit time. productivity skill-refiner eval-guided skill-md meta-tooling hooks"
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "j rig use the j-rig refiner cli for evaluation metadata, authorized scoring, edit proposals and candidate inspection; bundled hooks are experimental. productivity skill-refiner eval-guided skill-md meta-tooling hooks"
     },
     {
       "type": "plugin",
@@ -14823,7 +14824,7 @@
       "slug": "general-legal-assistant",
       "name": "general-legal-assistant",
       "displayName": "general legal assistant",
-      "description": "AI-powered contract review, risk analysis, document generation, and compliance auditing with 12 skills and 5 parallel agents",
+      "description": "AI-assisted contract review, risk analysis, document drafting, and compliance readiness review with 12 skills and 5 bundled review agents.",
       "category": "business-tools",
       "keywords": [
         "legal",
@@ -14841,15 +14842,15 @@
         "email": "jeremy@intentsolutions.io"
       },
       "authorType": "official",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 12,
-      "verificationScore": 85,
-      "verificationGrade": "B",
-      "verificationBadge": "silver",
-      "searchText": "general legal assistant ai-powered contract review, risk analysis, document generation, and compliance auditing with 12 skills and 5 parallel agents business-tools legal contracts nda compliance gdpr ccpa risk-analysis terms-of-service privacy-policy"
+      "verificationScore": 98,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "general legal assistant ai-assisted contract review, risk analysis, document drafting, and compliance readiness review with 12 skills and 5 bundled review agents. business-tools legal contracts nda compliance gdpr ccpa risk-analysis terms-of-service privacy-policy"
     },
     {
       "type": "plugin",
@@ -16268,19 +16269,19 @@
       "id": "aggregating-crypto-news",
       "slug": "aggregating-crypto-news",
       "name": "aggregating-crypto-news",
-      "description": "Aggregate breaking cryptocurrency news from 50+ sources including CoinDesk, CoinTelegraph, The Block, and Decrypt. Use when needing to monitor crypto market news, track announcements, or find coin-specific updates. Trigger with phrases like \"get crypto news\", \"latest Bitcoin headlines\", \"DeFi announcements\", \"scan for breaking news\", or \"check crypto updates\".",
+      "description": "Aggregate cryptocurrency news from configured RSS sources including CoinDesk, CoinTelegraph, The Block, and Decrypt. Use when needing to monitor crypto market news, track announcements, or find coin-specific updates. Trigger with phrases like \"get crypto news\", \"latest Bitcoin headlines\", \"DeFi announcements\", \"scan for breaking news\", or \"check crypto updates\".",
       "category": "crypto",
       "allowedTools": [
         "Read",
-        "Bash(crypto:news-*)"
+        "Bash(python:*)"
       ],
       "compatibleWith": [],
-      "version": "1.26.0",
+      "version": "1.27.0",
       "parentPlugin": {
         "name": "crypto-news-aggregator",
         "category": "crypto"
       },
-      "searchText": "aggregating-crypto-news aggregate breaking cryptocurrency news from 50+ sources including coindesk, cointelegraph, the block, and decrypt. use when needing to monitor crypto market news, track announcements, or find coin-specific updates. trigger with phrases like \"get crypto news\", \"latest bitcoin headlines\", \"defi announcements\", \"scan for breaking news\", or \"check crypto updates\". crypto read bash(crypto:news-*) "
+      "searchText": "aggregating-crypto-news aggregate cryptocurrency news from configured rss sources including coindesk, cointelegraph, the block, and decrypt. use when needing to monitor crypto market news, track announcements, or find coin-specific updates. trigger with phrases like \"get crypto news\", \"latest bitcoin headlines\", \"defi announcements\", \"scan for breaking news\", or \"check crypto updates\". crypto read bash(python:*) "
     },
     {
       "type": "skill",
@@ -16310,7 +16311,7 @@
       "id": "agreement-generator",
       "slug": "agreement-generator",
       "name": "agreement-generator",
-      "description": "Generates customized business agreements for 10 common relationship types with plain English annotations. Use when formalizing a business relationship, creating a partnership agreement, or drafting a service contract from scratch. Trigger with \"/agreement-generator\" or \"create a freelancer agreement\".",
+      "description": "Draft a business agreement from the selected relationship type, confirmed party and commercial facts, and explicit proposed choices with provenance. Use when preparing a service, partnership, licensing or other business agreement. Trigger with \"agreement-generator\" or \"create a freelancer agreement\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
@@ -16319,12 +16320,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "agreement-generator generates customized business agreements for 10 common relationship types with plain english annotations. use when formalizing a business relationship, creating a partnership agreement, or drafting a service contract from scratch. trigger with \"/agreement-generator\" or \"create a freelancer agreement\". business-tools read write glob grep "
+      "searchText": "agreement-generator draft a business agreement from the selected relationship type, confirmed party and commercial facts, and explicit proposed choices with provenance. use when preparing a service, partnership, licensing or other business agreement. trigger with \"agreement-generator\" or \"create a freelancer agreement\". business-tools read write glob grep "
     },
     {
       "type": "skill",
@@ -17327,12 +17328,10 @@
       "id": "analyzing-dependencies",
       "slug": "analyzing-dependencies",
       "name": "analyzing-dependencies",
-      "description": "Analyze dependencies for known security vulnerabilities and outdated versions. Use when auditing third-party libraries. Trigger with 'check dependencies', 'scan for vulnerabilities', or 'audit packages'.",
+      "description": "Audit selected project dependency reports and review declared license metadata. Use when auditing third-party libraries. Trigger with 'check dependencies', 'scan for vulnerabilities', or 'audit packages'.",
       "category": "security",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
         "Grep",
         "Glob",
         "Bash(security:*)",
@@ -17340,12 +17339,12 @@
         "Bash(audit:*)"
       ],
       "compatibleWith": [],
-      "version": "1.28.0",
+      "version": "1.29.0",
       "parentPlugin": {
         "name": "dependency-checker",
         "category": "security"
       },
-      "searchText": "analyzing-dependencies analyze dependencies for known security vulnerabilities and outdated versions. use when auditing third-party libraries. trigger with 'check dependencies', 'scan for vulnerabilities', or 'audit packages'. security read write edit grep glob bash(security:*) bash(scan:*) bash(audit:*) "
+      "searchText": "analyzing-dependencies audit selected project dependency reports and review declared license metadata. use when auditing third-party libraries. trigger with 'check dependencies', 'scan for vulnerabilities', or 'audit packages'. security read grep glob bash(security:*) bash(scan:*) bash(audit:*) "
     },
     {
       "type": "skill",
@@ -17666,7 +17665,7 @@
         "Bash(openssl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -20515,7 +20514,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -20536,7 +20535,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -20558,7 +20557,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -21193,22 +21192,20 @@
       "id": "brand-strategy",
       "slug": "brand-strategy",
       "name": "brand-strategy",
-      "description": "A 7-part brand strategy framework for building comprehensive brand foundations. Trigger with phrases like \"create brand strategy\", \"build brand brief\", \"define brand positioning\", \"brand messaging\", \"audience architecture\", \"brand truth\", or \"go-to-market brand plan\". Use when working with brand strategy.",
+      "description": "Build or review a seven-part brand strategy covering identity, audience, positioning, messaging, visual principles, channels and measurement. Use when creating a brand brief, defining positioning or revising brand messaging. Trigger with \"create brand strategy\", \"build brand brief\" or \"brand messaging\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
         "Write",
-        "Edit",
-        "Glob",
-        "Grep"
+        "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.7.0",
+      "version": "1.8.0",
       "parentPlugin": {
         "name": "brand-strategy-framework",
         "category": "business-tools"
       },
-      "searchText": "brand-strategy a 7-part brand strategy framework for building comprehensive brand foundations. trigger with phrases like \"create brand strategy\", \"build brand brief\", \"define brand positioning\", \"brand messaging\", \"audience architecture\", \"brand truth\", or \"go-to-market brand plan\". use when working with brand strategy. business-tools read write edit glob grep "
+      "searchText": "brand-strategy build or review a seven-part brand strategy covering identity, audience, positioning, messaging, visual principles, channels and measurement. use when creating a brand brief, defining positioning or revising brand messaging. trigger with \"create brand strategy\", \"build brand brief\" or \"brand messaging\". business-tools read write edit "
     },
     {
       "type": "skill",
@@ -23257,7 +23254,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -23302,7 +23299,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -26073,7 +26070,7 @@
         "Bash(cmd:*)"
       ],
       "compatibleWith": [],
-      "version": "2.26.0",
+      "version": "2.27.0",
       "parentPlugin": {
         "name": "formatter",
         "category": "examples"
@@ -27235,7 +27232,7 @@
       "id": "compliance-audit",
       "slug": "compliance-audit",
       "name": "compliance-audit",
-      "description": "Performs regulatory gap analysis across 7 compliance frameworks with a scored report card and prioritized remediation roadmap. Use when assessing a website or application for GDPR, CCPA, ADA, PCI-DSS, CAN-SPAM, COPPA, or SOC 2 compliance. Trigger with \"/compliance-audit\" or \"audit my website for regulatory compliance\".",
+      "description": "Use when reviewing a website, application, or supplied evidence for potential gaps across GDPR, CCPA/CPRA, accessibility, PCI DSS, CAN-SPAM, COPPA, or SOC 2 readiness. Produces scoped findings, applicability questions, and an evidence-based remediation plan.",
       "category": "business-tools",
       "allowedTools": [
         "Read",
@@ -27244,12 +27241,12 @@
         "WebFetch"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "compliance-audit performs regulatory gap analysis across 7 compliance frameworks with a scored report card and prioritized remediation roadmap. use when assessing a website or application for gdpr, ccpa, ada, pci-dss, can-spam, coppa, or soc 2 compliance. trigger with \"/compliance-audit\" or \"audit my website for regulatory compliance\". business-tools read glob grep webfetch "
+      "searchText": "compliance-audit use when reviewing a website, application, or supplied evidence for potential gaps across gdpr, ccpa/cpra, accessibility, pci dss, can-spam, coppa, or soc 2 readiness. produces scoped findings, applicability questions, and an evidence-based remediation plan. business-tools read glob grep webfetch "
     },
     {
       "type": "skill",
@@ -27265,7 +27262,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -27371,7 +27368,7 @@
       "id": "confirming-pentest-authorization",
       "slug": "confirming-pentest-authorization",
       "name": "confirming-pentest-authorization",
-      "description": "Verify that a penetration test has explicit, written, signed authorization before any scanning begins. Reads a Rules-of- Engagement (ROE) attestation file, validates required fields (authorizer, in-scope targets, time window, emergency contact, signature), checks the signer against an allowlist, and emits a CRITICAL finding if anything is missing. Designed as the first skill the orchestrator routes to. Use when: starting a new engagement, after a scope change, or before any cluster 1-4 scan skill runs. Threshold: any missing or unsigned ROE field; any time-window expiry; any in-scope target outside the authorized list. Trigger with: \"confirm authorization\", \"verify ROE\", \"check pentest authz\", \"pre-flight authorization\".",
+      "description": "Check ROE metadata types, time windows, an optional signer allowlist, and literal target inclusions and exclusions before a penetration test. This checks structure, not signature authenticity or legal permission. Use when starting an engagement, reviewing a scope change, or checking a target before scanning. Trigger with \"confirm authorization\", \"verify ROE\", \"check pentest authz\", or \"pre-flight authorization\".",
       "category": "security",
       "allowedTools": [
         "Read",
@@ -27379,39 +27376,40 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "confirming-pentest-authorization verify that a penetration test has explicit, written, signed authorization before any scanning begins. reads a rules-of- engagement (roe) attestation file, validates required fields (authorizer, in-scope targets, time window, emergency contact, signature), checks the signer against an allowlist, and emits a critical finding if anything is missing. designed as the first skill the orchestrator routes to. use when: starting a new engagement, after a scope change, or before any cluster 1-4 scan skill runs. threshold: any missing or unsigned roe field; any time-window expiry; any in-scope target outside the authorized list. trigger with: \"confirm authorization\", \"verify roe\", \"check pentest authz\", \"pre-flight authorization\". security read bash(python3:*) glob "
+      "searchText": "confirming-pentest-authorization check roe metadata types, time windows, an optional signer allowlist, and literal target inclusions and exclusions before a penetration test. this checks structure, not signature authenticity or legal permission. use when starting an engagement, reviewing a scope change, or checking a target before scanning. trigger with \"confirm authorization\", \"verify roe\", \"check pentest authz\", or \"pre-flight authorization\". security read bash(python3:*) glob "
     },
     {
       "type": "skill",
       "id": "contract-compare",
       "slug": "contract-compare",
       "name": "contract-compare",
-      "description": "Compares two contract versions side-by-side to detect added, removed, and modified clauses with favorability analysis. Use when a user receives a revised contract or redline and needs to understand what changed and who each change favors. Trigger with \"/contract-compare\" or \"compare these two contracts\".",
+      "description": "Compare two contract versions with clause-level evidence, coverage limits and qualified analysis of possible effects for the identified parties. Use when reviewing a revised contract or redline. Trigger with \"contract-compare\" or \"compare these two contracts\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
         "Glob",
-        "Grep"
+        "Grep",
+        "Write"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "contract-compare compares two contract versions side-by-side to detect added, removed, and modified clauses with favorability analysis. use when a user receives a revised contract or redline and needs to understand what changed and who each change favors. trigger with \"/contract-compare\" or \"compare these two contracts\". business-tools read glob grep "
+      "searchText": "contract-compare compare two contract versions with clause-level evidence, coverage limits and qualified analysis of possible effects for the identified parties. use when reviewing a revised contract or redline. trigger with \"contract-compare\" or \"compare these two contracts\". business-tools read glob grep write "
     },
     {
       "type": "skill",
       "id": "contract-review",
       "slug": "contract-review",
       "name": "contract-review",
-      "description": "Orchestrates a comprehensive multi-agent contract review that analyzes risk, plain-English translation, missing protections, and compliance in parallel. Use when a user shares a contract and wants a full review, safety score, or executive summary. Trigger with \"/contract-review\" or \"review this contract\".",
+      "description": "Use when reviewing a supplied contract for clause meaning, obligations, risks, missing protections, and regulatory questions. Produces an evidence-linked executive report with actual document coverage. Trigger with /contract-review or review this contract.",
       "category": "business-tools",
       "allowedTools": [
         "Read",
@@ -27420,12 +27418,12 @@
         "Task"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "contract-review orchestrates a comprehensive multi-agent contract review that analyzes risk, plain-english translation, missing protections, and compliance in parallel. use when a user shares a contract and wants a full review, safety score, or executive summary. trigger with \"/contract-review\" or \"review this contract\". business-tools read glob grep task "
+      "searchText": "contract-review use when reviewing a supplied contract for clause meaning, obligations, risks, missing protections, and regulatory questions. produces an evidence-linked executive report with actual document coverage. trigger with /contract-review or review this contract. business-tools read glob grep task "
     },
     {
       "type": "skill",
@@ -30573,7 +30571,7 @@
       "id": "defining-pentest-scope",
       "slug": "defining-pentest-scope",
       "name": "defining-pentest-scope",
-      "description": "Parse the ROE scope definition, enumerate every in-scope target (hostnames, IPs, CIDRs, URLs, cloud accounts, SaaS tenants), validate syntax, detect overlap with out-of-scope or known third-party SaaS ranges, and emit a normalized target list plus IP allowlist for scanning tools. Runs after confirming-pentest- authorization and before any cluster 1-4 scan. Use when: starting an engagement, expanding scope mid-engagement, validating that a target list matches the ROE, or generating an allowlist for an external scanner. Threshold: malformed syntax, in-scope overlap with out-of-scope, reserved or third-party SaaS ranges without acknowledgement. Trigger with: \"define scope\", \"enumerate targets\", \"validate target list\", \"generate IP allowlist\".",
+      "description": "Parse the ROE scope definition, enumerate every in-scope target (hostnames, IPs, CIDRs, URLs, cloud accounts, SaaS tenants), validate syntax, detect overlap with out-of-scope or known third-party SaaS ranges, and emit a normalized target list plus IP allowlist for scanning tools. Runs after confirming-pentest- authorization and before any cluster 1-4 scan. Use when: starting an engagement, expanding scope mid-engagement, validating that a target list matches the ROE, or generating an allowlist for an external scanner. Threshold: malformed syntax, in-scope overlap with out-of-scope, unsupported exclusions, all-address ranges, or recorded third-party IP matches. Trigger with: \"define scope\", \"enumerate targets\", \"validate target list\", \"generate IP allowlist\".",
       "category": "security",
       "allowedTools": [
         "Read",
@@ -30581,12 +30579,12 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "defining-pentest-scope parse the roe scope definition, enumerate every in-scope target (hostnames, ips, cidrs, urls, cloud accounts, saas tenants), validate syntax, detect overlap with out-of-scope or known third-party saas ranges, and emit a normalized target list plus ip allowlist for scanning tools. runs after confirming-pentest- authorization and before any cluster 1-4 scan. use when: starting an engagement, expanding scope mid-engagement, validating that a target list matches the roe, or generating an allowlist for an external scanner. threshold: malformed syntax, in-scope overlap with out-of-scope, reserved or third-party saas ranges without acknowledgement. trigger with: \"define scope\", \"enumerate targets\", \"validate target list\", \"generate ip allowlist\". security read bash(python3:*) glob "
+      "searchText": "defining-pentest-scope parse the roe scope definition, enumerate every in-scope target (hostnames, ips, cidrs, urls, cloud accounts, saas tenants), validate syntax, detect overlap with out-of-scope or known third-party saas ranges, and emit a normalized target list plus ip allowlist for scanning tools. runs after confirming-pentest- authorization and before any cluster 1-4 scan. use when: starting an engagement, expanding scope mid-engagement, validating that a target list matches the roe, or generating an allowlist for an external scanner. threshold: malformed syntax, in-scope overlap with out-of-scope, unsupported exclusions, all-address ranges, or recorded third-party ip matches. trigger with: \"define scope\", \"enumerate targets\", \"validate target list\", \"generate ip allowlist\". security read bash(python3:*) glob "
     },
     {
       "type": "skill",
@@ -30696,7 +30694,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30762,7 +30760,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30782,7 +30780,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30803,7 +30801,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30823,7 +30821,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30869,7 +30867,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30960,7 +30958,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -31004,7 +31002,7 @@
         "Bash(openssl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -31025,7 +31023,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -35311,7 +35309,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -38959,20 +38957,21 @@
       "id": "freelancer-review",
       "slug": "freelancer-review",
       "name": "freelancer-review",
-      "description": "Reviews contracts from a freelancer's perspective across 14 evaluation lenses including misclassification risk, IP ownership, payment terms, kill fees, and non-compete scope. Use when a freelancer or independent contractor needs to evaluate a client agreement. Trigger with \"/freelancer-review\" or \"review this contract as a freelancer\".",
+      "description": "Review a freelancer's supplied agreement across fourteen commercial lenses, with clause evidence, actual-work questions and scoped classification limits. Use when assessing a client or independent-contractor agreement. Trigger with \"freelancer-review\" or \"review this contract as a freelancer\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
         "Glob",
-        "Grep"
+        "Grep",
+        "Write"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "freelancer-review reviews contracts from a freelancer's perspective across 14 evaluation lenses including misclassification risk, ip ownership, payment terms, kill fees, and non-compete scope. use when a freelancer or independent contractor needs to evaluate a client agreement. trigger with \"/freelancer-review\" or \"review this contract as a freelancer\". business-tools read glob grep "
+      "searchText": "freelancer-review review a freelancer's supplied agreement across fourteen commercial lenses, with clause evidence, actual-work questions and scoped classification limits. use when assessing a client or independent-contractor agreement. trigger with \"freelancer-review\" or \"review this contract as a freelancer\". business-tools read glob grep write "
     },
     {
       "type": "skill",
@@ -39369,7 +39368,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -39749,7 +39748,7 @@
         "Bash(gcloud:*)"
       ],
       "compatibleWith": [],
-      "version": "2.27.0",
+      "version": "2.28.0",
       "parentPlugin": {
         "name": "jeremy-github-actions-gcp",
         "category": "devops"
@@ -44298,7 +44297,7 @@
       "id": "j-rig",
       "slug": "j-rig",
       "name": "j-rig",
-      "description": "Skill Refiner, the eval-guided improvement loop for SKILL.md files. Runs the bootstrap, score, propose, apply, and status cycle as a thin wrapper over the published @intentsolutions/refiner CLI, proposing safe, minimal, bounded SKILL.md edits and accepting an edit only when a held-out eval score strictly improves with no regression on any other case. Ships a 3-layer cost-tiered hook architecture (sinker, line, hook) that gates skill quality at edit time, end of turn, and commit time. Use when improving an existing skill, refining a SKILL.md against measured behavior, bootstrapping an eval set for a skill, or gating skill edits before they ship. Trigger with \"/j-rig\", \"refine this skill\", \"bootstrap an eval set\", \"propose a skill edit\", \"promote the candidate\", or \"skill refiner status\".",
+      "description": "Inspect and use the J-Rig refiner CLI to bootstrap evaluation metadata, score a skill with an authorized provider, propose edits and inspect stored candidates. Use when improving an existing SKILL.md with evaluation evidence. Trigger with \"refine this skill\", \"bootstrap an eval set\" or \"skill refiner status\".",
       "category": "productivity",
       "allowedTools": [
         "Read",
@@ -44307,15 +44306,15 @@
         "Glob",
         "Bash(j-rig:*)",
         "Bash(git:*)",
-        "Bash(python:*)"
+        "Bash(pnpm exec j-rig:*)"
       ],
       "compatibleWith": [],
-      "version": "0.1.0",
+      "version": "0.2.0",
       "parentPlugin": {
         "name": "j-rig",
         "category": "productivity"
       },
-      "searchText": "j-rig skill refiner, the eval-guided improvement loop for skill.md files. runs the bootstrap, score, propose, apply, and status cycle as a thin wrapper over the published @intentsolutions/refiner cli, proposing safe, minimal, bounded skill.md edits and accepting an edit only when a held-out eval score strictly improves with no regression on any other case. ships a 3-layer cost-tiered hook architecture (sinker, line, hook) that gates skill quality at edit time, end of turn, and commit time. use when improving an existing skill, refining a skill.md against measured behavior, bootstrapping an eval set for a skill, or gating skill edits before they ship. trigger with \"/j-rig\", \"refine this skill\", \"bootstrap an eval set\", \"propose a skill edit\", \"promote the candidate\", or \"skill refiner status\". productivity read write edit glob bash(j-rig:*) bash(git:*) bash(python:*) "
+      "searchText": "j-rig inspect and use the j-rig refiner cli to bootstrap evaluation metadata, score a skill with an authorized provider, propose edits and inspect stored candidates. use when improving an existing skill.md with evaluation evidence. trigger with \"refine this skill\", \"bootstrap an eval set\" or \"skill refiner status\". productivity read write edit glob bash(j-rig:*) bash(git:*) bash(pnpm exec j-rig:*) "
     },
     {
       "type": "skill",
@@ -50742,7 +50741,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -51821,20 +51820,21 @@
       "id": "missing-protections",
       "slug": "missing-protections",
       "name": "missing-protections",
-      "description": "Audits a contract against type-specific protection checklists to find gaps, then provides ready-to-insert clause language for each missing protection. Use when a user wants to know what protections are absent from their contract. Trigger with \"/missing-protections\" or \"what protections is this contract missing\".",
+      "description": "Review supplied contract terms for relevant protection gaps, with applicability, coverage limits, source evidence and scoped drafting options when requested. Use when checking what protections a contract may be missing. Trigger with \"missing-protections\" or \"what protections is this contract missing\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
         "Glob",
-        "Grep"
+        "Grep",
+        "Write"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "missing-protections audits a contract against type-specific protection checklists to find gaps, then provides ready-to-insert clause language for each missing protection. use when a user wants to know what protections are absent from their contract. trigger with \"/missing-protections\" or \"what protections is this contract missing\". business-tools read glob grep "
+      "searchText": "missing-protections review supplied contract terms for relevant protection gaps, with applicability, coverage limits, source evidence and scoped drafting options when requested. use when checking what protections a contract may be missing. trigger with \"missing-protections\" or \"what protections is this contract missing\". business-tools read glob grep write "
     },
     {
       "type": "skill",
@@ -53181,7 +53181,7 @@
       "id": "nda-generator",
       "slug": "nda-generator",
       "name": "nda-generator",
-      "description": "Generates custom non-disclosure agreements with plain English annotations. Use when creating an NDA for business discussions, hiring, vendor relationships, or partnerships. Supports mutual, one-way, employee, and vendor variants. Trigger with \"/nda-generator\" or \"create an NDA for our partnership\".",
+      "description": "Draft a confidentiality agreement from identified parties, disclosure direction, purpose and explicit term choices, with a separate decision/provenance record. Use for mutual, one-way, employee-context or vendor-context NDA drafting. Trigger with \"nda-generator\" or \"create an NDA\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
@@ -53190,19 +53190,19 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "nda-generator generates custom non-disclosure agreements with plain english annotations. use when creating an nda for business discussions, hiring, vendor relationships, or partnerships. supports mutual, one-way, employee, and vendor variants. trigger with \"/nda-generator\" or \"create an nda for our partnership\". business-tools read write glob grep "
+      "searchText": "nda-generator draft a confidentiality agreement from identified parties, disclosure direction, purpose and explicit term choices, with a separate decision/provenance record. use for mutual, one-way, employee-context or vendor-context nda drafting. trigger with \"nda-generator\" or \"create an nda\". business-tools read write glob grep "
     },
     {
       "type": "skill",
       "id": "negotiate",
       "slug": "negotiate",
       "name": "negotiate",
-      "description": "Analyzes contracts for unfavorable or risky clauses and generates prioritized counter-proposals with replacement language. Use when reviewing a contract before signing, preparing for a negotiation, or responding to unfavorable terms. Trigger with \"/negotiate\" or \"generate counter-proposals for this contract\".",
+      "description": "Use when preparing clause-linked contract counterproposals, fallback positions, or a negotiation email draft from supplied terms and commercial priorities. Trigger with /negotiate or generate counter-proposals for this contract.",
       "category": "business-tools",
       "allowedTools": [
         "Read",
@@ -53210,12 +53210,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "negotiate analyzes contracts for unfavorable or risky clauses and generates prioritized counter-proposals with replacement language. use when reviewing a contract before signing, preparing for a negotiation, or responding to unfavorable terms. trigger with \"/negotiate\" or \"generate counter-proposals for this contract\". business-tools read glob grep "
+      "searchText": "negotiate use when preparing clause-linked contract counterproposals, fallback positions, or a negotiation email draft from supplied terms and commercial priorities. trigger with /negotiate or generate counter-proposals for this contract. business-tools read glob grep "
     },
     {
       "type": "skill",
@@ -57789,30 +57789,22 @@
       "id": "performing-penetration-testing",
       "slug": "performing-penetration-testing",
       "name": "performing-penetration-testing",
-      "description": "Orchestrate a penetration test by routing user intent to one or more of the 25 narrow skills in this pack. Confirms authorization + scope FIRST (cluster 5), runs the relevant scan skills (clusters 1-4), then composes findings into the customer deliverables (cluster 6) plus an integrity-attestable engagement archive (cluster 5). Backward-compatible with v2 invocations — \"pentest\", \"security scan\", \"audit dependencies\" still work but now route to the narrow skills instead of the v2 monolithic scripts. Use when: starting a security engagement, running an ad-hoc scan, planning a multi-day pentest, or operating the full authorization-to-deliverable workflow end-to-end. Trigger with: \"pentest\", \"security scan\", \"vulnerability check\", \"audit dependencies\", \"check headers\", \"find secrets\", \"OWASP scan\", \"security audit\".",
+      "description": "Route approved security work to the pack's 25 narrow operators, with authorization/scope gates, retained evidence and compatible report inputs. Use when starting a pentest, auditing dependencies or source code, checking an approved URL, or preparing engagement deliverables. Familiar requests route to the appropriate operator; retained legacy CLIs keep separate completion and JSON contracts. Trigger with \"pentest\", \"security scan\", \"audit dependencies\", \"check headers\", \"find secrets\", or \"OWASP coverage\".",
       "category": "security",
       "allowedTools": [
         "Read",
         "Write",
-        "Edit",
         "Glob",
         "Grep",
-        "Bash(python3:*)",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(bandit:*)",
-        "Bash(pip-audit:*)",
-        "Bash(pipdeptree:*)",
-        "Bash(gpg:*)",
-        "Bash(tar:*)"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "performing-penetration-testing orchestrate a penetration test by routing user intent to one or more of the 25 narrow skills in this pack. confirms authorization + scope first (cluster 5), runs the relevant scan skills (clusters 1-4), then composes findings into the customer deliverables (cluster 6) plus an integrity-attestable engagement archive (cluster 5). backward-compatible with v2 invocations — \"pentest\", \"security scan\", \"audit dependencies\" still work but now route to the narrow skills instead of the v2 monolithic scripts. use when: starting a security engagement, running an ad-hoc scan, planning a multi-day pentest, or operating the full authorization-to-deliverable workflow end-to-end. trigger with: \"pentest\", \"security scan\", \"vulnerability check\", \"audit dependencies\", \"check headers\", \"find secrets\", \"owasp scan\", \"security audit\". security read write edit glob grep bash(python3:*) bash(pip:*) bash(npm:*) bash(bandit:*) bash(pip-audit:*) bash(pipdeptree:*) bash(gpg:*) bash(tar:*) "
+      "searchText": "performing-penetration-testing route approved security work to the pack's 25 narrow operators, with authorization/scope gates, retained evidence and compatible report inputs. use when starting a pentest, auditing dependencies or source code, checking an approved url, or preparing engagement deliverables. familiar requests route to the appropriate operator; retained legacy clis keep separate completion and json contracts. trigger with \"pentest\", \"security scan\", \"audit dependencies\", \"check headers\", \"find secrets\", or \"owasp coverage\". security read write glob grep bash(python3:*) "
     },
     {
       "type": "skill",
@@ -58474,20 +58466,21 @@
       "id": "plain-english",
       "slug": "plain-english",
       "name": "plain-english",
-      "description": "Translates every clause of a contract into plain language at an 8th-grade reading level and flags deliberately confusing language patterns. Use when a user says \"explain this contract\", \"what does this mean\", or needs a non-lawyer to understand an agreement. Trigger with \"/plain-english\" or \"translate this contract to plain English\".",
+      "description": "Explain supplied contract clauses in clear language while preserving conditions, exceptions and source locators. Use when a non-lawyer wants to understand an agreement. Trigger with \"explain this contract\", \"plain-english\" or \"translate this contract to plain English\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
         "Glob",
-        "Grep"
+        "Grep",
+        "Write"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "plain-english translates every clause of a contract into plain language at an 8th-grade reading level and flags deliberately confusing language patterns. use when a user says \"explain this contract\", \"what does this mean\", or needs a non-lawyer to understand an agreement. trigger with \"/plain-english\" or \"translate this contract to plain english\". business-tools read glob grep "
+      "searchText": "plain-english explain supplied contract clauses in clear language while preserving conditions, exceptions and source locators. use when a non-lawyer wants to understand an agreement. trigger with \"explain this contract\", \"plain-english\" or \"translate this contract to plain english\". business-tools read glob grep write "
     },
     {
       "type": "skill",
@@ -59946,7 +59939,7 @@
       "id": "privacy-generator",
       "slug": "privacy-generator",
       "name": "privacy-generator",
-      "description": "Generates comprehensive privacy policies by scanning websites for data collection signals including cookies, forms, payment processors, and third-party scripts. Use when launching a website or app that collects user data and needs GDPR/CCPA compliance. Trigger with \"/privacy-generator\" or \"create a privacy policy for my website\".",
+      "description": "Draft a service-specific privacy notice from confirmed processing facts, source observations and scoped applicability review, with a separate evidence and unresolved-questions record. Use when preparing or revising a privacy policy. Trigger with \"privacy-generator\" or \"create a privacy policy\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
@@ -59956,32 +59949,31 @@
         "WebFetch"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "privacy-generator generates comprehensive privacy policies by scanning websites for data collection signals including cookies, forms, payment processors, and third-party scripts. use when launching a website or app that collects user data and needs gdpr/ccpa compliance. trigger with \"/privacy-generator\" or \"create a privacy policy for my website\". business-tools read write glob grep webfetch "
+      "searchText": "privacy-generator draft a service-specific privacy notice from confirmed processing facts, source observations and scoped applicability review, with a separate evidence and unresolved-questions record. use when preparing or revising a privacy policy. trigger with \"privacy-generator\" or \"create a privacy policy\". business-tools read write glob grep webfetch "
     },
     {
       "type": "skill",
       "id": "probing-dangerous-http-methods",
       "slug": "probing-dangerous-http-methods",
       "name": "probing-dangerous-http-methods",
-      "description": "Probe a target for HTTP methods that should not be enabled in production — TRACE (XST attack), unrestricted PUT/DELETE, DEBUG/CONNECT, WebDAV (PROPFIND/MKCOL/COPY/MOVE), and Allow header enumeration. Use when: penetration test rules of engagement include HTTP method testing, OR a load balancer change went live and you suspect default methods were exposed. Threshold: TRACE returns 200 on any path (XST), PUT/DELETE returns anything other than 405/403/404 on a non-API endpoint, OPTIONS Allow header lists DEBUG/CONNECT/PROPFIND, or WebDAV methods succeed. Trigger with: \"audit http methods\", \"trace check\", \"options enumeration\", \"webdav probe\".",
+      "description": "Discover advertised HTTP methods with bounded OPTIONS requests, then verify separately selected methods only under explicit scoped ROE permission. Use when auditing post-deploy method policy or approved WebDAV/proxy experiments. Requires disposable fixtures, conditional cleanup and private evidence for writes; reports missing or ambiguous evidence as inconclusive. Trigger with \"audit http methods\", \"trace check\", or \"webdav probe\".",
       "category": "security",
       "allowedTools": [
         "Read",
-        "Bash(python3:*)",
-        "Bash(curl:*)"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "probing-dangerous-http-methods probe a target for http methods that should not be enabled in production — trace (xst attack), unrestricted put/delete, debug/connect, webdav (propfind/mkcol/copy/move), and allow header enumeration. use when: penetration test rules of engagement include http method testing, or a load balancer change went live and you suspect default methods were exposed. threshold: trace returns 200 on any path (xst), put/delete returns anything other than 405/403/404 on a non-api endpoint, options allow header lists debug/connect/propfind, or webdav methods succeed. trigger with: \"audit http methods\", \"trace check\", \"options enumeration\", \"webdav probe\". security read bash(python3:*) bash(curl:*) "
+      "searchText": "probing-dangerous-http-methods discover advertised http methods with bounded options requests, then verify separately selected methods only under explicit scoped roe permission. use when auditing post-deploy method policy or approved webdav/proxy experiments. requires disposable fixtures, conditional cleanup and private evidence for writes; reports missing or ambiguous evidence as inconclusive. trigger with \"audit http methods\", \"trace check\", or \"webdav probe\". security read bash(python3:*) "
     },
     {
       "type": "skill",
@@ -61843,7 +61835,7 @@
       "id": "recording-pentest-engagement",
       "slug": "recording-pentest-engagement",
       "name": "recording-pentest-engagement",
-      "description": "Package an engagement's findings, scan outputs, evidence, and signed ROE into a timestamped archive with a SHA-256 manifest covering every file. Establishes chain of custody so legal counsel, internal audit, or an outside SOC can verify the archive hasn't been modified after closeout. Optionally signs the manifest with GPG for cryptographic attestation. Use when: closing an engagement, snapshotting evidence after each scan day, before handing artifacts to customer, or after an emergency-stop event. Threshold: file in tree without a manifest entry, hash mismatch, out-of-tree path referenced in findings, unsigned manifest when signing was requested. Trigger with: \"record engagement\", \"archive evidence\", \"create chain of custody\", \"package pentest artifacts\".",
+      "description": "Package an engagement's findings, scan outputs, evidence, and signed ROE into a timestamped archive with a SHA-256 manifest covering supported, non-excluded regular files. Verifies an existing manifest without replacing it; integrity failures block signing and packaging. Optionally signs a new manifest with GPG. This supports evidence integrity but does not establish legal chain of custody, authorization, signature trust or compliance certification. Use when: closing an engagement, snapshotting evidence after each scan day, before handing artifacts to customer, or after an emergency-stop event. Threshold: file in tree without a manifest entry, hash mismatch, out-of-tree path referenced in findings, unsigned manifest when signing was requested. Trigger with: \"record engagement\", \"archive evidence\", \"create chain of custody\", \"package pentest artifacts\".",
       "category": "security",
       "allowedTools": [
         "Read",
@@ -61853,12 +61845,12 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "recording-pentest-engagement package an engagement's findings, scan outputs, evidence, and signed roe into a timestamped archive with a sha-256 manifest covering every file. establishes chain of custody so legal counsel, internal audit, or an outside soc can verify the archive hasn't been modified after closeout. optionally signs the manifest with gpg for cryptographic attestation. use when: closing an engagement, snapshotting evidence after each scan day, before handing artifacts to customer, or after an emergency-stop event. threshold: file in tree without a manifest entry, hash mismatch, out-of-tree path referenced in findings, unsigned manifest when signing was requested. trigger with: \"record engagement\", \"archive evidence\", \"create chain of custody\", \"package pentest artifacts\". security read bash(python3:*) bash(tar:*) bash(gpg:*) glob "
+      "searchText": "recording-pentest-engagement package an engagement's findings, scan outputs, evidence, and signed roe into a timestamped archive with a sha-256 manifest covering supported, non-excluded regular files. verifies an existing manifest without replacing it; integrity failures block signing and packaging. optionally signs a new manifest with gpg. this supports evidence integrity but does not establish legal chain of custody, authorization, signature trust or compliance certification. use when: closing an engagement, snapshotting evidence after each scan day, before handing artifacts to customer, or after an emergency-stop event. threshold: file in tree without a manifest entry, hash mismatch, out-of-tree path referenced in findings, unsigned manifest when signing was requested. trigger with: \"record engagement\", \"archive evidence\", \"create chain of custody\", \"package pentest artifacts\". security read bash(python3:*) bash(tar:*) bash(gpg:*) glob "
     },
     {
       "type": "skill",
@@ -62339,7 +62331,7 @@
       "id": "research-to-deploy",
       "slug": "research-to-deploy",
       "name": "research-to-deploy",
-      "description": "Researches infrastructure best practices and generates deployment-ready configurations, Terraform modules, Dockerfiles, and CI/CD pipelines. Use when the user needs to deploy services, set up infrastructure, or create cloud configurations based on current best practices. Trigger with phrases like \"research and deploy\", \"set up Cloud Run\", \"create Terraform for\", \"deploy this to AWS\", or \"generate infrastructure configs\".",
+      "description": "Research current infrastructure documentation, generate reviewable deployment configurations and runbooks, and execute scoped deployments when authorized. Use when planning a cloud deployment or creating Terraform, container or Kubernetes configurations. Trigger with \"research and deploy\", \"create Terraform\" or \"generate infrastructure configs\".",
       "category": "skill-enhancers",
       "allowedTools": [
         "Read",
@@ -62348,20 +62340,18 @@
         "Bash(terraform:*)",
         "Bash(docker:*)",
         "Bash(kubectl:*)",
-        "Bash(git:*)",
-        "Bash(npm:*)",
         "Glob",
         "Grep",
         "WebSearch",
         "WebFetch"
       ],
       "compatibleWith": [],
-      "version": "0.14.0",
+      "version": "0.15.0",
       "parentPlugin": {
         "name": "research-to-deploy",
         "category": "skill-enhancers"
       },
-      "searchText": "research-to-deploy researches infrastructure best practices and generates deployment-ready configurations, terraform modules, dockerfiles, and ci/cd pipelines. use when the user needs to deploy services, set up infrastructure, or create cloud configurations based on current best practices. trigger with phrases like \"research and deploy\", \"set up cloud run\", \"create terraform for\", \"deploy this to aws\", or \"generate infrastructure configs\". skill-enhancers read write edit bash(terraform:*) bash(docker:*) bash(kubectl:*) bash(git:*) bash(npm:*) glob grep websearch webfetch "
+      "searchText": "research-to-deploy research current infrastructure documentation, generate reviewable deployment configurations and runbooks, and execute scoped deployments when authorized. use when planning a cloud deployment or creating terraform, container or kubernetes configurations. trigger with \"research and deploy\", \"create terraform\" or \"generate infrastructure configs\". skill-enhancers read write edit bash(terraform:*) bash(docker:*) bash(kubectl:*) glob grep websearch webfetch "
     },
     {
       "type": "skill",
@@ -63095,20 +63085,21 @@
       "id": "risk-analysis",
       "slug": "risk-analysis",
       "name": "risk-analysis",
-      "description": "Performs deep clause-by-clause risk scoring across 10 categories with poison pill detection and financial exposure estimation. Use when a user needs to understand the specific risks in a contract before signing. Trigger with \"/risk-analysis\" or \"what are the risks in this contract\".",
+      "description": "Analyze supplied contract clauses and prepare an evidence-linked issue register with triggers, possible impacts and questions for review. Use when assessing contract risks from an identified party's perspective. Trigger with \"risk-analysis\" or \"what are the risks in this contract\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
         "Glob",
-        "Grep"
+        "Grep",
+        "Write"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "risk-analysis performs deep clause-by-clause risk scoring across 10 categories with poison pill detection and financial exposure estimation. use when a user needs to understand the specific risks in a contract before signing. trigger with \"/risk-analysis\" or \"what are the risks in this contract\". business-tools read glob grep "
+      "searchText": "risk-analysis analyze supplied contract clauses and prepare an evidence-linked issue register with triggers, possible impacts and questions for review. use when assessing contract risks from an identified party's perspective. trigger with \"risk-analysis\" or \"what are the risks in this contract\". business-tools read glob grep write "
     },
     {
       "type": "skill",
@@ -64961,7 +64952,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -68662,7 +68653,7 @@
         "Bash(psql:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68685,7 +68676,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68708,7 +68699,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68728,7 +68719,7 @@
         "Bash(gh:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68750,7 +68741,7 @@
         "Bash(npx:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68772,7 +68763,7 @@
         "Bash(supabase:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68797,7 +68788,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68822,7 +68813,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68845,7 +68836,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68868,7 +68859,7 @@
         "Bash(psql:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68891,7 +68882,7 @@
         "Bash(supabase:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68914,7 +68905,7 @@
         "Bash(psql:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68941,7 +68932,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68960,7 +68951,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -68984,7 +68975,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69009,7 +69000,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69034,7 +69025,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69057,7 +69048,7 @@
         "Bash(vercel:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69080,7 +69071,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69103,7 +69094,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69127,7 +69118,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69150,7 +69141,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69174,7 +69165,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69199,7 +69190,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69211,7 +69202,7 @@
       "id": "supabase-reliability-patterns",
       "slug": "supabase-reliability-patterns",
       "name": "supabase-reliability-patterns",
-      "description": "Build resilient Supabase integrations: circuit breakers wrapping createClient calls, offline queue with IndexedDB, graceful degradation with cached fallbacks, health check endpoints, retry with exponential backoff and jitter, and dual-write patterns for critical data. Use when building fault-tolerant apps, handling Supabase outages gracefully, implementing offline-first patterns, or adding retry logic to SDK calls. Trigger with phrases like \"supabase circuit breaker\", \"supabase offline\", \"supabase retry\", \"supabase health check\", \"supabase fallback\", \"supabase resilience\", \"supabase dual write\", \"supabase outage\".",
+      "description": "Build resilient Supabase integrations: circuit breakers wrapping database calls, offline queue with IndexedDB, graceful degradation with cached fallbacks, health check endpoints, retry with exponential backoff and jitter, and dual-write patterns for critical data. Use when building fault-tolerant apps, handling Supabase outages gracefully, implementing offline-first patterns, or adding retry logic to SDK calls. Trigger with phrases like \"supabase circuit breaker\", \"supabase offline\", \"supabase retry\", \"supabase health check\", \"supabase fallback\", \"supabase resilience\", \"supabase dual write\", \"supabase outage\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -69222,12 +69213,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-reliability-patterns build resilient supabase integrations: circuit breakers wrapping createclient calls, offline queue with indexeddb, graceful degradation with cached fallbacks, health check endpoints, retry with exponential backoff and jitter, and dual-write patterns for critical data. use when building fault-tolerant apps, handling supabase outages gracefully, implementing offline-first patterns, or adding retry logic to sdk calls. trigger with phrases like \"supabase circuit breaker\", \"supabase offline\", \"supabase retry\", \"supabase health check\", \"supabase fallback\", \"supabase resilience\", \"supabase dual write\", \"supabase outage\". saas-packs read write edit bash(supabase:*) bash(curl:*) grep "
+      "searchText": "supabase-reliability-patterns build resilient supabase integrations: circuit breakers wrapping database calls, offline queue with indexeddb, graceful degradation with cached fallbacks, health check endpoints, retry with exponential backoff and jitter, and dual-write patterns for critical data. use when building fault-tolerant apps, handling supabase outages gracefully, implementing offline-first patterns, or adding retry logic to sdk calls. trigger with phrases like \"supabase circuit breaker\", \"supabase offline\", \"supabase retry\", \"supabase health check\", \"supabase fallback\", \"supabase resilience\", \"supabase dual write\", \"supabase outage\". saas-packs read write edit bash(supabase:*) bash(curl:*) grep "
     },
     {
       "type": "skill",
@@ -69243,7 +69234,7 @@
         "Bash(npx:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69255,7 +69246,7 @@
       "id": "supabase-sdk-patterns",
       "slug": "supabase-sdk-patterns",
       "name": "supabase-sdk-patterns",
-      "description": "Use when implementing Supabase queries, auth, realtime, storage, or RPC calls with @supabase/supabase-js or supabase-py and you need production-ready, type-safe patterns that always check the { data, error } contract. Trigger with phrases like \"supabase SDK patterns\", \"supabase query\", \"supabase typescript\", \"supabase python\", \"supabase client setup\", \"supabase realtime\", \"supabase auth\", \"supabase storage\".",
+      "description": "Use when implementing Supabase queries, auth, realtime, storage, or RPC calls with @supabase/supabase-js or supabase-py and you need production-ready, type-safe patterns that check each service's documented error contract. Trigger with phrases like \"supabase SDK patterns\", \"supabase query\", \"supabase typescript\", \"supabase python\", \"supabase client setup\", \"supabase realtime\", \"supabase auth\", \"supabase storage\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -69264,12 +69255,12 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-sdk-patterns use when implementing supabase queries, auth, realtime, storage, or rpc calls with @supabase/supabase-js or supabase-py and you need production-ready, type-safe patterns that always check the { data, error } contract. trigger with phrases like \"supabase sdk patterns\", \"supabase query\", \"supabase typescript\", \"supabase python\", \"supabase client setup\", \"supabase realtime\", \"supabase auth\", \"supabase storage\". saas-packs read write edit grep "
+      "searchText": "supabase-sdk-patterns use when implementing supabase queries, auth, realtime, storage, or rpc calls with @supabase/supabase-js or supabase-py and you need production-ready, type-safe patterns that check each service's documented error contract. trigger with phrases like \"supabase sdk patterns\", \"supabase query\", \"supabase typescript\", \"supabase python\", \"supabase client setup\", \"supabase realtime\", \"supabase auth\", \"supabase storage\". saas-packs read write edit grep "
     },
     {
       "type": "skill",
@@ -69287,7 +69278,7 @@
         "Bash(npx supabase:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69314,7 +69305,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -69335,7 +69326,7 @@
         "Bash(psql:*)"
       ],
       "compatibleWith": [],
-      "version": "1.54.0",
+      "version": "1.55.0",
       "parentPlugin": {
         "name": "supabase-pack",
         "category": "saas-packs"
@@ -70092,7 +70083,7 @@
       "id": "terms-generator",
       "slug": "terms-generator",
       "name": "terms-generator",
-      "description": "Generates comprehensive terms of service by analyzing a website or application to detect business type, data collection, and user interactions. Use when launching a website, app, or SaaS product that needs terms of service with GDPR/CCPA compliance. Trigger with \"/terms-generator\" or \"create terms of service for my website\".",
+      "description": "Draft service-specific terms from confirmed features, business decisions and scoped applicability review, with clear assumptions and a separate review record. Use when preparing or revising website or app terms. Trigger with \"terms-generator\" or \"create terms of service\".",
       "category": "business-tools",
       "allowedTools": [
         "Read",
@@ -70102,12 +70093,12 @@
         "WebFetch"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "general-legal-assistant",
         "category": "business-tools"
       },
-      "searchText": "terms-generator generates comprehensive terms of service by analyzing a website or application to detect business type, data collection, and user interactions. use when launching a website, app, or saas product that needs terms of service with gdpr/ccpa compliance. trigger with \"/terms-generator\" or \"create terms of service for my website\". business-tools read write glob grep webfetch "
+      "searchText": "terms-generator draft service-specific terms from confirmed features, business decisions and scoped applicability review, with clear assumptions and a separate review record. use when preparing or revising website or app terms. trigger with \"terms-generator\" or \"create terms of service\". business-tools read write glob grep webfetch "
     },
     {
       "type": "skill",
@@ -70830,7 +70821,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -71863,12 +71854,10 @@
       "id": "validating-authentication-implementations",
       "slug": "validating-authentication-implementations",
       "name": "validating-authentication-implementations",
-      "description": "Validate authentication mechanisms for security weaknesses and compliance. Use when reviewing login systems or auth flows. Trigger with 'validate authentication', 'check auth security', or 'review login'.",
+      "description": "Review authentication declarations and verify explicit local JWT trust profiles. Use when reviewing login systems or auth flows. Trigger with 'validate authentication', 'check auth security', or 'review login'.",
       "category": "security",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
         "Grep",
         "Glob",
         "Bash(security:*)",
@@ -71876,12 +71865,12 @@
         "Bash(audit:*)"
       ],
       "compatibleWith": [],
-      "version": "1.27.0",
+      "version": "1.28.0",
       "parentPlugin": {
         "name": "authentication-validator",
         "category": "security"
       },
-      "searchText": "validating-authentication-implementations validate authentication mechanisms for security weaknesses and compliance. use when reviewing login systems or auth flows. trigger with 'validate authentication', 'check auth security', or 'review login'. security read write edit grep glob bash(security:*) bash(scan:*) bash(audit:*) "
+      "searchText": "validating-authentication-implementations review authentication declarations and verify explicit local jwt trust profiles. use when reviewing login systems or auth flows. trigger with 'validate authentication', 'check auth security', or 'review login'. security read grep glob bash(security:*) bash(scan:*) bash(audit:*) "
     },
     {
       "type": "skill",
@@ -75603,7 +75592,7 @@
       "id": "yt-brief",
       "slug": "yt-brief",
       "name": "yt-brief",
-      "description": "Refine a YouTube video idea into a structured production brief with angle, key points, value proposition, CTA asset, and audience segment. Use this skill whenever the user says \"create a brief\", \"brief this idea\", \"develop this idea\", \"write a video brief\", \"production brief\", or has selected a video idea from ideation and wants to define the angle and structure before packaging and outlining. Use when working with yt brief. Trigger with 'yt', 'brief'.",
+      "description": "Create a YouTube production brief with viewer outcome, angle, demo scope and CTA. Use when developing a selected video idea before packaging. Trigger with \"write a video brief\" or \"brief this idea\".",
       "category": "productivity",
       "allowedTools": [
         "WebSearch",
@@ -75611,19 +75600,19 @@
         "Write"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "youtube-strategy",
         "category": "productivity"
       },
-      "searchText": "yt-brief refine a youtube video idea into a structured production brief with angle, key points, value proposition, cta asset, and audience segment. use this skill whenever the user says \"create a brief\", \"brief this idea\", \"develop this idea\", \"write a video brief\", \"production brief\", or has selected a video idea from ideation and wants to define the angle and structure before packaging and outlining. use when working with yt brief. trigger with 'yt', 'brief'. productivity websearch read write "
+      "searchText": "yt-brief create a youtube production brief with viewer outcome, angle, demo scope and cta. use when developing a selected video idea before packaging. trigger with \"write a video brief\" or \"brief this idea\". productivity websearch read write "
     },
     {
       "type": "skill",
       "id": "yt-ideation",
       "slug": "yt-ideation",
       "name": "yt-ideation",
-      "description": "Generate and validate YouTube video ideas aligned with content pillars, audience strategy, and priority tiers. Use this skill whenever the user says \"generate ideas\", \"brainstorm videos\", \"what should I make next\", \"video ideas\", \"content ideas\", \"ideation\", \"what topics should I cover\", or wants to come up with new video concepts. Use when working with yt ideation. Trigger with 'yt', 'ideation'.",
+      "description": "Generate filmable YouTube video ideas, explain their evidence and priority, and save user selections for briefing. Use when planning content from research or a topic. Trigger with \"video ideas\", \"what should I make next\" or \"brainstorm videos\".",
       "category": "productivity",
       "allowedTools": [
         "WebSearch",
@@ -75632,19 +75621,19 @@
         "Task"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "youtube-strategy",
         "category": "productivity"
       },
-      "searchText": "yt-ideation generate and validate youtube video ideas aligned with content pillars, audience strategy, and priority tiers. use this skill whenever the user says \"generate ideas\", \"brainstorm videos\", \"what should i make next\", \"video ideas\", \"content ideas\", \"ideation\", \"what topics should i cover\", or wants to come up with new video concepts. use when working with yt ideation. trigger with 'yt', 'ideation'. productivity websearch read write task "
+      "searchText": "yt-ideation generate filmable youtube video ideas, explain their evidence and priority, and save user selections for briefing. use when planning content from research or a topic. trigger with \"video ideas\", \"what should i make next\" or \"brainstorm videos\". productivity websearch read write task "
     },
     {
       "type": "skill",
       "id": "yt-outline",
       "slug": "yt-outline",
       "name": "yt-outline",
-      "description": "Build detailed step-by-step YouTube video outlines with demo prep, screen-share sequences, and visual planning. Use this skill whenever the user says \"create an outline\", \"outline this video\", \"video outline\", \"build the outline\", \"production outline\", or has an approved brief and packaging and needs the final pre-production document before demo prep and filming. Use when working with yt outline. Trigger with 'yt', 'outline'.",
+      "description": "Create a filmable YouTube outline and demo prep checklist from approved brief and packaging artifacts. Use when planning screen actions, section timing and rehearsals. Trigger with \"outline this video\" or \"demo prep checklist\".",
       "category": "productivity",
       "allowedTools": [
         "WebSearch",
@@ -75652,19 +75641,19 @@
         "Write"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "youtube-strategy",
         "category": "productivity"
       },
-      "searchText": "yt-outline build detailed step-by-step youtube video outlines with demo prep, screen-share sequences, and visual planning. use this skill whenever the user says \"create an outline\", \"outline this video\", \"video outline\", \"build the outline\", \"production outline\", or has an approved brief and packaging and needs the final pre-production document before demo prep and filming. use when working with yt outline. trigger with 'yt', 'outline'. productivity websearch read write "
+      "searchText": "yt-outline create a filmable youtube outline and demo prep checklist from approved brief and packaging artifacts. use when planning screen actions, section timing and rehearsals. trigger with \"outline this video\" or \"demo prep checklist\". productivity websearch read write "
     },
     {
       "type": "skill",
       "id": "yt-packaging",
       "slug": "yt-packaging",
       "name": "yt-packaging",
-      "description": "Create optimized YouTube titles and thumbnail concepts for maximum CTR. Use this skill whenever the user says \"title ideas\", \"thumbnail concepts\", \"package this video\", \"CTR optimization\", \"title options\", \"packaging\", or has an approved brief and needs to finalize the title and thumbnail direction before outlining. Packaging determines whether viewers click. Use when working with yt packaging. Trigger with 'yt', 'packaging'.",
+      "description": "Develop title and thumbnail concept pairs from an approved YouTube brief and record the user selection. Use when preparing packaging before outlining. Trigger with \"package this video\", \"title ideas\" or \"thumbnail concepts\".",
       "category": "productivity",
       "allowedTools": [
         "WebSearch",
@@ -75672,19 +75661,19 @@
         "Write"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "youtube-strategy",
         "category": "productivity"
       },
-      "searchText": "yt-packaging create optimized youtube titles and thumbnail concepts for maximum ctr. use this skill whenever the user says \"title ideas\", \"thumbnail concepts\", \"package this video\", \"ctr optimization\", \"title options\", \"packaging\", or has an approved brief and needs to finalize the title and thumbnail direction before outlining. packaging determines whether viewers click. use when working with yt packaging. trigger with 'yt', 'packaging'. productivity websearch read write "
+      "searchText": "yt-packaging develop title and thumbnail concept pairs from an approved youtube brief and record the user selection. use when preparing packaging before outlining. trigger with \"package this video\", \"title ideas\" or \"thumbnail concepts\". productivity websearch read write "
     },
     {
       "type": "skill",
       "id": "yt-research",
       "slug": "yt-research",
       "name": "yt-research",
-      "description": "Research competitor YouTube channels, niches, and trending topics for your content strategy. Use this skill whenever the user says \"research channels\", \"analyze competitors\", \"find trending topics\", \"niche analysis\", \"competitive research\", \"what are other creators doing\", \"scrape YouTube channels\", or wants to understand the competitive landscape for a specific tool or topic area. Use when working with yt research. Trigger with 'yt', 'research'.",
+      "description": "Analyze competitor YouTube coverage and video opportunities using sourced observations with explicit sampling limits. Use when researching channels or a niche before ideation. Trigger with \"research channels\" or \"competitive video research\".",
       "category": "productivity",
       "allowedTools": [
         "WebSearch",
@@ -75693,22 +75682,23 @@
         "Task"
       ],
       "compatibleWith": [],
-      "version": "1.10.0",
+      "version": "1.11.0",
       "parentPlugin": {
         "name": "youtube-strategy",
         "category": "productivity"
       },
-      "searchText": "yt-research research competitor youtube channels, niches, and trending topics for your content strategy. use this skill whenever the user says \"research channels\", \"analyze competitors\", \"find trending topics\", \"niche analysis\", \"competitive research\", \"what are other creators doing\", \"scrape youtube channels\", or wants to understand the competitive landscape for a specific tool or topic area. use when working with yt research. trigger with 'yt', 'research'. productivity websearch read write task "
+      "searchText": "yt-research analyze competitor youtube coverage and video opportunities using sourced observations with explicit sampling limits. use when researching channels or a niche before ideation. trigger with \"research channels\" or \"competitive video research\". productivity websearch read write task "
     },
     {
       "type": "skill",
       "id": "zero-tech-debt",
       "slug": "zero-tech-debt",
       "name": "zero-tech-debt",
-      "description": "Rebuild a feature as if the correct product architecture existed from day one — remove compatibility cruft, dead abstractions, and historical compromises instead of preserving them. Use when the operator says \"refactor properly,\" \"clean up,\" \"rewrite,\" \"modernize,\" \"remove legacy,\" \"simplify,\" \"rethink,\" \"pay down tech debt,\" or signals frustration with accumulated complexity. Do NOT use for hotfixes, bug repros, surgical patches, or security backports — blast-radius minimization wins there. Trigger with \"/zero-tech-debt\", \"do it right this time\", \"the way it should have been built\", \"refactor toward intent\".",
+      "description": "Refactor a feature toward its intended product architecture, removing obsolete flows and unnecessary abstractions while preserving required behavior and contracts. Use when a structural redesign or tech-debt cleanup is requested. Trigger with \"refactor properly\", \"remove legacy\" or \"zero-tech-debt\"; use a focused patch for hotfixes and security backports.",
       "category": "skill-enhancers",
       "allowedTools": [
         "Read",
+        "Write",
         "Edit",
         "Glob",
         "Grep",
@@ -75717,12 +75707,12 @@
         "Bash(fd:*)"
       ],
       "compatibleWith": [],
-      "version": "1.1.0",
+      "version": "1.2.0",
       "parentPlugin": {
         "name": "zero-tech-debt",
         "category": "skill-enhancers"
       },
-      "searchText": "zero-tech-debt rebuild a feature as if the correct product architecture existed from day one — remove compatibility cruft, dead abstractions, and historical compromises instead of preserving them. use when the operator says \"refactor properly,\" \"clean up,\" \"rewrite,\" \"modernize,\" \"remove legacy,\" \"simplify,\" \"rethink,\" \"pay down tech debt,\" or signals frustration with accumulated complexity. do not use for hotfixes, bug repros, surgical patches, or security backports — blast-radius minimization wins there. trigger with \"/zero-tech-debt\", \"do it right this time\", \"the way it should have been built\", \"refactor toward intent\". skill-enhancers read edit glob grep bash(git:*) bash(rg:*) bash(fd:*) "
+      "searchText": "zero-tech-debt refactor a feature toward its intended product architecture, removing obsolete flows and unnecessary abstractions while preserving required behavior and contracts. use when a structural redesign or tech-debt cleanup is requested. trigger with \"refactor properly\", \"remove legacy\" or \"zero-tech-debt\"; use a focused patch for hotfixes and security backports. skill-enhancers read write edit glob grep bash(git:*) bash(rg:*) bash(fd:*) "
     },
     {
       "type": "docs",

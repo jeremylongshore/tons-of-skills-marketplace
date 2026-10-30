@@ -1,10 +1,10 @@
 # Preferred Outcomes + Reporting Back
 
-This file describes what a successful zero-tech-debt refactor looks like, and how to summarize the result so reviewers and future readers can evaluate the *shape change* rather than re-reading the diff.
+This file describes what a successful zero-tech-debt refactor looks like, and how to summarize the result so reviewers and future readers can evaluate the _shape change_ rather than re-reading the diff.
 
 ## What success looks like
 
-A successful refactor produces:
+Possible signs of a useful simplification include:
 
 - **Fewer files** — collapsed wrappers, deleted dead modules
 - **Fewer modes** — `if (legacyMode)` branches removed, one path through the code
@@ -15,7 +15,7 @@ A successful refactor produces:
 - **Fewer abstractions** — single-implementation interfaces inlined
 - **Fewer concepts developers must memorize** — fewer "you also need to know about X" caveats
 
-...while improving:
+Evaluate those changes against the requested end state and relevant evidence:
 
 - **Clarity** — a new hire reads the code and understands the intent
 - **Reliability** — fewer paths means fewer untested paths means fewer bugs
@@ -24,7 +24,7 @@ A successful refactor produces:
 - **Operational confidence** — on-call can act on alerts without paging the original author
 - **Implementation velocity** — features land faster because there's less scaffolding to route around
 
-If the refactor produced more of any of the first list and didn't improve any of the second list, it wasn't a zero-tech-debt refactor — it was reshuffling.
+A correct redesign can add files, explicit states or a needed interface. Judge responsibilities and required behavior rather than a deletion quota. Claim reliability, onboarding or velocity improvements only to the extent measured; otherwise describe the structural change and its intended rationale.
 
 ## How to summarize the result
 
@@ -32,7 +32,7 @@ The diff lists every line. The summary exists to make the architectural delta le
 
 ### 1. Deleted
 
-Counts, not lists. The reviewer can `git log` for the names.
+Use verified counts when useful, plus enough names or paths for the reviewer to locate the changed boundary. Omit counts that were not actually measured.
 
 ```
 Deleted:
@@ -78,7 +78,7 @@ Intentionally left alone:
 
 ### 5. Deferred
 
-Scoped as separate follow-up tickets, not buried in this change. This is the single most important section — it's where you preserve the rot you noticed but chose not to fix.
+Use the project tracker for material follow-up work; reference actual issue IDs only after they exist. Do not invent a ticket merely to complete this report format.
 
 ```
 Deferred (filed as separate tickets):
@@ -89,7 +89,7 @@ Deferred (filed as separate tickets):
 
 ## Why this format
 
-Reviewers reading a 2,000-line diff need to understand the *shape* of the change in 60 seconds. The summary is that 60-second read. If it doesn't fit on one screen, the refactor was too big — split it.
+Reviewers reading a 2,000-line diff need to understand the _shape_ of the change in 60 seconds. The summary is that 60-second read. Scale the report to the change. Split work along meaningful review and ownership boundaries when that preserves a coherent end state.
 
 Future readers (including future you) come back to figure out "why did we have X and now we have Y?" The summary is the answer. Make it good.
 
@@ -99,3 +99,10 @@ Future readers (including future you) come back to figure out "why did we have X
 - A diff narrative ("first I deleted X, then I noticed Y, so I refactored Z") — the diff has the history; the summary has the shape
 - Marketing language ("dramatically improves," "industry-leading," "significantly cleaner") — the reviewer can evaluate; don't editorialize
 - Speculation about future benefits ("this will make adding new features easier") — sometimes true, often not; prove it with the next feature, don't promise it in the summary
+
+## Validation and recovery evidence
+
+Report the actual commands, results and affected behavior. Distinguish unit or
+fixture evidence from integration and production observations. State search scope,
+unknown consumers, skipped checks and any untested migration/recovery paths. A
+passing test suite does not by itself prove zero external breakage.

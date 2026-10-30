@@ -8,7 +8,7 @@ Before touching code, describe in 1-3 concise paragraphs:
 
 - **What the final UX should feel like** — what the user / operator / caller sees and does
 - **What the clean architecture should look like** — one coherent flow, one source of truth, one ownership boundary
-- **What the public surface area actually needs to be** — every other function/route/export is private
+- **What the public surface area actually needs to be** — identify which interfaces must remain supported, including compatibility obligations
 - **What developers should intuitively expect** — what a new hire would guess without reading the code
 
 If the intended end state is unclear, **stop and clarify before refactoring**. Code is the wrong medium for thinking through architecture; prose is faster and revisable.
@@ -44,7 +44,7 @@ Before introducing **a new abstraction / hook / config layer / flag / adapter / 
 
 **Prefer subtraction over architecture theater.** A refactor that adds three new abstractions to "fix" tech debt has not paid down debt — it has moved it.
 
-Important: don't introduce a new abstraction in the *same change* that removes an old one. Split into two reviewable steps so the reviewer can evaluate the deletion separately from the addition.
+Sequence removals and replacements so every reviewable state remains coherent. Use separate steps when independently useful, or one atomic change when the replacement and its callers must move together. Fewer abstractions is a design preference, not permission to remove a required boundary.
 
 ## 4. Optimize Around the Final Shape
 
@@ -98,18 +98,18 @@ Prefer names aligned with:
 - Domain intent
 - System responsibility
 
-A rename without redirecting callers leaves a search-and-find trail of broken references. Always update every caller in the same commit as the rename.
+A rename without redirecting callers leaves a search-and-find trail of broken references. Update all known owned callers atomically. For published or external consumers, honor the supported contract and document migration or deprecation; do not assume repository search reaches them.
 
 ## 7. Validate the New Shape
 
 After refactoring, verify:
 
-- **Deleted paths truly have no callers** — re-grep, including in test files, config files, docs, and CI
+- **Deletion evidence covers the intended scope** — re-search tests, config, docs and CI; inspect available downstream contracts and state any unknown or dynamic consumers
 - **Navigation still works** — for UI work, click through the affected flows manually, don't rely on snapshot tests
-- **Persisted state still behaves correctly** — for storage refactors, migrate-up then migrate-down then migrate-up again on a real database snapshot
-- **Permission boundaries remain correct** — re-walk the auth flow with a non-admin account
+- **Persisted state still behaves correctly** — use an isolated authorized fixture or sanitized snapshot to check mapping, constraints and recovery. Test reversible down/up paths only when supported; otherwise verify restore or forward recovery. Never run migration drills against production by default
+- **Permission boundaries remain correct** — check relevant allowed/denied behavior with authorized fixtures or an approved test environment; do not assume a live account is available
 - **APIs remain coherent** — for public surfaces, run any contract tests; for internal APIs, walk the call graph
-- **Tests validate intended behavior** rather than historical quirks — if a test references a deleted concept, the test was probably wrong, not the refactor
+- **Tests validate intended behavior** — a reference to a deleted concept may expose a real regression or contract. Investigate against independent requirements before changing expectations
 
 Add regression coverage for:
 
@@ -119,4 +119,4 @@ Add regression coverage for:
 - Routing behavior
 - Migration-sensitive logic
 
-The new tests should describe the *intended shape*, not the historical shape. If you find yourself writing a test that asserts the old behavior, stop and ask whether the old behavior was actually correct.
+The new tests should describe the _intended shape_, not the historical shape. If you find yourself writing a test that asserts the old behavior, stop and ask whether the old behavior was actually correct.

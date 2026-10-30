@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/jeremy-github-actions-gcp",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "GitHub Actions CI/CD workflows for Google Cloud and Vertex AI deployments",
   "keywords": [
     "github-actions",

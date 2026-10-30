@@ -1,52 +1,29 @@
 ---
 name: check-deps
-description: Check dependencies for vulnerabilities and outdated packages
+description: Audit dependency reports and review declared license metadata
 shortcut: depc
 ---
+
 # Dependency Checker
 
-Analyze project dependencies for known vulnerabilities, outdated packages, and license compliance issues.
+Follow [analyzing-dependencies](../skills/analyzing-dependencies/SKILL.md).
+Select the user's project root, not the skill resource directory. Read the
+manifests and report supported, unsupported and missing coverage explicitly.
 
-## Analysis Process
+Use an existing report when sufficient. Before live auditing, confirm permission
+to send package metadata to configured advisory services. Use the bundled
+scanner for npm, pinned Python requirements, Composer, Bundler or Cargo. Preserve
+its complete/status/errors fields and exit code: 0 no known findings in complete
+selected scope, 1 findings/review, 2 incomplete. A display severity filter must
+not change the gate result.
 
-1. **Detect Package Manager**
-   - Identify package.json (npm/yarn/pnpm)
-   - Identify requirements.txt/Pipfile (pip)
-   - Identify composer.json (PHP)
-   - Identify Gemfile (Ruby)
-   - Identify go.mod (Go)
+Do not install tools, resolve dependencies, create locks, apply fixes or silently
+skip private packages. Do not invent vulnerability IDs, patch versions or safe
+upgrade claims. Propose remediation only with actual advisory evidence and keep
+execution separate from this audit.
 
-2. **Vulnerability Scanning**
-   - Check against CVE databases
-   - Identify known security advisories
-   - Report CVSS scores
-   - Check transitive dependencies
-
-3. **Version Analysis**
-   - Identify outdated packages
-   - Check for available security patches
-   - Report breaking vs. non-breaking updates
-   - Suggest safe upgrade paths
-
-4. **License Compliance**
-   - Scan dependency licenses
-   - Flag incompatible licenses
-   - Report license obligations
-
-## Report Output
-
-Generate comprehensive dependency report with:
-
-- Vulnerable packages with CVE details
-- Outdated packages with available versions
-- License compliance issues
-- Recommended updates with impact analysis
-- Upgrade commands for each package manager
-
-## Best Practices
-
-- Run before every deployment
-- Update dependencies regularly
-- Review transitive dependencies
-- Use lock files (package-lock.json, Pipfile.lock)
-- Test after updating dependencies
+For license metadata, use the installed npm tree or explicitly selected Python
+environment. Preserve compound/unknown declarations for review; do not certify
+compatibility from category labels. Include coverage, unknowns, review items and
+partial findings in the final report. Outdated-version and Go auditing require
+separate tooling and evidence.
