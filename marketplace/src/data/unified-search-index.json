@@ -104,7 +104,6 @@
       "Bash(crypto:explorer-*)",
       "Bash(crypto:flashloan-*)",
       "Bash(crypto:liquidity-*)",
-      "Bash(crypto:news-*)",
       "Bash(crypto:onchain-*)",
       "Bash(crypto:options-*)",
       "Bash(crypto:portfolio-*)",
@@ -1413,6 +1412,7 @@
       "routing",
       "row-level-security",
       "rpc",
+      "rss",
       "rugpull",
       "rules",
       "rum",
@@ -3844,12 +3844,12 @@
       "slug": "crypto-news-aggregator",
       "name": "crypto-news-aggregator",
       "displayName": "crypto news aggregator",
-      "description": "Aggregate and analyze crypto news from multiple sources with sentiment analysis",
+      "description": "Fetch crypto RSS headlines with coin/category filters and per-source health reporting",
       "category": "crypto",
       "keywords": [
         "news",
         "aggregator",
-        "sentiment",
+        "rss",
         "crypto",
         "media"
       ],
@@ -3858,15 +3858,15 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.26.0",
+      "version": "1.27.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 96,
+      "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "crypto news aggregator aggregate and analyze crypto news from multiple sources with sentiment analysis crypto news aggregator sentiment crypto media"
+      "searchText": "crypto news aggregator fetch crypto rss headlines with coin/category filters and per-source health reporting crypto news aggregator rss crypto media"
     },
     {
       "type": "plugin",
@@ -16268,19 +16268,19 @@
       "id": "aggregating-crypto-news",
       "slug": "aggregating-crypto-news",
       "name": "aggregating-crypto-news",
-      "description": "Aggregate breaking cryptocurrency news from 50+ sources including CoinDesk, CoinTelegraph, The Block, and Decrypt. Use when needing to monitor crypto market news, track announcements, or find coin-specific updates. Trigger with phrases like \"get crypto news\", \"latest Bitcoin headlines\", \"DeFi announcements\", \"scan for breaking news\", or \"check crypto updates\".",
+      "description": "Aggregate cryptocurrency news from configured RSS sources including CoinDesk, CoinTelegraph, The Block, and Decrypt. Use when needing to monitor crypto market news, track announcements, or find coin-specific updates. Trigger with phrases like \"get crypto news\", \"latest Bitcoin headlines\", \"DeFi announcements\", \"scan for breaking news\", or \"check crypto updates\".",
       "category": "crypto",
       "allowedTools": [
         "Read",
-        "Bash(crypto:news-*)"
+        "Bash(python:*)"
       ],
       "compatibleWith": [],
-      "version": "1.26.0",
+      "version": "1.27.0",
       "parentPlugin": {
         "name": "crypto-news-aggregator",
         "category": "crypto"
       },
-      "searchText": "aggregating-crypto-news aggregate breaking cryptocurrency news from 50+ sources including coindesk, cointelegraph, the block, and decrypt. use when needing to monitor crypto market news, track announcements, or find coin-specific updates. trigger with phrases like \"get crypto news\", \"latest bitcoin headlines\", \"defi announcements\", \"scan for breaking news\", or \"check crypto updates\". crypto read bash(crypto:news-*) "
+      "searchText": "aggregating-crypto-news aggregate cryptocurrency news from configured rss sources including coindesk, cointelegraph, the block, and decrypt. use when needing to monitor crypto market news, track announcements, or find coin-specific updates. trigger with phrases like \"get crypto news\", \"latest bitcoin headlines\", \"defi announcements\", \"scan for breaking news\", or \"check crypto updates\". crypto read bash(python:*) "
     },
     {
       "type": "skill",

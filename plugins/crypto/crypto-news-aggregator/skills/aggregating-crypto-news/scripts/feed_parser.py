@@ -12,7 +12,9 @@ License: MIT
 import sys
 import re
 import html
-from datetime import datetime
+import io
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import List, Dict, Any, Optional
 from difflib import SequenceMatcher
 
@@ -48,7 +50,8 @@ class FeedParser:
         articles = []
 
         try:
-            feed = feedparser.parse(content)
+            # Keep fetched/cache content as data, never a URL or filename.
+            feed = feedparser.parse(io.BytesIO(content.encode("utf-8")))
 
             for entry in feed.entries:
                 article = self._parse_entry(
@@ -143,14 +146,14 @@ class FeedParser:
         # Try published_parsed first
         if hasattr(entry, "published_parsed") and entry.published_parsed:
             try:
-                return datetime(*entry.published_parsed[:6])
+                return datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
             except Exception:
                 pass
 
         # Try updated_parsed
         if hasattr(entry, "updated_parsed") and entry.updated_parsed:
             try:
-                return datetime(*entry.updated_parsed[:6])
+                return datetime(*entry.updated_parsed[:6], tzinfo=timezone.utc)
             except Exception:
                 pass
 
@@ -158,16 +161,13 @@ class FeedParser:
         for field in ["published", "updated", "date"]:
             date_str = entry.get(field)
             if date_str:
-                for fmt in [
-                    "%Y-%m-%dT%H:%M:%SZ",
-                    "%Y-%m-%dT%H:%M:%S%z",
-                    "%a, %d %b %Y %H:%M:%S %z",
-                    "%a, %d %b %Y %H:%M:%S GMT",
-                    "%Y-%m-%d %H:%M:%S",
-                ]:
+                for parse in (datetime.fromisoformat, parsedate_to_datetime):
                     try:
-                        return datetime.strptime(date_str[:24], fmt[:24])
-                    except Exception:
+                        date = parse(date_str.replace("Z", "+00:00"))
+                        if date.tzinfo is None:
+                            date = date.replace(tzinfo=timezone.utc)
+                        return date.astimezone(timezone.utc)
+                    except (ValueError, TypeError, OverflowError):
                         continue
 
         return None
@@ -201,7 +201,7 @@ class FeedParser:
 
         for symbol, patterns in coin_patterns:
             for pattern in patterns:
-                if pattern in text_upper:
+                if re.search(r"\b" + re.escape(pattern.strip()) + r"\b", text_upper):
                     if symbol not in coins:
                         coins.append(symbol)
                     break

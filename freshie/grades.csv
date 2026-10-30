@@ -369,7 +369,7 @@ plugins/crypto/arbitrage-opportunity-finder/skills/finding-arbitrage-opportuniti
 plugins/crypto/blockchain-explorer-cli/skills/exploring-blockchain-data,A,100
 plugins/crypto/cross-chain-bridge-monitor/skills/monitoring-cross-chain-bridges,A,92
 plugins/crypto/crypto-derivatives-tracker/skills/tracking-crypto-derivatives,A,97
-plugins/crypto/crypto-news-aggregator/skills/aggregating-crypto-news,A,96
+plugins/crypto/crypto-news-aggregator/skills/aggregating-crypto-news,A,97
 plugins/crypto/crypto-portfolio-tracker/skills/tracking-crypto-portfolio,A,95
 plugins/crypto/crypto-signal-generator/skills/generating-trading-signals,A,96
 plugins/crypto/crypto-tax-calculator/skills/calculating-crypto-taxes,A,95

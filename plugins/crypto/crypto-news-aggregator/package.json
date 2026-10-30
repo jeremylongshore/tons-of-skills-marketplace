@@ -1,11 +1,11 @@
 {
   "name": "@intentsolutionsio/crypto-news-aggregator",
-  "version": "1.0.3",
-  "description": "Aggregate and analyze crypto news from multiple sources with sentiment analysis",
+  "version": "1.0.4",
+  "description": "Fetch crypto RSS headlines with coin/category filters and per-source health reporting",
   "keywords": [
     "news",
     "aggregator",
-    "sentiment",
+    "rss",
     "crypto",
     "media",
     "claude-code",

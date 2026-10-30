@@ -214,6 +214,7 @@ class WorkflowRoutingContractTests(unittest.TestCase):
                         "plugins/mcp/lumera-agent-memory/requirements.txt",
                         "plugins/security/penetration-tester/skills/performing-penetration-testing/scripts/requirements.txt",
                         "plugins/crypto/trading-strategy-backtester/requirements.txt",
+                        "plugins/crypto/crypto-news-aggregator/requirements.txt",
                     }
                     actual = {arg for arg in installed if arg.startswith("plugins/")}
                     self.assertEqual(

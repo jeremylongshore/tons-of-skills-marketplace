@@ -9,7 +9,7 @@ Version: 2.0.0
 License: MIT
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Dict
 
 
@@ -145,7 +145,9 @@ class NewsScorer:
 
     def _calculate_recency_score(self, published: datetime) -> float:
         """Calculate recency bonus based on publication time."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
+        if published.tzinfo is None:
+            published = published.replace(tzinfo=timezone.utc)
         age = now - published
 
         if age < timedelta(hours=1):

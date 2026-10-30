@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "507d1fe0629f50af170d9247e7979d70a9badd7cee50097db76de2fc322188e3"
+      "sha256": "45aaf8d372b563e83bc42061b81b1e83ed594c562b15a1a6d4b87cf033dd8fb4"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -132,7 +132,7 @@
       "job": "test",
       "step": 9,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
       "step_sha256": "e9f706b04649c111cefb3b9db02e0d5e46a570d7a691be6390c6ae9143e7c116",
       "run_sha256": "0dcfbc304f8ac40a710d9f608d0aace39c58181aa769349bff1dbd3977817052",
       "anchor": {
@@ -241,7 +241,7 @@
       "job": "test",
       "step": 17,
       "step_name": "Run Python tests",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
       "step_sha256": "84d634f64c05089931a10f8d658c32adc00033838d084019727135c2f0b4b639",
       "run_sha256": "1f3d09305dde4e29d0ab05ef255ed72204d231ad36a6c7a61d4118c03ca656c5",
       "anchor": {
@@ -255,7 +255,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 1164,
+          "line": 1165,
           "text": "          # Normalize only grep's no-match status, never a find traversal error."
         },
         {
@@ -395,9 +395,9 @@
       "job": "test",
       "step": 14,
       "step_name": "Install Python test dependencies",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
-      "step_sha256": "1158989e337910dcf438616a652722f706073ac0771510fec9a40ed1b0556554",
-      "run_sha256": "6f80678450cc05e426439057fe99ec7ebabfafb58864f117442ee85044ef7906",
+      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
+      "step_sha256": "7f1f3d1d0ca6936e80a9343a1685132283528c086779b30a0bcc8635aa419c1b",
+      "run_sha256": "53cd91fd8cf412a2c5ec2b754f75bd99c83b1c418f1a61039d73517b48bc2e72",
       "anchor": {
         "line": 14,
         "text": "    pip install -r \"$req\" || true"
@@ -415,7 +415,7 @@
       "job": "test",
       "step": 23,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -435,7 +435,7 @@
       "job": "test",
       "step": 23,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
       "step_sha256": "e4b8b88cf22e675fa4b3400a2b638f29dcc742da47ac569da11998879f8d0df8",
       "run_sha256": "c6d33ed7f97a22fddc10cb1955ea658ea25dde899cfbb0417c66dfb97e8d547c",
       "anchor": {
@@ -448,7 +448,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 1262,
+        "line": 1263,
         "sha256": "bc0bb0c3f03adb8e4cfe7c48574c54154d1c17f1f641b4445c6173502e78e054"
       }
     },
@@ -558,7 +558,7 @@
       "job": "test",
       "step": 9,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "72bf1ab5d543036f27de2ccf4ddc0719935fb5f1272200503bd83489c4c0bb4c",
+      "job_sha256": "636ed37ad6309694afe788c877f8770eca84b1cff351b5bfbdceb8215a15e70a",
       "step_sha256": "e9f706b04649c111cefb3b9db02e0d5e46a570d7a691be6390c6ae9143e7c116",
       "run_sha256": "0dcfbc304f8ac40a710d9f608d0aace39c58181aa769349bff1dbd3977817052",
       "anchor": {

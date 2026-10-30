@@ -1,6 +1,6 @@
 ---
 name: aggregating-crypto-news
-description: 'Aggregate breaking cryptocurrency news from 50+ sources including CoinDesk,
+description: 'Aggregate cryptocurrency news from configured RSS sources including CoinDesk,
   CoinTelegraph, The Block, and Decrypt.
 
   Use when needing to monitor crypto market news, track announcements, or find coin-specific
@@ -10,26 +10,29 @@ description: 'Aggregate breaking cryptocurrency news from 50+ sources including 
   "scan for breaking news", or "check crypto updates".
 
   '
-allowed-tools: Read, Bash(crypto:news-*)
-version: 1.26.0
+allowed-tools: Read, Bash(python:*)
+version: 1.27.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- crypto
-- monitoring
-- aggregating-crypto
+  - crypto
+  - monitoring
+  - aggregating-crypto
 compatibility: Designed for Claude Code
 ---
+
 # Aggregating Crypto News
 
 ## Overview
 
-Aggregate cryptocurrency news from 50+ authoritative sources via RSS feeds with real-time scanning, coin/category filtering, and relevance scoring.
+Fetch configured RSS feeds on demand, filter dated articles by coin/category and UTC time window, and rank them using keyword and recency scores. Source availability and coverage vary; the tool reports failed and disabled feeds rather than implying every source was checked successfully.
 
 ## Prerequisites
 
+The user prepares the Python environment before invoking this skill.
+
 1. **Python 3.8+** installed
-2. **Dependencies**: `pip install feedparser requests`
+2. **Dependencies**: `pip install feedparser requests pyyaml`
 3. Internet connectivity for RSS feed access
 
 ## Instructions
@@ -66,40 +69,39 @@ Aggregate cryptocurrency news from 50+ authoritative sources via RSS feeds with 
    - Show source, title, age, and relevance score
    - Highlight market-moving keywords if present
    - Provide links for full articles
-   - Summarize meta information (sources checked, articles found)
+   - Summarize configured/disabled, fetched/failed sources and articles found
+   - Report feed failures, including when other feeds return matching articles
+   - A zero-match query is distinct from an all-feed failure (exit 1)
+   - JSON `meta.feed_health` records per-source parsed/window/undated counts and latest publication; CSV keeps diagnostics on stderr
+   - Undated and future-dated items are excluded from the requested time window
 
 ## Output
 
 Table showing articles ranked by relevance score (0-100) based on market-moving keyword detection, source authority, and recency:
 
+```text
+CRYPTO NEWS AGGREGATOR — [generated UTC time]
+[rank] [source] [headline] [age] [score]
+Summary: [shown] articles | [attempted] sources | [matched] matches
+Feed health: [fetched] fetched | [failed] failed | [disabled] disabled
+[source]: failed — [HTTP/timeout/parse reason, when applicable]
 ```
-==============================================================================
-  CRYPTO NEWS AGGREGATOR                            Updated: 2026-01-14 15:30  # 2026 - current year timestamp
-==============================================================================
 
-  TOP CRYPTO NEWS (24h)
-------------------------------------------------------------------------------
-  Rank  Source          Title                           Age     Score
-------------------------------------------------------------------------------
-    1   CoinDesk        Bitcoin Breaks $100K ATH        2h      95.0
-    2   The Block       SEC Approves ETH ETF            4h      92.5
-    3   Decrypt         Solana DeFi TVL Surges          6h      78.3
-------------------------------------------------------------------------------
-
-  Summary: 20 articles shown | Scanned: 50 sources | Matched: 187
-==============================================================================
-```
+This is a layout example, not a record of actual headlines or coverage. RSS
+publication dates govern the time window, not fetch time or a claimed live scan.
+The registry retains disabled URLs and dated reasons for review; re-enable a
+source only after checking its current feed and any publisher usage terms.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Network timeout | RSS feed unreachable | Uses cached data; skips unavailable sources |
-| Parse error | Malformed RSS | Skips entry; continues with valid articles |
-| No results | Filters too strict | Suggest relaxing filters |
-| Invalid coin | Unknown symbol | List similar valid symbols |
+| Error           | Cause                | Solution                                                |
+| --------------- | -------------------- | ------------------------------------------------------- |
+| Network timeout | RSS feed unreachable | Uses valid, unexpired cache; reports failures otherwise |
+| Parse error     | Malformed RSS        | Skips entry; continues with valid articles              |
+| No results      | Filters too strict   | Inspect feed health before suggesting relaxed filters   |
+| Invalid coin    | Unknown symbol       | List similar valid symbols                              |
 
-See [`references/errors.md`](references/errors.md) for comprehensive error handling.
+Use Read to inspect [`references/errors.md`](references/errors.md) for comprehensive error handling.
 
 ## Examples
 

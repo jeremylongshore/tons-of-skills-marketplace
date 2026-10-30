@@ -1,16 +1,25 @@
 # PRD: Aggregating Crypto News
 
+Implementation status (2026-10-25): the shipped runtime is the on-demand RSS CLI
+under `scripts/news_aggregator.py`, with the registry in `config/sources.yaml`.
+The original source-count and service/latency targets below are design targets,
+not measured coverage or deployed services. Current failure, disabled-source and
+UTC-window behavior is documented in [SKILL.md](SKILL.md). AI sentiment, social
+APIs and push delivery are not implemented by this CLI.
+
 ## Document Control
 
-| Field | Value |
-|-------|-------|
-| **Skill Name** | aggregating-crypto-news |
-| **Type** | Data Aggregation & Information |
-| **Domain** | Cryptocurrency News & Media |
-| **Target Users** | Traders, Analysts, Researchers, Portfolio Managers |
-| **Priority** | P1 - Foundation Skill |
-| **Version** | 2.0.0 |
-| **Author** | Jeremy Longshore <jeremy@intentsolutions.io> |
+The document version is independent of plugin and skill release versions.
+
+| Field                | Value                                              |
+| -------------------- | -------------------------------------------------- |
+| **Skill Name**       | aggregating-crypto-news                            |
+| **Type**             | Data Aggregation & Information                     |
+| **Domain**           | Cryptocurrency News & Media                        |
+| **Target Users**     | Traders, Analysts, Researchers, Portfolio Managers |
+| **Priority**         | P1 - Foundation Skill                              |
+| **Document Version** | 2.0.0                                              |
+| **Author**           | Jeremy Longshore <jeremy@intentsolutions.io>       |
 
 ---
 
@@ -182,13 +191,13 @@ The aggregating-crypto-news skill provides real-time cryptocurrency news aggrega
 
 ## Success Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| News fetch time | < 10s for 50 sources | Script execution time |
-| Source coverage | 50+ curated sources | Count in config |
-| Relevance accuracy | > 80% relevant in top 10 | Manual review |
-| User activation | Triggered by relevant phrases | Plugin analytics |
-| Export success | 100% valid JSON/CSV | Format validation |
+| Metric             | Target                        | Measurement           |
+| ------------------ | ----------------------------- | --------------------- |
+| News fetch time    | < 10s for 50 sources          | Script execution time |
+| Source coverage    | 50+ curated sources           | Count in config       |
+| Relevance accuracy | > 80% relevant in top 10      | Manual review         |
+| User activation    | Triggered by relevant phrases | Plugin analytics      |
+| Export success     | 100% valid JSON/CSV           | Format validation     |
 
 ---
 
@@ -253,12 +262,12 @@ User: "get latest crypto news"
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| RSS feed URL changes | Medium | Medium | Maintain source registry; auto-detection |
-| Feed parsing errors | Medium | Low | Graceful degradation; skip malformed feeds |
-| Network timeouts | Low | Low | Timeout per source; parallel fetching |
-| Duplicate articles | Medium | Low | Title-based deduplication |
+| Risk                 | Likelihood | Impact | Mitigation                                 |
+| -------------------- | ---------- | ------ | ------------------------------------------ |
+| RSS feed URL changes | Medium     | Medium | Maintain source registry; auto-detection   |
+| Feed parsing errors  | Medium     | Low    | Graceful degradation; skip malformed feeds |
+| Network timeouts     | Low        | Low    | Timeout per source; parallel fetching      |
+| Duplicate articles   | Medium     | Low    | Title-based deduplication                  |
 
 ---
 
@@ -292,7 +301,7 @@ Exports DeFi news to JSON file.
 
 ## Version History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0.0 | 2025-10-16 | Jeremy Longshore | Initial stub |
-| 2.0.0 | 2026-01-14 | Jeremy Longshore | Full PRD, implementation |
+| Version | Date       | Author           | Changes                  |
+| ------- | ---------- | ---------------- | ------------------------ |
+| 1.0.0   | 2025-10-16 | Jeremy Longshore | Initial stub             |
+| 2.0.0   | 2026-01-14 | Jeremy Longshore | Full PRD, implementation |

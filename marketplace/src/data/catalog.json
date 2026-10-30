@@ -1870,13 +1870,13 @@
       "slug": "crypto-news-aggregator",
       "name": "crypto-news-aggregator",
       "displayName": "crypto news aggregator",
-      "description": "Aggregate and analyze crypto news from multiple sources with sentiment analysis",
-      "version": "1.26.0",
+      "description": "Fetch crypto RSS headlines with coin/category filters and per-source health reporting",
+      "version": "1.27.0",
       "category": "crypto",
       "keywords": [
         "news",
         "aggregator",
-        "sentiment",
+        "rss",
         "crypto",
         "media"
       ],

@@ -37,6 +37,8 @@ sources:
     description: High-volume crypto news coverage
 
   - name: Blockworks
+    enabled: false
+    disabled_reason: '2026-10-25 probe: feed returns January 2026 entries; unsuitable for 1h–7d windows.'
     url: https://blockworks.co/feed/
     category: market
     quality: 8
@@ -58,7 +60,7 @@ sources:
     description: Comprehensive crypto coverage
 
   - name: DL News
-    url: https://www.dlnews.com/feed/
+    url: https://www.dlnews.com/arc/outboundfeeds/rss/
     category: market
     quality: 7
     description: DeFi and web3 focused
@@ -106,6 +108,8 @@ sources:
   # DeFi Specific
   # ==========================================================================
   - name: DeFi Pulse
+    enabled: false
+    disabled_reason: '2026-10-25 probe: connection timed out; disabled pending a working publisher feed.'
     url: https://defipulse.com/blog/feed/
     category: defi
     quality: 8
@@ -121,6 +125,8 @@ sources:
   # NFT Specific
   # ==========================================================================
   - name: NFT Now
+    enabled: false
+    disabled_reason: '2026-10-25 probe: latest supplied entry July 2025; retained here as an inactive historical source.'
     url: https://nftnow.com/feed/
     category: nft
     quality: 7
@@ -130,6 +136,8 @@ sources:
   # Layer 2 and Ethereum
   # ==========================================================================
   - name: Week in Ethereum
+    enabled: false
+    disabled_reason: '2026-10-25 probe: TLS verification failed; do not bypass certificate verification.'
     url: https://weekinethereumnews.com/feed/
     category: layer1
     quality: 8
@@ -139,6 +147,8 @@ sources:
   # Regulatory and Institutional
   # ==========================================================================
   - name: Crypto Law Insider
+    enabled: false
+    disabled_reason: '2026-10-25 probe: configured RSS URL returns HTTP 404; no verified replacement.'
     url: https://cryptolawinsider.com/feed/
     category: regulatory
     quality: 7
