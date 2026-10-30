@@ -1,15 +1,16 @@
 # Penetration Tester Plugin
 
 Security testing toolkit for web applications, dependencies, and source code.
-Three real scanners that wrap established tools (requests, bandit, pip-audit,
-npm audit) with unified reporting.
+The pack contains 25 narrow operators plus an orchestrator, and retains three
+legacy CLI routes with separate report contracts. Start with the orchestrator
+for authorization, scope and canonical report composition.
 
 ## What It Does
 
 | Scanner | Target | What It Checks |
 |---------|--------|----------------|
 | `security_scanner.py` | Live URLs | Security headers, SSL/TLS, exposed endpoints, HTTP methods, CORS |
-| `dependency_auditor.py` | Project dirs | npm and pip vulnerabilities, CVEs, outdated packages |
+| `dependency_auditor.py` | Project dirs | Project-bound npm/pip advisory triage; explicit Python environment or pinned requirements |
 | `code_security_scanner.py` | Codebases | Hardcoded secrets, SQL injection, command injection, insecure deserialization |
 
 ## Installation
@@ -20,16 +21,17 @@ npm audit) with unified reporting.
 
 ## Setup
 
-Install Python dependencies:
+Optional setup installs dependencies as a separate, explicitly approved action.
+The scanners never invoke this installer automatically:
 
 ```bash
-bash scripts/setup_pentest_env.sh
+bash ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/setup_pentest_env.sh
 ```
 
 Or with a virtual environment:
 
 ```bash
-bash scripts/setup_pentest_env.sh --venv
+bash ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/setup_pentest_env.sh --venv
 ```
 
 Requires Python 3.9+. The setup script installs `requests`, `bandit`, and
@@ -63,14 +65,18 @@ Requires Python 3.9+. The setup script installs `requests`, `bandit`, and
 
 ## Scanners
 
+Examples assume the plugin runtime supplies CLAUDE_PLUGIN_ROOT; for standalone
+CLI use, supply the actual plugin installation path. Complete the approved ROE
+and scope gates first. Legacy CLIs do not prompt for, or validate, an ROE themselves.
+
 ### security_scanner.py
 
 HTTP security analysis for live web applications.
 
 ```bash
-python3 scripts/security_scanner.py https://example.com
-python3 scripts/security_scanner.py https://example.com --checks headers,ssl
-python3 scripts/security_scanner.py https://example.com --output report.json
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/security_scanner.py https://example.com
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/security_scanner.py https://example.com --checks headers,ssl
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/security_scanner.py https://example.com --output report.json
 ```
 
 **Checks:**
@@ -87,9 +93,9 @@ python3 scripts/security_scanner.py https://example.com --output report.json
 Unified dependency vulnerability scanner.
 
 ```bash
-python3 scripts/dependency_auditor.py /path/to/project
-python3 scripts/dependency_auditor.py . --min-severity high
-python3 scripts/dependency_auditor.py . --scanners npm,pip --output findings.json
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/dependency_auditor.py /path/to/project
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/dependency_auditor.py . --min-severity high
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/dependency_auditor.py . --scanners npm,pip --output findings.json
 ```
 
 **Supports:**
@@ -98,14 +104,27 @@ python3 scripts/dependency_auditor.py . --scanners npm,pip --output findings.jso
 - Python projects (via `pip-audit`)
 - Auto-detects project type from manifest files
 
+Python dependency audits use pinned requirements.txt without pip dependency resolution, or
+an explicitly designated environment. For example:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/dependency_auditor.py \
+  /approved/project --scanners pip --python /approved/project/.venv/bin/python \
+  --output legacy-python.json
+```
+
+The designated Python uses isolated mode; install the auditor into that approved
+environment separately. No missing-tool installation or outdated-package fallback
+is used as audit success. An unknown advisory severity remains unknown and requires triage.
+
 ### code_security_scanner.py
 
 Static analysis for security vulnerabilities.
 
 ```bash
-python3 scripts/code_security_scanner.py /path/to/code
-python3 scripts/code_security_scanner.py . --tools bandit,regex --severity high
-python3 scripts/code_security_scanner.py . --exclude "test_*,*_test.py"
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/code_security_scanner.py /path/to/code
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/code_security_scanner.py . --tools bandit,regex --severity high
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/code_security_scanner.py . --exclude "test_*,*_test.py"
 ```
 
 **Detects:**
@@ -120,31 +139,40 @@ python3 scripts/code_security_scanner.py . --exclude "test_*,*_test.py"
 
 ## Output
 
-All scanners produce:
+Legacy scanners provide terminal reports and JSON via --output. Their v2 JSON
+shapes differ from canonical v3 Finding streams; keep them separate unless a
+validated conversion is explicitly performed. Code-match evidence is redacted.
+Web risk scores are null/INCOMPLETE when a selected check fails. A method's
+advertisement is informational, not proof of writes, XST or open proxying.
 
-- Markdown-formatted reports for terminal display
-- JSON reports via `--output` for programmatic use
-- Risk scoring with severity levels (critical, high, medium, low, info)
-- Remediation guidance for each finding
+| Exit | Meaning |
+| --- | --- |
+| 0 | Selected analyses completed; no unfiltered HIGH/CRITICAL finding |
+| 1 | A completed analysis produced a HIGH/CRITICAL finding |
+| 2 | Missing, invalid, failed or unassessed evidence; no clean verdict |
 
-Exit code 0 means no critical or high findings. Exit code 1 means issues found.
+Display filters cannot change the gate. Dependency reports retain moderate as
+the v2 spelling and may show unknown severity; unknown severity is not a clean
+assessment. Optional setup, signing, archives and active method experiments
+require their separate explicit choices.
 
 ## Reference Documentation
 
-The `references/` directory contains detailed guides:
+The legacy background guides live under
+`skills/performing-penetration-testing/references/`:
 
 - **OWASP_TOP_10.md** -- Each OWASP Top 10 risk with scanner mapping and fix templates
 - **SECURITY_HEADERS.md** -- HTTP header implementation for Express, Django, Nginx, Apache
 - **REMEDIATION_PLAYBOOK.md** -- Copy-paste fix templates for common vulnerabilities
 
-## Authorization Warning
+## Authorization and scope
 
-**Only test systems you are authorized to test.**
-
-- Never scan URLs you do not own or have written permission to test
-- Local code scanning and dependency auditing of your own projects is always safe
-- The scanners will ask for authorization confirmation before external scans
-- Unauthorized security testing may violate laws in your jurisdiction
+Obtain the owner's approval and pass the structural authorization/scope checks
+before scanning. Approve exact local repository and environment paths separately
+from network scope. The command/orchestrator instructions supply this routing;
+the legacy CLIs do not execute those gates or establish legal authorization.
+Missing tools and incomplete evidence stay nonzero. No DoD/STIG, exploit or
+certified chain-of-custody claim follows from these reports.
 
 ## Commands
 
@@ -156,7 +184,7 @@ The `references/` directory contains detailed guides:
 - Python 3.9+
 - `requests` >= 2.31.0
 - `bandit` >= 1.7.5 (optional, for code scanning)
-- `pip-audit` >= 2.6.0 (optional, for Python dependency auditing)
+- `pip-audit` with --strict/--no-deps/--disable-pip support (optional, for Python auditing)
 - `npm` (optional, for JavaScript dependency auditing)
 
 ## Contributors

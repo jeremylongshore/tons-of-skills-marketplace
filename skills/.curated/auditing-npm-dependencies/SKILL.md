@@ -29,7 +29,7 @@ disallowed-tools:
   - Edit(.env)
   - Bash(npm publish:*)
   - Bash(npm install:*)
-version: 3.30.0
+version: 3.33.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

@@ -1,26 +1,20 @@
 ---
 name: probing-dangerous-http-methods
 description: |
-  Probe a target for HTTP methods that should not be enabled in
-  production — TRACE (XST attack), unrestricted PUT/DELETE,
-  DEBUG/CONNECT, WebDAV (PROPFIND/MKCOL/COPY/MOVE), and Allow header
-  enumeration.
-  Use when: penetration test rules of engagement include HTTP method
-  testing, OR a load balancer change went live and you suspect default
-  methods were exposed.
-  Threshold: TRACE returns 200 on any path (XST), PUT/DELETE returns
-  anything other than 405/403/404 on a non-API endpoint, OPTIONS Allow
-  header lists DEBUG/CONNECT/PROPFIND, or WebDAV methods succeed.
-  Trigger with: "audit http methods", "trace check", "options
-  enumeration", "webdav probe".
+  Discover advertised HTTP methods with bounded OPTIONS requests, then
+  verify separately selected methods only under explicit scoped ROE permission.
+  Use when auditing post-deploy method policy or approved WebDAV/proxy experiments.
+  Requires disposable fixtures, conditional cleanup and private evidence for
+  writes; reports missing or ambiguous evidence as inconclusive.
+  Trigger with "audit http methods", "trace check", or "webdav probe".
 allowed-tools:
   - Read
   - Bash(python3:*)
-  - Bash(curl:*)
+argument-hint: "<url> [--active-method METHOD --roe FILE --ledger FILE]"
 disallowed-tools:
   - Bash(rm:*)
   - Edit(/etc/*)
-version: 3.30.0
+version: 3.33.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
@@ -36,147 +30,138 @@ tags:
 
 ## Overview
 
-Most HTTP methods beyond GET/POST/HEAD are vestigial — leftover from
-WebDAV authoring stacks of the early 2000s, debugging features in
-legacy servers, or default-enabled methods nobody disabled at install
-time. Each enabled method that the application doesn't use is an
-attack surface: TRACE enables Cross-Site Tracing (XST), PUT enables
-arbitrary file upload to unprotected paths, CONNECT enables proxy
-abuse against internal services, WebDAV enables directory manipulation.
+Compare anonymous HTTP method capabilities with the owner's explicit policy.
+The default sends only OPTIONS to the exact supplied URL, follows no redirect,
+and does not read its response body. Allow is advertisement, not proof of a
+write, an open proxy or exploitation. An API path name does not establish policy.
 
-This skill probes the canonical method set and grades each based on
-its presence and response.
-
-## When the skill produces findings
-
-| Finding | Severity | Threshold | Affected control |
-|---|---|---|---|
-| TRACE method enabled | **HIGH** | TRACE returns 200 with request echo | OWASP A05:2021, CWE-693 |
-| PUT method enabled outside API path | **HIGH** | PUT returns 200/201/204 on non-API path | CWE-434 |
-| DELETE method enabled outside API path | **HIGH** | DELETE returns 200/204 on non-API path | CWE-285 |
-| CONNECT method enabled | **CRITICAL** | CONNECT returns 200 (proxy abuse open) | CWE-441 |
-| DEBUG method enabled | **HIGH** | DEBUG returns response (legacy IIS / dev servers) | CWE-489 |
-| WebDAV methods enabled (PROPFIND/MKCOL/COPY/MOVE) | **HIGH** | Any return 207 or 201 | CWE-538 |
-| Allow header discloses unused methods | **LOW** | OPTIONS Allow includes methods app doesn't use | CWE-200 |
-| OPTIONS returns full method enumeration | **LOW** | Allow:* or broad list | CWE-200 |
+Active experiments require separate method selection, a structurally valid ROE,
+an exclusive private ledger and bounded postcondition evidence. The checker does
+not verify signing identity or establish legal authorization. Obtain the owner's
+approval independently before executing an experiment.
 
 ## Prerequisites
 
-- Python 3.9+
-- Authorization for non-local targets
+- Use the plugin's Python environment and installed dependencies.
+- Supply a literal HTTP(S) URL without credentials, query, fragment or ambiguous paths.
+- For active probes, obtain an unexpired ROE using the authorization skill's
+  required authorizer, time-window, signature and scope fields.
+- Prepare an existing owner-private directory (0700) for a new ledger (0600).
+  Never reuse or overwrite a prior ledger.
 
 ## Instructions
 
-### Step 1 — Confirm authorization
-
-```text
-"Do you have authorization to perform HTTP method probing on this
- target? I need confirmation before proceeding."
-```
-
-### Step 2 — Run the scanner
+### Step 1 — Discover without mutation
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/probing-dangerous-http-methods/scripts/probe_methods.py \
-    https://example.com \
-    --authorized
+  https://fixture.example.test/app --authorized --format json
 ```
 
-Options:
+The anonymous direct session ignores ambient credentials, cookies and proxies.
+Missing, malformed, redirected, auth-gated or failed discovery returns exit 2.
+A valid bounded advertisement is INFO; it does not certify application security.
 
+### Step 2 — Review explicit active permission
+
+Use Read to inspect the approved ROE and route policy before selecting methods.
+
+Add this block to a complete owner-approved ROE; it is not a complete ROE itself:
+
+```yaml
+http_method_probe:
+  target: https://fixture.example.test/app
+  allowed_methods: [PUT, DELETE, COPY, MOVE]
+  unexpected_methods: [PUT, COPY, MOVE]
+  disposable_base: https://fixture.example.test/probe-fixtures/
+  exclusive_disposable_namespace: true
+  cleanup_authorized: true
 ```
-Usage: probe_methods.py URL [OPTIONS]
 
-Options:
-  --authorized      Attest authorization (required)
-  --output FILE
-  --format FMT      json | jsonl | markdown (default: markdown)
-  --min-severity SEV (default: info)
-  --timeout SECS
-  --is-api          Treat URL as API endpoint (relaxes PUT/DELETE checks)
-```
+The exact target and the entire dedicated same-origin disposable directory must
+be in scope, with no overlapping exclusion. Every selected method needs explicit
+permission. PUT/DELETE/COPY/MOVE require helper PUT and DELETE permission even
+when only one is selected. MKCOL requires MKCOL, DELETE, PROPFIND and LOCK;
+LOCK is an internal cleanup helper, not a selectable general-purpose probe.
+Never approve an existing user-data directory as the disposable namespace.
 
-By default the scanner treats the URL as a non-API endpoint where
-PUT/DELETE should return 405. With `--is-api`, those methods are
-expected and don't trigger findings — only the auth checks behind them
-matter (delegated to other skills).
+TRACE and PROPFIND need no disposable directory. DEBUG additionally requires
+`debug_response_sha256`, an owner-approved fixture digest. CONNECT requires an
+explicit HTTP proxy root, a scoped HTTPS `proxy_destination`,
+`controlled_proxy_destination: true` and `proxy_response_sha256`. It tests only
+that controlled destination with TLS verification; never use metadata services,
+internal discovery targets or arbitrary destinations as proof fixtures.
 
-### Step 3 — Interpret findings
-
-CRITICAL CONNECT-open = your reverse proxy is letting external clients
-connect to arbitrary internal hosts (e.g., metadata endpoints in
-AWS/GCP). Ship same-hour fix.
-
-HIGH TRACE = XST attack open. Combined with any XSS, attacker can
-read HttpOnly cookies via XHR. Ship-within-sprint fix.
-
-HIGH WebDAV = file upload + manipulation surface. Audit `references/
-PLAYBOOK.md` § disabling WebDAV.
-
-### Step 4 — Cross-skill chaining
-
-After this skill, suggest:
-
-- `auditing-cors-policy` (#3) if Allow-Methods:* surfaced
-- `detecting-debug-endpoints` (#7) for the broader exposed-feature
-  audit if DEBUG/TRACE both fired
-
-## Examples
-
-### Example 1 — Post-deploy method audit
-
-User: "We rolled out a new ALB config. Audit the method surface."
+### Step 3 — Select each active method explicitly
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/probing-dangerous-http-methods/scripts/probe_methods.py \
-    https://api.example.com \
-    --authorized --is-api --min-severity high
+  https://fixture.example.test/app --authorized --roe approved-roe.yaml \
+  --active-method COPY --ledger private-evidence/new-copy-run.jsonl --format json
 ```
 
-### Example 2 — TRACE / XST audit after XSS finding
+Repeat `--active-method` only for separately approved methods. All active probes
+require `--authorized`, including local targets. `--is-api` is a legacy
+discovery-only hint and cannot override the attested active policy.
 
-User: "Found XSS on /search; checking if XST chain is possible."
+### Step 4 — Preserve evidence and interpret the gate
 
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/probing-dangerous-http-methods/scripts/probe_methods.py \
-    https://example.com \
-    --authorized
-```
+| Gate | Meaning |
+| --- | --- |
+| 0 | Bounded selected experiments verified or explicitly rejected; no demonstrated owner-policy violation |
+| 1 | A verified capability is listed in the owner's unexpected_methods policy |
+| 2 | Missing, malformed, ambiguous or failed evidence; stop and reconcile |
 
-If TRACE-enabled finding fires, the XST chain works: attacker XSS
-issues a TRACE request via XHR, the server echoes the request
-(including HttpOnly cookies that XHR-set-cookies access can't normally
-read), JavaScript reads the response body, full session theft.
+The gate is computed before `--min-severity` filtering. HIGH means a verified
+owner-policy violation, not automatic exploitation. 401/403/405/501 on supported
+read-like experiments are recorded as rejection, not proof the method is absent
+for every principal. Redirects and generic success pages are inconclusive.
 
-### Example 3 — WebDAV legacy audit on a recently-acquired domain
+## Method evidence
 
-User: "We just acquired example.io — quick method-surface check before
-we re-point DNS."
-
-```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/probing-dangerous-http-methods/scripts/probe_methods.py \
-    https://example.io \
-    --authorized --min-severity medium
-```
-
-Often surfaces decade-old WebDAV / DEBUG defaults that nobody disabled
-on the previous owner's stack.
+| Method | Positive evidence and limits |
+| --- | --- |
+| TRACE | Fresh synthetic nonce and matching TRACE request-line echo; no browser cookie-theft claim |
+| DEBUG | Exact approved response digest, not HTTP 200 alone |
+| PROPFIND | Depth 0, exact-resource DAV multistatus and successful requested property |
+| PUT / DELETE | Unique absent generated file, conditional creation, exact payload/strong ETag readback, conditional deletion and verified absence |
+| COPY / MOVE | Owned synthetic source, absent generated destination, Overwrite F, exact destination readback, MOVE source absence, complete conditional cleanup |
+| MKCOL | Unique conditional creation; empty collection evidence; bounded exclusive depth-infinity write lock; empty reinspection; token/ETag-conditional delete and absence |
+| CONNECT | Verified TLS response digest from the one approved HTTPS destination through the approved HTTP proxy |
 
 ## Output
 
-JSON / JSONL / Markdown. Exit 0 / 1 / 2 per `lib/report.py`.
+Use `--format json`, `jsonl` or `markdown`, and optional `--output FILE`.
+The report contains bounded summaries and hashes. The private append-only ledger
+records request intent before transport, response hashes and ownership/cleanup
+receipts. It contains fixture URLs and must remain private; it is not a signed
+chain-of-custody or compliance certificate.
 
 ## Error Handling
 
-- **Method returns 405** → expected behavior, no finding
-- **Method returns 403** → access-controlled (acceptable), no finding,
-  but INFO note recorded
-- **Method returns 500** → INFO finding flagging error-handling concern
-- **Connection error** → exit 2
+Stop after the first ambiguous active experiment. No automatic mutation retry,
+blind finally-cleanup or ledger-based write resume is performed. A lost response
+can leave a created fixture or short lock pending. Preserve the ledger and ask
+the owner to reconcile the generated resources; do not delete a changed resource.
+
+Bounds are 64 requests, 64 KiB per response, 512-byte synthetic request payloads,
+and a 180-second deadline checked between operations and during body streaming.
+`--timeout` must be finite and at most 30 seconds. Requests socket-idle timeouts
+are not a hard total wall-clock bound while waiting for headers. Collection
+cleanup relies on RFC-compliant lock enforcement; unsupported locking or unknown
+server behavior is inconclusive. Do not weaken conditions to obtain a pass.
+
+## Examples
+
+A post-deploy OPTIONS run may show PUT in Allow. Report the advertisement and
+compare with the route owner's policy; do not issue PUT automatically.
+
+A selected COPY run may create two synthetic file URLs, verify copied bytes,
+then conditionally delete both. Report verified only after cleanup succeeds.
+If either ETag changes, retain the private receipt and return inconclusive.
 
 ## Resources
 
-- `references/THEORY.md` — Per-method attack semantics
-- `references/PLAYBOOK.md` — How to disable each method per server type
-- `../analyzing-tls-config/references/AUTHORIZATION.md` — Active-scan
-  authorization
+- [Theory and primary standards](references/THEORY.md)
+- [Policy remediation and reconciliation](references/PLAYBOOK.md)
+- The plugin's `analyzing-tls-config/references/AUTHORIZATION.md` covers general active-scan authorization.

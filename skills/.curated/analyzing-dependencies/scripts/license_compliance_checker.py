@@ -1,52 +1,48 @@
 #!/usr/bin/env python3
+"""Inventory declared license metadata and flag review; not a legal certificate.
 
-###############################################################################
-# license_compliance_checker.py
-#
-# Check license compatibility of project dependencies
-#
-# Analyzes licenses and identifies compatibility issues
-# Supports multiple package managers and license formats
-#
-# Usage:
-#   ./license_compliance_checker.py
-#   ./license_compliance_checker.py --format json
-#   ./license_compliance_checker.py --strict --output report.txt
-#
-# Exit Codes:
-#   0 - All licenses compatible
-#   1 - Incompatible licenses found
-#   2 - Invalid arguments
-###############################################################################
+0: completed with no automated review flags; 1: review/strict flags;
+2: incomplete enumeration or usage. No package installation is performed.
+"""
+
+from __future__ import annotations
 
 import argparse
-import json
-import sys
-import subprocess
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
 from dataclasses import dataclass
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+from typing import Dict, Set, Tuple
+
+from dependency_runtime import (
+    CheckError,
+    array_value,
+    load_json,
+    object_value,
+    parse_json,
+    run_tool,
+    string_value,
+    visible,
+    write_report,
+)
 
 
 @dataclass
 class License:
-    """Represents a software license."""
-
     name: str
     spdx_id: str
-    category: str  # permissive, copyleft, proprietary, unknown
+    category: str
     description: str
 
-    def is_permissive(self) -> bool:
-        """Check if license is permissive."""
+    def is_permissive(self):
         return self.category == "permissive"
 
-    def is_copyleft(self) -> bool:
-        """Check if license is copyleft."""
+    def is_copyleft(self):
         return self.category == "copyleft"
 
-    def is_proprietary(self) -> bool:
-        """Check if license is proprietary."""
+    def is_proprietary(self):
         return self.category == "proprietary"
 
 
@@ -73,449 +69,247 @@ KNOWN_LICENSES: Dict[str, License] = {
     "CC0-1.0": License("CC0 1.0", "CC0-1.0", "permissive", "Public domain waiver"),
 }
 
-# License compatibility matrix (permissive and MIT compatible with all)
+# Legacy review hints only; combinations do not establish legal incompatibility.
 INCOMPATIBLE_COMBINATIONS: Set[Tuple[str, str]] = {
-    ("GPL-2.0", "Apache-2.0"),  # GPL v2 incompatible with Apache
-    ("GPL-2.0", "GPL-3.0"),  # GPL v2 and v3 can conflict
-    ("AGPL-3.0", "MIT"),  # AGPL is very restrictive
-    ("GPL-3.0", "CDDL-1.0"),  # Some conflicts
+    ("GPL-2.0", "Apache-2.0"),
+    ("GPL-2.0", "GPL-3.0"),
+    ("AGPL-3.0", "MIT"),
+    ("GPL-3.0", "CDDL-1.0"),
 }
 
 
 @dataclass
 class Dependency:
-    """Represents a project dependency."""
-
     name: str
     version: str
     license: str
-    license_obj: Optional[License] = None
+    license_obj: License | None = None
 
-    def is_compatible_with_permissive(self) -> bool:
-        """Check if this dependency is compatible with permissive licenses."""
-        if self.license_obj is None:
-            return False
-        return self.license_obj.is_permissive() or self.license_obj.is_proprietary()
+    def is_compatible_with_permissive(self):
+        """Category convenience only, never a compatibility/legal determination."""
+        return self.license_obj is not None and self.license_obj.is_permissive()
 
 
 class LicenseCompliance:
-    """Check license compliance of project dependencies."""
-
-    def __init__(self, strict_mode: bool = False, verbose: bool = False):
-        """Initialize the license compliance checker.
-
-        Args:
-            strict_mode: Treat warnings as errors
-            verbose: Enable verbose output
-        """
+    def __init__(self, strict_mode=False, verbose=False, python_executable=None, timeout=30):
         self.strict_mode = strict_mode
         self.verbose = verbose
-        self.dependencies: List[Dependency] = []
-        self.issues: List[str] = []
-        self.warnings: List[str] = []
+        self.python_executable = python_executable
+        self.timeout = timeout
+        self.dependencies = []
+        self.issues = []
+        self.warnings = []
+        self.errors = []
+        self.enumerations = []
 
-    def log(self, message: str) -> None:
-        """Log a message if verbose mode is enabled.
+    @property
+    def complete(self):
+        return bool(self.enumerations) and not self.errors
 
-        Args:
-            message: Message to log
-        """
-        if self.verbose:
-            print(f"[DEBUG] {message}", file=sys.stderr)
-
-    def error(self, message: str) -> None:
-        """Log an error message.
-
-        Args:
-            message: Error message
-        """
-        print(f"ERROR: {message}", file=sys.stderr)
-
-    def warning(self, message: str) -> None:
-        """Add a warning.
-
-        Args:
-            message: Warning message
-        """
+    def warning(self, message):
         self.warnings.append(message)
-        if self.verbose:
-            print(f"[WARNING] {message}", file=sys.stderr)
 
-    def issue(self, message: str) -> None:
-        """Add an issue.
+    def error(self, message):
+        self.errors.append(message)
 
-        Args:
-            message: Issue message
-        """
-        self.issues.append(message)
-
-    def resolve_license(self, license_str: str) -> Optional[License]:
-        """Resolve a license string to a License object.
-
-        Args:
-            license_str: License string (name, SPDX ID, or combination)
-
-        Returns:
-            License object or None if not found
-        """
-        if not license_str:
-            return None
-
-        # Normalize the string
-        license_str = license_str.strip()
-
-        # Check exact match
-        if license_str in KNOWN_LICENSES:
-            return KNOWN_LICENSES[license_str]
-
-        # Check by SPDX ID
-        for lic in KNOWN_LICENSES.values():
-            if lic.spdx_id.lower() == license_str.lower():
-                return lic
-
-        # Try to find by name
-        license_lower = license_str.lower()
-        for lic in KNOWN_LICENSES.values():
-            if lic.name.lower() in license_lower:
-                return lic
-
-        # Unknown license
-        self.log(f"Unknown license: {license_str}")
+    def resolve_license(self, declaration):
+        if not isinstance(declaration, str):
+            raise CheckError("license declaration must be text")
+        declaration = declaration.strip()
+        # Exact IDs/names only. A compound expression is not its first term.
+        # Unsupported expressions, LicenseRef values and unknown IDs need review.
+        for identifier, item in KNOWN_LICENSES.items():
+            if declaration.casefold() in {identifier.casefold(), item.name.casefold()}:
+                return item
         return None
 
-    def check_npm_licenses(self) -> bool:
-        """Check npm/Node.js project licenses.
+    def _dependency(self, name, version, declaration):
+        name = string_value(name, "dependency name")
+        if version is None:
+            version = "unknown"
+        if not isinstance(version, str):
+            raise CheckError("invalid dependency version")
+        if isinstance(declaration, dict):
+            # npm's historical single-license object. Lists/expressions are not
+            # silently flattened into an approved license.
+            declaration = declaration.get("type")
+        if declaration is None:
+            declaration = "Unknown"
+        if not isinstance(declaration, str):
+            raise CheckError("invalid license declaration")
+        self.dependencies.append(Dependency(name, version, declaration, self.resolve_license(declaration)))
 
-        Returns:
-            True if successful, False otherwise
-        """
-        self.log("Checking npm licenses")
+    def _process_npm_dependencies(self, dependencies, parent=""):
+        pending = [object_value(dependencies, "npm dependency tree")]
+        while pending:
+            for name, row in pending.pop().items():
+                row = object_value(row, "npm dependency")
+                if row.get("missing") or row.get("invalid"):
+                    self.error("npm reported a missing/invalid installed dependency")
+                self._dependency(name, row.get("version"), row.get("license"))
+                nested = object_value(row.get("dependencies", {}), "nested npm dependencies")
+                pending.append(nested)
 
+    def check_npm_licenses(self):
+        record = {"tool": "npm", "scope": "installed tree at the selected project root", "complete": False}
+        self.enumerations.append(record)
         try:
-            result = subprocess.run(
-                ["npm", "ls", "--json"],
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
+            manifest = object_value(load_json("package.json"), "package manifest")
+            declared = set()
+            for field in ("dependencies", "devDependencies", "optionalDependencies", "peerDependencies"):
+                declared.update(object_value(manifest.get(field, {}), field))
+            code, raw = run_tool(["npm", "ls", "--json", "--all", "--long"], timeout=self.timeout)
+            record["exit_code"] = code
+            if code not in (0, 1):
+                raise CheckError(f"npm license enumeration failed with exit code {code}")
+            data = object_value(parse_json(raw), "npm installed tree")
+            if data.get("error") or data.get("problems") or code:
+                self.error("npm reported incomplete or inconsistent installed-tree coverage")
+            dependencies = object_value(data.get("dependencies", {}), "npm dependencies")
+            if declared - dependencies.keys():
+                self.error("declared root dependencies are absent from the installed inventory")
+            self._process_npm_dependencies(dependencies)
+            record["complete"] = not self.errors
+        except CheckError as error:
+            self.error(str(error))
+        return record["complete"]
 
-            if result.returncode not in [0, 1]:
-                self.error(f"npm ls failed: {result.stderr}")
-                return False
+    def _process_python_dependencies(self, dependencies):
+        for row in array_value(dependencies, "Python license inventory"):
+            row = object_value(row, "Python license record")
+            self._dependency(row.get("Name"), row.get("Version"), row.get("License"))
 
-            data = json.loads(result.stdout)
-            self._process_npm_dependencies(data.get("dependencies", {}))
-            return True
-        except subprocess.TimeoutExpired:
-            self.error("npm ls timeout")
-            return False
-        except json.JSONDecodeError as e:
-            self.error(f"Invalid npm output: {e}")
-            return False
-        except Exception as e:
-            self.error(f"Failed to check npm licenses: {e}")
-            return False
-
-    def _process_npm_dependencies(self, deps: Dict[str, Any], parent: str = "") -> None:
-        """Process npm dependencies recursively.
-
-        Args:
-            deps: Dependencies dictionary
-            parent: Parent package name
-        """
-        for name, info in deps.items():
-            if not isinstance(info, dict):
-                continue
-
-            version = info.get("version", "unknown")
-            license_str = info.get("license", "Unknown")
-
-            self.log(f"Found npm dependency: {name}@{version} ({license_str})")
-
-            license_obj = self.resolve_license(license_str)
-            dep = Dependency(name=name, version=version, license=license_str, license_obj=license_obj)
-
-            self.dependencies.append(dep)
-
-            # Recursively process nested dependencies
-            nested = info.get("dependencies", {})
-            if nested:
-                self._process_npm_dependencies(nested, parent=name)
-
-    def check_python_licenses(self) -> bool:
-        """Check Python project licenses.
-
-        Returns:
-            True if successful, False otherwise
-        """
-        self.log("Checking Python licenses")
-
-        try:
-            # Try pip-licenses
-            if subprocess.run(["pip-licenses", "--version"], capture_output=True).returncode == 0:
-                result = subprocess.run(
-                    ["pip-licenses", "--format=json", "--with-urls"],
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                )
-
-                if result.returncode != 0:
-                    self.warning("pip-licenses failed")
-                    return False
-
-                data = json.loads(result.stdout)
-                self._process_python_dependencies(data)
-                return True
-            else:
-                self.warning("pip-licenses not installed (install with: pip install pip-licenses)")
-                return False
-
-        except subprocess.TimeoutExpired:
-            self.error("pip-licenses timeout")
-            return False
-        except json.JSONDecodeError as e:
-            self.error(f"Invalid pip-licenses output: {e}")
-            return False
-        except Exception as e:
-            self.error(f"Failed to check Python licenses: {e}")
-            return False
-
-    def _process_python_dependencies(self, deps: List[Dict[str, Any]]) -> None:
-        """Process Python dependencies.
-
-        Args:
-            deps: Dependencies list
-        """
-        for dep_info in deps:
-            name = dep_info.get("Name", "Unknown")
-            version = dep_info.get("Version", "unknown")
-            license_str = dep_info.get("License", "Unknown")
-
-            self.log(f"Found Python dependency: {name}@{version} ({license_str})")
-
-            license_obj = self.resolve_license(license_str)
-            dep = Dependency(name=name, version=version, license=license_str, license_obj=license_obj)
-
-            self.dependencies.append(dep)
-
-    def check_compatibility(self) -> None:
-        """Check overall license compatibility."""
-        if not self.dependencies:
-            return
-
-        self.log("Checking compatibility...")
-
-        # Check for unknown licenses
-        for dep in self.dependencies:
-            if dep.license_obj is None:
-                self.warning(f"Unknown license for {dep.name}: {dep.license}")
-
-        # Check for proprietary or restrictive licenses
-        for dep in self.dependencies:
-            if dep.license_obj and dep.license_obj.is_proprietary():
-                self.issue(f"Proprietary license found: {dep.name} ({dep.license})")
-
-            if dep.license_obj and dep.license_obj.is_copyleft():
-                # Warn if using strong copyleft
-                if dep.license in ["GPL-2.0", "GPL-3.0", "AGPL-3.0"]:
-                    self.warning(f"Strong copyleft license: {dep.name} ({dep.license})")
-
-        # Check for incompatible combinations
-        license_types = set()
-        for dep in self.dependencies:
-            if dep.license_obj:
-                license_types.add(dep.license_obj.spdx_id)
-
-        for lic1 in license_types:
-            for lic2 in license_types:
-                if (lic1, lic2) in INCOMPATIBLE_COMBINATIONS or (
-                    lic2,
-                    lic1,
-                ) in INCOMPATIBLE_COMBINATIONS:
-                    self.issue(f"Potentially incompatible licenses: {lic1} and {lic2}")
-
-    def to_text(self) -> str:
-        """Format report as plain text.
-
-        Returns:
-            Text formatted report
-        """
-        lines = [
-            "License Compliance Report",
-            "=" * 70,
-            f"\nTotal Dependencies: {len(self.dependencies)}",
-            "",
-        ]
-
-        # Summary by license type
-        by_category: Dict[str, List[Dependency]] = {}
-        for dep in self.dependencies:
-            category = dep.license_obj.category if dep.license_obj else "unknown"
-            if category not in by_category:
-                by_category[category] = []
-            by_category[category].append(dep)
-
-        lines.append("Summary by Category:")
-        for category in sorted(by_category.keys()):
-            deps = by_category[category]
-            lines.append(f"  {category.upper()}: {len(deps)}")
-
-        # Details
-        lines.append("\n" + "-" * 70)
-        lines.append("Licenses Found:")
-        lines.append("-" * 70)
-
-        for category in sorted(by_category.keys()):
-            deps = by_category[category]
-            lines.append(f"\n{category.upper()}:")
-
-            for dep in sorted(deps, key=lambda d: d.name):
-                lines.append(f"  - {dep.name}@{dep.version}: {dep.license}")
-
-        # Issues and warnings
-        if self.issues:
-            lines.append("\n" + "!" * 70)
-            lines.append("ISSUES:")
-            lines.append("!" * 70)
-            for issue in self.issues:
-                lines.append(f"  - {issue}")
-
-        if self.warnings:
-            lines.append("\n" + "-" * 70)
-            lines.append("WARNINGS:")
-            lines.append("-" * 70)
-            for warning in self.warnings:
-                lines.append(f"  - {warning}")
-
-        lines.append("")
-        return "\n".join(lines)
-
-    def to_json(self) -> str:
-        """Format report as JSON.
-
-        Returns:
-            JSON formatted report
-        """
-        output = {
-            "summary": {
-                "total_dependencies": len(self.dependencies),
-                "has_issues": len(self.issues) > 0,
-                "has_warnings": len(self.warnings) > 0,
-            },
-            "dependencies": [
-                {
-                    "name": dep.name,
-                    "version": dep.version,
-                    "license": dep.license,
-                    "category": (dep.license_obj.category if dep.license_obj else "unknown"),
-                }
-                for dep in self.dependencies
-            ],
-            "issues": self.issues,
-            "warnings": self.warnings,
+    def check_python_licenses(self):
+        record = {
+            "tool": "pip-licenses",
+            "scope": "explicitly selected installed Python environment; not requirements closure",
+            "complete": False,
         }
+        self.enumerations.append(record)
+        try:
+            selected = self.python_executable
+            if (
+                not selected
+                or not Path(selected).is_absolute()
+                or not Path(selected).is_file()
+                or not os.access(selected, os.X_OK)
+            ):
+                raise CheckError("Python license inventory requires an explicit executable --python path")
+            # pip-licenses reads selection/output defaults from cwd/pyproject.toml.
+            # An empty private cwd prevents project configuration from silently
+            # filtering the explicitly selected installed environment.
+            command = [selected, "-m", "piplicenses", "--python", selected, "--format=json"]
+            with tempfile.TemporaryDirectory(prefix="dependency-license-") as directory:
+                code, raw = run_tool(command, timeout=self.timeout, cwd=directory)
+            record["exit_code"] = code
+            if code:
+                raise CheckError(f"Python license enumeration failed with exit code {code}")
+            self._process_python_dependencies(parse_json(raw))
+            record["complete"] = True
+        except CheckError as error:
+            self.error(str(error))
+        return record["complete"]
 
-        return json.dumps(output, indent=2)
-
-    def check(self) -> bool:
-        """Run complete license compliance check.
-
-        Returns:
-            True if no issues, False if issues found
-        """
-        # Try to detect and check
-        if Path("package.json").exists():
-            self.check_npm_licenses()
-
-        if Path("requirements.txt").exists() or Path("pyproject.toml").exists():
-            self.check_python_licenses()
-
-        # Check compatibility
-        self.check_compatibility()
-
-        if self.strict_mode and self.warnings:
+    def check_compatibility(self):
+        """Retain conservative review hints; package names alone prove no rights."""
+        for dependency in self.dependencies:
+            license_obj = dependency.license_obj
+            if license_obj is None:
+                self.warning(
+                    f"Unresolved license metadata/expression: {visible(dependency.name)} ({visible(dependency.license)})"
+                )
+            elif not license_obj.is_permissive():
+                self.warning(
+                    f"License obligations require context review: {visible(dependency.name)} ({visible(dependency.license)})"
+                )
+        identifiers = {dep.license_obj.spdx_id for dep in self.dependencies if dep.license_obj}
+        for first, second in sorted(INCOMPATIBLE_COMBINATIONS):
+            if first in identifiers and second in identifiers:
+                self.warning(
+                    f"Legacy policy review hint: {first} with {second}; no incompatibility determination is made"
+                )
+        if self.strict_mode:
             self.issues.extend(self.warnings)
 
-        return len(self.issues) == 0
+    def check(self):
+        if Path("package.json").is_file():
+            self.check_npm_licenses()
+        if any(Path(name).is_file() for name in ("requirements.txt", "pyproject.toml", "Pipfile", "Pipfile.lock")):
+            self.check_python_licenses()
+        if not self.enumerations:
+            self.error("no supported root license inventory was selected")
+        self.check_compatibility()
+        return self.complete and not self.issues and not self.warnings
+
+    def to_json(self):
+        status = (
+            "incomplete"
+            if not self.complete
+            else "review-required"
+            if self.issues or self.warnings
+            else "no-automated-review-flags"
+        )
+        return json.dumps(
+            {
+                "summary": {
+                    "complete": self.complete,
+                    "status": status,
+                    "total_dependencies": len(self.dependencies),
+                    "has_issues": bool(self.issues),
+                    "has_warnings": bool(self.warnings),
+                    "legal_compatibility_verified": False,
+                },
+                "enumerations": self.enumerations,
+                "dependencies": [
+                    {
+                        "name": dep.name,
+                        "version": dep.version,
+                        "license": dep.license,
+                        "category": dep.license_obj.category if dep.license_obj else "unknown",
+                    }
+                    for dep in self.dependencies
+                ],
+                "issues": self.issues,
+                "warnings": self.warnings,
+                "errors": self.errors,
+            },
+            indent=2,
+            allow_nan=False,
+        )
+
+    def to_text(self):
+        result = json.loads(self.to_json())
+        lines = [
+            "License Metadata Review Inventory",
+            f"Status: {result['summary']['status']}",
+            f"Total recorded dependencies: {len(self.dependencies)}",
+            "Declared metadata only; legal compatibility is not verified.",
+        ]
+        lines.extend(f"{visible(dep.name)}@{visible(dep.version)}: {visible(dep.license)}" for dep in self.dependencies)
+        lines.extend(f"INCOMPLETE: {visible(item)}" for item in self.errors)
+        lines.extend(f"REVIEW: {visible(item)}" for item in self.warnings)
+        return "\n".join(lines)
 
 
-def main() -> int:
-    """Main entry point.
-
-    Returns:
-        Exit code (0 for success, 1 for issues, 2 for errors)
-    """
-    parser = argparse.ArgumentParser(
-        description="Check license compatibility of project dependencies",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  %(prog)s
-  %(prog)s --format json
-  %(prog)s --strict --output report.txt
-""",
-    )
-
-    parser.add_argument(
-        "--format",
-        "-f",
-        default="text",
-        choices=["text", "json"],
-        help="Output format (default: text)",
-    )
-
-    parser.add_argument(
-        "--output",
-        "-o",
-        help="Output file (default: stdout)",
-    )
-
-    parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="Treat warnings as errors",
-    )
-
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Enable verbose output",
-    )
-
-    args = parser.parse_args()
-
-    # Run checker
-    checker = LicenseCompliance(strict_mode=args.strict, verbose=args.verbose)
-
-    print("License Compliance Checker")
-    print("=" * 70)
-
-    if not checker.check():
-        print("License compliance issues found!", file=sys.stderr)
-
-    # Format and output report
-    if args.format == "json":
-        output = checker.to_json()
-    else:
-        output = checker.to_text()
-
-    if args.output:
-        try:
-            with open(args.output, "w") as f:
-                f.write(output)
-            print(f"\nReport saved to: {args.output}")
-        except Exception as e:
-            print(f"ERROR: Failed to write output: {e}", file=sys.stderr)
-            return 1
-    else:
-        print(output)
-
-    # Return exit code
-    if len(checker.issues) > 0:
-        return 1
-    return 0
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--format", "-f", choices=["text", "json"], default="text")
+    parser.add_argument("--output", "-o")
+    parser.add_argument("--strict", action="store_true", help="also classify review warnings as issues")
+    parser.add_argument("--python", help="absolute Python executable for an installed-environment inventory")
+    parser.add_argument("--timeout", type=float, default=30)
+    parser.add_argument("--verbose", "-v", action="store_true")
+    args = parser.parse_args(argv)
+    if not 0 < args.timeout <= 300:
+        parser.error("timeout must be greater than zero and at most 300 seconds")
+    checker = LicenseCompliance(args.strict, args.verbose, args.python, args.timeout)
+    checker.check()
+    try:
+        write_report(checker.to_json() if args.format == "json" else checker.to_text(), args.output)
+    except CheckError as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 2
+    return 2 if not checker.complete else 1 if checker.issues or checker.warnings else 0
 
 
 if __name__ == "__main__":

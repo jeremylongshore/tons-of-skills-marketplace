@@ -26,7 +26,7 @@ disallowed-tools:
   - Bash(wget:*)
   - Write(.env)
   - Edit(.env)
-version: 3.30.0
+version: 3.33.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

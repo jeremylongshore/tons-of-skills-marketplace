@@ -295,8 +295,8 @@ def _is_binary_file(filepath: Path) -> bool:
         with open(filepath, "rb") as fh:
             chunk = fh.read(1024)
             return b"\x00" in chunk
-    except (OSError, PermissionError):
-        return True
+    except OSError as exc:
+        raise ScanIncomplete("Selected source file could not be inspected: " + type(exc).__name__) from exc
 
 
 def _should_exclude(filepath: Path, exclude_patterns: list[str] | None) -> bool:
@@ -337,6 +337,30 @@ def _normalize_bandit_confidence(raw: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+class ScanIncomplete(Exception):
+    """A selected analysis did not produce trustworthy complete evidence."""
+
+
+def _safe_context(line: str) -> str:
+    # Suppress the whole source line: a second finding on that same line must
+    # not accidentally reveal the credential redacted in the first finding.
+    if any(category == "hardcoded-secret" and pattern.search(line) for pattern, category, *_ in ALL_REGEX_PATTERNS):
+        return "[REDACTED: credential-like source line]"
+    return line.strip()[:200]
+
+
+def _redacted_finding(finding: dict) -> dict:
+    result = dict(finding)
+    result["detail"] = _safe_context(str(result.get("detail", "")))
+    if (
+        result.get("category") in {"hardcoded-secret", "B105", "B106", "B107"}
+        or result.get("cwe") in {"CWE-259", "CWE-798"}
+        or "hardcoded" in str(result.get("title", "")).lower()
+    ):
+        result["detail"] = "[REDACTED: credential-like evidence]"
+    return result
+
+
 def run_bandit_scan(
     directory: Path,
     exclude_patterns: list[str] | None = None,
@@ -345,8 +369,8 @@ def run_bandit_scan(
     """
     Run Bandit static analysis on a directory and return structured findings.
 
-    If Bandit is not installed, prints installation instructions and returns
-    an empty list rather than raising an exception.
+    Missing, failed or malformed selected-tool evidence is incomplete. No
+    scanner is installed automatically and raw tool output is never logged.
     """
     cmd: list[str] = ["bandit", "-r", str(directory), "-f", "json", "-q"]
 
@@ -363,40 +387,40 @@ def run_bandit_scan(
             text=True,
             timeout=BANDIT_TIMEOUT_SECONDS,
         )
-    except FileNotFoundError:
-        print(
-            "[scanner] Bandit is not installed.\n"
-            "  Install with: pip install bandit\n"
-            "  Or:           pipx install bandit\n"
-            "  Skipping bandit scan.",
-            file=sys.stderr,
-        )
-        return []
-    except subprocess.TimeoutExpired:
-        print(
-            f"[scanner] Bandit scan timed out after {BANDIT_TIMEOUT_SECONDS}s. Consider narrowing the scan scope.",
-            file=sys.stderr,
-        )
-        return []
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError) as exc:
+        raise ScanIncomplete("Selected Bandit analysis unavailable or failed: " + type(exc).__name__) from exc
 
     # Bandit returns exit code 1 when it finds issues, which is expected.
-    # Only treat missing JSON output as an error.
+    if result.returncode not in (0, 1):
+        raise ScanIncomplete("Selected Bandit analysis returned an unsupported exit status")
     stdout = result.stdout.strip()
     if not stdout:
-        _log("Bandit produced no output (no Python files or no findings).", verbose)
-        return []
+        raise ScanIncomplete("Selected Bandit analysis produced no structured result")
 
     try:
         data = json.loads(stdout)
     except json.JSONDecodeError as exc:
-        print(
-            f"[scanner] Failed to parse bandit JSON output: {exc}",
-            file=sys.stderr,
-        )
-        return []
+        raise ScanIncomplete("Selected Bandit result was not valid JSON") from exc
+
+    if not isinstance(data, dict) or not isinstance(data.get("results"), list) or data.get("errors"):
+        raise ScanIncomplete("Selected Bandit result was incomplete or lacked its results list")
 
     findings: list[dict[str, Any]] = []
     for issue in data.get("results", []):
+        if (
+            not isinstance(issue, dict)
+            or issue.get("issue_severity") not in ("LOW", "MEDIUM", "HIGH")
+            or not isinstance(issue.get("filename"), str)
+            or not issue["filename"]
+            or type(issue.get("line_number")) is not int
+            or issue["line_number"] < 1
+            or not isinstance(issue.get("issue_text"), str)
+            or not isinstance(issue.get("issue_cwe", {}), dict)
+        ):
+            raise ScanIncomplete("Selected Bandit result contained a malformed issue")
+        credential = (
+            issue.get("test_id") in {"B105", "B106", "B107"} or "hardcoded" in str(issue.get("test_name", "")).lower()
+        )
         findings.append(
             {
                 "tool": "bandit",
@@ -406,7 +430,7 @@ def run_bandit_scan(
                 "confidence": _normalize_bandit_confidence(issue.get("issue_confidence", "LOW")),
                 "category": issue.get("test_id", "unknown"),
                 "title": issue.get("test_name", "Unknown issue"),
-                "detail": issue.get("issue_text", ""),
+                "detail": "[REDACTED: credential-like evidence]" if credential else _safe_context(issue["issue_text"]),
                 "remediation": "",
                 "cwe": (f"CWE-{issue['issue_cwe']['id']}" if issue.get("issue_cwe", {}).get("id") else None),
             }
@@ -438,7 +462,10 @@ def run_regex_scan(
 
     _log(f"Running regex scan on {directory} ...", verbose)
 
-    for root, dirs, files in os.walk(directory):
+    def walk_error(exc):
+        raise ScanIncomplete("Selected source directory could not be inspected: " + type(exc).__name__)
+
+    for root, dirs, files in os.walk(directory, onerror=walk_error):
         # Prune directories we never want to enter (modifying dirs in-place)
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
 
@@ -454,14 +481,17 @@ def run_regex_scan(
             if _should_exclude(rel_path, exclude_patterns):
                 continue
 
+            if filepath.is_symlink():
+                raise ScanIncomplete("Selected source includes a symbolic link; no external content was read")
+
             # Skip binary files
             if _is_binary_file(filepath):
                 continue
 
             try:
                 lines = filepath.read_text(encoding="utf-8", errors="replace").splitlines()
-            except (OSError, PermissionError):
-                continue
+            except OSError as exc:
+                raise ScanIncomplete("Selected source could not be read: " + type(exc).__name__) from exc
 
             files_scanned += 1
             is_test_file = _is_test_path(str(rel_path))
@@ -482,7 +512,7 @@ def run_regex_scan(
                         if "password" in title.lower() and _is_password_placeholder(line):
                             continue
 
-                        truncated_line = line.strip()[:200]
+                        truncated_line = _safe_context(line)
                         findings.append(
                             {
                                 "tool": "regex",
@@ -572,26 +602,23 @@ def merge_findings(
     """
     Merge findings from bandit and regex scanners into a unified list.
 
-    Deduplication: when both tools flag the same file and line, keep the
-    finding with the longer detail field (typically more informative).
+    Keep distinct issue categories/titles at a shared location. For the same
+    issue identity, retain highest severity before comparing safe detail length.
 
     Results are sorted by severity (critical > high > medium > low),
     then by file path, then by line number.
     """
     # Build index for deduplication: (resolved_file, line) -> finding
-    seen: dict[tuple[str, int], dict[str, Any]] = {}
+    seen: dict[tuple, dict[str, Any]] = {}
 
     for finding in bandit_results + regex_results:
-        key = (finding["file"], finding["line"])
+        finding = _redacted_finding(finding)
+        key = (finding["file"], finding["line"], finding.get("category"), finding.get("title"))
         if key in seen:
             existing = seen[key]
-            # Keep whichever has more detail
-            if len(finding.get("detail", "")) > len(existing.get("detail", "")):
-                seen[key] = finding
-            # If equal detail length, prefer higher severity
-            elif len(finding.get("detail", "")) == len(existing.get("detail", "")) and SEVERITY_ORDER.get(
-                finding["severity"], 99
-            ) < SEVERITY_ORDER.get(existing["severity"], 99):
+            new_rank = SEVERITY_ORDER.get(finding["severity"], 99)
+            old_rank = SEVERITY_ORDER.get(existing["severity"], 99)
+            if new_rank < old_rank or new_rank == old_rank and len(finding["detail"]) > len(existing.get("detail", "")):
                 seen[key] = finding
         else:
             seen[key] = finding
@@ -616,17 +643,29 @@ def generate_report(
     directory: Path,
     findings: list[dict[str, Any]],
     output_path: Path | None = None,
+    *,
+    errors: list[str] | None = None,
+    gate: int | None = None,
+    unfiltered_count: int | None = None,
 ) -> None:
     """
     Print a Markdown-formatted security report to stdout and optionally
     write a JSON report to the specified output path.
     """
+    findings = [_redacted_finding(row) for row in findings]
+    errors = errors or []
+    if errors:
+        print("INCOMPLETE security scan: selected analyses did not finish reliably.")
+        for error in errors:
+            print("  " + error)
     if not findings:
         print("\n=== Security Scan Report ===\n")
         print(f"Target: {directory.resolve()}\n")
-        print("No security issues found.\n")
+        print("No findings at the selected display threshold.\n")
         if output_path:
-            _write_json_report(directory, findings, output_path)
+            _write_json_report(
+                directory, findings, output_path, errors=errors, gate=gate, unfiltered_count=unfiltered_count
+            )
         return
 
     # -- Summary statistics --
@@ -702,15 +741,22 @@ def generate_report(
 
     # JSON output
     if output_path:
-        _write_json_report(directory, findings, output_path)
+        _write_json_report(
+            directory, findings, output_path, errors=errors, gate=gate, unfiltered_count=unfiltered_count
+        )
 
 
 def _write_json_report(
     directory: Path,
     findings: list[dict[str, Any]],
     output_path: Path,
+    *,
+    errors: list[str] | None = None,
+    gate: int | None = None,
+    unfiltered_count: int | None = None,
 ) -> None:
     """Write the findings to a JSON file."""
+    findings = [_redacted_finding(row) for row in findings]
     report = {
         "scanner": "code_security_scanner",
         "target": str(directory.resolve()),
@@ -720,6 +766,10 @@ def _write_json_report(
             "by_category": {},
         },
         "findings": findings,
+        "errors": errors or [],
+        "status": "incomplete" if errors else "complete",
+        "exit_code": gate,
+        "total_unfiltered_findings": len(findings) if unfiltered_count is None else unfiltered_count,
     }
 
     for f in findings:
@@ -734,7 +784,7 @@ def _write_json_report(
             json.dump(report, fh, indent=2, default=str)
         print(f"\nJSON report written to: {output_path}", file=sys.stderr)
     except OSError as exc:
-        print(f"[scanner] Failed to write JSON report: {exc}", file=sys.stderr)
+        raise ScanIncomplete("Requested JSON report could not be persisted: " + type(exc).__name__) from exc
 
 
 # ---------------------------------------------------------------------------
@@ -799,12 +849,8 @@ def main() -> None:
     verbose = args.verbose
 
     valid_tools = {"bandit", "regex"}
-    for tool in tools:
-        if tool not in valid_tools:
-            print(
-                f"[scanner] Warning: Unknown tool '{tool}'. Valid tools: {', '.join(sorted(valid_tools))}",
-                file=sys.stderr,
-            )
+    if not tools or any(tool not in valid_tools for tool in tools) or len(tools) != len(set(tools)):
+        parser.error("Select distinct supported tools: bandit,regex")
 
     _log(f"Scanning: {directory}", verbose)
     _log(f"Tools: {', '.join(tools)}", verbose)
@@ -815,12 +861,23 @@ def main() -> None:
     # Run selected scan engines
     bandit_results: list[dict[str, Any]] = []
     regex_results: list[dict[str, Any]] = []
+    errors: list[str] = []
 
     if "bandit" in tools:
-        bandit_results = run_bandit_scan(directory, exclude_patterns, verbose)
+        try:
+            bandit_results = run_bandit_scan(directory, exclude_patterns, verbose)
+        except Exception as exc:
+            errors.append(
+                str(exc) if isinstance(exc, ScanIncomplete) else "Bandit analysis failed: " + type(exc).__name__
+            )
 
     if "regex" in tools:
-        regex_results = run_regex_scan(directory, exclude_patterns, verbose)
+        try:
+            regex_results = run_regex_scan(directory, exclude_patterns, verbose)
+        except Exception as exc:
+            errors.append(
+                str(exc) if isinstance(exc, ScanIncomplete) else "Regex analysis failed: " + type(exc).__name__
+            )
 
     # Merge and deduplicate
     all_findings = merge_findings(bandit_results, regex_results)
@@ -833,12 +890,17 @@ def main() -> None:
         verbose,
     )
 
-    # Generate report
-    generate_report(directory, filtered_findings, args.output)
-
-    # Exit code based on critical/high findings
-    has_critical_or_high = any(f["severity"] in ("critical", "high") for f in filtered_findings)
-    sys.exit(1 if has_critical_or_high else 0)
+    # Evidence and finding gates are independent of presentation filtering.
+    has_critical_or_high = any(f["severity"] in ("critical", "high") for f in all_findings)
+    gate = 2 if errors else 1 if has_critical_or_high else 0
+    try:
+        generate_report(
+            directory, filtered_findings, args.output, errors=errors, gate=gate, unfiltered_count=len(all_findings)
+        )
+    except ScanIncomplete as exc:
+        print("[scanner] " + str(exc), file=sys.stderr)
+        gate = 2
+    sys.exit(gate)
 
 
 if __name__ == "__main__":

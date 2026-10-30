@@ -28,6 +28,15 @@
 
 ## 2026-10-24
 
+- **fix(apple-notes):** retire the current 24-skill tutorial pack after full source
+  and value review. Remove active installation and legacy scaffolding; keep
+  retired plugin and skill routes at 404 without an unverified replacement.
+  Historical source remains in Git at `4279a871bccaca10f56f1c2304f7ba487b5a4cfe`.
+  Freshie run 148 verifies exactly 24 removed grade rows with all 3,352 surviving
+  scores unchanged; this is a retirement decision, not a skill-quality upgrade.
+  Review: [PR #1774](https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1774).
+  Refs bead `claude-juoz.3.11.56`.
+
 - **fix(gamma):** retire the 24-skill Gamma tutorial pack after reviewing its
   source against current Gamma API and MCP documentation. Remove active install
   entries and legacy scaffolds; keep retired plugin, vendor, and skill URLs at 404. Historical source remains in Git at

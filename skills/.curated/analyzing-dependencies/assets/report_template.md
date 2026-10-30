@@ -1,137 +1,54 @@
 # Dependency Check Report
 
-**Project Name:** [Enter Project Name Here]
+## Scope and evidence
 
-**Report Date:** [Enter Date Here - e.g., 2024-01-27]
+- Project/root and source revision: [record exact selected target]
+- Timestamp: [UTC observation time]
+- Mode: [live scan / supplied report / installed license inventory]
+- Inputs and hashes: [manifest/lock/report paths and hashes, or unavailable]
+- Commands, tool versions and advisory database age: [observed values; unavailable where not captured]
+- Process status and retained JSON: [exit code and private evidence location]
+- Coverage: [complete / incomplete / unsupported; specify selected roots]
 
-**Report Version:** [Enter Report Version, if applicable - e.g., 1.0]
+## Outcome
 
-**Prepared By:** [Enter Your Name/Team Here]
+[State findings, review-required or incomplete. A clean selected scope is not a
+whole-project security claim. Include partial findings despite tool failures.]
 
-## 1. Executive Summary
+| Count                    | Observed value  |
+| ------------------------ | --------------- |
+| Unfiltered findings      | [count]         |
+| Displayed findings       | [count]         |
+| Hidden by display filter | [count]         |
+| Unknown severity         | [count]         |
+| Failed/unassessed routes | [names/reasons] |
 
-[Provide a brief overview of the dependency check results. Highlight key findings, such as the number of vulnerabilities found, outdated packages, and license compliance issues.  For example: "This report summarizes the results of a dependency check performed on the 'Project Name' project.  We identified X high-severity vulnerabilities, Y outdated packages, and Z potential license compliance issues.  Immediate action is recommended to address the identified vulnerabilities."]
+## Findings
 
-## 2. Project Details
+| Package          | Observed version/range    | Advisory identifier        | Severity                     | Fix evidence                     |
+| ---------------- | ------------------------- | -------------------------- | ---------------------------- | -------------------------------- |
+| [actual package] | [native value or unknown] | [actual ID or unavailable] | [native severity or UNKNOWN] | [verified source or unavailable] |
 
-* **Project Repository:** [Enter Project Repository URL Here - e.g., `https://github.com/example/project`]
-* **Package Manager(s) Used:** [List Package Managers - e.g., npm, pip, composer]
-* **Scan Target(s):** [Specify which files/directories were scanned - e.g., `package.json`, `requirements.txt`, entire project directory]
-* **Dependency Checker Tool Used:** [Specify the tool used to perform the dependency check - e.g., `npm audit`, `pip-audit`, `dependency-check`]
-* **Tool Version:** [Enter the version of the dependency checker tool used - e.g., 8.19.3]
+Do not fill identifiers, CVSS scores, patched releases or transitive paths from
+assumptions. Outdated-version analysis requires separately retained evidence.
 
-## 3. Vulnerability Analysis
+## License metadata review
 
-### 3.1. Vulnerability Summary
+Scope: [installed npm tree / explicitly selected Python environment / not assessed].
 
-| Severity | Number of Vulnerabilities | Description
-| Critical | [Enter Number]          | [Provide a brief description of the general impact of critical vulnerabilities.  For example: "Critical vulnerabilities can potentially lead to remote code execution and complete system compromise."]
+| Package          | Exact declared metadata  | Automated category    | Review needed                                     |
+| ---------------- | ------------------------ | --------------------- | ------------------------------------------------- |
+| [actual package] | [declaration or unknown] | [category or unknown] | [unresolved expression or contextual obligations] |
 
-### 3.2. Detailed Vulnerability Reports
+This inventory does not establish legal compatibility. Preserve unknown IDs,
+LicenseRef declarations and compound expressions for contextual review.
 
-[For each vulnerability found, provide the following details in a table or list format:]
+## Errors, unknowns and next actions
 
-* **Vulnerability ID (e.g., CVE-2023-1234):** [Enter CVE or other vulnerability identifier]
-* **Package Name:** [Enter the name of the vulnerable package]
-* **Vulnerable Version(s):** [Specify the version(s) of the package affected]
-* **Severity:** [Critical, High, Medium, Low]
-* **Description:** [Provide a brief description of the vulnerability]
-* **CVSS Score:** [Enter the CVSS score if available]
-* **CVSS Vector:** [Enter the CVSS vector string if available]
-* **Affected Component:** [Specify the affected component or function]
-* **Remediation:** [Provide specific instructions on how to fix the vulnerability. This might include upgrading to a specific version, applying a patch, or removing the dependency.  Example: "Upgrade to version 2.0.1 or later.  This version contains a fix for the reported vulnerability."]
-* **References:** [Include links to relevant resources, such as the CVE entry, security advisories, or blog posts. e.g., `https://nvd.nist.gov/vuln/detail/CVE-2023-1234`]
+[Record missing tools/locks, skipped private packages, unavailable advisory
+sources, stale database evidence and unsupported ecosystems. Do not coerce
+unknowns to zero.]
 
-**Example:**
-
-| Vulnerability ID | Package Name | Vulnerable Version(s) | Severity | Description                                                       | CVSS Score | Remediation                                                         | References                                                                     |
-|------------------|--------------|-------------------------|----------|-------------------------------------------------------------------|------------|----------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| CVE-2023-5678   | lodash       | < 4.17.21                | High     | Prototype pollution vulnerability in `_.set` function.           | 7.5        | Upgrade to lodash version 4.17.21 or later.                             | [https://nvd.nist.gov/vuln/detail/CVE-2023-5678](https://nvd.nist.gov/vuln/detail/CVE-2023-5678) |
-| CVE-2023-9012   | requests     | 2.20.0 - 2.28.1        | Medium    | Potential denial of service due to header parsing.             | 5.3        | Upgrade to requests version 2.28.2 or later.                            | [https://nvd.nist.gov/vuln/detail/CVE-2023-9012](https://nvd.nist.gov/vuln/detail/CVE-2023-9012) |
-
-[Add more vulnerability details as needed, following the above format.]
-
-## 4. Outdated Package Analysis
-
-### 4.1. Outdated Package Summary
-
-[Provide a summary of the number of outdated packages found.]
-
-* **Total Number of Outdated Packages:** [Enter Number]
-* **Packages with Major Version Updates:** [Enter Number]
-* **Packages with Minor Version Updates:** [Enter Number]
-* **Packages with Patch Version Updates:** [Enter Number]
-
-### 4.2. Detailed Outdated Package Reports
-
-[For each outdated package, provide the following details in a table or list format:]
-
-* **Package Name:** [Enter the name of the outdated package]
-* **Current Version:** [Enter the currently installed version]
-* **Latest Version:** [Enter the latest available version]
-* **Update Type:** [Major, Minor, Patch]
-* **Reason for Update:** [Provide a brief explanation of why the package should be updated. This might include bug fixes, performance improvements, or new features. Example: "Security fixes, performance improvements, and new features."]
-* **Potential Impact:** [Describe the potential impact of not updating the package.  Example: "Missing out on security fixes, potential performance bottlenecks, and lack of access to new features."]
-
-**Example:**
-
-| Package Name | Current Version | Latest Version | Update Type | Reason for Update                               | Potential Impact                                                              |
-|--------------|-----------------|----------------|-------------|-------------------------------------------------|-----------------------------------------------------------------------------|
-| axios        | 0.27.2          | 1.6.0         | Major       | New features, performance improvements, bug fixes | Missing out on significant performance improvements and new API features. |
-| moment       | 2.29.3          | 2.29.4          | Patch       | Security fixes and bug fixes                        | Potential security vulnerabilities and minor bugs.                                |
-
-[Add more outdated package details as needed, following the above format.]
-
-## 5. License Compliance Analysis
-
-### 5.1. License Summary
-
-[Provide a summary of the licenses used by the project's dependencies.  Mention any potentially problematic licenses.]
-
-* **Total Number of Unique Licenses Found:** [Enter Number]
-* **List of Licenses Used:** [List the licenses, e.g., MIT, Apache-2.0, GPL-3.0]
-* **Potentially Problematic Licenses:** [List any licenses that might require special attention, such as GPL or AGPL.  Explain why they are potentially problematic.  Example: "GPL-3.0 - This license requires that any derivative works also be licensed under GPL-3.0, which may not be compatible with the project's licensing goals."]
-
-### 5.2. Detailed License Reports
-
-[For each dependency, provide the following details in a table or list format:]
-
-* **Package Name:** [Enter the name of the package]
-* **License:** [Enter the license used by the package]
-* **License URL:** [Provide a link to the license text or SPDX identifier. e.g., `https://opensource.org/licenses/MIT`]
-* **License Risk:** [Assess the risk associated with the license. This might include compatibility issues, restrictions on commercial use, or requirements for attribution.  Example: "Low - MIT is a permissive license with minimal restrictions."]
-* **Notes:** [Add any relevant notes about the license or its usage. Example: "Ensure proper attribution is provided as required by the MIT license."]
-
-**Example:**
-
-| Package Name | License     | License URL                               | License Risk | Notes                                                                                                |
-|--------------|-------------|-------------------------------------------|--------------|------------------------------------------------------------------------------------------------------|
-| lodash       | MIT         | https://opensource.org/licenses/MIT      | Low          | Ensure proper attribution is provided as required by the MIT license.                                   |
-| react        | MIT         | https://opensource.org/licenses/MIT      | Low          | Ensure proper attribution is provided as required by the MIT license.                                   |
-| express      | MIT         | https://opensource.org/licenses/MIT      | Low          | Ensure proper attribution is provided as required by the MIT license.                                   |
-| marked       | MIT         | https://opensource.org/licenses/MIT      | Low          | Ensure proper attribution is provided as required by the MIT license.                                   |
-| moment       | MIT         | https://opensource.org/licenses/MIT      | Low          | Ensure proper attribution is provided as required by the MIT license.                                   |
-
-[Add more license details as needed, following the above format.]
-
-## 6. Recommendations
-
-[Provide specific recommendations based on the findings of the dependency check. This might include:]
-
-* **Prioritized Action Items:** [List the most critical issues that need to be addressed first, such as high-severity vulnerabilities.]
-* **Upgrade Strategies:** [Suggest upgrade strategies for outdated packages, such as upgrading to the latest stable version or using a dependency management tool to automate updates.]
-* **License Compliance Best Practices:** [Provide recommendations for ensuring license compliance, such as reviewing license agreements and providing proper attribution.]
-* **Continuous Monitoring:** [Emphasize the importance of continuous dependency monitoring to detect and address new vulnerabilities and license compliance issues.]
-* **Further Investigation:** [Highlight areas that require further investigation, such as dependencies with unknown licenses or vulnerabilities with unclear remediation steps.]
-
-**Example:**
-
-* Address the high-severity vulnerabilities identified in the Vulnerability Analysis section immediately.
-* Upgrade all outdated packages to the latest stable versions to benefit from bug fixes, performance improvements, and new features.
-* Review the license agreements for all dependencies, especially those with potentially problematic licenses, to ensure compliance.
-* Implement a continuous dependency monitoring system to automatically detect and alert on new vulnerabilities and license compliance issues.
-* Investigate dependencies with unknown licenses to determine their licensing terms and ensure compliance.
-
-## 7. Conclusion
-
-[Summarize the key findings and recommendations of the report.  Reiterate the importance of addressing the identified issues to improve the security and maintainability of the project.  For example: "This report highlights several important issues related to the security, maintainability, and license compliance of the 'Project Name' project. By addressing the identified vulnerabilities, outdated packages, and license compliance issues, the project team can significantly improve the overall quality and security of the project. Continuous monitoring and proactive dependency management are essential for maintaining a healthy and secure codebase."]
+[Propose evidence-backed remediation and a verification plan. Installation,
+upgrades, lock changes, fixes and live requests require their own authorized
+execution scope. No security or DoD/STIG certification is asserted.]

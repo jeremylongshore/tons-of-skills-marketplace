@@ -13,6 +13,9 @@ just the header analysis from the full pentest workflow.
 
 Ask the user for the target URL, then run:
 
+Complete the approved ROE and scope gates first; legacy CLIs do not perform
+that validation themselves. Preserve exit 2 as incomplete and exit 1 as a finding.
+
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/performing-penetration-testing/scripts/security_scanner.py TARGET_URL --checks headers
 ```

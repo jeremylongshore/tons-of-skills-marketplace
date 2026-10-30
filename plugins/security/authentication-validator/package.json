@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/authentication-validator",
-  "version": "1.0.3",
-  "description": "Validate authentication implementations",
+  "version": "1.0.4",
+  "description": "Review authentication declarations and verify explicit local JWT profiles",
   "keywords": [
     "security",
     "compliance",

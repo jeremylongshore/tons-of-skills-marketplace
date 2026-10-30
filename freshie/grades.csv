@@ -2729,7 +2729,7 @@ plugins/security/penetration-tester/skills/checking-http-security-headers,A,93
 plugins/security/penetration-tester/skills/checking-license-compliance,B,89
 plugins/security/penetration-tester/skills/composing-vulnerability-report,A,93
 plugins/security/penetration-tester/skills/confirming-pentest-authorization,A,90
-plugins/security/penetration-tester/skills/defining-pentest-scope,A,93
+plugins/security/penetration-tester/skills/defining-pentest-scope,A,94
 plugins/security/penetration-tester/skills/detecting-command-injection-patterns,A,95
 plugins/security/penetration-tester/skills/detecting-debug-endpoints,A,90
 plugins/security/penetration-tester/skills/detecting-directory-listing,A,94
@@ -2742,9 +2742,9 @@ plugins/security/penetration-tester/skills/detecting-weak-cryptography,A,94
 plugins/security/penetration-tester/skills/fingerprinting-server-software,A,90
 plugins/security/penetration-tester/skills/generating-executive-summary,A,91
 plugins/security/penetration-tester/skills/mapping-findings-to-owasp-top10,A,95
-plugins/security/penetration-tester/skills/performing-penetration-testing,A,92
-plugins/security/penetration-tester/skills/probing-dangerous-http-methods,A,93
-plugins/security/penetration-tester/skills/recording-pentest-engagement,B,89
+plugins/security/penetration-tester/skills/performing-penetration-testing,A,91
+plugins/security/penetration-tester/skills/probing-dangerous-http-methods,A,94
+plugins/security/penetration-tester/skills/recording-pentest-engagement,A,91
 plugins/security/penetration-tester/skills/scanning-for-hardcoded-secrets,A,94
 plugins/security/penetration-tester/skills/tracing-transitive-vulnerabilities,A,92
 plugins/security/secret-scanner/skills/scanning-for-secrets,A,98
