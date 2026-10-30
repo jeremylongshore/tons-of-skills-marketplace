@@ -1,184 +1,121 @@
 ---
 name: risk-analysis
-description: 'Performs deep clause-by-clause risk scoring across 10 categories with
-
-  poison pill detection and financial exposure estimation. Use when a user
-
-  needs to understand the specific risks in a contract before signing.
-
-  Trigger with "/risk-analysis" or "what are the risks in this contract".
-
-  '
-allowed-tools: Read, Glob, Grep
-version: 1.1.0
+description: >
+  Analyze supplied contract clauses and prepare an evidence-linked issue register
+  with triggers, possible impacts and questions for review. Use when assessing
+  contract risks from an identified party's perspective. Trigger with
+  "risk-analysis" or "what are the risks in this contract".
+allowed-tools: Read, Glob, Grep, Write
+version: 1.2.0
 author: Intent Solutions <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- legal
-- contracts
-- risk
-- analysis
-- due-diligence
-- compliance
+  - legal
+  - contracts
+  - risk
+  - analysis
+  - due-diligence
+  - compliance
 compatibility: Designed for Claude Code
 ---
-# Risk Analysis — Clause-by-Clause Risk Scoring
 
-Standalone deep-dive skill that scores every material clause in a contract
-against ten risk categories, flags poison pills, and estimates financial
-exposure. Designed to surface the clauses that could cost the most money or
-create the most liability.
+# Contract Risk Analysis
 
 ## Overview
 
-Every contract contains trade-offs. This skill systematically identifies which
-trade-offs are reasonable and which are dangerous by scoring clauses on a 1-10
-severity scale across ten categories. It specifically hunts for "poison pills" —
-clauses that appear innocuous but create disproportionate risk when triggered.
-
-Unlike a general review, this skill produces a quantified risk profile: a heat
-map of where the danger lives, what it could cost, and what to do about it.
+Inspect supplied clauses across ten issue categories and produce a prioritized
+review register. Separate observed terms, conditional scenarios, unknowns and
+questions requiring legal judgment; do not invent probabilities or loss estimates.
 
 ## Prerequisites
 
-- A contract must be provided as a file path or pasted text.
-- The user should ideally specify which party's perspective to analyze from
-  (e.g., "I am the service provider" or "I am the client"). If not specified,
-  the analysis defaults to the party that did not draft the contract.
+- A selected contract or pasted text and available schedules/amendments.
+- The represented party, business objectives and decision being considered. Reuse
+  supplied context; do not default to the party assumed not to have drafted it.
+- Coverage limits, relevant dates, stated fees/caps and any user-provided impact or
+  risk rubric. Record unavailable facts instead of silently filling them in.
+
+Use only authorized inputs and tools. Do not upload contracts, modify originals,
+send counterproposals or run legal agents as an implicit part of this analysis.
 
 ## Instructions
 
-1. **Read the full contract.** Use the Read tool if a file path is provided.
-
-2. **Identify all material clauses.** Extract each numbered section or clause
-   that creates obligations, rights, restrictions, or liabilities.
-
-3. **Score each clause across 10 risk categories** (1 = minimal risk,
-   10 = extreme risk):
-
-   | # | Category | What to Evaluate |
-   |---|----------|------------------|
-   | 1 | **Financial Liability** | Uncapped damages, liquidated damages, penalty clauses |
-   | 2 | **Indemnification** | Scope, carve-outs, caps, duty to defend vs. hold harmless |
-   | 3 | **Intellectual Property** | Work-for-hire, assignment breadth, background IP protection |
-   | 4 | **Termination** | For-cause vs. convenience, cure periods, termination fees |
-   | 5 | **Non-Compete / Non-Solicit** | Duration, geographic scope, industry breadth |
-   | 6 | **Confidentiality** | Duration, scope of "confidential," residual knowledge carve-outs |
-   | 7 | **Limitation of Liability** | Cap amount, exclusion of consequential damages, mutual vs. one-sided |
-   | 8 | **Data & Privacy** | Data ownership, breach notification, sub-processor controls |
-   | 9 | **Dispute Resolution** | Arbitration vs. litigation, venue, fee allocation, class action waiver |
-   | 10 | **Regulatory / Compliance** | Representations of compliance, audit rights, change-in-law provisions |
-
-4. **Detect poison pills.** Scan for these specific patterns:
-   - Clauses buried in definitions that create substantive obligations
-   - Cross-references that expand scope (e.g., "including but not limited to"
-     chains that remove boundaries)
-   - Survival clauses that extend obligations indefinitely post-termination
-   - Automatic renewal with silent rollover and difficult opt-out
-   - Unilateral amendment rights ("Company may modify these terms at any time")
-   - Fee escalation triggers hidden in appendices or schedules
-   - Broad assignment rights that allow transfer to unknown third parties
-   - Waiver of jury trial buried in boilerplate
-
-5. **Estimate financial exposure.** For each high-risk clause (score >= 7),
-   estimate the potential financial impact:
-   - **Direct costs:** Stated penalties, liquidated damages, fee caps
-   - **Indirect costs:** Lost IP value, opportunity cost of non-compete,
-     litigation expenses
-   - **Worst-case scenario:** Maximum realistic exposure if the clause triggers
-
-6. **Build the risk heat map.** Rank all clauses by composite risk score
-   (severity x probability). Flag the top 5 as "Critical Attention Required."
-
-7. **Generate recommendations.** For each high-risk clause, provide:
-   - What to negotiate (specific language changes)
-   - Fallback position if negotiation fails
-   - Walk-away threshold
+1. Use Glob for discovery within the selected location when needed, then Read the
+   supplied material. Record document versions, readable pages/sections, missing
+   exhibits, extraction limits and relevant incorporated terms. A missing section
+   is unreviewed, not evidence of low risk or unlimited exposure.
+2. Map the party's rights and obligations with clause/page locators and minimal
+   exact excerpts. Use Grep for definitions and cross-references in readable
+   supplied text, then Read related provisions before interpreting a clause alone.
+3. Review the [ten categories](references/risk-register.md). For each relevant
+   issue, record the observed term, trigger, affected party, dependencies, possible
+   commercial consequence and evidence gap. A category checklist does not prove
+   that every clause was reviewed or that applicable law was satisfied.
+4. Inspect broad definitions, survival, renewal/notice, unilateral amendments,
+   assignment and incorporated fees in context. Show what the text says and which
+   dependencies were checked. Do not label an ambiguity intentional or infer
+   concealed motives from placement or wording alone.
+5. Prioritize by the user's objectives, the obligation at stake, timing and
+   evidence. Explain qualitative priorities. If numerical weights are requested,
+   identify the explicit rubric and assumptions; do not treat a severity label as
+   a measured probability or multiply it by an invented likelihood.
+6. Quantify only what explicit inputs support. Distinguish a stated fee/cap, a
+   conditional arithmetic scenario and a prediction of actual liability. Show the
+   formula, currency, units, inputs and source clauses. Leave expected loss,
+   enforcement costs, IP value and maximum exposure unknown when evidence is
+   missing. A clause without a visible cap is not proof of legally infinite loss.
+7. Offer specific clarification or negotiation options tied to findings. Separate
+   user business preferences from legal questions. Do not select a walk-away
+   threshold, declare enforceability or conclude all personal inventions are
+   assigned based on one excerpt. Refer unresolved law/context questions for
+   qualified review rather than inventing citations.
+8. Produce the register and executive decision summary with actual coverage and
+   uncertainty. When saving is requested, use Write at the selected path; suggest
+   `contract-risk-{matter-slug}.md` for new work and inspect an existing destination
+   before replacing it. Preserve original contracts and unrelated reports.
 
 ## Output
 
-**Filename:** `RISK-ANALYSIS-{YYYY-MM-DD}.md`
+A review draft identifying the contract, party, business objective, source inputs
+and coverage. Each finding has an ID, clause/page locator, exact supporting text,
+category, trigger, possible effect, priority rationale, dependencies and next
+question. Include a separate table for source-backed amounts or explicitly
+conditional scenarios; unknown quantities remain unknown.
 
-```
-# Risk Analysis Report
-## Contract Summary
-## Risk Perspective: [which party]
-## Risk Heat Map
-| Clause | Section | Category | Severity (1-10) | Probability | Composite |
-## Poison Pill Alerts
-## Financial Exposure Summary
-| Risk | Best Case | Expected | Worst Case |
-## Top 5 Critical Risks (detailed analysis)
-## Negotiation Recommendations
-## Overall Risk Rating: [LOW / MODERATE / HIGH / CRITICAL]
-## Disclaimer
-```
+A summary may identify the most decision-relevant findings without forcing a top
+five or an overall safety verdict. This analysis does not establish legal effect,
+compliance, expected loss or an attorney-client relationship. State where current
+jurisdiction-specific review and additional facts are needed.
 
 ## Error Handling
 
-| Failure Mode | Cause | Resolution |
-|--------------|-------|------------|
-| Missing party perspective | User did not specify their role | Ask which party they represent before proceeding |
-| Incomplete contract | Schedules or exhibits referenced but not provided | Note the gaps explicitly; score only what is available |
-| Ambiguous clause language | Deliberately vague or circular definitions | Flag as a risk in itself; score higher for intentional ambiguity |
-| No financial terms stated | Contract omits dollar amounts | Estimate exposure qualitatively (low/medium/high) instead of dollar amounts |
-| Multiple governing laws | Contract references conflicting jurisdictions | Flag the conflict as a dispute-resolution risk |
+| Situation                                        | Recovery                                                                                                       |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Party perspective is missing                     | Ask before directional recommendations; factual clause mapping can proceed.                                    |
+| Schedule or amendment is unavailable             | Mark the affected dependency unreviewed and explain the decision it prevents.                                  |
+| Clause is ambiguous or conflicts with another    | Quote both readings/provisions and frame the unresolved question; do not increase a score for presumed intent. |
+| Amount, frequency or probability is unknown      | Leave it unknown; calculate only a clearly stated conditional scenario when inputs exist.                      |
+| Several jurisdictions or precedence terms appear | Record the exact provisions and seek applicable-context review rather than selecting one silently.             |
+| Reader asks if the contract is safe to sign      | Explain the unresolved findings and business/legal decisions; do not convert a score into approval.            |
 
 ## Examples
 
-**Example 1 — SaaS Agreement risk analysis:**
+**Stated fee scenario:** In a fictional example, a supplied clause sets a termination
+fee at two monthly fees and the supplied rate is USD 5,000 per month. The conditional
+arithmetic is 2 x USD 5,000 = USD 10,000 if that clause applies. Show those inputs;
+this is not a prediction of collectible damages or a complete exit cost.
 
-> User: Analyze the risks in this SaaS agreement. I am the customer.
+**Broad data license:** Quote the granted uses, duration and any deletion or
+termination exceptions. Identify operational concerns for the user's stated data
+constraints and questions about related clauses; do not automatically declare the
+license unlawful or cured by the word anonymized.
 
-```
-Top Risks:
-1. Section 9.3 — Indemnification: 9/10
-   Customer indemnifies vendor for "any claims arising from use" with no cap.
-   Exposure: Potentially unlimited. Negotiate mutual indemnification with cap.
-
-2. Section 14.1 — Unilateral Amendment: 8/10
-   "Company may modify terms with 30 days notice." No opt-out except
-   termination. Poison pill: effectively allows price increases mid-term.
-   Negotiate: Require mutual consent for material changes.
-
-3. Section 5.2 — Data Ownership: 8/10
-   "Customer grants Company a perpetual, irrevocable license to use
-   Customer Data for product improvement." Survives termination.
-   Negotiate: Limit to anonymized, aggregated data only.
-
-Overall Risk Rating: HIGH
-```
-
-**Example 2 — Employment agreement:**
-
-> User: What are the risks in ~/contracts/offer-letter.pdf? I am the employee.
-
-```
-Poison Pill Detected:
-Section 12(c) — "Inventions Assignment" includes work created
-"using any Company equipment" with no time-of-day limitation.
-Combined with Section 3(a) requiring use of company laptop,
-this effectively assigns ALL inventions to employer — including
-personal side projects.
-```
+**Invention assignment:** Review the definition, assignment, exclusions and supplied
+employment context together. Identify a possible scope question without claiming
+all personal side projects belong to the employer or giving a jurisdiction-free
+conclusion about enforceability.
 
 ## Resources
 
-- [CommonPaper Risk Assessment Framework](https://commonpaper.com/) —
-  Open-source contract analysis patterns (CC BY 4.0).
-- [American Bar Association — Indemnification Provisions](https://www.americanbar.org/)
-  — Model clauses and risk allocation guidance.
-- [FTC Unfair Contract Terms Guidance](https://www.ftc.gov/) — Federal Trade
-  Commission guidance on unfair or deceptive contract practices.
-- [Restatement (Second) of Contracts, Sections 205-208](https://www.ali.org/)
-  — Unconscionability and duty of good faith standards.
-
----
-
-**Legal Disclaimer:** This skill provides AI-generated risk analysis for
-informational and educational purposes only. It does not constitute legal
-advice, create an attorney-client relationship, or substitute for consultation
-with a qualified attorney. Risk scores are heuristic estimates, not legal
-determinations. Actual risk depends on jurisdiction, specific facts, and
-applicable law. Always consult a licensed attorney before making decisions
-based on this analysis.
+- [Ten-category review and risk-register evidence](references/risk-register.md)
+- Supplied clauses, schedules, fee data and the user's actual objectives/rubric.

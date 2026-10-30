@@ -1,7 +1,7 @@
 {
   "name": "@intentsolutionsio/research-to-deploy",
-  "version": "0.1.1",
-  "description": "Enhances web_search Skill by researching best practices and deploying infrastructure automatically",
+  "version": "0.1.2",
+  "description": "Research infrastructure documentation, generate reviewable deployment configurations and runbooks, and execute scoped deployments when authorized.",
   "keywords": [
     "deployment",
     "infrastructure",

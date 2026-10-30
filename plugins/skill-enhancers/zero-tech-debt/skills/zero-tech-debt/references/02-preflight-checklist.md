@@ -1,42 +1,38 @@
-# Pre-Flight Checklist
+# Preflight for a structural refactor
 
-Refactoring without these creates the next generation of tech debt. Every box must be checked **before** touching code. If any item is unchecked, resolve it before proceeding — even if that means asking the operator to write a test, identify a caller, or confirm a rollback path.
+Establish evidence before changing a boundary. Scale the depth to consequences:
+a local internal rename needs different proof than a public API or persisted-data
+redesign. Resolve a material unknown before the dependent change; independent
+inspection or design can continue.
 
-## The six checks
+## Six questions
 
-- [ ] **Tests exist (or can be written) for behavior worth preserving**
-  Without tests, you can't tell the difference between "I removed a bug" and "I removed a load-bearing accident." Don't refactor a system whose tests assert the historical bug shape — fix those tests first, against intended behavior, then refactor.
+1. **What behavior is required?** Read requirements, contracts and relevant tests.
+   Existing tests are evidence, not automatically the intended specification.
+   Investigate disagreements before changing code or assertions. Add meaningful
+   characterization/regression coverage when behavior or risk warrants it.
+2. **Who depends on this surface?** Search code, config, docs, generated bindings,
+   plugins, published APIs and available downstream consumers. Record exactly what
+   was inspected. Repository search cannot prove the absence of dynamic or external
+   users. For a public break, resolve supported-client and deprecation obligations.
+3. **How can the change recover?** For local source edits, a focused revert may
+   suffice. For deployed code or data, identify compatible rollback, restore or
+   forward recovery and its limits. A new feature flag is an option, not a universal
+   prerequisite. A code revert does not automatically reverse a schema migration.
+4. **What end state is being built?** Describe the desired behavior, architecture
+   and ownership in one to three paragraphs. Preserve the user's actual objective;
+   do not substitute a smaller, easier-to-test result.
+5. **What work overlaps?** Inspect current branches, dirty files and known migration
+   work. Preserve unrelated edits. Resolve ownership conflicts before modifying
+   overlapping state; continue independent work when possible.
+6. **What operational dependencies change?** Inspect relevant logs, metrics, alerts,
+   runbooks and config consumers. Update owned references in scope and record
+   unresolved coordination. Do not contact people or operate live systems without
+   authorization already provided for that action.
 
-- [ ] **Every external caller of the surface being changed has been identified**
-  Use `rg` / `grep` / IDE call-graph tools across the whole repo. For library exports, also check downstream consumers if you can reach them. A refactor that breaks an unknown caller is worse than no refactor.
+## Record limits honestly
 
-- [ ] **A rollback path exists** — branch, feature flag, or staged rollout
-  If the change ships and breaks something subtle in production, what's the un-stuck plan? "Revert the merge commit" only works if the merge commit is reachable and the code that depended on the new shape hasn't shipped on top of it. For larger refactors, prefer a feature flag with a clean off-position.
-
-- [ ] **The intended end state fits in 1-3 paragraphs**
-  See workflow step 1 ([`03-workflow.md`](03-workflow.md)). If you can't describe the end state in plain prose, the refactor is not yet well-defined — and an under-defined refactor will drift into unbounded scope. Stop and clarify.
-
-- [ ] **No active migration is in flight against the same code**
-  Two simultaneous structural changes on overlapping surface area produce merge conflicts you can't resolve and behavior changes you can't attribute. If a migration is already running, defer the refactor or coordinate with the migration owner.
-
-- [ ] **Telemetry, logging, and alerts tied to deleted code are accounted for**
-  Dashboards, alert rules, log queries, and on-call runbooks may reference function names, log strings, or metric keys you're about to delete. Identify these *first*. Either update them in the same change or document the breakage explicitly and notify the on-call.
-
-## Why this checklist is hard rules, not advice
-
-Each item is the missing-step from a failure pattern that's already happened. The checklist exists because skipping any of them *predictably* produces:
-
-- a refactor that ships against an unknown caller and breaks production
-- a "successful" refactor whose tests passed because they were asserting the wrong behavior
-- a refactor with no rollback path that has to be hot-patched at 2 AM
-- a refactor that grows from "clean up one flow" to "rewrite three subsystems" mid-PR
-- a refactor that merge-conflicts with someone else's in-flight migration
-- a refactor whose deletion silently broke the on-call alerting
-
-If you skip a check and the failure happens anyway, you don't get to claim it was unforeseeable.
-
-## When the operator pushes to skip
-
-If the operator says "we don't have tests for this, just refactor it" — that's a signal to write the characterization tests first, *as part of this work*, then refactor against them. The cost of writing one test is much lower than the cost of an undetected behavior change.
-
-If the operator says "no time for a rollback path" — that's a signal that this isn't actually a zero-tech-debt refactor; it's a time-boxed patch, and you should switch tools.
+Unknown caller coverage, unavailable integration environments or untested recovery
+are limitations, not checked boxes. Choose evidence appropriate to the consequence,
+retain a required compatibility boundary, or ask for the specific missing decision.
+Do not add ceremonial tests or infrastructure merely to complete a checklist.

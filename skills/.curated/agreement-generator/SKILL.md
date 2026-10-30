@@ -1,238 +1,117 @@
 ---
 name: agreement-generator
-description: 'Generates customized business agreements for 10 common relationship
-  types with
-
-  plain English annotations. Use when formalizing a business relationship, creating
-
-  a partnership agreement, or drafting a service contract from scratch.
-
-  Trigger with "/agreement-generator" or "create a freelancer agreement".
-
-  '
+description: >
+  Draft a business agreement from the selected relationship type, confirmed
+  party and commercial facts, and explicit proposed choices with provenance.
+  Use when preparing a service, partnership, licensing or other business agreement.
+  Trigger with "agreement-generator" or "create a freelancer agreement".
 allowed-tools: Read, Write, Glob, Grep
-version: 1.1.0
+version: 1.2.0
 author: Intent Solutions <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- legal
-- agreements
-- contracts
-- business
-- document-generation
+  - legal
+  - agreements
+  - contracts
+  - business
+  - document-generation
 compatibility: Designed for Claude Code
 ---
-# Business Agreement Generator
+
+# Business Agreement Drafting
 
 ## Overview
 
-Generates professional business agreements for 10 common relationship types, each
-with type-specific clause sections, plain English annotations, and proper legal
-structure. Templates are benchmarked against CommonPaper standards (CC BY 4.0),
-Bonterms (CC BY 4.0), and Open-Agreements (MIT) to ensure market-standard language.
-
-The skill uses an information-gathering wizard approach — collecting essential details
-before generating, rather than producing generic boilerplate that requires heavy editing.
-
-> **Legal Disclaimer:** This skill generates template documents for informational and
-> educational purposes only. Generated agreements are not a substitute for legal advice.
-> Contract requirements vary by jurisdiction, industry, and transaction specifics.
-> All documents should be reviewed by a licensed attorney before execution. No
-> attorney-client relationship is created by using this tool.
+Turn the actual relationship, objectives and agreed commercial choices into a
+coherent draft. Separate confirmed facts, proposed terms, verified source material
+and unresolved legal questions instead of filling gaps with standard-looking defaults.
 
 ## Prerequisites
 
-- Names and details of all parties to the agreement
-- Clear understanding of the business relationship and obligations
-- Desired term, payment structure, and governing jurisdiction
+- Agreement purpose/type, actual parties/roles and requested scope, including any
+  existing master terms, SOWs, schedules or selected template.
+- Approved entity/contact details and commercial decisions: obligations, dates,
+  payment/consideration where relevant, rights, governance and exit choices.
+- Known jurisdiction and legal questions needing current-source verification.
+  Missing facts remain unresolved or explicitly proposed; do not infer them from names.
+
+Use only authorized inputs. Do not contact counterparties, sign or file documents,
+form an entity, transfer funds or deploy a signing workflow as part of drafting.
 
 ## Instructions
 
-1. **Identify the agreement type.** Determine which of the 10 types the user needs:
-
-   | Type | When to Use | Key Focus |
-   |------|-------------|-----------|
-   | Freelancer | Hiring independent contractors | Deliverables, IP, independent contractor status |
-   | Partnership | Forming a business partnership | Profit sharing, decision authority, exit |
-   | NDA | Protecting confidential info | Scope, duration, remedies (use nda-generator for full NDA) |
-   | Licensing | Granting IP usage rights | Grant scope, royalties, exclusivity |
-   | Consulting | Engaging expert advisors | Scope of work, deliverables, hourly/project fees |
-   | Statement of Work (SOW) | Defining project specifics | Milestones, acceptance criteria, change orders |
-   | Master Service Agreement (MSA) | Ongoing service relationship | Framework terms, SOW attachment structure |
-   | Joint Venture | Temporary business collaboration | Contributions, profit split, governance, dissolution |
-   | Distribution | Product distribution rights | Territory, exclusivity, minimum orders, marketing |
-   | Referral | Formalizing referral partnerships | Commission structure, tracking, payment triggers |
-
-2. **Run the information-gathering wizard.** Collect these details from the user:
-
-   **Universal fields (all types):**
-   - Full legal names and entity types of all parties
-   - Business addresses
-   - Effective date and term (with renewal provisions)
-   - Governing law jurisdiction
-   - Payment terms (amount, schedule, method)
-   - Termination provisions (for cause, for convenience, notice period)
-
-   **Type-specific fields:**
-   - *Freelancer:* Deliverables list, deadlines, IP ownership, equipment provided
-   - *Partnership:* Capital contributions, profit/loss split, management structure
-   - *Licensing:* Licensed IP description, territory, exclusivity, royalty rate
-   - *Consulting:* Hourly/project rate, travel expenses, deliverable format
-   - *SOW:* Milestones with dates, acceptance criteria, change order process
-   - *MSA:* Service categories, SLA requirements, SOW template
-   - *Joint Venture:* Purpose, contributions (cash/IP/labor), governance board
-   - *Distribution:* Products, territory, exclusivity, minimum purchase volumes
-   - *Referral:* Commission percentage, payment trigger, tracking mechanism
-
-3. **Generate type-specific clause sections.** Each agreement type includes its
-   required sections. Common sections across all types:
-
-   | Section | Included In |
-   |---------|-------------|
-   | Recitals & Definitions | All types |
-   | Scope of Work / Services | Freelancer, Consulting, SOW, MSA |
-   | Compensation & Payment | All types |
-   | Intellectual Property | Freelancer, Consulting, Licensing, JV |
-   | Confidentiality | All types |
-   | Representations & Warranties | All types |
-   | Indemnification | All types |
-   | Limitation of Liability | All types |
-   | Term & Termination | All types |
-   | Non-Compete / Non-Solicit | Freelancer, Partnership, Consulting, JV |
-   | Dispute Resolution | All types |
-   | General Provisions | All types |
-   | Signature Block | All types |
-
-   **Type-specific sections:**
-   - *Freelancer:* Independent Contractor Status, Tax Obligations, Equipment & Workspace
-   - *Partnership:* Capital Accounts, Voting & Decisions, Admission of New Partners, Dissolution
-   - *Licensing:* Grant of License, Sublicensing Rights, Quality Control, Audit Rights
-   - *SOW:* Milestones & Deliverables Table, Acceptance Testing, Change Order Procedure
-   - *MSA:* Service Level Agreement, SOW Incorporation, Escalation Procedures
-   - *Joint Venture:* JV Entity Formation, Management Committee, Capital Calls, Wind-Down
-   - *Distribution:* Territory & Exclusivity, Minimum Orders, Marketing Obligations, Inventory
-   - *Referral:* Referral Definition, Commission Calculation, Tracking & Reporting, Clawback
-
-4. **Add plain English annotations.** After each section, include:
-   `> **Plain English:** {simple explanation of what this means for both parties}`
-
-5. **Apply jurisdiction-specific adjustments:**
-   - California: Enhanced independent contractor tests (ABC test per AB 5)
-   - New York: Specific partnership law requirements
-   - Texas: Non-compete enforceability standards
-   - International: Choice of law and arbitration provisions (ICC or UNCITRAL rules)
-
-6. **Insert [VERIFY] tags** on any assumptions about party details, payment amounts,
-   or relationship specifics not explicitly provided by the user.
-
-7. **Write the output file** using the naming convention below.
+1. Use Glob within the selected location for discovery when needed, then Read the
+   supplied records. Use Grep for definitions, incorporated terms and obligations,
+   then Read their context. Preserve originals and reuse approved decisions.
+2. Choose the relevant [relationship type](references/agreement-decisions.md).
+   A hybrid or multiparty deal may need a tailored scope rather than pretending
+   the closest template fits unchanged. Distinguish confidentiality-only drafting
+   from a broader service, ownership or governance agreement.
+3. Gather material missing choices with their actual units, parties and triggers:
+   deliverables/acceptance, money/fees, IP/license scope, milestones, term/renewal,
+   termination, responsibilities and any governance. Do not invent rates, timing,
+   liability caps, commissions, ownership transfers or governing jurisdiction.
+4. If the user requests proposed terms, label options and assumptions and explain
+   tradeoffs against the stated objectives. Do not present unsupported market-rate
+   ranges, customary durations or a template's defaults as settled user decisions.
+5. Draft only relevant sections. Do not automatically add non-competes, non-solicits,
+   broad indemnities, arbitration, an SLA, data-processing commitments or an entity
+   formation step because a relationship type often uses them. Identify any
+   separately requested material choice and applicable-context questions.
+6. For jurisdiction-specific assertions, inspect current applicable primary sources
+   and actual facts with available authorized tools. Do not insert an ABC test,
+   trade-secret notice or international arbitration clause solely from a location
+   label. If verification is unavailable, record the question instead of assuring
+   proper legal structure or enforceability.
+7. Inspect any selected template's actual text/version/license and preserve required
+   attribution, recording modifications. Original proposed wording is not a
+   verified template clause. Check roles, definitions, obligations, amounts/units,
+   dates, cross-references, precedence and schedules for consistency.
+8. Use Write for the requested draft and separate review record at selected paths.
+   Suggested new names are `agreement-{matter-slug}.md` and
+   `agreement-review-{matter-slug}.md`. Read existing destinations first. Keep
+   explanatory annotations separate unless an annotated draft is requested, and
+   leave execution fields unsigned with actual provided date decisions.
 
 ## Output
 
-Generate a single Markdown file named `{TYPE}-AGREEMENT-{PartyA}-{PartyB}-{YYYY-MM-DD}.md`:
+A draft with relevant type-specific sections, coherent obligations, supplied
+identity/contact facts and explicit status. The review record contains the source
+inputs, actual/proposed decisions, template provenance/modifications, assumptions,
+missing schedules and questions for qualified review. Explain what remains
+unresolved rather than inventing legal suitability or party approval.
 
-```
-# {Type} Agreement
-
-**Between:** {Party A} ("{Role A}")
-**And:** {Party B} ("{Role B}")
-**Effective Date:** {date}
-
----
-
-## Table of Contents
-{numbered section list}
-
----
-
-## 1. Recitals and Definitions
-{formal legal text}
-
-> **Plain English:** {simple explanation}
-
-## 2. {Type-Specific Section}
-{formal legal text}
-
-> **Plain English:** {simple explanation}
-
-{... remaining sections ...}
-
----
-
-## Signature Block
-| | {Party A} | {Party B} |
-|---|-----------|-----------|
-| Signature | _________________ | _________________ |
-| Name | {name} | {name} |
-| Title | {title} | {title} |
-| Date | _________________ | _________________ |
-
----
-
-**[VERIFY] Tags Summary:**
-{numbered list of assumptions}
-
-**Agreement Type:** {type}
-**Clause Count:** {count} sections
-**Generated by:** Legal Assistant Plugin — Not a substitute for legal counsel.
-```
+Generating a draft does not execute the agreement, form a company, establish worker
+status, transfer rights or create an attorney-client relationship. Report actual
+saved paths and preserve the user's original documents and unrelated work.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Unclear agreement type | User describes a hybrid relationship | Recommend the closest type, note deviations |
-| Missing payment details | User has not set compensation terms | Provide market-rate ranges for context, add [VERIFY] |
-| Multi-party agreement | More than 2 parties | Adapt signature block and obligations for all parties |
-| International parties | Cross-border relationship | Add international arbitration clause, address currency and tax |
-| Regulated industry | Healthcare, finance, government contracting | Flag additional compliance requirements (HIPAA, SOX, FAR) |
-| California freelancer | AB 5 independent contractor risks | Include ABC test analysis, recommend legal review |
+| Situation                                        | Recovery                                                                                                  |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Relationship is hybrid or unclear                | Identify the actual obligations and needed decision, rather than choosing a convenient template silently. |
+| Payment, scope or dates are missing              | Ask for material choices or label requested proposals; do not fill them with unsupported market norms.    |
+| Party/entity/contact is unknown                  | Preserve the missing fact; do not default to an individual or infer incorporation from an address.        |
+| Master terms and SOW conflict                    | Show the provisions and intended precedence before presenting a coherent final draft.                     |
+| International or regulated context is unresolved | Identify actual applicable-source questions; do not add generic frameworks or arbitration as a cure.      |
+| Source template or law cannot be verified        | Keep that assertion unresolved, without fictional versions, benchmarking or compliance claims.            |
 
 ## Examples
 
-**Example 1: Freelancer Agreement**
+**Freelancer project:** Use actual deliverables, acceptance, fee and IP choices.
+Do not add a six-month non-compete, net-thirty payment or work-for-hire assignment
+simply because a web developer is involved. Label any requested proposed terms.
 
-Request: "Create a freelancer agreement for a web developer building our new marketing site"
+**MSA/SOW:** Draft the supplied service framework and incorporation/change process.
+An SLA or uptime promise needs actual requested commitments and operational facts;
+it is not an automatic MSA section or proof a service can deliver them.
 
-Result: `FREELANCER-AGREEMENT-AcmeCorp-JaneDev-2026-04-02.md` with:
-
-- Detailed scope of work with milestone deliverables
-- IP assignment to company upon payment (work-for-hire with assignment backup)
-- Independent contractor status affirmation
-- NET-30 payment upon milestone acceptance
-- 14-day termination for convenience with kill fee
-- Non-compete limited to direct competitors for 6 months
-
-**Example 2: Master Service Agreement**
-
-Request: "Generate an MSA between our consulting firm and a new enterprise client"
-
-Result: `MSA-AGREEMENT-ConsultingCo-EnterpriseCorp-2026-04-02.md` with:
-
-- Framework agreement with SOW attachment template
-- Service level commitments (response times, availability)
-- Rate card structure with annual escalation cap
-- Mutual indemnification with liability cap at 12 months fees
-- Data protection addendum referencing GDPR
-- SOW change order procedure with approval workflow
-
-**Example 3: Referral Agreement**
-
-Request: "Create a referral agreement — we'll pay 10% commission for qualified leads"
-
-Result: `REFERRAL-AGREEMENT-CompanyA-PartnerB-2026-04-02.md` with:
-
-- Qualified referral definition (signed contract within 90 days)
-- 10% commission on first-year revenue
-- 30-day payment after client payment received
-- 12-month attribution window
-- CRM tracking and quarterly reporting requirements
+**Referral commission:** A user supplies ten percent. Confirm the calculation base,
+qualifying event, attribution, payment trigger and exclusions, or show them as
+explicit proposed choices. Do not silently turn that into first-year revenue,
+ninety-day qualification and a twelve-month attribution window.
 
 ## Resources
 
-- [CommonPaper Standard Agreements](https://commonpaper.com/standards/) — CC BY 4.0 cloud, consulting, NDA standards
-- [Bonterms Cloud Terms](https://bonterms.com/) — CC BY 4.0 standardized commercial terms
-- [Open-Agreements](https://github.com/open-agreements) — MIT-licensed agreement templates
-- [SCORE Business Agreement Resources](https://www.score.org/) — SBA-funded small business templates
-- [California AB 5 (Dynamex)](https://leginfo.legislature.ca.gov/) — Independent contractor classification
-- [ICC Model Contracts](https://iccwbo.org/) — International commercial agreement standards
+- [Ten relationship types, decisions and provenance](references/agreement-decisions.md)
+- Supplied party records, existing terms, schedules and actual commercial decisions.

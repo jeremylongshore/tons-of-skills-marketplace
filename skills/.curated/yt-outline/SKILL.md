@@ -1,209 +1,111 @@
 ---
 name: yt-outline
-description: 'Build detailed step-by-step YouTube video outlines with demo prep, screen-share
-  sequences, and visual
-
-  planning. Use this skill whenever the user says "create an outline", "outline this
-  video", "video outline",
-
-  "build the outline", "production outline", or has an approved brief and packaging
-  and needs the final
-
-  pre-production document before demo prep and filming. Use when working with yt outline.
-  Trigger with ''yt'', ''outline''.
-
-  '
+description: Create a filmable YouTube outline and demo prep checklist from approved
+  brief and packaging artifacts. Use when planning screen actions, section timing
+  and rehearsals. Trigger with "outline this video" or "demo prep checklist".
 allowed-tools: WebSearch, Read, Write
-version: 1.10.0
+version: 1.11.0
 author: Claude Code Plugins <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- productivity
-- yt-outline
+  - productivity
+  - yt-outline
 compatibility: Designed for Claude Code
 ---
+
 # YouTube Outline
-
-You are creating a detailed production outline for a YouTube video. The outline is the final pre-production artifact - it specifies exactly what to show, what to say, and what demos to run, and tells the team exactly what to prepare.
-
-## Before You Start
-
-You need:
-
-1. **The approved brief** - Load `video-brief-yt-outline.md` from the working directory
-2. **The approved packaging** - Load `packaging-yt-outline.md` for the final title and thumbnail direction
-3. **Topic research** (optional) - If the topic requires technical accuracy, use WebSearch to verify specific feature details, steps, or capabilities
-
-## The Outline Process
-
-### Step 1: Research the Topic in Depth
-
-Before writing the outline, deeply understand the feature/tool being demonstrated:
-
-- Verify all steps work as expected (use WebSearch to check documentation)
-- Identify potential gotchas or failure points
-- Note any prerequisites the viewer needs
-- Find the shortest path to the value proposition (minimize setup time in the video)
-
-### Step 2: Define the Video Structure
-
-Based on the content type from the brief, choose the appropriate structure:
-
-**For Feature Tutorials (15-30 min):**
-
-1. Hook (30-60 sec) - What they'll be able to do by the end
-2. Context (1-2 min) - Why this matters, brief overview
-3. Core demonstration (10-20 min) - Step-by-step walkthrough
-4. Advanced tips (2-3 min) - Power user moves
-5. CTA + wrap (1-2 min) - Asset giveaway, community mention
-
-**For Update Videos (10-20 min):**
-
-1. Hook (30 sec) - What just changed
-2. Overview (1-2 min) - What the update includes
-3. Walkthrough (8-15 min) - Demo each new feature
-4. Impact (1-2 min) - What this means for you
-5. CTA + wrap (1 min) - Asset giveaway
-
-**For Use Case Videos (15-30 min):**
-
-1. Hook (30-60 sec) - The impressive outcome
-2. Problem (1-2 min) - What manual process this replaces
-3. Solution overview (1-2 min) - High-level workflow
-4. Step-by-step build (10-20 min) - Building the workflow live
-5. Results (2-3 min) - Actual metrics and outcomes
-6. CTA + wrap (1-2 min) - Asset giveaway
-
-**For Full Tutorials (30-90+ min):**
-
-1. Hook (1-2 min) - What they'll know by the end
-2. Overview/roadmap (2-3 min) - What the tutorial covers
-3. Setup (5-10 min) - Getting started from scratch
-4. Core sections (20-60 min) - Organized by feature/capability
-5. Advanced section (5-10 min) - Power user techniques
-6. Summary + next steps (2-3 min) - Recap + what to learn next
-7. CTA (1-2 min) - Asset giveaway
-
-### Step 3: Write the Detailed Outline
-
-For each section, specify:
-
-**Talking points:**
-
-- Key message for this section (not a script - bullet points)
-- Transition from previous section
-- Any specific phrases or analogies to use
-
-**What's on screen:**
-
-- Screen-share of what tool/feature
-- Specific actions to perform (click here, type this, navigate there)
-- Any diagrams, slides, or supporting visuals
-
-**Demo sequence:**
-
-- Exact steps to demonstrate
-- Expected outcome the viewer should see
-- What to do if something goes wrong (backup plan)
-
-**Timing:**
-
-- Target duration for this section
-- Running total to stay within target video length
-
-### Step 4: Create Demo Prep Checklist
-
-For each demo in the outline, specify what the team needs to prepare:
-
-- Accounts and tools to have logged in
-- Sample data or projects to have ready
-- Environment settings (clean workspace, no notifications, etc.)
-- Backup plans (what if the live demo fails?)
-
-### Step 5: Present and Review
-
-Present the outline to the user:
-
-```markdown
-## Video Outline: [Title]
-
-Total estimated length: [X] minutes
-
-[Full section-by-section outline]
-```
-
-Also present the demo prep checklist separately:
-
-```markdown
-## Demo Prep Checklist: [Title]
-
-[Full checklist organized by demo sequence]
-```
-
-"Here's the outline and demo prep list. The team can start preparing."
-
-- Approve and start prep
-- Adjust section order
-- Add/remove sections
-- Change demo approach
-- Need more detail on a specific section
-
-### Step 6: Save
-
-Save two files:
-
-- `video-outline-yt-outline.md` - The full outline
-- `demo-prep-checklist-yt-outline.md` - The team's preparation checklist
-
-## Key Principles
-
-- **Show, don't tell.** Every section should have something on screen. Minimize talking-head time. The value is in the demonstration.
-- **Shortest path to value.** Get to the first "wow" moment as fast as possible. Front-load the payoff, then go deeper.
-- **Direct and practical.** The outline should reflect a direct, no-fluff style. No "in this section we'll cover..." filler. Just do the thing.
-- **Team-ready.** The demo prep checklist should be detailed enough that a team member can prepare everything without asking questions.
-- **Timing is real.** Be honest about section durations. A 20-minute video with 25 minutes of outline is a problem. Cut or restructure.
-- **Failure-proofed.** For every live demo, include a backup plan. If the API call times out, if the feature bugs out - what's the fallback?
 
 ## Overview
 
-Build detailed step-by-step YouTube video outlines with demo prep, screen-share sequences, and visual planning.
+Turn an approved brief and selected packaging into a filmable outline and demo
+prep checklist. Specify what the presenter says, what appears on screen and what
+the team needs to prepare, with honest rehearsal and timing status.
 
 ## Prerequisites
 
-- Access to the Yt Outline environment or API
-- Required CLI tools installed and authenticated
-- Familiarity with Yt Outline concepts and terminology
+- The approved `video-brief-{slug}.md` and `packaging-{slug}.md`, or explicitly
+  supplied paths for those artifacts.
+- Their shared video ID, selected title/thumbnail direction and target duration.
+- Demo constraints, available accounts/sample data and any rehearsal results.
+
+Read both selected artifacts. Resolve different IDs or conflicting approved
+versions before writing. Reuse the brief's recorded outline/checklist output
+paths; legacy filenames work when explicitly selected. Do not load
+`video-brief-yt-outline.md` merely because this skill is named yt-outline.
 
 ## Instructions
 
-1. Assess the current state of the Yt Outline configuration
-2. Identify the specific requirements and constraints
-3. Apply the recommended patterns from this skill
-4. Validate the changes against expected behavior
-5. Document the configuration for team reference
+1. Confirm the approved viewer outcome and selected packaging. Keep the opening
+   aligned with that promise; return a material scope change to the user rather
+   than silently expanding the brief.
+2. Use WebSearch for technical steps that need current primary documentation.
+   Cite the relevant sources and observation date. Separate documented behavior,
+   actual rehearsal results and steps still to verify. Writing an outline does
+   not authorize running demos, changing accounts or installing software.
+3. Choose a structure appropriate to the video. A feature tutorial can show the
+   outcome, establish prerequisites, demonstrate the workflow and close with the
+   CTA. A comparison needs comparable inputs and observable differences. An update
+   video needs the actual change, walkthrough and its consequences for the viewer.
+   Use the approved length rather than forcing a fixed tutorial duration.
+4. For each section, write its purpose, talking points, on-screen content, demo
+   actions, expected observable result and transition. Include a fallback for
+   fragile live steps. Do not invent success, benchmark numbers or completed tests.
+5. Assign estimated section durations and add them to a running total. If the
+   total exceeds the approved slot, propose cuts or a revised duration instead
+   of labeling an overlong outline as within budget. Distinguish estimates from
+   a timed rehearsal.
+6. Build a separate demo prep checklist by sequence: accounts/access needed,
+   sanitized sample data, ready assets, initial state, rehearsal checks and backup
+   recording/screenshots. Keep secrets out of the documents. List the CTA asset
+   and any promises that still need production work.
+7. Present the outline and checklist for review. Use Write to save
+   `video-outline-{slug}.md` and `demo-prep-checklist-{slug}.md`, preserving selected
+   existing paths. Record video ID, source brief/packaging paths, estimated total
+   duration, open checks and review status. Mark approval only when given; the
+   writing stage does not start filming or execute the prep checklist.
 
 ## Output
 
-- Configuration files or code changes applied to the project
-- Validation report confirming correct implementation
-- Summary of changes made and their rationale
+Two linked production documents with the same video ID:
+
+- `video-outline-{slug}.md`: selected title, audience/outcome, source inputs,
+  section plan, estimated timings, transitions and CTA.
+- `demo-prep-checklist-{slug}.md`: preparation by demo, rehearsal checks, asset
+  needs, open issues and fallback options.
+
+For each outline section, a compact table can make the handoff clear:
+
+| Section      | Talking point             | On screen / action       | Expected result                                | Estimate / running total |
+| ------------ | ------------------------- | ------------------------ | ---------------------------------------------- | ------------------------ |
+| First report | Show the promised outcome | Open the prepared report | Viewer sees the fields the tutorial will build | 1 min / 1 min            |
+
+The row is a planning example, not proof that a demo was executed. If a standard
+output path belongs to another video, choose a different ID before saving.
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| Authentication failure | Invalid or expired credentials | Refresh tokens or re-authenticate with Yt Outline |
-| Configuration conflict | Incompatible settings detected | Review and resolve conflicting parameters |
-| Resource not found | Referenced resource missing | Verify resource exists and permissions are correct |
+| Situation                                | Recovery                                                                                |
+| ---------------------------------------- | --------------------------------------------------------------------------------------- |
+| Brief or packaging is missing/unapproved | Request the selected approved inputs before finalizing the outline.                     |
+| Selected title conflicts with the brief  | Resolve the promise with the user; do not plan an unsupported demonstration.            |
+| Feature behavior cannot be confirmed     | Label the open rehearsal check and provide a fallback rather than fabricating a result. |
+| Estimated sections exceed the target     | Cut optional depth or propose a longer slot; retain the actual arithmetic.              |
+| Output belongs to another video          | Preserve it and choose the correct video ID or explicit revision path.                  |
 
 ## Examples
 
-**Basic usage**: Apply yt outline to a standard project setup with default configuration options.
+**Standard handoff:** “Outline the MCP reporting video.” Read
+`video-brief-mcp-reporting.md` and `packaging-mcp-reporting.md`, check their IDs and
+approval states, then write `video-outline-mcp-reporting.md` and
+`demo-prep-checklist-mcp-reporting.md`. Record the exact input paths in both.
 
-**Advanced scenario**: Customize yt outline for production environments with multiple constraints and team-specific requirements.
+**Unrehearsed feature:** “The demo needs a preview feature we have not tested.”
+Describe the documented steps, flag the access/rehearsal dependency and plan a
+recorded fallback. Do not call the demo verified or execute it as part of writing.
 
 ## Resources
 
-- Official Yt Outline documentation
-- Community best practices and patterns
-- Related skills in this plugin pack
+Use the approved brief, selected packaging, recorded primary documentation and
+actual rehearsal notes. This stage produces planning documents; access to demo
+services is a preparation requirement for the filming team, not an API dependency
+of the outline skill.

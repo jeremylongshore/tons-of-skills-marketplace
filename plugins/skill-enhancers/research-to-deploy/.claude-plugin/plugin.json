@@ -1,18 +1,12 @@
 {
   "name": "research-to-deploy",
-  "version": "0.14.0",
-  "description": "Enhances web_search Skill by researching best practices and deploying infrastructure automatically",
+  "version": "0.15.0",
+  "description": "Research infrastructure documentation, generate reviewable deployment configurations and runbooks, and execute scoped deployments when authorized.",
   "author": {
     "name": "Claude Code Plugins Team",
     "email": "[email protected]"
   },
   "repository": "https://github.com/jeremylongshore/claude-code-plugins",
   "license": "MIT",
-  "keywords": [
-    "deployment",
-    "infrastructure",
-    "automation",
-    "devops",
-    "skill-enhancer"
-  ]
+  "keywords": ["deployment", "infrastructure", "automation", "devops", "skill-enhancer"]
 }

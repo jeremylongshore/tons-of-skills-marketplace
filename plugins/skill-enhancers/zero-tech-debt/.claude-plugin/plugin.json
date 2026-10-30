@@ -1,6 +1,6 @@
 {
   "name": "zero-tech-debt",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Rebuild a feature as if the correct product architecture existed from day one. Removes compatibility cruft, dead abstractions, and historical compromises instead of preserving them. Methodology-only — no destructive actions without operator approval.",
   "author": {
     "name": "Jeremy Longshore",

@@ -1,244 +1,113 @@
 ---
 name: brand-strategy
-description: 'A 7-part brand strategy framework for building comprehensive brand foundations.
-
-  Trigger with phrases like "create brand strategy", "build brand brief", "define
-  brand positioning",
-
-  "brand messaging", "audience architecture", "brand truth", or "go-to-market brand
-  plan". Use when working with brand strategy.
-
-  '
-version: 1.7.0
+description: >
+  Build or review a seven-part brand strategy covering identity, audience,
+  positioning, messaging, visual principles, channels and measurement. Use when
+  creating a brand brief, defining positioning or revising brand messaging.
+  Trigger with "create brand strategy", "build brand brief" or "brand messaging".
+version: 1.8.0
 author: Rowan Brooks <rowanbrooks100@github.com>
 license: MIT
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit
 tags:
-- business
-- brand-strategy
+  - business
+  - brand-strategy
 compatibility: Designed for Claude Code
 ---
-# Brand Strategy Framework
 
-A systematic 7-part methodology for building brand foundations — the same process top agencies use with Fortune 500 clients.
+# Brand Strategy Framework
 
 ## Overview
 
-This skill guides users through a comprehensive brand strategy process, from core identity through measurement. Each phase builds on the previous, creating a cohesive strategic foundation.
-
-Walk the user through each phase sequentially. Ask discovery questions, synthesize their answers, and produce structured outputs for each section before moving to the next.
-
-## The 7-Part Framework
-
-### Phase 1: Brand Truth
-
-The foundation. Define who the brand authentically is before anything else.
-
-**Discovery Questions:**
-
-- What problem does this brand exist to solve?
-- What would be lost if this brand disappeared tomorrow?
-- What does this brand believe that competitors don't?
-- What's the origin story? Why was it created?
-- What are the non-negotiable values?
-
-**Output:** A Brand Truth statement (2-3 sentences) capturing the brand's reason for being, core belief, and authentic identity.
-
----
-
-### Phase 2: Audience Architecture
-
-Define who the brand serves — not demographics, but motivations.
-
-**Discovery Questions:**
-
-- Who benefits most from what this brand offers?
-- What are they trying to achieve or avoid?
-- What do they currently believe about this category?
-- What would make them switch from their current solution?
-- Who is explicitly NOT the target?
-
-**Output:** 2-4 audience personas, each with:
-
-- Name/archetype
-- Core motivation (what they want)
-- Current belief (what they think now)
-- Tension point (what's holding them back)
-- Success state (what winning looks like for them)
-
----
-
-### Phase 3: Cultural Context
-
-Position the brand within the broader landscape.
-
-**Discovery Questions:**
-
-- What's happening in culture that makes this brand relevant now?
-- Who are the real competitors (including non-obvious ones)?
-- What category conventions should be challenged?
-- What cultural tension does this brand resolve?
-- Where is the white space?
-
-**Output:** A positioning statement that captures competitive differentiation and cultural relevance. Include a simple competitive landscape map.
-
----
-
-### Phase 4: Messaging Framework
-
-Translate strategy into language.
-
-**Discovery Questions:**
-
-- What's the one thing people should remember?
-- What proof points support the core claim?
-- What objections need to be overcome?
-- What emotional territory does the brand own?
-- What words should never be used?
-
-**Output:** A messaging framework including:
-
-- Core message (1 sentence)
-- Supporting messages (3-5 proof points)
-- Tone attributes (3-5 adjectives with definitions)
-- Language do's and don'ts
-
----
-
-### Phase 5: Visual Language
-
-Define the principles (not the executions) for visual identity.
-
-**Discovery Questions:**
-
-- What should people feel when they see the brand?
-- What visual references resonate with the brand truth?
-- What does the category typically look like — and how should this differ?
-- What's the balance of minimal vs. expressive?
-- What elements are sacred vs. flexible?
-
-**Output:** Visual principles document including:
-
-- Mood/feeling descriptors
-- Reference directions (with rationale)
-- Typography philosophy
-- Color meaning/intent
-- Photography/illustration approach
-- What to avoid
-
----
-
-### Phase 6: Channel Strategy
-
-Define where and how the brand shows up.
-
-**Discovery Questions:**
-
-- Where does the audience already spend attention?
-- What channels align with the brand personality?
-- What's the role of each channel (awareness, conversion, retention)?
-- What channels should be deprioritized or avoided?
-- What's the owned vs. earned vs. paid balance?
-
-**Output:** Channel matrix with:
-
-- Priority channels (ranked)
-- Role of each channel
-- Content themes per channel
-- Frequency/cadence guidelines
-- Channel-specific tone adjustments
-
----
-
-### Phase 7: Measurement Framework
-
-Define what success looks like.
-
-**Discovery Questions:**
-
-- What business outcomes matter most?
-- What leading indicators predict those outcomes?
-- What's the current baseline?
-- What's a realistic 6/12/24 month target?
-- What will you NOT measure (to stay focused)?
-
-**Output:** Measurement dashboard including:
-
-- North star metric
-- 3-5 supporting KPIs
-- Tracking cadence
-- Baseline and targets
-- What's explicitly out of scope
-
----
-
-## Workflow Guidelines
-
-1. **Sequential, not parallel**: Complete each phase before moving to the next
-2. **Discovery before prescription**: Always ask questions before providing recommendations
-3. **Synthesize, don't summarize**: Transform user inputs into strategic outputs
-4. **Challenge assumptions**: Push back on generic or undifferentiated answers
-5. **Document as you go**: Produce a clear output artifact for each phase
-
-## Final Deliverable
-
-After completing all 7 phases, compile a Brand Strategy Document containing:
-
-1. Executive Summary (1 page)
-2. Brand Truth
-3. Audience Architecture
-4. Cultural Context & Positioning
-5. Messaging Framework
-6. Visual Language Principles
-7. Channel Strategy
-8. Measurement Framework
-
-Format as a professional strategy document suitable for stakeholder presentation.
-
-## Examples
-
-**User:** "Help me create a brand strategy for my new coffee subscription service"
-→ Begin with Phase 1 (Brand Truth) discovery questions
-
-**User:** "I need to define our target audience"
-→ Jump to Phase 2 (Audience Architecture) but note that Brand Truth should come first if not already defined
-
-**User:** "Can you write our brand messaging?"
-→ Jump to Phase 4 (Messaging Framework) but confirm Phases 1-3 are complete or gather that context first
-
-**User:** "Review my brand strategy"
-→ Evaluate against the 7-part framework, identify gaps, suggest improvements
+Build a usable brand strategy from the creator's context and evidence. Support a
+full strategy, one selected phase, or a review of an existing document.
 
 ## Prerequisites
 
-- Access to the branding environment or API
-- Required CLI tools installed and authenticated
-- Familiarity with branding concepts and terminology
+- The brand or product, intended audience and requested decision or deliverable.
+- Existing briefs, customer observations, positioning and constraints when available.
+- A selected project directory and output path for saved work. No branding API,
+  CLI installation or authentication is required for this document workflow.
+
+Read the files the user selects. Reuse known answers and approvals; ask only for
+missing decisions that affect the requested work. If file paths are unavailable,
+work from supplied text and record that limitation. Do not search unrelated
+private documents for customer data.
 
 ## Instructions
 
-1. Assess the current state of the branding configuration
-2. Identify the specific requirements and constraints
-3. Apply the recommended patterns from this skill
-4. Validate the changes against expected behavior
-5. Document the configuration for team reference
+1. Confirm the mode: full strategy, selected phase, or review. A full strategy
+   normally follows the seven phases in order; a focused task can use established
+   upstream decisions without repeating discovery.
+2. Read [the seven-phase framework](references/seven-phase-framework.md) for the
+   relevant questions and outputs. Preserve useful existing decisions and identify
+   material contradictions before drafting dependent messaging or channel plans.
+3. Separate supplied facts, observed research, creator decisions and hypotheses.
+   Attach source paths or supplied URLs to claims about audiences, competitors or
+   performance. If current research is unavailable, label proposed positioning and
+   audience archetypes as hypotheses; do not invent customer quotes, competitor
+   capabilities, market demand or cultural trends.
+4. Develop concrete choices with rationale and tradeoffs. Tie proof points to real
+   evidence. Treat visual directions as principles, not completed design assets;
+   distinguish a proposed channel experiment from a proven acquisition channel.
+5. Review each requested phase against its purpose. Ask about material unresolved
+   choices; preserve any approval already given. Record draft/proposed/approved
+   accurately, and never treat a generated suggestion as stakeholder approval.
+6. Write the requested document to the selected output path. For a new strategy,
+   suggest `brand-strategy-{brand-slug}.md`; use an explicitly selected existing
+   path for revisions. Check an existing file before replacing it. Use Edit for a
+   scoped revision, preserving unrelated sections and the creator's chosen voice.
+7. Report the saved path, sections completed, unresolved decisions and next useful
+   action. A partial phase deliverable must identify deferred phases rather than
+   implying that the whole strategy is complete.
 
 ## Output
 
-- Configuration files or code changes applied to the project
-- Validation report confirming correct implementation
-- Summary of changes made and their rationale
+A full strategy document contains an executive summary plus these seven sections:
+
+| Phase                 | Useful artifact                                                          |
+| --------------------- | ------------------------------------------------------------------------ |
+| Brand Truth           | Reason for being, core belief and values with concrete implications      |
+| Audience Architecture | Motivations, needs, exclusions and evidence status for audience segments |
+| Cultural Context      | Positioning, alternatives and a qualified competitive landscape          |
+| Messaging Framework   | Core claim, supported proof points, objections and language guidance     |
+| Visual Language       | Visual principles and reference directions with rationale                |
+| Channel Strategy      | Priorities, role, themes and feasible cadence for each selected channel  |
+| Measurement Framework | Outcome, metric definition, data source, owner and review cadence        |
+
+Include scope, source inputs, decision status and open questions. A review can
+instead report findings by section, supporting evidence and proposed revisions.
+For measurement, record the actual baseline and observation window when known;
+otherwise write unknown. Label targets as proposed or owner-approved, and explain
+what evidence would test them. Do not promise that a leading indicator predicts
+revenue or that a strategy will deliver a specific growth rate.
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| Authentication failure | Invalid or expired credentials | Refresh tokens or re-authenticate with branding |
-| Configuration conflict | Incompatible settings detected | Review and resolve conflicting parameters |
-| Resource not found | Referenced resource missing | Verify resource exists and permissions are correct |
+| Situation                              | Recovery                                                                                      |
+| -------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Brand or audience is unclear           | Ask for the decision needed to scope the work; avoid a generic seven-section filler document. |
+| Sources contradict a desired claim     | Show the conflict and revise the claim or flag missing evidence.                              |
+| No customer or competitor research     | Draft testable hypotheses and a bounded research plan; label the limits.                      |
+| Baseline or attribution is unavailable | Record unknown and specify how it could be measured.                                          |
+| Output path belongs to another brand   | Select a separate path or obtain an explicit revision instruction.                            |
+| Earlier phases are unfinished          | Complete the requested phase with assumptions listed and flag dependent decisions.            |
+
+## Examples
+
+**Full strategy:** "Build a strategy for our coffee subscription using this brief."
+Read the brief, reuse supplied audience and pricing decisions, then develop the
+seven phases. Save a draft with unsupported taste or demand assumptions labeled.
+
+**Focused phase:** "Revise messaging in `brand-strategy-coffee.md` for office buyers."
+Read that document and relevant audience evidence. Edit messaging and identify
+any positioning or channel implications without silently rewriting the strategy.
+
+**Review:** "Our deck says awareness doubled, but we have no baseline."
+Flag the unsupported result, keep the metric unknown, and propose a measurement
+window and data source instead of inventing a prior value.
 
 ## Resources
 
-- Official branding documentation
-- Community best practices and patterns
-- Related skills in this plugin pack
+- [Seven-phase questions and deliverables](references/seven-phase-framework.md)
+- The user's selected brief, approved decisions and supplied research artifacts.

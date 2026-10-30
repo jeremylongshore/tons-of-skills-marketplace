@@ -1,17 +1,8 @@
 ---
 name: compliance-audit
-description: 'Performs regulatory gap analysis across 7 compliance frameworks with
-  a scored
-
-  report card and prioritized remediation roadmap. Use when assessing a website
-
-  or application for GDPR, CCPA, ADA, PCI-DSS, CAN-SPAM, COPPA, or SOC 2 compliance.
-
-  Trigger with "/compliance-audit" or "audit my website for regulatory compliance".
-
-  '
+description: "Use when reviewing a website, application, or supplied evidence for potential gaps across GDPR, CCPA/CPRA, accessibility, PCI DSS, CAN-SPAM, COPPA, or SOC 2 readiness. Produces scoped findings, applicability questions, and an evidence-based remediation plan."
 allowed-tools: Read, Glob, Grep, WebFetch
-version: 1.1.0
+version: 1.2.0
 author: Intent Solutions <jeremy@intentsolutions.io>
 license: MIT
 tags:
@@ -25,278 +16,105 @@ tags:
 - regulatory
 compatibility: Designed for Claude Code
 ---
-# Regulatory Compliance Audit
+# Compliance Evidence Review
 
 ## Overview
 
-Executes a two-phase compliance analysis — detection scan followed by framework-by-framework
-evaluation — across 7 regulatory frameworks. Produces a compliance scorecard with letter
-grades (A-F) per framework, identifies specific gaps, and generates a prioritized
-remediation roadmap with effort estimates and timelines.
-
-This skill reads and analyzes existing assets. It does not generate legal documents or
-modify any files. The output is an audit report documenting findings and recommendations.
-
-> **Legal Disclaimer:** This skill generates AI-assisted compliance analysis for
-> informational purposes only. It does not constitute legal advice, certification, or
-> attestation of compliance. Regulatory requirements are complex and jurisdiction-specific.
-> All findings should be reviewed by qualified legal counsel and/or certified compliance
-> professionals. No attorney-client relationship is created by using this tool.
+Review supplied assets across seven compliance lenses and produce a traceable gap
+register and remediation plan. Establish applicability and evidence coverage before
+judging a control. This is readiness analysis, not a legal opinion, certification,
+attestation, or a substitute for an assessor's examination.
 
 ## Prerequisites
 
-- A live website URL or local codebase to analyze
-- Access to any existing privacy policy, terms of service, or compliance documentation
-- Knowledge of the business type, target audience, and geographic reach
+Obtain the requested URL or local paths, business activity, relevant jurisdictions,
+service population, system boundary, and assessment purpose. Ask for missing facts
+that determine applicability; continue useful evidence collection while labeling
+those questions unresolved. Use only authorized accessible material. Do not submit
+forms, purchase services, send email, upload personal data, or exercise live security
+controls as a consequence of this review.
 
 ## Instructions
 
-### Phase 1: Detection Scan
-
-1. **Scan the website.** Use WebFetch on the target URL to collect:
-   - HTML source (meta tags, structured data, accessibility attributes)
-   - Cookie and tracking behavior (Set-Cookie headers, JavaScript trackers)
-   - Form elements (input types, required fields, consent checkboxes)
-   - Payment indicators (payment form fields, processor scripts)
-   - Third-party scripts and embeds (analytics, advertising, social)
-   - SSL/TLS certificate presence
-   - Content targeting indicators (age-related content, children's themes)
-
-2. **Scan the codebase (if available).** Use Glob and Grep to find:
-   - Privacy policy and terms of service files
-   - Cookie consent implementation code
-   - Authentication and access control patterns
-   - Data encryption at rest and in transit
-   - Logging and audit trail implementations
-   - Age verification or gate mechanisms
-   - Email sending code and unsubscribe handling
-   - Payment processing integrations
-   - Accessibility attributes (aria-*, alt text, semantic HTML)
-
-3. **Build the detection inventory.** Create a structured map of findings:
-
-   | Category | Signals Found | Frameworks Triggered |
-   |----------|---------------|---------------------|
-   | Data Collection | Forms, cookies, analytics | GDPR, CCPA |
-   | Payments | Stripe, PayPal, card fields | PCI-DSS |
-   | Accessibility | Missing alt text, no skip nav | ADA/WCAG |
-   | Email Marketing | Newsletter signup, email sends | CAN-SPAM |
-   | User Demographics | Age gates, child-oriented content | COPPA |
-   | Security Controls | Auth, encryption, logging | SOC 2 |
-
-### Phase 2: Framework-by-Framework Evaluation
-
-1. **Evaluate each applicable framework.** Score against these criteria:
-
-   **GDPR (General Data Protection Regulation)**
-   - [ ] Privacy policy published and accessible
-   - [ ] Legal basis documented for each processing activity
-   - [ ] Cookie consent with granular opt-in (not just notice)
-   - [ ] Data subject rights mechanism (access, erasure, portability)
-   - [ ] Data Processing Agreement with third-party processors
-   - [ ] Data breach notification procedure documented
-   - [ ] Data Protection Impact Assessment for high-risk processing
-   - [ ] Records of processing activities maintained
-   - [ ] International transfer safeguards (SCCs, adequacy decisions)
-   - [ ] DPO appointed (if required by Article 37)
-
-   **CCPA/CPRA (California Consumer Privacy Act)**
-   - [ ] "Do Not Sell or Share My Personal Information" link visible
-   - [ ] Privacy policy discloses categories of personal information collected
-   - [ ] Consumer request mechanism (access, delete, correct, opt-out)
-   - [ ] Service provider agreements with data sharing restrictions
-   - [ ] Financial incentive disclosures (if offering loyalty programs)
-   - [ ] Sensitive personal information opt-out mechanism
-   - [ ] Annual privacy policy update
-   - [ ] Employee/applicant privacy notices (if applicable)
-
-   **ADA/WCAG 2.1 (Accessibility)**
-   - [ ] Alt text on all images
-   - [ ] Keyboard navigation support
-   - [ ] Color contrast ratios (4.5:1 minimum for text)
-   - [ ] Form labels and error messages
-   - [ ] Skip navigation links
-   - [ ] ARIA landmarks and roles
-   - [ ] Video captions and audio descriptions
-   - [ ] Responsive design / mobile accessibility
-
-   **PCI-DSS (Payment Card Industry)**
-   - [ ] No card data stored in plaintext
-   - [ ] Payment processing via certified processor (Stripe, Braintree)
-   - [ ] HTTPS enforced on all payment pages
-   - [ ] No card numbers in URLs, logs, or error messages
-   - [ ] SAQ (Self-Assessment Questionnaire) type determined
-   - [ ] Quarterly vulnerability scans (if applicable)
-
-   **CAN-SPAM (Commercial Email)**
-   - [ ] Physical mailing address in marketing emails
-   - [ ] Functional unsubscribe mechanism
-   - [ ] Unsubscribe honored within 10 business days
-   - [ ] Accurate "From" and "Subject" headers
-   - [ ] Commercial content clearly identified
-   - [ ] No harvested or purchased email lists
-
-   **COPPA (Children's Online Privacy Protection)**
-   - [ ] Age screening mechanism (if content may attract children under 13)
-   - [ ] Verifiable parental consent before collecting children's data
-   - [ ] Direct notice to parents about data practices
-   - [ ] Parental review and deletion rights
-   - [ ] Data minimization for children's data
-   - [ ] No behavioral advertising to children
-
-   **SOC 2 (Trust Services Criteria)**
-   - [ ] Access controls and authentication (Security)
-   - [ ] System monitoring and alerting (Availability)
-   - [ ] Data encryption and integrity checks (Processing Integrity)
-   - [ ] Privacy policy aligned with commitments (Privacy)
-   - [ ] Data handling and retention policies (Confidentiality)
-   - [ ] Incident response plan documented
-   - [ ] Vendor management program
-   - [ ] Change management procedures
-
-2. **Calculate compliance scores.** For each framework:
-   - Count the criteria met vs. total applicable criteria
-   - Calculate a percentage score
-   - Assign a letter grade:
-
-   | Grade | Score | Meaning |
-   |-------|-------|---------|
-   | A | 90-100% | Substantially compliant |
-   | B | 75-89% | Minor gaps, low risk |
-   | C | 60-74% | Moderate gaps, action needed |
-   | D | 40-59% | Significant gaps, priority remediation |
-   | F | 0-39% | Non-compliant, immediate action required |
-
-3. **Generate remediation roadmap.** For each gap, provide:
-   - Description of the gap
-   - Regulatory risk (fine amounts, enforcement precedents)
-   - Remediation action with specific steps
-   - Effort estimate (hours: 1-4, 4-16, 16-40, 40+)
-   - Priority tier: P0 (immediate), P1 (30 days), P2 (90 days), P3 (6 months)
-   - Suggested responsible party (legal, engineering, marketing, ops)
-
-4. **Compile the audit report** using the output format below.
+1. **Agree on scope.** Record assets, snapshot/commit or retrieval date, environments,
+   relevant user journeys, available evidence, and exclusions. A single public page
+   is a page sample, not a review of the whole organization. Select the relevant
+   lenses from [framework-lenses.md](references/framework-lenses.md); read only the
+   sections needed. Verify the applicable current authority/version and effective
+   dates before making a requirement-specific finding. A feature is a signal to
+   investigate applicability, not proof a law applies.
+2. **Collect an evidence inventory.** Read supplied policies, contracts, operational
+   records and code using Read, Glob and Grep. Use WebFetch for permitted public
+   sources and the requested site. Record each source with a path/section or URL,
+   date, and what it actually reveals. A fetched page may omit headers, cookies,
+   JavaScript execution, authenticated flows and network requests. An HTTPS URL
+   does not establish certificate configuration or encryption everywhere. Code
+   presence does not prove deployed behavior or sustained control operation.
+3. **Evaluate applicable criteria.** For each criterion record the authority and
+   version, applicability rationale, expected evidence, inspected evidence and
+   observation. Distinguish `observed`, `owner-asserted`, `not tested`, `not provided`,
+   `contradictory`, and `not applicable with rationale`. Report a confirmed scoped
+   gap only when the applicable requirement and actual evidence support it. Do
+   not turn missing access or an unsuccessful search into a finding of absence.
+4. **Explain practical effects.** Tie each finding to the affected data, actor,
+   workflow or commitment. Separate technical observations from legal questions.
+   A static code pattern may warrant a test; it does not establish a violation,
+   enforceability, fine, lawsuit probability or organization-wide compliance.
+5. **Prioritize remediation.** Give each issue a stable ID, supported impact,
+   concrete next action, suggested owner, dependencies, evidence needed and a
+   verification condition. Distinguish fixing a demonstrated defect from obtaining
+   missing evidence. Use supplied milestones and genuine applicable deadlines;
+   otherwise mark dates and estimates proposed or unknown. Do not invent hours,
+   penalty exposure, deadlines or an obligation to remediate an inapplicable topic.
+6. **Deliver the report.** Present Markdown in the conversation. The current toolset
+   does not include file writing; offer a suggested filename without claiming a
+   file was created. Do not modify source assets. Revisions should retain finding
+   IDs and show which new evidence changed a conclusion.
 
 ## Output
 
-Generate a single Markdown file named `COMPLIANCE-AUDIT-{company}-{YYYY-MM-DD}.md`:
+Suggested filename: `COMPLIANCE-AUDIT-{company}-{review-date}.md`, using the actual
+review date and a supplied company identifier. Include:
 
-```
-# Regulatory Compliance Audit
-**{Company Name}** — {URL or codebase path}
+- Scope, assets, evidence dates, purpose and limitations.
+- Applicability matrix: lens, authority/version, rationale and unresolved facts.
+- Evidence inventory with locators and source status.
+- Findings table: ID, criterion, evidence, observation, status, impact and question.
+- Remediation plan: action, owner proposal, dependencies and verification evidence.
+- Unassessed controls, missing evidence and matters for qualified review.
 
-**Audit Date:** {date}
-**Auditor:** AI Compliance Scan (Legal Assistant Plugin)
-**Scope:** {frameworks evaluated}
-
----
-
-## Executive Summary
-{3-5 sentence overview of compliance posture, highest-risk areas, and top recommendation}
-
-## Compliance Scorecard
-
-| Framework | Score | Grade | Status |
-|-----------|-------|-------|--------|
-| GDPR | {%} | {A-F} | {Compliant / Gaps Found / Non-Compliant} |
-| CCPA/CPRA | {%} | {A-F} | {status} |
-| ADA/WCAG 2.1 | {%} | {A-F} | {status} |
-| PCI-DSS | {%} | {A-F} | {status} |
-| CAN-SPAM | {%} | {A-F} | {status} |
-| COPPA | {%} | {A-F} | {status} |
-| SOC 2 | {%} | {A-F} | {status} |
-| **Overall** | **{%}** | **{grade}** | |
-
-## Detection Inventory
-{table of all signals detected during Phase 1}
-
-## Detailed Findings
-
-### GDPR
-{criteria-by-criteria evaluation with PASS/FAIL/N-A}
-
-### CCPA/CPRA
-{criteria-by-criteria evaluation}
-
-{... remaining frameworks ...}
-
-## Remediation Roadmap
-
-### P0 — Immediate (This Week)
-| # | Gap | Framework | Action | Effort | Owner |
-|---|-----|-----------|--------|--------|-------|
-{high-risk items}
-
-### P1 — Short-Term (30 Days)
-{moderate-risk items}
-
-### P2 — Medium-Term (90 Days)
-{lower-risk items}
-
-### P3 — Long-Term (6 Months)
-{enhancement items}
-
-## Risk Exposure Summary
-{estimated fine exposure per framework based on published enforcement ranges}
-
----
-
-**Frameworks Not Applicable:** {list with reason}
-**Limitations:** AI scan cannot detect server-side controls, review organizational policies,
-or assess physical security. This audit supplements but does not replace professional
-compliance assessment.
-**Generated by:** Legal Assistant Plugin — Not a substitute for legal counsel.
-```
+If requested, report transparent coverage counts such as “3 of 8 selected criteria
+examined; 5 unassessed.” Name the denominator and exclusions. Do not convert counts
+into compliance percentages, safety grades, aggregate compliance status, or claims
+that unknown criteria passed. No SOC 2 report or regulatory approval is issued here.
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Website unreachable | URL down, behind auth, or blocked | Ask for codebase path or manual description of features |
-| Framework not applicable | Business does not trigger certain regulations | Mark as N/A with explanation, exclude from overall score |
-| Cannot assess server-side | No codebase access, only URL | Note limitation, recommend server-side review separately |
-| Mixed signals on COPPA | Cannot determine if audience includes children | Flag for manual review, apply COPPA criteria conservatively |
-| Payment processing unclear | Redirects to external checkout | Note processor, limit PCI-DSS scope to integration points |
-| Existing policies not found | No privacy policy or ToS published | Score as F for policy-dependent criteria, flag as P0 |
+- **Unreachable site or unsupported document:** identify the failed source and ask
+  for an accessible export or authorized evidence; preserve the unassessed status.
+- **Only frontend evidence:** limit findings to the sampled representation and
+  list backend, organizational and runtime evidence still needed.
+- **Unclear applicability:** state the missing business/jurisdiction facts and seek
+  a qualified determination; do not automatically mark the framework applicable.
+- **Conflicting policy and implementation:** cite both, identify the version/date
+  mismatch and request the authoritative deployed behavior; do not silently pick.
+- **Current authority unavailable:** identify the unavailable source and withhold
+  the dependent legal conclusion rather than inventing a requirement.
 
 ## Examples
 
-**Example 1: E-Commerce Website**
+**Public shop page.** A supplied page includes a payment-provider script and a
+privacy link. Record those two observations and request the actual checkout/data
+flow and merchant assessment evidence. Neither observation proves PCI DSS scope,
+processor compliance, lawful processing, or the absence of a rights mechanism.
 
-Request: "Audit  for compliance"
-
-Result: `COMPLIANCE-AUDIT-ExampleShop-2026-04-02.md` with:
-
-- GDPR: C (68%) — privacy policy exists but missing granular consent, no DPA with Shopify
-- CCPA: D (45%) — no "Do Not Sell" link, no consumer request mechanism
-- ADA/WCAG: B (82%) — good semantic HTML, missing alt text on 12 product images
-- PCI-DSS: A (95%) — Stripe checkout handles card data, HTTPS enforced
-- CAN-SPAM: B (78%) — unsubscribe works, missing physical address
-- COPPA: N/A — adult products only
-- SOC 2: N/A — not pursuing certification
-- Remediation: 14 items across P0-P2, estimated 120 hours total
-
-**Example 2: SaaS Application Codebase**
-
-Request: "Run a compliance audit on our codebase at ./src"
-
-Result: `COMPLIANCE-AUDIT-SaaSApp-2026-04-02.md` with:
-
-- GDPR: D (52%) — no data processing records, no breach notification procedure
-- CCPA: C (65%) — basic privacy controls exist, missing sensitive data handling
-- ADA/WCAG: F (35%) — minimal ARIA attributes, no keyboard navigation, poor contrast
-- PCI-DSS: B (80%) — Stripe integration clean, but card-related strings in logs
-- CAN-SPAM: A (92%) — proper unsubscribe, physical address, clear headers
-- COPPA: N/A
-- SOC 2: D (48%) — no incident response plan, minimal access controls
-- Remediation: 23 items, accessibility overhaul as top P0
+**Local application.** A repository contains an unsubscribe handler but no supplied
+execution evidence. Cite the handler and mark operational suppression timing not
+tested. Propose an authorized fixture-based check; do not send a real campaign or
+claim requests are honored from code inspection alone.
 
 ## Resources
 
-- [ICO GDPR Guidance](https://ico.org.uk/for-organisations/guide-to-data-protection/) — UK Information Commissioner's Office
-- [California Attorney General CCPA](https://oag.ca.gov/privacy/ccpa) — Official CCPA guidance and enforcement
-- [FTC CAN-SPAM Compliance Guide](https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business) — Federal requirements
-- [W3C WCAG 2.1 Guidelines](https://www.w3.org/TR/WCAG21/) — Web accessibility standards
-- [PCI Security Standards Council](https://www.pcisecuritystandards.org/) — Payment card security standards
-- [FTC COPPA Rule](https://www.ftc.gov/legal-library/browse/rules/childrens-online-privacy-protection-rule-coppa) — Children's privacy requirements
-- AICPA SOC 2 Trust Services Criteria — SOC 2 framework
+Use the linked [framework lenses](references/framework-lenses.md) for targeted
+questions and primary sources. Record the authorities actually inspected in the
+report; links alone do not mean their requirements were evaluated.

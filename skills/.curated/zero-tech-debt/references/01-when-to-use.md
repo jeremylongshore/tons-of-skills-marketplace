@@ -1,6 +1,6 @@
 # When to Use (and Not Use) zero-tech-debt
 
-The most expensive failure mode of this skill is misclassification: applying a structural refactor where a surgical patch was wanted, or applying a hotfix where rot needed to be removed at the root. Get this judgment right *before* anything else.
+The most expensive failure mode of this skill is misclassification: applying a structural refactor where a surgical patch was wanted, or applying a hotfix where rot needed to be removed at the root. Get this judgment right _before_ anything else.
 
 ## Strong signals — proceed with zero-tech-debt
 
@@ -13,7 +13,7 @@ The most expensive failure mode of this skill is misclassification: applying a s
 
 ## Weak signals — clarify intent before invoking
 
-- Generic "improve this code" with no scope — ask: *what specific shape do you want the end state to have?*
+- Generic "improve this code" with no scope — ask: _what specific shape do you want the end state to have?_
 - Bug reports that merely touch legacy paths — usually a targeted patch is the right answer
 - Performance work where structural cleanup is incidental — split the work; performance fix lands first, structural cleanup separately
 - "Refactor" used loosely — could mean rename-only, could mean rebuild — disambiguate before committing scope
@@ -24,7 +24,7 @@ The most expensive failure mode of this skill is misclassification: applying a s
 - **Security backports** — preserve audit clarity and reviewer focus; reviewers need to see exactly what changed and nothing else
 - **Time-boxed patches before a release cut** — the cost of being wrong exceeds the cost of staying messy
 - **Code owned by another team without prior coordination** — you can write the refactor; you can't make it land
-- **Anywhere blast-radius matters more than long-term coherence** — payments, auth, anything with a regulatory or contractual surface
+- **Work where the requested outcome is a bounded patch** — sensitive domains can also need planned structural redesign, but do not turn a fix into one without that scope
 
 ## The escape valve
 

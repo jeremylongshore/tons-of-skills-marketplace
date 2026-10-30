@@ -1,9 +1,13 @@
 ---
 name: zero-tech-debt
-description: |
-  Rebuild a feature as if the correct product architecture existed from day one — remove compatibility cruft, dead abstractions, and historical compromises instead of preserving them. Use when the operator says "refactor properly," "clean up," "rewrite," "modernize," "remove legacy," "simplify," "rethink," "pay down tech debt," or signals frustration with accumulated complexity. Do NOT use for hotfixes, bug repros, surgical patches, or security backports — blast-radius minimization wins there. Trigger with "/zero-tech-debt", "do it right this time", "the way it should have been built", "refactor toward intent".
-allowed-tools: Read, Edit, Glob, Grep, Bash(git:*), Bash(rg:*), Bash(fd:*)
-version: 1.1.0
+description: >
+  Refactor a feature toward its intended product architecture, removing obsolete
+  flows and unnecessary abstractions while preserving required behavior and
+  contracts. Use when a structural redesign or tech-debt cleanup is requested.
+  Trigger with "refactor properly", "remove legacy" or "zero-tech-debt";
+  use a focused patch for hotfixes and security backports.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(rg:*), Bash(fd:*)
+version: 1.2.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
@@ -13,43 +17,103 @@ user-invocable: true
 
 # Zero Tech Debt
 
-Build toward the intended product shape — not the historical sequence of patches, migrations, wrappers, aliases, and temporary decisions that created the current implementation.
+## Overview
 
-The goal is not "minimal diff."
-The goal is a cleaner, more coherent system with fewer moving parts, fewer hidden assumptions, and lower long-term operational cost.
+Build toward the intended product shape rather than preserving the sequence of
+historical patches. Keep one coherent end state in scope. Remove obsolete layers
+when evidence supports removal; do not use smaller diffs or fewer files as a
+substitute for the requested architecture.
 
-## Core Principle
+Current code is evidence of behavior and contracts, not automatic architectural
+authority. Explicit requirements, supported clients, persisted data, security
+boundaries and the user's instructions still govern what may change.
 
-Treat the current implementation as evidence, not authority.
+## Prerequisites
 
-Preserve only the parts that still serve the intended architecture, UX, reliability model, and operational constraints. Everything else is eligible for deletion.
+- A requested feature or ownership boundary and a clear intended end state.
+- Access to relevant code, tests, configuration, contracts and known consumers.
+- The repository's change/review rules and existing task authorization.
 
-## Operating Mode (read this section every invocation)
+Read [when to use this method](references/01-when-to-use.md) before choosing a
+structural redesign. For an ambiguous "clean up" request, infer scope from the
+context and ask only for a missing decision that materially affects the outcome.
 
-1. **Confirm scope** — `Read` [`references/01-when-to-use.md`](references/01-when-to-use.md). If the request smells like a hotfix, security backport, or time-boxed patch, stop and recommend a targeted change instead.
-2. **Pre-flight** — walk [`references/02-preflight-checklist.md`](references/02-preflight-checklist.md). Every box must be checked before touching code. Tests, callers, rollback path, single-paragraph end-state description, no in-flight migration, telemetry accounted for. Use `Glob` to locate test files and `Grep` / `Bash(rg:*)` to enumerate external callers of the surface being changed.
-3. **Run the 7-step workflow** — [`references/03-workflow.md`](references/03-workflow.md). Define end state → audit reality → delete before adding → optimize around final shape → collapse duplicate decision logic → remove historical leakage → validate.
-4. **Use the audit patterns** — [`references/04-audit-patterns.md`](references/04-audit-patterns.md) lists the concrete `Grep` / `Bash(rg:*)` / `Bash(fd:*)` targets (TODO/DEPRECATED markers, `_v2`/`_old` suffixes, stale feature flags, dual-mode forks, etc.). Each match is a *candidate*, not an automatic deletion.
-5. **Apply decision filters when choices tie** — [`references/05-decision-filters.md`](references/05-decision-filters.md) covers tiebreakers and named anti-patterns to avoid.
-6. **Apply edits with `Edit`** — once a deletion / rename / consolidation is approved, use `Edit` to apply the change atomically. Stage with `Bash(git:*)` so the operator can review per commit before push.
-7. **Report back in shape-change terms** — [`references/06-outcomes-and-reporting.md`](references/06-outcomes-and-reporting.md). The diff lists every line; the summary makes the architectural delta legible.
+## Instructions
 
-## Scope Discipline (this is the most common failure mode)
+1. Read [preflight](references/02-preflight-checklist.md). Establish the intended
+   behavior, known callers, evidence gaps, recovery strategy and overlapping work.
+   Scale verification to the actual change; do not demand exhaustive downstream
+   access or new infrastructure for a reversible local rename.
+2. Follow [the seven-step workflow](references/03-workflow.md): define the end
+   state, audit reality, simplify existing paths, implement the final shape,
+   consolidate decision ownership, align names and validate.
+3. Use Glob to locate affected files and tests; use Grep or Bash(rg:_) to find
+   callers, configuration, docs and telemetry dependencies. Bash(fd:_) is optional
+   when installed. Read surrounding code rather than treating a name match as a
+   removal instruction. Record search scope and inaccessible consumers.
+4. Apply [audit patterns](references/04-audit-patterns.md) and
+   [decision filters](references/05-decision-filters.md). Keep, delete, rename or
+   defer each candidate according to actual responsibility and requirements.
+   Single-implementation interfaces, adapters and versioned names can be useful.
+5. Use Edit for scoped revisions and Write for needed new modules or tests. Keep
+   the code coherent as the target structure changes. A replacement and its
+   callers may belong in the same atomic change; do not force an intermediate
+   broken state to satisfy a delete-before-add slogan.
+6. Investigate failed tests against independent requirements and contracts before
+   changing expectations. Add focused regression coverage where needed to protect
+   behavior or changed boundaries; do not rewrite assertions just to fit the new
+   implementation or add tests that merely mirror a simple edit.
+7. Use Bash(git:\*) for permitted diff review, staging and normal scoped commits
+   under repository rules. Preserve unrelated work. Refactor permission does not
+   authorize destructive Git operations, deployment, outreach or data migration.
+8. Report [outcomes and evidence](references/06-outcomes-and-reporting.md): what
+   changed, why it matches the intended end state, what was verified and what
+   remains uncertain. Do not promise zero future debt or unmeasured reliability gains.
 
-A zero-tech-debt refactor will tempt unbounded scope. Hold the line:
+## Output
 
-- **One coherent end state per refactor** — not three loosely related ones
-- If deletion reveals deeper rot, document it and stop; do not chain refactors mid-flight
-- Resist "while I'm here" additions unrelated to the deletion path
-- New features wait for a separate change
-- If the work cannot fit in a single reviewable unit, split along ownership boundaries — never along file counts
+A reviewable change implementing the agreed end state, with updated callers,
+contracts, documentation or migrations where the scope requires them. Explain:
 
-## Final Rule
+- The intended behavior and resulting architecture or ownership change.
+- Removed, unified or renamed paths and their evidence-based rationale.
+- Preserved compatibility or deferred work with a concrete reason.
+- Actual validation results, evidence limits and recovery implications.
 
-Do not optimize for preserving the past.
+Use the project's issue tracker for durable follow-up work. Do not invent tickets,
+caller counts, successful migration results or stakeholder approval.
 
-Optimize for making the next 2 years of development simpler.
+## Error Handling
 
----
+| Situation                         | Recovery                                                                                                                |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Intended behavior is unclear      | Inspect requirements and ask for the missing decision before a conflicting change.                                      |
+| A caller cannot be inspected      | Record the uncertainty; retain compatibility or resolve the contract decision before removal.                           |
+| A test fails after redesign       | Reproduce and compare with requirements; fix the regression or justify a separately supported expectation change.       |
+| Another migration overlaps        | Coordinate through the authorized workflow or isolate independent work; do not overwrite it.                            |
+| Data migration is irreversible    | Verify backup/restore or forward recovery in an authorized isolated environment; do not demand a destructive downgrade. |
+| Deeper debt appears outside scope | Record the finding without silently expanding the refactor.                                                             |
 
-See [`references/`](references/) for the full methodology — each file is a single concern, loadable on demand.
+## Examples
+
+**Consolidate retry ownership:** "Replace the three divergent retry loops with one
+policy." Inspect each loop's deadlines, retryable errors and idempotency behavior.
+Build the requested common policy, update callers atomically and verify those
+contracts; do not erase meaningful differences just to reduce the count.
+
+**Remove a legacy export:** A repository search finds no callers, but an exported
+package API is public. Record the search limits and resolve supported-client and
+deprecation requirements before deletion. An empty search does not prove no usage.
+
+**Redesign storage:** "Move this workflow to the new state model." Use an isolated,
+authorized fixture or sanitized snapshot to check data mapping and recovery. Keep
+production execution separate from the source refactor's authorization.
+
+## Resources
+
+- [Scope and non-triggers](references/01-when-to-use.md)
+- [Proportionate preflight](references/02-preflight-checklist.md)
+- [Seven-step workflow](references/03-workflow.md)
+- [Audit patterns](references/04-audit-patterns.md)
+- [Decision filters](references/05-decision-filters.md)
+- [Outcomes and evidence](references/06-outcomes-and-reporting.md)

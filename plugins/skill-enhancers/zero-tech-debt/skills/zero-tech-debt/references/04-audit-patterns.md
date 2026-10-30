@@ -1,6 +1,6 @@
 # Audit Patterns — Concrete Things to Grep For
 
-This is the hands-on toolkit for step 2 of the workflow (Audit Reality Against Intent). Each pattern below is a *candidate* for deletion, not an automatic delete. Examine the context, then decide.
+This is the hands-on toolkit for step 2 of the workflow (Audit Reality Against Intent). Each pattern below is a _candidate_ for deletion, not an automatic delete. Examine the context, then decide.
 
 ## Marker comments
 
@@ -47,17 +47,17 @@ def fetch_user(user_id):
     return _user_repo.find(user_id)
 ```
 
-Three layers, one operation. Collapse to one.
+Check for distinct policy, instrumentation, test seams or supported interfaces. Collapse layers only when those responsibilities are redundant or deliberately relocated.
 
 ## Delegating route handlers
 
 Route handlers that only delegate to other route handlers (often a legacy URL alias kept "just in case"):
 
 ```js
-app.get('/api/v1/users', (req, res) => app._router.handle({...req, url: '/api/users'}, res))
+app.get('/api/v1/users', (req, res) => app._router.handle({ ...req, url: '/api/users' }, res));
 ```
 
-Either kill the alias or document why it's load-bearing.
+Inspect supported clients, redirects and deprecation obligations. Remove an obsolete alias when evidence and the requested scope support it; otherwise document its responsibility.
 
 ## Dual-mode forks
 
@@ -75,7 +75,7 @@ Config keys with near-identical names that diverged over time:
 - `retry_count` and `max_retries`
 - `enabled` and `is_enabled`
 
-Pick one, alias the other for one release, then remove.
+Choose a canonical key and inspect config producers and persisted values. Set compatibility and retirement timing from actual consumer and release requirements rather than an arbitrary one-release deadline.
 
 ## Naming-vs-behavior mismatches
 
@@ -85,7 +85,7 @@ Comments explaining why a name is "actually" different from its behavior:
 // note: getUser actually returns a UserProfile, not a User
 ```
 
-The comment is telling you to rename the function.
+The comment suggests a naming mismatch; inspect the contract and callers before selecting a rename or changing responsibility.
 
 ## Tests asserting historical bugs
 
@@ -95,11 +95,11 @@ Tests whose assertions describe behavior the operator/user never wanted:
 it('returns null when input is empty (legacy behavior)', () => { ... })
 ```
 
-Either the legacy behavior was correct (then drop the parenthetical) or it wasn't (then the test is wrong, not the candidate refactor).
+Compare the assertion with actual requirements and supported behavior. Neither a legacy label nor a new implementation proves which is correct; reproduce the mismatch and resolve the contract before changing the expectation.
 
 ## Indirection without callers
 
-Abstract classes / interfaces / factories with exactly one implementation. Often introduced "in case we need to swap implementations later" — and we never did. Inline them.
+Abstract classes, interfaces or factories with one implementation are inspection candidates. They may define useful policy, substitution, testing or ownership boundaries. Inline only when the seam has no required responsibility or that responsibility is deliberately preserved elsewhere.
 
 ## Configuration-driven chaos
 
@@ -113,13 +113,13 @@ HANDLERS = {
 }
 ```
 
-If `type_c` has one caller and no plans to grow, inline it and delete the registry entry.
+Inspect runtime registration, serialization and extension contracts before changing the registry. One caller does not prove an entry is unused or that inlining improves ownership.
 
 ## What to do with each match
 
 For each candidate:
 
-1. **Find every caller** (workflow step 2)
+1. **Inspect callers and contracts** (workflow step 2), recording coverage and unknowns
 2. **Decide**: keep / delete / rename
 3. **If deleting**: confirm no telemetry references the names you're removing (workflow pre-flight)
 4. **Document** in the PR summary as one line: `deleted: <name> — <one-sentence reason>`

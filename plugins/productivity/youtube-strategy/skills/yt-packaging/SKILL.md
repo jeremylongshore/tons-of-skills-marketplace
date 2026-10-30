@@ -1,202 +1,99 @@
 ---
 name: yt-packaging
-description: 'Create optimized YouTube titles and thumbnail concepts for maximum CTR.
-  Use this skill whenever the user
-
-  says "title ideas", "thumbnail concepts", "package this video", "CTR optimization",
-  "title options", "packaging",
-
-  or has an approved brief and needs to finalize the title and thumbnail direction
-  before outlining. Packaging
-
-  determines whether viewers click. Use when working with yt packaging. Trigger with
-  ''yt'', ''packaging''.
-
-  '
+description: Develop title and thumbnail concept pairs from an approved YouTube brief
+  and record the user selection. Use when preparing packaging before outlining. Trigger
+  with "package this video", "title ideas" or "thumbnail concepts".
 allowed-tools: WebSearch, Read, Write
-version: 1.10.0
+version: 1.11.0
 author: Claude Code Plugins <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- productivity
-- yt-packaging
+  - productivity
+  - yt-packaging
 compatibility: Designed for Claude Code
 ---
+
 # YouTube Packaging
-
-You are creating the title and thumbnail concept for a YouTube video. Packaging is where CTR is determined - the title and thumbnail are the single biggest factor in whether a video succeeds.
-
-## Before You Start
-
-You need from the user:
-
-1. **The approved brief** - Either load `video-brief-yt-packaging.md` from the working directory or get the brief details from the user
-2. **Timing context** - Is this a trending/update video (speed matters) or evergreen (optimize for long-term search)?
-3. **Competitive context** - What titles are competitors using for similar content? (Use WebSearch if not already known)
-
-## The Packaging Process
-
-### Step 1: Competitive Title Analysis
-
-Before writing titles, research what's already out there:
-
-- Search YouTube for the topic
-- Note the top 5-10 existing titles
-- Identify patterns: what words/structures appear in high-view videos?
-- Identify gaps: what angle is NO ONE using?
-
-### Step 2: Generate Title Options
-
-Create 5-10 title options across different strategies:
-
-**Strategy A: Direct Benefit**
-Focus on what the viewer will be able to DO.
-
-- "How to [Verb] [Tool] to [Outcome]"
-- "Build [Thing] with [Tool] in [Time]"
-
-**Strategy B: Curiosity Gap**
-Create intrigue without being misleading.
-
-- "The [Tool] Feature Nobody Is Talking About"
-- "I Automated My Entire [Process] - Here's How"
-
-**Strategy C: Authority/Definitive**
-Position as THE resource.
-
-- "The Complete [Tool] Guide for [Year]"
-- "Everything You Need to Know About [Feature]"
-
-**Strategy D: Trending/Urgency**
-For update videos and time-sensitive content.
-
-- "[Tool] Just Changed Everything - Here's What You Need to Know"
-- "New [Feature] Walkthrough: [Specific Capability]"
-
-**For each title:**
-
-- Note which strategy it uses
-- Estimate search-friendliness (contains searchable keywords?)
-- Estimate curiosity factor (would you click?)
-- Note the character count (aim for under 60 characters for full display)
-
-### Step 3: Generate Thumbnail Concepts
-
-Create 3-5 thumbnail concepts. Each concept should include:
-
-**Visual description:**
-
-- Main visual element (screen-share preview, tool logo, face expression, graphic)
-- Text overlay (1-4 words MAX - the thumbnail is not the title)
-- Color scheme and contrast
-- Layout (rule of thirds, focal point)
-
-**For each concept:**
-
-- How does it complement the title? (Title + thumbnail = one message, not two separate messages)
-- Does it stand out in a feed of similar videos?
-- Is it readable at mobile size (small thumbnail)?
-- Does it communicate the value proposition visually?
-
-### Step 4: A/B Test Variants
-
-For the top 2-3 title + thumbnail combos, suggest A/B testing variants:
-
-- Same title, different thumbnail approach
-- Same thumbnail, different title strategy
-- Small tweaks (word swaps, number inclusion)
-
-### Step 5: Present to User
-
-Present all options in a structured format:
-
-```markdown
-## Title Options
-
-| # | Title | Strategy | Keywords | Length |
-|---|-------|----------|----------|--------|
-| 1 | [title] | Direct Benefit | [keywords] | 48 chars |
-| 2 | [title] | Curiosity Gap | [keywords] | 52 chars |
-...
-
-## Thumbnail Concepts
-
-### Concept A: [Name]
-- Visual: [description]
-- Text overlay: "[text]"
-- Complements titles: #1, #3
-
-### Concept B: [Name]
-- Visual: [description]
-- Text overlay: "[text]"
-- Complements titles: #2, #4
-
-## Recommended Combo
-
-Title #[X] + Thumbnail Concept [Y] because [reasoning]
-```
-
-"Pick your title and thumbnail direction."
-
-- Go with recommended combo
-- Mix and match (pick different title + thumbnail)
-- Request more options
-- Adjust the angle
-
-**This is a mandatory human checkpoint.**
-
-### Step 6: Save
-
-Save the approved packaging as `packaging-yt-packaging.md`.
-
-## Key Principles
-
-- **Title and thumbnail are ONE system.** They must work together. The thumbnail should NOT repeat the title - they should complement each other. Title says what, thumbnail shows the emotion/intrigue.
-- **No clickbait without substance.** Titles should be compelling but honest. Every promise in the title must be delivered in the video.
-- **Search + browse balance.** For evergreen content, include searchable keywords. For trending content, prioritize curiosity and urgency.
-- **Mobile-first thumbnails.** Most YouTube browsing happens on mobile. Thumbnails must be readable at small sizes.
-- **Under 60 characters.** Titles get truncated on mobile. The most important words should be in the first 40 characters.
 
 ## Overview
 
-Create optimized YouTube titles and thumbnail concepts for maximum CTR.
+Create title options and thumbnail concepts that communicate the approved
+video's value together. Recommendations are creative hypotheses; they do not
+establish a click-through rate or guarantee distribution.
 
 ## Prerequisites
 
-- Access to the optimization environment or API
-- Required CLI tools installed and authenticated
-- Familiarity with optimization concepts and terminology
+- An approved brief supplied by path or complete brief details from the user.
+- The same video ID and working directory used for `video-brief-{slug}.md`.
+- Timing context, brand constraints and any supplied channel analytics.
+
+Read the exact brief named by the user or its recorded handoff path. For the
+standard flow, Read `video-brief-{slug}.md`; do not substitute a filename derived
+from the skill name. If the user supplies brief details directly, confirm those
+are the approved scope and retain them in the packaging document.
 
 ## Instructions
 
-1. Assess the current state of the optimization configuration
-2. Identify the specific requirements and constraints
-3. Apply the recommended patterns from this skill
-4. Validate the changes against expected behavior
-5. Document the configuration for team reference
+1. Extract the viewer, outcome, angle, demo boundaries and CTA from the approved
+   brief. If approval or the chosen brief is unclear, resolve that before
+   packaging. Reuse its video ID and output path, including explicit legacy paths.
+2. Use WebSearch to inspect relevant existing video titles when competitive
+   context is needed. Record URLs and the observation date. Distinguish observed
+   titles/views from a hypothesis about why viewers clicked; do not invent
+   analytics or present view counts as measured demand for a new video.
+3. Draft a manageable set of title options across useful approaches: direct
+   benefit, a specific question, a demonstrated comparison or a timely update.
+   Each promise must fit the actual brief. Avoid unsupported exclusivity,
+   “everything,” or earnings/results claims the video cannot substantiate.
+4. Develop thumbnail concepts that complement the strongest titles. Specify the
+   focal subject, composition, short text overlay, contrast, assets needed and
+   small-size readability. These are design directions, not generated images.
+   Identify which title each concept supports and why they form one message.
+5. Recommend a combination with a rationale and alternatives. Suggest a testable
+   variant when useful, labeling it as a proposal rather than an experiment
+   already run. Ask the user to select or revise the title and thumbnail direction.
+6. Use Write to save `packaging-{slug}.md`. Record status (`draft` or `approved`),
+   the video ID, source brief path, selected title and selected thumbnail concept.
+   Keep options separate from selections; mark approval only after the user has
+   made that choice. Report the saved path for the outline stage.
 
 ## Output
 
-- Configuration files or code changes applied to the project
-- Validation report confirming correct implementation
-- Summary of changes made and their rationale
+A packaging document containing:
+
+- Video ID, approval status and the exact source brief path.
+- Title options with the promise, intended viewer and tradeoffs for each.
+- Thumbnail concepts with layout, text and asset needs.
+- Recommended pair, the user's actual selection, and any unresolved decisions.
+- Research links and any proposed test, with assumptions clearly labeled.
+
+Use the recorded output path for an existing selected artifact. If the standard
+filename belongs to another video, choose a different ID; do not overwrite it.
+Do not describe a draft concept as a finished thumbnail or publish the video.
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| Authentication failure | Invalid or expired credentials | Refresh tokens or re-authenticate with optimization |
-| Configuration conflict | Incompatible settings detected | Review and resolve conflicting parameters |
-| Resource not found | Referenced resource missing | Verify resource exists and permissions are correct |
+| Situation                                    | Recovery                                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Brief missing or not approved                | Request the correct brief or approved details before selecting packaging.                         |
+| Competitive research unavailable             | Develop options from the brief and disclose the research gap.                                     |
+| A title promises more than the demo delivers | Narrow the title or send the scope change back for brief approval.                                |
+| User mixes options                           | Record the chosen title and thumbnail together; do not infer a selection from the recommendation. |
+| Video IDs or source paths disagree           | Resolve which brief the packaging belongs to before saving or handing off.                        |
 
 ## Examples
 
-**Basic usage**: Apply yt packaging to a standard project setup with default configuration options.
+**From a brief:** “Package `video-brief-mcp-reporting.md`.” Read that file and use
+its `mcp-reporting` ID. Propose title/thumbnail pairs, ask for a selection, and save
+`packaging-mcp-reporting.md` with the brief path and actual approval state.
 
-**Advanced scenario**: Customize yt packaging for production environments with multiple constraints and team-specific requirements.
+**Targeted revision:** “Keep title 2, but show the report rather than a logo in the
+thumbnail.” Preserve title 2, revise the selected concept and update the same
+packaging artifact. Do not claim the revision improved CTR without real test data.
 
 ## Resources
 
-- Official optimization documentation
-- Community best practices and patterns
-- Related skills in this plugin pack
+The approved brief and user-supplied brand references are the primary inputs.
+Use observed competitor pages and supplied channel analytics as evidence when
+available. The approved packaging and its source brief feed the outline stage;
+no separate optimization API or installation is required.

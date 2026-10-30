@@ -1,161 +1,112 @@
 ---
 name: yt-brief
-description: 'Refine a YouTube video idea into a structured production brief with
-  angle, key points, value proposition,
-
-  CTA asset, and audience segment. Use this skill whenever the user says "create a
-  brief", "brief this idea",
-
-  "develop this idea", "write a video brief", "production brief", or has selected
-  a video idea from ideation
-
-  and wants to define the angle and structure before packaging and outlining. Use
-  when working with yt brief. Trigger with ''yt'', ''brief''.
-
-  '
+description: Create a YouTube production brief with viewer outcome, angle, demo scope
+  and CTA. Use when developing a selected video idea before packaging. Trigger with
+  "write a video brief" or "brief this idea".
 allowed-tools: WebSearch, Read, Write
-version: 1.10.0
+version: 1.11.0
 author: Claude Code Plugins <jeremy@intentsolutions.io>
 license: MIT
 tags:
-- productivity
-- yt-brief
+  - productivity
+  - yt-brief
 compatibility: Designed for Claude Code
 ---
+
 # YouTube Brief
-
-You are creating a structured production brief for a YouTube video. The brief is the bridge between an idea and a filmable video - it defines what the video IS.
-
-## Before You Start
-
-You need from the user:
-
-1. **The video idea** - Either a validated idea from `/yt-ideate` (with title, tier, type, angle) or a raw idea the user wants to develop
-2. **Any constraints** - Timeline, specific features to include/exclude, target length, team capacity
-
-If the user is coming from the ideation flow, load `validated_ideas.json` for the full context on the selected idea.
-
-## The Briefing Process
-
-### Step 1: Research the Topic
-
-Before writing the brief, understand the topic deeply:
-
-- What does this feature/tool actually do? (Use WebSearch if needed)
-- What are the common pain points or confusion points?
-- What existing content exists? What angle would differentiate this video?
-- What's the practical value for the target audience?
-
-### Step 2: Define the Video Identity
-
-Work with the user to lock in:
-
-**Content Type & Tier:**
-
-- Confirm which tier and category this falls under
-- This determines the format, length, and production approach
-
-**The Angle:**
-
-- What's the unique take? Why would someone click THIS video over alternatives?
-- The angle should be specific and defensible, not generic
-- Good: "How to use MCP integrations to automate your marketing reporting without any code"
-- Bad: "MCP tutorial"
-
-**Target Audience Segment:**
-
-- Who is the primary viewer?
-- What's their starting knowledge level for this topic?
-
-### Step 3: Write the Brief
-
-The brief must include:
-
-1. **Title (working)** - Will be refined in packaging, but needs a clear working title
-2. **Content tier & type** - e.g., Tier 1 / Feature Tutorial
-3. **The angle** - 1-2 sentences: what makes this video unique
-4. **Target audience** - Who exactly is this for, and what do they already know
-5. **Key points** - 5-8 main things the viewer will learn or see demonstrated
-6. **Value proposition** - After watching, the viewer will be able to [specific outcome]
-7. **CTA asset** - What free asset can be given away? (template, skill, workflow, plugin)
-8. **Prerequisites** - What does the viewer need to have set up before watching?
-9. **Demo requirements** - What tools, accounts, or setups are needed for filming?
-10. **Estimated length** - Target duration based on content type
-11. **Urgency/timing** - Is this time-sensitive (update video) or evergreen?
-
-### Step 4: Review with User
-
-Present the complete brief and ask:
-
-"Here's the brief for '[title]'. Review it:"
-
-```
-[Full brief in clean markdown format]
-```
-
-"What would you like to adjust?"
-
-- Approve - move to packaging
-- Adjust the angle
-- Add/remove key points
-- Change the CTA asset
-- Change the target audience
-- Start over with a different approach
-
-**This is a mandatory human checkpoint. Do NOT proceed without approval.**
-
-### Step 5: Save the Brief
-
-Save the approved brief as `video-brief-yt-brief.md` in the working directory.
-
-## Key Principles
-
-- **The angle is everything.** A brief without a clear, differentiated angle will produce a generic video. Push the user to be specific.
-- **Practical value first.** Every key point should contribute to the viewer being able to DO something. No filler sections.
-- **CTA integration.** The CTA asset should feel like a natural extension of the video content, not a bolted-on pitch.
-- **Honest about scope.** If a topic is too big for one video, say so and suggest splitting it. Don't try to cram a Full Tutorial into a Feature Tutorial.
-- **Team-ready.** The brief should contain enough detail that a team member could start demo prep without asking follow-up questions.
 
 ## Overview
 
-Refine a YouTube video idea into a structured production brief with angle, key points, value proposition, CTA asset, and audience segment.
+Turn a selected video idea into a production brief that the packaging and
+filming team can use. Define one viewer outcome, the angle that earns a click,
+and what the demonstration must actually deliver.
 
 ## Prerequisites
 
-- Access to the Yt Brief environment or API
-- Required CLI tools installed and authenticated
-- Familiarity with Yt Brief concepts and terminology
+- A selected idea, supplied directly or identified in `validated_ideas.json`.
+- The intended audience, target length, deadline and any required feature or CTA.
+- A working directory and video ID, such as `mcp-reporting`. Reuse the ID for all
+  stages: `video-brief-{slug}.md`, `packaging-{slug}.md`,
+  `video-outline-{slug}.md`, and `demo-prep-checklist-{slug}.md`.
+
+If the user supplies an existing artifact, Read that exact file first. Reuse its
+video ID and recorded paths; legacy filenames are valid when explicitly selected.
+If an output path belongs to another video, select a different ID rather than
+replacing it. Updating the user's selected brief is a revision of that artifact.
 
 ## Instructions
 
-1. Assess the current state of the Yt Brief configuration
-2. Identify the specific requirements and constraints
-3. Apply the recommended patterns from this skill
-4. Validate the changes against expected behavior
-5. Document the configuration for team reference
+1. Read the selected idea and relevant research. Ask only for missing decisions
+   that change the brief: audience, intended outcome, scope or production limits.
+   Carry forward the user's chosen content type and tier; do not invent a tier
+   taxonomy when none is supplied.
+2. Use WebSearch when technical capabilities, release timing or competitive
+   claims need verification. Prefer primary documentation and record source URLs
+   and the date checked. Keep unknown behavior as an open demo check; searching
+   documentation does not prove the demo has been rehearsed.
+3. Write a focused brief with the fields below. Choose enough key points to
+   deliver the outcome within the target length. Separate a proposed giveaway
+   from an asset that already exists; do not promise an unavailable download.
+4. Present the draft and ask the user to approve or revise the angle, scope and
+   CTA before advancing to packaging. A previous idea selection does not approve
+   a new brief. Preserve approval already given for the actual brief.
+5. Use Write to save `video-brief-{slug}.md` in the working directory. Record its
+   video ID, status (`draft` or `approved`), intended output paths and research
+   links. Mark it approved only after the user's approval; report the saved path
+   and the next stage rather than starting packaging automatically.
+
+### Brief content
+
+- Working title, content type and any user-defined tier.
+- Target viewer, starting knowledge and the problem they want solved.
+- Angle: why this demonstration is useful compared with existing coverage.
+- Viewer outcome and the key points that support it.
+- Demo sequence, accounts/sample data needed and unverified demo steps.
+- CTA asset, its readiness and where it will be delivered.
+- Target duration, deadline and any time-sensitive claims with sources.
+- Exclusions and open decisions that could prevent filming.
 
 ## Output
 
-- Configuration files or code changes applied to the project
-- Validation report confirming correct implementation
-- Summary of changes made and their rationale
+A production brief saved as `video-brief-{slug}.md`, with a clear approval status
+and enough detail for a teammate to prepare packaging and demos. Include these
+handoff fields before the substantive brief:
+
+```text
+Video ID: mcp-reporting
+Status: draft
+Packaging output: packaging-mcp-reporting.md
+Outline output: video-outline-mcp-reporting.md
+Demo checklist output: demo-prep-checklist-mcp-reporting.md
+```
+
+The ID is an example, not a fixed filename for every video. Keep draft status
+visible if approval is still pending.
 
 ## Error Handling
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| Authentication failure | Invalid or expired credentials | Refresh tokens or re-authenticate with Yt Brief |
-| Configuration conflict | Incompatible settings detected | Review and resolve conflicting parameters |
-| Resource not found | Referenced resource missing | Verify resource exists and permissions are correct |
+| Situation                                    | Recovery                                                                 |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| Several ideas could be selected              | Ask which idea to develop; do not merge unrelated ideas into one brief.  |
+| Research or claimed capability is missing    | State the gap and list a demo check; do not invent a successful result.  |
+| The requested scope exceeds the filming slot | Propose a smaller outcome or a series and let the user choose.           |
+| Output belongs to another video              | Use a distinct video ID or the user's explicitly selected revision path. |
+| Brief is not approved                        | Save a draft and stop before packaging.                                  |
 
 ## Examples
 
-**Basic usage**: Apply yt brief to a standard project setup with default configuration options.
+**Direct idea:** “Brief a video showing a solo operator how to build a weekly
+report with MCP; keep it under 15 minutes.” Establish the viewer's starting setup,
+identify the single report outcome and propose the concrete demonstration. Save
+`video-brief-mcp-reporting.md` as a draft for review.
 
-**Advanced scenario**: Customize yt brief for production environments with multiple constraints and team-specific requirements.
+**Revision:** “Use the existing brief, but remove the paid service from the demo.”
+Read the named brief, preserve its ID and revise the prerequisites, sequence and
+CTA consistently. Do not treat the old approval as approval of a changed scope.
 
 ## Resources
 
-- Official Yt Brief documentation
-- Community best practices and patterns
-- Related skills in this plugin pack
+Use the user's selected idea, `validated_ideas.json` when available, and the
+recorded research sources. The approved brief is the input to this plugin's
+packaging stage. No API account or command-line installation is required to write
+a brief; any demo setup belongs in the production document.

@@ -2,13 +2,13 @@
 name: yt-pipeline
 description: Run the full YouTube content production pipeline
 argument-hint: [topic-or-channel-urls]
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, WebSearch, AskUserQuestion
+allowed-tools: Read, Write, Edit, Grep, Glob, Task, WebSearch, AskUserQuestion
 model: sonnet
 ---
 
 Run the complete YouTube content production pipeline. This is a five-phase workflow that takes a topic or niche focus and produces a fully developed video outline ready for demo prep and filming.
 
-**You are the orchestrator.** Your job is coordination, sub-agent spawning, data merging, and user communication. Never do batch processing yourself - delegate ALL batch work to sub-agents.
+**Coordinate the five stages and their saved artifacts.** Use bounded delegation only when available and permitted by the user; direct work is a valid route. Preserve approvals already given for the selected ideas or actual artifacts instead of asking for the same decision again.
 
 ## Phase 0: Context
 
@@ -26,7 +26,7 @@ Do NOT proceed until the focus is confirmed.
 
 ### 1.1 Launch Research
 
-Use web research and optional sub-agents for parallel execution:
+Read `${CLAUDE_PLUGIN_ROOT}/skills/yt-research/SKILL.md` and follow its evidence and input-coverage contract. Use web research, supplied exports and permitted optional delegation:
 
 - **`yt-scraper` agent** for YouTube channel data collection (if Apify MCP available)
 - **`channel-analyzer` agents** in batches of 3 channels each for competitive analysis
@@ -43,9 +43,9 @@ Report to user:
 ```
 Research complete.
 - Channels analyzed: [N]
-- Videos scraped: [N]
+- Videos observed: [N] (state collection mode)
 - Content gaps identified: [N]
-- Outlier videos found: [N]
+- Coverage limits and unavailable sources: [summary]
 ```
 
 Present the niche report and ask:
@@ -62,28 +62,28 @@ Present the niche report and ask:
 
 ### 2.1 Generate Ideas
 
-Using research findings, generate 15-20 video ideas. Each idea must include:
+Read `${CLAUDE_PLUGIN_ROOT}/skills/yt-ideation/SKILL.md`. Using the selected research or explicit hypotheses, generate the requested shortlist. Each idea must include:
 
 - **Title concept** (working title)
-- **Content tier** (Tier 1 or Tier 2)
+- **Content tier** (the creator's tier, if supplied)
 - **Content type** (Full Tutorial, Feature Tutorial, Update Video, Use Case Video, etc.)
 - **Angle** (1 sentence: what makes this video unique)
 - **Why now** (timeliness signal or evergreen justification)
 
-Prioritize Tier 1 ideas. Include a mix of content types.
+Prioritize the creator's goals and production constraints; do not impose a fixed growth-content mix.
 
 ### 2.2 Validate Ideas
 
-Spawn `idea-validator` sub-agents in a single message. Each validates a batch of 5 ideas.
+Use permitted idea-validation delegation when available, or evaluate directly. Record the evidence, feasibility and open questions; numeric scores are optional labeled heuristics, not measured demand.
 
 ### 2.3 Present Validated Ideas
 
-Merge validation results and present a ranked list:
+Save `validated_ideas.json` and present a prioritized shortlist. Update actual selections and their basis after the creator chooses, keeping each selected idea ID as the downstream video ID:
 
 ```
-Here are the validated ideas, ranked by opportunity score:
+Here is the shortlist, prioritized by evidence and feasibility:
 
-[Table: Rank | Title | Tier | Type | Search Demand | Competition | Score]
+[Table: Priority | Title | Type | Evidence | Feasibility | Open questions]
 
 Which ideas do you want to develop into briefs?
 ```
@@ -97,9 +97,15 @@ Which ideas do you want to develop into briefs?
 
 ## Phase 3: Brief (per selected idea)
 
+Choose one video ID (`{slug}`) per selected idea and reuse it across brief,
+packaging, outline and checklist filenames. Read existing selected artifacts
+before revising them; preserve explicitly supplied legacy paths. Each artifact
+records its video ID, approval status and exact input/output paths. If a target
+belongs to another video, choose another ID rather than replacing it.
+
 For each idea the user selects:
 
-1. Read `skills/yt-brief/SKILL.md`
+1. Read `${CLAUDE_PLUGIN_ROOT}/skills/yt-brief/SKILL.md` and the selected record in `validated_ideas.json`
 2. Define: angle, key points, value proposition, CTA asset, audience segment, content tier
 3. Output: `video-brief-{slug}.md`
 4. Present to user for review
@@ -117,8 +123,8 @@ For each idea the user selects:
 
 For each approved brief:
 
-1. Read `skills/yt-packaging/SKILL.md`
-2. Generate: 5-10 title options, 3-5 thumbnail concepts
+1. Read `${CLAUDE_PLUGIN_ROOT}/skills/yt-packaging/SKILL.md`
+2. Read the approved `video-brief-{slug}.md`; generate title options and thumbnail concepts
 3. Output: `packaging-{slug}.md`
 
 "Here are the title and thumbnail options. Pick your favorites."
@@ -133,8 +139,8 @@ For each approved brief:
 
 For each packaged video:
 
-1. Read `skills/yt-outline/SKILL.md`
-2. Build: step-by-step outline with demo prep, screen-share sequences, visuals
+1. Read `${CLAUDE_PLUGIN_ROOT}/skills/yt-outline/SKILL.md`
+2. Read the approved `video-brief-{slug}.md` and `packaging-{slug}.md`; build the outline and demo prep checklist
 3. Output: `video-outline-{slug}.md` + `demo-prep-checklist-{slug}.md`
 
 "Here's the outline and demo prep checklist. Ready for the team to prep and film."
@@ -156,12 +162,12 @@ Pipeline Complete.
 
 ## Agent Identifiers
 
-| Agent | subagent_type |
-|---|---|
-| YouTube Scraper | `youtube-strategy:yt-scraper` |
+| Agent            | subagent_type                       |
+| ---------------- | ----------------------------------- |
+| YouTube Scraper  | `youtube-strategy:yt-scraper`       |
 | Channel Analyzer | `youtube-strategy:channel-analyzer` |
-| Idea Validator | `youtube-strategy:idea-validator` |
+| Idea Validator   | `youtube-strategy:idea-validator`   |
 
 ## Parallelism Rules
 
-**ALL sub-agents in a phase MUST be spawned in ONE message using the Task tool.** This is the only way to trigger parallel execution.
+When the user permits delegation and the required tools are available, use Task for bounded parallel work. Otherwise follow the same artifact contracts directly; do not require sub-agents or a paid connector to produce the planning documents.

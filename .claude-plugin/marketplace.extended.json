@@ -2987,8 +2987,8 @@
     {
       "name": "brand-strategy-framework",
       "source": "./plugins/business-tools/brand-strategy-framework",
-      "description": "A 7-part brand strategy framework for building comprehensive brand foundations - the same methodology top agencies use with Fortune 500 clients.",
-      "version": "1.7.0",
+      "description": "A seven-part brand strategy framework for identity, audience, positioning, messaging, visual principles, channels and measurement.",
+      "version": "1.8.0",
       "category": "business-tools",
       "keywords": [
         "brand-strategy",
@@ -3009,10 +3009,10 @@
         "skills": 1
       },
       "verification": {
-        "score": 83,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 96,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-25T00:00:00.000Z"
       }
     },
     {
@@ -4895,8 +4895,8 @@
     {
       "name": "research-to-deploy",
       "source": "./plugins/skill-enhancers/research-to-deploy",
-      "description": "Transforms research findings into deployed solutions automatically",
-      "version": "0.14.0",
+      "description": "Research infrastructure documentation, generate reviewable deployment configurations and runbooks, and execute scoped deployments when authorized.",
+      "version": "0.15.0",
       "category": "skill-enhancers",
       "keywords": [
         "research",
@@ -4907,10 +4907,10 @@
         "name": "Claude Code Plugins Team"
       },
       "verification": {
-        "score": 89,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 100,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-25T00:00:00.000Z"
       }
     },
     {
@@ -8247,7 +8247,7 @@
       "name": "youtube-strategy",
       "source": "./plugins/productivity/youtube-strategy",
       "description": "Complete YouTube content production workflow: research competitors, generate video ideas, build briefs, craft titles and thumbnails, and create detailed video outlines with demo prep checklists.",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "category": "productivity",
       "keywords": [
         "youtube",
@@ -8269,10 +8269,10 @@
         "agents": 3
       },
       "verification": {
-        "score": 89,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 94,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-25T00:00:00.000Z"
       }
     },
     {
@@ -9975,7 +9975,7 @@
       "name": "zero-tech-debt",
       "source": "./plugins/skill-enhancers/zero-tech-debt",
       "description": "Rebuild a feature as if the correct product architecture existed from day one. Removes compatibility cruft, dead abstractions, and historical compromises instead of preserving them. Methodology-only — surfaces refactor candidates and walks a 7-step workflow before any deletion.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "category": "skill-enhancers",
       "keywords": [
         "refactoring",
@@ -9996,10 +9996,10 @@
         "total": 1
       },
       "verification": {
-        "score": 82,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-25T00:00:00.000Z"
       }
     },
     {
@@ -11103,8 +11103,8 @@
     {
       "name": "j-rig",
       "source": "./plugins/productivity/j-rig",
-      "description": "Skill Refiner — the eval-guided SKILL.md improvement loop. Thin wrapper over the published @intentsolutions/refiner CLI (bootstrap/score/propose/apply/status) with a 3-layer cost-tiered hook architecture (sinker/line/hook) that gates skill quality at edit time, end of turn, and commit time.",
-      "version": "0.1.0",
+      "description": "Use the J-Rig refiner CLI for evaluation metadata, authorized scoring, edit proposals and candidate inspection; bundled hooks are experimental.",
+      "version": "0.2.0",
       "category": "productivity",
       "keywords": [
         "skill-refiner",
@@ -11124,10 +11124,10 @@
         "total": 1
       },
       "verification": {
-        "score": 81,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-25T00:00:00.000Z"
       }
     },
     {
@@ -11326,8 +11326,8 @@
     {
       "name": "general-legal-assistant",
       "source": "./plugins/business-tools/general-legal-assistant",
-      "description": "AI-powered contract review, risk analysis, document generation, and compliance auditing with 12 skills and 5 parallel agents",
-      "version": "1.1.0",
+      "description": "AI-assisted contract review, risk analysis, document drafting, and compliance readiness review with 12 skills and 5 bundled review agents.",
+      "version": "1.2.0",
       "category": "business-tools",
       "keywords": [
         "legal",
@@ -11354,10 +11354,10 @@
         "agents": 5
       },
       "verification": {
-        "score": 85,
-        "grade": "B",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 98,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-10-26T00:00:00.000Z"
       }
     },
     {

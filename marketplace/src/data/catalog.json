@@ -3195,8 +3195,8 @@
       "slug": "brand-strategy-framework",
       "name": "brand-strategy-framework",
       "displayName": "brand strategy framework",
-      "description": "A 7-part brand strategy framework for building comprehensive brand foundations - the same methodology top agencies use with Fortune 500 clients.",
-      "version": "1.7.0",
+      "description": "A seven-part brand strategy framework for identity, audience, positioning, messaging, visual principles, channels and measurement.",
+      "version": "1.8.0",
       "category": "business-tools",
       "keywords": [
         "brand-strategy",
@@ -5246,8 +5246,8 @@
       "slug": "research-to-deploy",
       "name": "research-to-deploy",
       "displayName": "research to deploy",
-      "description": "Transforms research findings into deployed solutions automatically",
-      "version": "0.14.0",
+      "description": "Research infrastructure documentation, generate reviewable deployment configurations and runbooks, and execute scoped deployments when authorized.",
+      "version": "0.15.0",
       "category": "skill-enhancers",
       "keywords": [
         "research",
@@ -8645,7 +8645,7 @@
       "name": "youtube-strategy",
       "displayName": "youtube strategy",
       "description": "Complete YouTube content production workflow: research competitors, generate video ideas, build briefs, craft titles and thumbnails, and create detailed video outlines with demo prep checklists.",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "category": "productivity",
       "keywords": [
         "youtube",
@@ -10296,7 +10296,7 @@
       "name": "zero-tech-debt",
       "displayName": "zero tech debt",
       "description": "Rebuild a feature as if the correct product architecture existed from day one. Removes compatibility cruft, dead abstractions, and historical compromises instead of preserving them. Methodology-only — surfaces refactor candidates and walks a 7-step workflow before any deletion.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "category": "skill-enhancers",
       "keywords": [
         "refactoring",
@@ -11298,8 +11298,8 @@
       "slug": "j-rig",
       "name": "j-rig",
       "displayName": "j rig",
-      "description": "Skill Refiner — the eval-guided SKILL.md improvement loop. Thin wrapper over the published @intentsolutions/refiner CLI (bootstrap/score/propose/apply/status) with a 3-layer cost-tiered hook architecture (sinker/line/hook) that gates skill quality at edit time, end of turn, and commit time.",
-      "version": "0.1.0",
+      "description": "Use the J-Rig refiner CLI for evaluation metadata, authorized scoring, edit proposals and candidate inspection; bundled hooks are experimental.",
+      "version": "0.2.0",
       "category": "productivity",
       "keywords": [
         "skill-refiner",
@@ -11510,8 +11510,8 @@
       "slug": "general-legal-assistant",
       "name": "general-legal-assistant",
       "displayName": "general legal assistant",
-      "description": "AI-powered contract review, risk analysis, document generation, and compliance auditing with 12 skills and 5 parallel agents",
-      "version": "1.1.0",
+      "description": "AI-assisted contract review, risk analysis, document drafting, and compliance readiness review with 12 skills and 5 bundled review agents.",
+      "version": "1.2.0",
       "category": "business-tools",
       "keywords": [
         "legal",
