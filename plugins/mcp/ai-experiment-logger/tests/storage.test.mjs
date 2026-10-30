@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
@@ -128,4 +127,27 @@ assert.ok(csv.includes(quote+apostrophe+'=1+1'+quote));
 assert.ok(csv.includes(quote+apostrophe+'  @SUM(1)'+quote));
 assert.ok(csv.includes('"a""b"'));assert.ok(csv.includes('"date,with,commas"'));
 assert.ok(csv.includes('"tag""quoted, =other"'));
+`));
+
+
+test('replacement after descriptor open fails closed before reading bytes', () => scenario('descriptor replacement', `
+await fs.mkdir(folder,{mode:0o700});
+await fs.writeFile(file,JSON.stringify({version:'1.0.0',experiments:[]}));
+const original=fs.open;let intercepted=false, read=false;
+fs.open=async(path,...args)=>{
+ const handle=await original(path,...args);
+ if(path===file&&!intercepted){
+  intercepted=true;
+  const readFile=handle.readFile.bind(handle);
+  handle.readFile=async(...values)=>{read=true;return readFile(...values);};
+  await fs.rename(file,file+'.previous');
+  await fs.writeFile(file,'synthetic replacement');
+ }
+ return handle;
+};syncBuiltinESMExports();
+const Store=await load();await assert.rejects(new Store().initialize());
+fs.open=original;syncBuiltinESMExports();
+assert.equal(intercepted,true);assert.equal(read,false);
+assert.equal(await fs.readFile(file,'utf8'),'synthetic replacement');
+assert.equal(JSON.parse(await fs.readFile(file+'.previous','utf8')).version,'1.0.0');
 `));

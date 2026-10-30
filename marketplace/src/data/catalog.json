@@ -1121,8 +1121,8 @@
       "slug": "authentication-validator",
       "name": "authentication-validator",
       "displayName": "authentication validator",
-      "description": "Validate authentication implementations",
-      "version": "1.27.0",
+      "description": "Review authentication declarations and verify explicit local JWT profiles",
+      "version": "1.28.0",
       "category": "security",
       "keywords": [
         "security",
@@ -2704,8 +2704,8 @@
       "slug": "dependency-checker",
       "name": "dependency-checker",
       "displayName": "dependency checker",
-      "description": "Check dependencies for known vulnerabilities, outdated packages, and license compliance",
-      "version": "1.28.0",
+      "description": "Audit selected dependency reports and review declared license metadata",
+      "version": "1.29.0",
       "category": "security",
       "keywords": [
         "security",
@@ -4895,7 +4895,7 @@
       "name": "penetration-tester",
       "displayName": "penetration tester",
       "description": "25-skill pentest pack with engagement governance, network/code/dependency scans, OWASP Top 10 mapping, and exec-readable reporting. Heavy-hitter compliant; chain-of-custody attestable.",
-      "version": "3.30.0",
+      "version": "3.33.0",
       "category": "security",
       "keywords": [
         "security",

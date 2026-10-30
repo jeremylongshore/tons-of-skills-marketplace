@@ -2990,7 +2990,7 @@
       "slug": "authentication-validator",
       "name": "authentication-validator",
       "displayName": "authentication validator",
-      "description": "Validate authentication implementations",
+      "description": "Review authentication declarations and verify explicit local JWT profiles",
       "category": "security",
       "keywords": [
         "security",
@@ -3002,7 +3002,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -3010,7 +3010,7 @@
       "verificationScore": 100,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "authentication validator validate authentication implementations security security compliance auditing"
+      "searchText": "authentication validator review authentication declarations and verify explicit local jwt profiles security security compliance auditing"
     },
     {
       "type": "plugin",
@@ -4808,7 +4808,7 @@
       "slug": "dependency-checker",
       "name": "dependency-checker",
       "displayName": "dependency checker",
-      "description": "Check dependencies for known vulnerabilities, outdated packages, and license compliance",
+      "description": "Audit selected dependency reports and review declared license metadata",
       "category": "security",
       "keywords": [
         "security",
@@ -4823,7 +4823,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "1.28.0",
+      "version": "1.29.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -4831,7 +4831,7 @@
       "verificationScore": 100,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "dependency checker check dependencies for known vulnerabilities, outdated packages, and license compliance security security dependencies npm pip composer vulnerabilities"
+      "searchText": "dependency checker audit selected dependency reports and review declared license metadata security security dependencies npm pip composer vulnerabilities"
     },
     {
       "type": "plugin",
@@ -7315,7 +7315,7 @@
         "email": "[email protected]"
       },
       "authorType": "official",
-      "version": "3.30.0",
+      "version": "3.33.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -17328,12 +17328,10 @@
       "id": "analyzing-dependencies",
       "slug": "analyzing-dependencies",
       "name": "analyzing-dependencies",
-      "description": "Analyze dependencies for known security vulnerabilities and outdated versions. Use when auditing third-party libraries. Trigger with 'check dependencies', 'scan for vulnerabilities', or 'audit packages'.",
+      "description": "Audit selected project dependency reports and review declared license metadata. Use when auditing third-party libraries. Trigger with 'check dependencies', 'scan for vulnerabilities', or 'audit packages'.",
       "category": "security",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
         "Grep",
         "Glob",
         "Bash(security:*)",
@@ -17341,12 +17339,12 @@
         "Bash(audit:*)"
       ],
       "compatibleWith": [],
-      "version": "1.28.0",
+      "version": "1.29.0",
       "parentPlugin": {
         "name": "dependency-checker",
         "category": "security"
       },
-      "searchText": "analyzing-dependencies analyze dependencies for known security vulnerabilities and outdated versions. use when auditing third-party libraries. trigger with 'check dependencies', 'scan for vulnerabilities', or 'audit packages'. security read write edit grep glob bash(security:*) bash(scan:*) bash(audit:*) "
+      "searchText": "analyzing-dependencies audit selected project dependency reports and review declared license metadata. use when auditing third-party libraries. trigger with 'check dependencies', 'scan for vulnerabilities', or 'audit packages'. security read grep glob bash(security:*) bash(scan:*) bash(audit:*) "
     },
     {
       "type": "skill",
@@ -17667,7 +17665,7 @@
         "Bash(openssl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -20516,7 +20514,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -20537,7 +20535,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -20559,7 +20557,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -23256,7 +23254,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -23301,7 +23299,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -27264,7 +27262,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -27370,7 +27368,7 @@
       "id": "confirming-pentest-authorization",
       "slug": "confirming-pentest-authorization",
       "name": "confirming-pentest-authorization",
-      "description": "Verify that a penetration test has explicit, written, signed authorization before any scanning begins. Reads a Rules-of- Engagement (ROE) attestation file, validates required fields (authorizer, in-scope targets, time window, emergency contact, signature), checks the signer against an allowlist, and emits a CRITICAL finding if anything is missing. Designed as the first skill the orchestrator routes to. Use when: starting a new engagement, after a scope change, or before any cluster 1-4 scan skill runs. Threshold: any missing or unsigned ROE field; any time-window expiry; any in-scope target outside the authorized list. Trigger with: \"confirm authorization\", \"verify ROE\", \"check pentest authz\", \"pre-flight authorization\".",
+      "description": "Check ROE metadata types, time windows, an optional signer allowlist, and literal target inclusions and exclusions before a penetration test. This checks structure, not signature authenticity or legal permission. Use when starting an engagement, reviewing a scope change, or checking a target before scanning. Trigger with \"confirm authorization\", \"verify ROE\", \"check pentest authz\", or \"pre-flight authorization\".",
       "category": "security",
       "allowedTools": [
         "Read",
@@ -27378,12 +27376,12 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "confirming-pentest-authorization verify that a penetration test has explicit, written, signed authorization before any scanning begins. reads a rules-of- engagement (roe) attestation file, validates required fields (authorizer, in-scope targets, time window, emergency contact, signature), checks the signer against an allowlist, and emits a critical finding if anything is missing. designed as the first skill the orchestrator routes to. use when: starting a new engagement, after a scope change, or before any cluster 1-4 scan skill runs. threshold: any missing or unsigned roe field; any time-window expiry; any in-scope target outside the authorized list. trigger with: \"confirm authorization\", \"verify roe\", \"check pentest authz\", \"pre-flight authorization\". security read bash(python3:*) glob "
+      "searchText": "confirming-pentest-authorization check roe metadata types, time windows, an optional signer allowlist, and literal target inclusions and exclusions before a penetration test. this checks structure, not signature authenticity or legal permission. use when starting an engagement, reviewing a scope change, or checking a target before scanning. trigger with \"confirm authorization\", \"verify roe\", \"check pentest authz\", or \"pre-flight authorization\". security read bash(python3:*) glob "
     },
     {
       "type": "skill",
@@ -30573,7 +30571,7 @@
       "id": "defining-pentest-scope",
       "slug": "defining-pentest-scope",
       "name": "defining-pentest-scope",
-      "description": "Parse the ROE scope definition, enumerate every in-scope target (hostnames, IPs, CIDRs, URLs, cloud accounts, SaaS tenants), validate syntax, detect overlap with out-of-scope or known third-party SaaS ranges, and emit a normalized target list plus IP allowlist for scanning tools. Runs after confirming-pentest- authorization and before any cluster 1-4 scan. Use when: starting an engagement, expanding scope mid-engagement, validating that a target list matches the ROE, or generating an allowlist for an external scanner. Threshold: malformed syntax, in-scope overlap with out-of-scope, reserved or third-party SaaS ranges without acknowledgement. Trigger with: \"define scope\", \"enumerate targets\", \"validate target list\", \"generate IP allowlist\".",
+      "description": "Parse the ROE scope definition, enumerate every in-scope target (hostnames, IPs, CIDRs, URLs, cloud accounts, SaaS tenants), validate syntax, detect overlap with out-of-scope or known third-party SaaS ranges, and emit a normalized target list plus IP allowlist for scanning tools. Runs after confirming-pentest- authorization and before any cluster 1-4 scan. Use when: starting an engagement, expanding scope mid-engagement, validating that a target list matches the ROE, or generating an allowlist for an external scanner. Threshold: malformed syntax, in-scope overlap with out-of-scope, unsupported exclusions, all-address ranges, or recorded third-party IP matches. Trigger with: \"define scope\", \"enumerate targets\", \"validate target list\", \"generate IP allowlist\".",
       "category": "security",
       "allowedTools": [
         "Read",
@@ -30581,12 +30579,12 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "defining-pentest-scope parse the roe scope definition, enumerate every in-scope target (hostnames, ips, cidrs, urls, cloud accounts, saas tenants), validate syntax, detect overlap with out-of-scope or known third-party saas ranges, and emit a normalized target list plus ip allowlist for scanning tools. runs after confirming-pentest- authorization and before any cluster 1-4 scan. use when: starting an engagement, expanding scope mid-engagement, validating that a target list matches the roe, or generating an allowlist for an external scanner. threshold: malformed syntax, in-scope overlap with out-of-scope, reserved or third-party saas ranges without acknowledgement. trigger with: \"define scope\", \"enumerate targets\", \"validate target list\", \"generate ip allowlist\". security read bash(python3:*) glob "
+      "searchText": "defining-pentest-scope parse the roe scope definition, enumerate every in-scope target (hostnames, ips, cidrs, urls, cloud accounts, saas tenants), validate syntax, detect overlap with out-of-scope or known third-party saas ranges, and emit a normalized target list plus ip allowlist for scanning tools. runs after confirming-pentest- authorization and before any cluster 1-4 scan. use when: starting an engagement, expanding scope mid-engagement, validating that a target list matches the roe, or generating an allowlist for an external scanner. threshold: malformed syntax, in-scope overlap with out-of-scope, unsupported exclusions, all-address ranges, or recorded third-party ip matches. trigger with: \"define scope\", \"enumerate targets\", \"validate target list\", \"generate ip allowlist\". security read bash(python3:*) glob "
     },
     {
       "type": "skill",
@@ -30696,7 +30694,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30762,7 +30760,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30782,7 +30780,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30803,7 +30801,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30823,7 +30821,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30869,7 +30867,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -30960,7 +30958,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -31004,7 +31002,7 @@
         "Bash(openssl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -31025,7 +31023,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -35311,7 +35309,7 @@
         "Bash(curl:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -39370,7 +39368,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -50743,7 +50741,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -57791,30 +57789,22 @@
       "id": "performing-penetration-testing",
       "slug": "performing-penetration-testing",
       "name": "performing-penetration-testing",
-      "description": "Orchestrate a penetration test by routing user intent to one or more of the 25 narrow skills in this pack. Confirms authorization + scope FIRST (cluster 5), runs the relevant scan skills (clusters 1-4), then composes findings into the customer deliverables (cluster 6) plus an integrity-attestable engagement archive (cluster 5). Backward-compatible with v2 invocations — \"pentest\", \"security scan\", \"audit dependencies\" still work but now route to the narrow skills instead of the v2 monolithic scripts. Use when: starting a security engagement, running an ad-hoc scan, planning a multi-day pentest, or operating the full authorization-to-deliverable workflow end-to-end. Trigger with: \"pentest\", \"security scan\", \"vulnerability check\", \"audit dependencies\", \"check headers\", \"find secrets\", \"OWASP scan\", \"security audit\".",
+      "description": "Route approved security work to the pack's 25 narrow operators, with authorization/scope gates, retained evidence and compatible report inputs. Use when starting a pentest, auditing dependencies or source code, checking an approved URL, or preparing engagement deliverables. Familiar requests route to the appropriate operator; retained legacy CLIs keep separate completion and JSON contracts. Trigger with \"pentest\", \"security scan\", \"audit dependencies\", \"check headers\", \"find secrets\", or \"OWASP coverage\".",
       "category": "security",
       "allowedTools": [
         "Read",
         "Write",
-        "Edit",
         "Glob",
         "Grep",
-        "Bash(python3:*)",
-        "Bash(pip:*)",
-        "Bash(npm:*)",
-        "Bash(bandit:*)",
-        "Bash(pip-audit:*)",
-        "Bash(pipdeptree:*)",
-        "Bash(gpg:*)",
-        "Bash(tar:*)"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "performing-penetration-testing orchestrate a penetration test by routing user intent to one or more of the 25 narrow skills in this pack. confirms authorization + scope first (cluster 5), runs the relevant scan skills (clusters 1-4), then composes findings into the customer deliverables (cluster 6) plus an integrity-attestable engagement archive (cluster 5). backward-compatible with v2 invocations — \"pentest\", \"security scan\", \"audit dependencies\" still work but now route to the narrow skills instead of the v2 monolithic scripts. use when: starting a security engagement, running an ad-hoc scan, planning a multi-day pentest, or operating the full authorization-to-deliverable workflow end-to-end. trigger with: \"pentest\", \"security scan\", \"vulnerability check\", \"audit dependencies\", \"check headers\", \"find secrets\", \"owasp scan\", \"security audit\". security read write edit glob grep bash(python3:*) bash(pip:*) bash(npm:*) bash(bandit:*) bash(pip-audit:*) bash(pipdeptree:*) bash(gpg:*) bash(tar:*) "
+      "searchText": "performing-penetration-testing route approved security work to the pack's 25 narrow operators, with authorization/scope gates, retained evidence and compatible report inputs. use when starting a pentest, auditing dependencies or source code, checking an approved url, or preparing engagement deliverables. familiar requests route to the appropriate operator; retained legacy clis keep separate completion and json contracts. trigger with \"pentest\", \"security scan\", \"audit dependencies\", \"check headers\", \"find secrets\", or \"owasp coverage\". security read write glob grep bash(python3:*) "
     },
     {
       "type": "skill",
@@ -59971,20 +59961,19 @@
       "id": "probing-dangerous-http-methods",
       "slug": "probing-dangerous-http-methods",
       "name": "probing-dangerous-http-methods",
-      "description": "Probe a target for HTTP methods that should not be enabled in production — TRACE (XST attack), unrestricted PUT/DELETE, DEBUG/CONNECT, WebDAV (PROPFIND/MKCOL/COPY/MOVE), and Allow header enumeration. Use when: penetration test rules of engagement include HTTP method testing, OR a load balancer change went live and you suspect default methods were exposed. Threshold: TRACE returns 200 on any path (XST), PUT/DELETE returns anything other than 405/403/404 on a non-API endpoint, OPTIONS Allow header lists DEBUG/CONNECT/PROPFIND, or WebDAV methods succeed. Trigger with: \"audit http methods\", \"trace check\", \"options enumeration\", \"webdav probe\".",
+      "description": "Discover advertised HTTP methods with bounded OPTIONS requests, then verify separately selected methods only under explicit scoped ROE permission. Use when auditing post-deploy method policy or approved WebDAV/proxy experiments. Requires disposable fixtures, conditional cleanup and private evidence for writes; reports missing or ambiguous evidence as inconclusive. Trigger with \"audit http methods\", \"trace check\", or \"webdav probe\".",
       "category": "security",
       "allowedTools": [
         "Read",
-        "Bash(python3:*)",
-        "Bash(curl:*)"
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "probing-dangerous-http-methods probe a target for http methods that should not be enabled in production — trace (xst attack), unrestricted put/delete, debug/connect, webdav (propfind/mkcol/copy/move), and allow header enumeration. use when: penetration test rules of engagement include http method testing, or a load balancer change went live and you suspect default methods were exposed. threshold: trace returns 200 on any path (xst), put/delete returns anything other than 405/403/404 on a non-api endpoint, options allow header lists debug/connect/propfind, or webdav methods succeed. trigger with: \"audit http methods\", \"trace check\", \"options enumeration\", \"webdav probe\". security read bash(python3:*) bash(curl:*) "
+      "searchText": "probing-dangerous-http-methods discover advertised http methods with bounded options requests, then verify separately selected methods only under explicit scoped roe permission. use when auditing post-deploy method policy or approved webdav/proxy experiments. requires disposable fixtures, conditional cleanup and private evidence for writes; reports missing or ambiguous evidence as inconclusive. trigger with \"audit http methods\", \"trace check\", or \"webdav probe\". security read bash(python3:*) "
     },
     {
       "type": "skill",
@@ -61846,7 +61835,7 @@
       "id": "recording-pentest-engagement",
       "slug": "recording-pentest-engagement",
       "name": "recording-pentest-engagement",
-      "description": "Package an engagement's findings, scan outputs, evidence, and signed ROE into a timestamped archive with a SHA-256 manifest covering every file. Establishes chain of custody so legal counsel, internal audit, or an outside SOC can verify the archive hasn't been modified after closeout. Optionally signs the manifest with GPG for cryptographic attestation. Use when: closing an engagement, snapshotting evidence after each scan day, before handing artifacts to customer, or after an emergency-stop event. Threshold: file in tree without a manifest entry, hash mismatch, out-of-tree path referenced in findings, unsigned manifest when signing was requested. Trigger with: \"record engagement\", \"archive evidence\", \"create chain of custody\", \"package pentest artifacts\".",
+      "description": "Package an engagement's findings, scan outputs, evidence, and signed ROE into a timestamped archive with a SHA-256 manifest covering supported, non-excluded regular files. Verifies an existing manifest without replacing it; integrity failures block signing and packaging. Optionally signs a new manifest with GPG. This supports evidence integrity but does not establish legal chain of custody, authorization, signature trust or compliance certification. Use when: closing an engagement, snapshotting evidence after each scan day, before handing artifacts to customer, or after an emergency-stop event. Threshold: file in tree without a manifest entry, hash mismatch, out-of-tree path referenced in findings, unsigned manifest when signing was requested. Trigger with: \"record engagement\", \"archive evidence\", \"create chain of custody\", \"package pentest artifacts\".",
       "category": "security",
       "allowedTools": [
         "Read",
@@ -61856,12 +61845,12 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
       },
-      "searchText": "recording-pentest-engagement package an engagement's findings, scan outputs, evidence, and signed roe into a timestamped archive with a sha-256 manifest covering every file. establishes chain of custody so legal counsel, internal audit, or an outside soc can verify the archive hasn't been modified after closeout. optionally signs the manifest with gpg for cryptographic attestation. use when: closing an engagement, snapshotting evidence after each scan day, before handing artifacts to customer, or after an emergency-stop event. threshold: file in tree without a manifest entry, hash mismatch, out-of-tree path referenced in findings, unsigned manifest when signing was requested. trigger with: \"record engagement\", \"archive evidence\", \"create chain of custody\", \"package pentest artifacts\". security read bash(python3:*) bash(tar:*) bash(gpg:*) glob "
+      "searchText": "recording-pentest-engagement package an engagement's findings, scan outputs, evidence, and signed roe into a timestamped archive with a sha-256 manifest covering supported, non-excluded regular files. verifies an existing manifest without replacing it; integrity failures block signing and packaging. optionally signs a new manifest with gpg. this supports evidence integrity but does not establish legal chain of custody, authorization, signature trust or compliance certification. use when: closing an engagement, snapshotting evidence after each scan day, before handing artifacts to customer, or after an emergency-stop event. threshold: file in tree without a manifest entry, hash mismatch, out-of-tree path referenced in findings, unsigned manifest when signing was requested. trigger with: \"record engagement\", \"archive evidence\", \"create chain of custody\", \"package pentest artifacts\". security read bash(python3:*) bash(tar:*) bash(gpg:*) glob "
     },
     {
       "type": "skill",
@@ -64963,7 +64952,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -70832,7 +70821,7 @@
         "Glob"
       ],
       "compatibleWith": [],
-      "version": "3.30.0",
+      "version": "3.33.0",
       "parentPlugin": {
         "name": "penetration-tester",
         "category": "security"
@@ -71865,12 +71854,10 @@
       "id": "validating-authentication-implementations",
       "slug": "validating-authentication-implementations",
       "name": "validating-authentication-implementations",
-      "description": "Validate authentication mechanisms for security weaknesses and compliance. Use when reviewing login systems or auth flows. Trigger with 'validate authentication', 'check auth security', or 'review login'.",
+      "description": "Review authentication declarations and verify explicit local JWT trust profiles. Use when reviewing login systems or auth flows. Trigger with 'validate authentication', 'check auth security', or 'review login'.",
       "category": "security",
       "allowedTools": [
         "Read",
-        "Write",
-        "Edit",
         "Grep",
         "Glob",
         "Bash(security:*)",
@@ -71878,12 +71865,12 @@
         "Bash(audit:*)"
       ],
       "compatibleWith": [],
-      "version": "1.27.0",
+      "version": "1.28.0",
       "parentPlugin": {
         "name": "authentication-validator",
         "category": "security"
       },
-      "searchText": "validating-authentication-implementations validate authentication mechanisms for security weaknesses and compliance. use when reviewing login systems or auth flows. trigger with 'validate authentication', 'check auth security', or 'review login'. security read write edit grep glob bash(security:*) bash(scan:*) bash(audit:*) "
+      "searchText": "validating-authentication-implementations review authentication declarations and verify explicit local jwt trust profiles. use when reviewing login systems or auth flows. trigger with 'validate authentication', 'check auth security', or 'review login'. security read grep glob bash(security:*) bash(scan:*) bash(audit:*) "
     },
     {
       "type": "skill",
