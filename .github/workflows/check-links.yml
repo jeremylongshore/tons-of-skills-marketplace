@@ -113,6 +113,9 @@ jobs:
           # repo noise. Link rot is surfaced by the weekly scheduled run +
           # the report artifact instead, not by blocking contributor PRs.
           fail: false
+          # A proven changed document can legitimately contain no links.
+          # Full scans still reject an unexpectedly empty corpus.
+          failIfEmpty: ${{ steps.scope.outputs.full == 'true' }}
           output: ./lychee-repo-report.md
 
       - name: Run lychee (marketplace content with site base)
@@ -129,6 +132,9 @@ jobs:
             ${{ steps.scope.outputs.full == 'true' && '"marketplace/src/content/**/*.md" "marketplace/src/content/**/*.mdx"' || steps.scope.outputs.inputs }}
           # See note above — never block a PR on link results.
           fail: false
+          # A proven changed document can legitimately contain no links.
+          # Full scans still reject an unexpectedly empty corpus.
+          failIfEmpty: ${{ steps.scope.outputs.full == 'true' }}
           output: ./lychee-marketplace-report.md
 
       - name: Upload reports

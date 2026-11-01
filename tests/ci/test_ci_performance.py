@@ -73,6 +73,21 @@ class SnapshotRoutingTests(unittest.TestCase):
         with cwd(self.root):
             return fastlane.safe(fastlane.diff(self.base, self.git("rev-parse", "HEAD")))
 
+    def test_empty_link_results_are_allowed_only_for_proven_scopes(self):
+        workflow = yaml.safe_load((ROOT / ".github/workflows/check-links.yml").read_text())
+        scans = [
+            step
+            for step in workflow["jobs"]["link-scan"]["steps"]
+            if step.get("uses", "").startswith("lycheeverse/lychee-action@")
+        ]
+        self.assertEqual(len(scans), 2)
+        for step in scans:
+            self.assertEqual(step["with"]["failIfEmpty"], "${{ steps.scope.outputs.full == 'true' }}")
+            self.assertIn("steps.scope.outputs.run == 'true'", step["if"])
+        (self.root / "guide.md").write_text("# A changed document without links\n")
+        self.commit()
+        self.assertEqual(links.select(self.root, self.base, "repo"), ["./guide.md"])
+
     def test_each_pnpm_cache_has_its_package_manager_ready(self):
         workflow = yaml.safe_load((ROOT / ".github/workflows/validate-plugins.yml").read_text())
         for name, job in workflow["jobs"].items():

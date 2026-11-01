@@ -28,6 +28,7 @@ jobs:
           test -w "$RUNNER_TEMP"
           node --version
           python3 --version
+          sqlite3 --version
         env:
           WORKER: ${{ matrix.worker }}
           RUNNER_ROOT: /home/ci-ccpi/runners/${{ matrix.worker }}
