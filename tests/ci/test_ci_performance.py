@@ -73,6 +73,17 @@ class SnapshotRoutingTests(unittest.TestCase):
         with cwd(self.root):
             return fastlane.safe(fastlane.diff(self.base, self.git("rev-parse", "HEAD")))
 
+    def test_each_pnpm_cache_has_its_package_manager_ready(self):
+        workflow = yaml.safe_load((ROOT / ".github/workflows/validate-plugins.yml").read_text())
+        for name, job in workflow["jobs"].items():
+            steps = job.get("steps", [])
+            for index, step in enumerate(steps):
+                if step.get("with", {}).get("cache") == "pnpm":
+                    with self.subTest(job=name):
+                        self.assertTrue(
+                            any(prior.get("uses", "").startswith("pnpm/action-setup@") for prior in steps[:index])
+                        )
+
     def test_lightweight_python_scope_is_explicit_and_failures_propagate(self):
         workflow = yaml.safe_load((ROOT / ".github/workflows/validate-plugins.yml").read_text())
         script = next(s["run"] for s in workflow["jobs"]["test"]["steps"] if s.get("name") == "Run Python tests")
