@@ -1,5 +1,5 @@
 #!/bin/sh
-# Pre-push: warn (do not block) when local branch is behind origin/main.
+# Pre-push: run focused read-only checks, then warn when behind origin/main.
 #
 # Catches the failure mode where a long-running PR branch falls behind main
 # while we work, leading to "patch contents already upstream" surprises during
@@ -25,13 +25,16 @@ if ! git fetch -q origin main 2>/dev/null; then
   exit 0
 fi
 
-# This hook is advisory. husky runs it under `sh -e`, so any git command that
+# The ancestry warning is advisory. husky runs this under `sh -e`, so any git command that
 # can fail must be guarded or it aborts the push. In a shallow or single-branch
 # clone `git fetch origin main` does not create origin/main, and the ancestry
 # commands below then exit 128. No origin/main means nothing to compare: allow.
 if ! git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
   exit 0
 fi
+
+# Catch focused failures locally without rewriting files or repeating full CI.
+node scripts/ci/prepush-checks.mjs || exit $?
 
 # Check whether origin/main has commits this branch doesn't have
 if ! git merge-base --is-ancestor origin/main HEAD 2>/dev/null; then

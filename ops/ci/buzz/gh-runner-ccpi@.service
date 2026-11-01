@@ -1,0 +1,35 @@
+[Unit]
+Description=Tons of Skills trusted CI worker %i on Buzz
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/home/ci-ccpi/runners/%i/.runner
+
+[Service]
+Type=simple
+User=ci-ccpi-%i
+Group=ci-ccpi-%i
+Slice=ci-ccpi.slice
+WorkingDirectory=/home/ci-ccpi/runners/%i
+ExecStart=/home/ci-ccpi/runners/%i/bin/Runner.Listener run --startuptype service
+Restart=always
+RestartSec=10
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=HOME=/home/ci-ccpi/runners/%i/_work/_home
+Environment=RUNNER_TOOL_CACHE=/home/ci-ccpi/runners/%i/_work/_tool
+Environment=AGENT_TOOLSDIRECTORY=/home/ci-ccpi/runners/%i/_work/_tool
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=tmpfs
+BindReadOnlyPaths=/home/ci-ccpi/runners/%i
+BindPaths=/home/ci-ccpi/runners/%i/_work /home/ci-ccpi/runners/%i/_diag
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

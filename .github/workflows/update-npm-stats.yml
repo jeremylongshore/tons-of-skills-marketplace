@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.ref == 'refs/heads/main' && fromJSON('["self-hosted", "linux", "ccpi-stats"]') || 'ubuntu-latest' }}
     steps:
       # Fail RED the moment the token is missing — no silent fallback. The
       # 2026-08 audit found `BOT_PR_TOKEN || GITHUB_TOKEN` meant token expiry
@@ -46,23 +46,26 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          filter: blob:none
           # BOT_PR_TOKEN (fine-grained PAT, contents:write + pull-requests:write) re-triggers required checks; GITHUB_TOKEN cannot (anti-recursion). See ops-review bead claude-k0h2.
           # This persisted credential authenticates the branch push below.
           # No fallback: the guard step above fails red when the secret is gone.
           token: ${{ secrets.BOT_PR_TOKEN }}
 
+      - name: Enable repository-pinned pnpm
+        uses: pnpm/action-setup@v6
+
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       # fetch-npm-stats imports the repository-pinned Prettier dependency to
       # keep its JSON and README outputs consistent. The generator fails closed
       # if formatting cannot run, so prepare that dependency before spending
       # ~30 minutes on the rate-limited npm crawl. --ignore-scripts avoids
       # executing package lifecycle hooks in this data-only automation lane.
-      - name: Enable repository-pinned pnpm
-        run: corepack enable
-
       - name: Install stats generator dependencies
         run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo" --ignore-scripts
 
@@ -76,7 +79,9 @@ jobs:
         run: node scripts/check-stats-freshness.mjs --report
 
       # timeout calibration: a HEALTHY fetch takes ~25-30 minutes — 423
-      # candidates x 4 requests, deliberately serial at ~4 req/s to stay under
+      # candidates previously used four requests each. A single daily range now
+      # supplies all three download windows (two requests including metadata).
+      # Keep the conservative serial throttle and deadline to stay under
       # npm's per-IP cap (last 6 green runs: 29-35 min total). The earlier
       # 10-minute bound was miscalibrated against that reality and failed a
       # healthy dispatch; 45 keeps the fail-fast property (vs the 6h job

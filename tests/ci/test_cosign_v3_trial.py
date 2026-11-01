@@ -23,7 +23,10 @@ class CosignTrialContract(unittest.TestCase):
 
     def test_trial_requires_explicit_main_dispatch_and_does_not_cancel_production(self):
         events = self.workflow.get("on", self.workflow.get(True))
-        self.assertEqual(set(events), {"push", "workflow_dispatch"})
+        self.assertEqual(set(events), {"workflow_run", "workflow_dispatch"})
+        self.assertEqual(
+            events["workflow_run"], {"workflows": ["Validate Plugins"], "types": ["completed"], "branches": ["main"]}
+        )
         option = events["workflow_dispatch"]["inputs"]["cosign_v3_trial"]
         self.assertEqual(option["type"], "boolean")
         self.assertIs(option["default"], False)
@@ -75,6 +78,56 @@ process.stdout.write(JSON.stringify(cases.map(({github, inputs}) =>
                 self.assertFalse(production and trial)
                 expected_group = "cosign-v3-trial-" + context["run_id"] if opted_in else "emit-evidence"
                 self.assertEqual(group, expected_group)
+
+    def test_completed_workflow_cannot_sign_fork_pr_or_stale_source(self):
+        cases = []
+        for event, branch, repository, sha, conclusion in itertools.product(
+            ["push", "pull_request"],
+            ["main", "feature"],
+            ["owner/repo", "fork/repo"],
+            ["a" * 40, "b" * 40],
+            ["success", "failure"],
+        ):
+            cases.append(
+                {
+                    "ref": "refs/heads/main",
+                    "event_name": "workflow_run",
+                    "sha": "a" * 40,
+                    "repository": "owner/repo",
+                    "event": {
+                        "workflow_run": {
+                            "event": event,
+                            "head_branch": branch,
+                            "head_sha": sha,
+                            "conclusion": conclusion,
+                            "head_repository": {"full_name": repository},
+                        }
+                    },
+                }
+            )
+        script = r"""
+const fs = require('node:fs');
+const {expression, cases} = JSON.parse(fs.readFileSync(0, 'utf8'));
+const check = new Function('github', 'inputs', 'return (' + expression.replace(/^\$\{\{\s*|\s*\}\}$/g, '') + ')');
+process.stdout.write(JSON.stringify(cases.map(github => !!check(github, {}))));
+"""
+        result = subprocess.run(
+            ["node", "-e", script],
+            input=json.dumps({"expression": self.production["if"], "cases": cases}),
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        for case, allowed in zip(cases, json.loads(result.stdout)):
+            run = case["event"]["workflow_run"]
+            self.assertEqual(
+                allowed,
+                run["event"] == "push"
+                and run["conclusion"] == "success"
+                and run["head_branch"] == "main"
+                and run["head_repository"]["full_name"] == "owner/repo"
+                and run["head_sha"] == case["sha"],
+            )
 
     def test_trial_rejects_unapproved_or_advanced_source_before_any_action(self):
         self.assertEqual(self.trial["needs"], "approve-cosign-v3-trial")

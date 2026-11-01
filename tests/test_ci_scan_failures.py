@@ -134,7 +134,20 @@ class ScanFailureTests(unittest.TestCase):
         self.assertIn("./test_alpha.py", result.stdout)
         self.assertIn("./nested/alpha_test.py", result.stdout)
         self.assertNotIn("test_ignored", result.stdout)
-        self.assertEqual(args, ["-v", "--cov=.", "--cov-report=term-missing", "--cov-report=xml"])
+        self.assertEqual(
+            args,
+            [
+                "-v",
+                "-n",
+                "2",
+                "--dist=loadfile",
+                "--durations=25",
+                "--deselect=tests/test_freshie_hermetic_cycle.py::HermeticFreshieCycleTests::test_full_cycle_uses_only_scratch_state_and_refuses_live_server",
+                "--cov=.",
+                "--cov-report=term-missing",
+                "--cov-report=xml",
+            ],
+        )
 
     def test_discovery_no_match_still_skips_pytest(self):
         result, args = self.discovery({"README.md": "No tests here.\n"})

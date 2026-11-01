@@ -38,6 +38,7 @@ const SCRIPT_PATH = 'scripts/measure-epic-1.mjs';
 export const MEASUREMENT_INPUT_PATHS = [
   SCRIPT_PATH,
   'scripts/measure-epic-1-scorecard.mjs',
+  'scripts/collect-validator-evidence.mjs',
   'scripts/ci-correctness-swallows.mjs',
   'scripts/measure-structural-errors.py',
   'scripts/dead-domain-policy.mjs',
@@ -582,9 +583,12 @@ function validatorEvidence(root) {
     ['marketplace', ['scripts/validate-skills-schema.py', '--marketplace']],
     ['agents', ['scripts/validate-skills-schema.py', '--standard', '--agents-only']],
   ];
+  const collected = run(root, 'node', ['scripts/collect-validator-evidence.mjs']);
+  if (collected.status !== 0) fail(`validator collection failed: ${collected.stderr}`);
+  const results = JSON.parse(collected.stdout);
   const evidence = {};
-  for (const [name, args] of invocations) {
-    const result = run(root, 'python3', args);
+  for (const [name] of invocations) {
+    const result = results[name];
     if (![0, 1].includes(result.status)) fail(`validator ${name} exited ${result.status}`);
     if (/VALIDATION SUMMARY|Validation (?:FAILED|PASSED)/.test(result.stderr)) {
       fail(`validator ${name} emitted protocol text on stderr`);

@@ -20,12 +20,10 @@ import sys
 import types
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = (
-    ROOT
-    / "plugins/saas-packs/podium-pack/skills/podium-webhook-reliability/scripts/webhook_server.py"
-)
+SCRIPT = ROOT / "plugins/saas-packs/podium-pack/skills/podium-webhook-reliability/scripts/webhook_server.py"
 
 
 def _install_fastapi_stub() -> None:
@@ -66,17 +64,26 @@ def _install_fastapi_stub() -> None:
 
 
 def load_module():
-    _install_fastapi_stub()
-    spec = importlib.util.spec_from_file_location("podium_webhook_server", SCRIPT)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+    # Worker scheduling can load another application after this fixture.
+    # Restore its dependency namespace instead of leaking our FastAPI stub.
+    with patch.dict(sys.modules):
+        _install_fastapi_stub()
+        spec = importlib.util.spec_from_file_location("podium_webhook_server", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        return module
 
 
 class SafeLogValue(unittest.TestCase):
     def setUp(self):
         self.module = load_module()
+
+    def test_module_load_does_not_publish_its_dependency_stub(self):
+        with patch.dict(sys.modules):
+            sys.modules.pop("fastapi", None)
+            load_module()
+            self.assertNotIn("fastapi", sys.modules)
 
     def test_plain_values_pass_through_unchanged(self):
         self.assertEqual(self.module.safe_log_value("call.completed"), "call.completed")

@@ -214,6 +214,19 @@ Marketplace-UI PRs additionally run Playwright E2E tests (chromium, webkit, mobi
 
 Run the marketplace-tier validator on your plugin plus `./scripts/quick-test.sh` locally to catch the most common issues before pushing. quick-test is a fast sanity check, not the full CI suite — catalog-sync drift, unicode hygiene, markdownlint, the synced-content scanner, and the submission-docs gate only run in CI.
 
+The pre-push hook also runs focused, read-only checks: actionlint for changed workflows,
+matching Node/Python CI unit suites, and typechecking for affected first-party packages.
+Install actionlint alongside the repository's Node and Python development tools. These
+checks catch failures earlier; GitHub remains the acceptance boundary.
+
+PR test selection comes from the immutable target-base policy in
+[`scripts/ci/fastlane.py`](../scripts/ci/fastlane.py). Only its reviewed documentation
+paths and content-checked numeric stats refreshes can select focused runtime suites.
+Code changes, unproven comparisons and all protected-main runs retain the full lane.
+The three required contexts remain mandatory, including whole-corpus skill conformity.
+Link checks inspect changed Markdown on proven PR comparisons; deletions, policy changes,
+unavailable comparison evidence and scheduled scans retain full link coverage.
+
 ### What happens when you open the PR
 
 1. GitHub runs the CI gate. Three checks are required: **`ci-required`** (aggregates every gate job in `validate-plugins.yml`), **`gitleaks`** (secret scan) and **`skill-conform`** (its own workflow, run over the whole skill corpus). **Those three are the gate**: your PR is mergeable once they're green.
