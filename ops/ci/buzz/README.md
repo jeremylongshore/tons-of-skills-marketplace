@@ -19,6 +19,11 @@ existing `ci.slice` cap of four CPUs and 6 GiB. No estate cap is raised. The exi
 `vps-deploy` runner and its guard are preserved. Fork code must never be assigned
 these workers, even if a contributor copies a label into a workflow.
 
+Host prerequisites are Git, curl, jq, tar and the `sqlite3` CLI. Install them before
+registration; the worker has no package-manager privileges. The smoke workflow
+checks SQLite alongside Node and Python, and the Freshie gate refuses to skip when
+a required tool is missing.
+
 Installation uses the established runner distribution already on Buzz. Copy this
 directory to the host, review it, and run `sudo bash install.sh`. Register each
 instance by piping a short-lived repository registration token to

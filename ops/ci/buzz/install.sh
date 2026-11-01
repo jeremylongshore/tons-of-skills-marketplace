@@ -2,6 +2,9 @@
 # Install only the worker filesystem/sandbox; registration tokens arrive separately.
 set -euo pipefail
 [[ $EUID == 0 ]] || { echo 'Run as root' >&2; exit 1; }
+for tool in git curl jq tar sqlite3; do
+ command -v "$tool" >/dev/null || { echo "Missing host prerequisite: $tool (install before runner registration)" >&2; exit 2; }
+done
 source_dir=$(cd -- "$(dirname -- "$0")" && pwd)
 seed=/home/ci-deploy/runners/tonsofskills
 [[ -x $seed/bin/Runner.Listener ]] || { echo 'Missing established runner distribution' >&2; exit 1; }
