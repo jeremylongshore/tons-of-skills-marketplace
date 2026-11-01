@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { planChecks } from './prepush-checks.mjs';
+import { planChecks, checkEnvironment } from './prepush-checks.mjs';
 
 test('checks changed workflows and tests without shell interpolation or mutation', () => {
   const files = new Set(['.github/workflows/a.yml', 'scripts/a.test.mjs']);
@@ -25,4 +25,18 @@ test('only affected first-party packages are typechecked; mirrors are preserved'
     [['pnpm', '--filter', './plugins/mcp/a', 'typecheck']],
   );
   assert.deepEqual(planChecks(['README.md']), []);
+});
+
+test('hook Git state cannot leak into temporary test repositories', () => {
+  const original = {
+    PATH: process.env.PATH,
+    GIT_DIR: '/wrong/repository',
+    GIT_WORK_TREE: '/wrong/tree',
+    GIT_INDEX_FILE: '/wrong/index',
+    GIT_CONFIG_PARAMETERS: 'unsafe',
+    GIT_PREFIX: 'nested/',
+  };
+  const env = checkEnvironment(original);
+  assert.deepEqual(env, { PATH: process.env.PATH });
+  assert.equal(original.GIT_DIR, '/wrong/repository');
 });

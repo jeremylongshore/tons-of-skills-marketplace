@@ -59,17 +59,24 @@ export function planChecks(
   for (const dir of [...packages].sort()) plan.push(['pnpm', '--filter', `./${dir}`, 'typecheck']);
   return plan;
 }
+export function checkEnvironment(environment = process.env) {
+  // Hooks export repository-local Git state. Nested fixture repositories must
+  // discover their own Git directory and index, instead of mutating this one.
+  return Object.fromEntries(Object.entries(environment).filter(([key]) => !key.startsWith('GIT_')));
+}
+
 export function main() {
+  const env = checkEnvironment();
   const diff = spawnSync(
     'git',
     ['diff', '--name-only', '-z', '--diff-filter=ACMR', 'origin/main...HEAD'],
-    { encoding: 'utf8' },
+    { encoding: 'utf8', env },
   );
   if (diff.status !== 0) throw new Error('Cannot determine committed changes against origin/main');
   const paths = diff.stdout.split('\0').filter(Boolean);
   for (const [command, ...args] of planChecks(paths)) {
     console.error(`Pre-push: ${command} ${args.join(' ')}`);
-    const result = spawnSync(command, args, { stdio: 'inherit' });
+    const result = spawnSync(command, args, { stdio: 'inherit', env });
     if (result.error || result.status !== 0)
       throw new Error(
         `Pre-push check failed: ${command}. ${result.error?.message || 'Fix the reported failure before pushing.'}`,
