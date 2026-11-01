@@ -1,0 +1,33 @@
+name: Buzz CI smoke
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    if: github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        worker: [tasks, stats]
+    runs-on: ${{ fromJSON(format('["self-hosted","linux","ccpi-{0}"]', matrix.worker)) }}
+    timeout-minutes: 5
+    steps:
+      - name: Verify the unprivileged execution boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(id -un)" = "ci-ccpi-$WORKER"
+          if id -nG | grep -qw docker; then echo 'Unexpected Docker membership' >&2; exit 1; fi
+          if sudo -n true 2>/dev/null; then echo 'Unexpected sudo access' >&2; exit 1; fi
+          if test -r /var/run/docker.sock; then echo 'Unexpected Docker socket access' >&2; exit 1; fi
+          if test -d /home/intentsolutions; then echo 'Other home directories are visible' >&2; exit 1; fi
+          if touch "$RUNNER_ROOT/buzz-readonly-probe" 2>/dev/null; then
+            rm -- "$RUNNER_ROOT/buzz-readonly-probe"
+            echo 'Runner distribution is writable' >&2; exit 1
+          fi
+          test -w "$RUNNER_TEMP"
+          node --version
+          python3 --version
+        env:
+          WORKER: ${{ matrix.worker }}
+          RUNNER_ROOT: /home/ci-ccpi/runners/${{ matrix.worker }}

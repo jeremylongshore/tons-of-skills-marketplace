@@ -20,13 +20,14 @@ GENERATOR = REPO_ROOT / "scripts" / "fetch-npm-stats.mjs"
 def test_workflow_installs_generator_dependencies_before_fetching() -> None:
     workflow = WORKFLOW.read_text(encoding="utf-8")
 
-    corepack = workflow.index("run: corepack enable")
+    pnpm_setup = workflow.index("uses: pnpm/action-setup@v6")
     install = workflow.index(
         'run: pnpm install --frozen-lockfile --filter "claude-code-plugins-monorepo" --ignore-scripts'
     )
     fetch = workflow.index("run: node scripts/fetch-npm-stats.mjs")
 
-    assert corepack < install < fetch
+    assert pnpm_setup < install < fetch
+    assert "corepack enable" not in workflow
 
 
 def test_readme_formatting_is_required_and_precedes_artifact_writes() -> None:
@@ -47,23 +48,15 @@ def assert_truthful_stats_narrative(workflow: str) -> None:
     assert "refresh daily npm download stats" not in workflow
 
     commit_lines = [
-        line.strip()
-        for line in workflow.splitlines()
-        if line.strip().startswith('git commit --no-verify -m "')
+        line.strip() for line in workflow.splitlines() if line.strip().startswith('git commit --no-verify -m "')
     ]
-    assert commit_lines == [
-        'git commit --no-verify -m "chore(marketplace-site): refresh daily marketplace stats'
-    ]
+    assert commit_lines == ['git commit --no-verify -m "chore(marketplace-site): refresh daily marketplace stats']
 
     pr_block = workflow[
         workflow.index("gh pr create") : workflow.index("\n          fi", workflow.index("gh pr create"))
     ]
-    title_lines = [
-        line.strip() for line in pr_block.splitlines() if line.strip().startswith('--title "')
-    ]
-    assert title_lines == [
-        '--title "chore(marketplace-site): refresh daily marketplace stats" \\'
-    ]
+    title_lines = [line.strip() for line in pr_block.splitlines() if line.strip().startswith('--title "')]
+    assert title_lines == ['--title "chore(marketplace-site): refresh daily marketplace stats" \\']
 
     body_start = pr_block.index('--body "') + len('--body "')
     body_end = pr_block.rindex('"')
@@ -95,9 +88,7 @@ def assert_truthful_stats_narrative(workflow: str) -> None:
         for line in summary.splitlines()
         if line.strip().startswith('echo "## ') and "GITHUB_STEP_SUMMARY" in line
     ]
-    assert summary_headings == [
-        'echo "## 📊 Marketplace Stats Refresh" >> "$GITHUB_STEP_SUMMARY"'
-    ]
+    assert summary_headings == ['echo "## 📊 Marketplace Stats Refresh" >> "$GITHUB_STEP_SUMMARY"']
 
 
 def test_generated_pr_narrative_names_every_stats_source_and_output() -> None:

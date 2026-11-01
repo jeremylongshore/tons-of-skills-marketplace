@@ -121,9 +121,59 @@ async function fetchRegistryMetadata(name) {
   return { kind: 'rate-limited' };
 }
 
-async function fetchDownloadsPoint(name, window) {
+export function downloadWindow(now = new Date()) {
+  const end = new Date(now);
+  if (!Number.isFinite(end.getTime())) throw new Error('Invalid download-window date');
+  end.setUTCHours(0, 0, 0, 0);
+  end.setUTCDate(end.getUTCDate() - 1);
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - 29);
+  return { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
+}
+
+export function downloadWindowTotals(body, name, window) {
+  if (
+    !body ||
+    body.package !== name ||
+    body.start !== window.start ||
+    body.end !== window.end ||
+    !Array.isArray(body.downloads) ||
+    body.downloads.length !== 30
+  ) {
+    throw new Error('Incomplete or mismatched npm download range');
+  }
+  const rows = new Map();
+  for (const row of body.downloads) {
+    if (
+      !row ||
+      typeof row.day !== 'string' ||
+      rows.has(row.day) ||
+      !Number.isSafeInteger(row.downloads) ||
+      row.downloads < 0
+    ) {
+      throw new Error('Invalid npm daily download count');
+    }
+    rows.set(row.day, row.downloads);
+  }
+  const counts = [];
+  const day = new Date(`${window.start}T00:00:00Z`);
+  for (let index = 0; index < 30; index++) {
+    const key = day.toISOString().slice(0, 10);
+    if (!rows.has(key)) throw new Error('Missing npm download day');
+    counts.push(rows.get(key));
+    day.setUTCDate(day.getUTCDate() + 1);
+  }
+  const sum = (values) =>
+    values.reduce((total, count) => {
+      if (!Number.isSafeInteger(total + count)) throw new Error('Unsafe npm download total');
+      return total + count;
+    }, 0);
+  return { lastDay: counts.at(-1), lastWeek: sum(counts.slice(-7)), lastMonth: sum(counts) };
+}
+
+async function fetchDownloadsRange(name, window) {
   const enc = encodeURIComponent(name);
-  const url = `https://api.npmjs.org/downloads/point/${window}/${enc}`;
+  const url = `https://api.npmjs.org/downloads/range/${window}/${enc}`;
   let lastError = null;
   // 6 retries with exponential backoff up to ~64 s.
   for (let i = 0; i < 6; i++) {
@@ -193,7 +243,7 @@ function packageCreatedAt(meta) {
 //   'foreign'      — registry has it but it's not ours (3rd-party collision)
 //   'rate-limited' — propagates upward as a hard failure
 //   'error'        — generic transient/network/server error
-async function statsFor(name) {
+export async function statsFor(name, window) {
   const metaResult = await fetchRegistryMetadata(name);
   if (metaResult.kind === 'not-found') return { name, status: 'unpublished' };
   if (metaResult.kind === 'rate-limited') return { name, status: 'rate-limited' };
@@ -207,22 +257,21 @@ async function statsFor(name) {
   const { meta } = metaResult;
   if (!isOurs(name, meta)) return { name, status: 'foreign' };
 
-  // Serial fetch (not Promise.all) to stay under npm's per-IP rate limit.
-  const day = await fetchDownloadsPoint(name, 'last-day');
-  const week = await fetchDownloadsPoint(name, 'last-week');
-  const month = await fetchDownloadsPoint(name, 'last-month');
-
-  for (const r of [day, week, month]) {
-    if (r.kind === 'rate-limited') return { name, status: 'rate-limited' };
-    if (r.kind === 'server-error') return { name, status: 'error', detail: r.error };
+  // One daily series covers all three windows with one stable UTC boundary.
+  const result = await fetchDownloadsRange(name, `${window.start}:${window.end}`);
+  if (result.kind === 'rate-limited') return { name, status: 'rate-limited' };
+  if (!['ok', 'not-found'].includes(result.kind))
+    return { name, status: 'error', detail: result.error || `downloads ${result.kind}` };
+  let totals;
+  try {
+    totals =
+      result.kind === 'not-found'
+        ? { lastDay: 0, lastWeek: 0, lastMonth: 0 }
+        : downloadWindowTotals(result.body, name, window);
+  } catch (error) {
+    return { name, status: 'error', detail: error.message };
   }
-
-  // npm returns `{error: "package ... not found"}` for unpublished ones even
-  // if registry has a placeholder. Treat missing `downloads` as zero so a
-  // scoped reserved-but-unpublished name doesn't poison aggregates.
-  const lastDay = day.kind === 'ok' ? (day.body?.downloads ?? 0) : 0;
-  const lastWeek = week.kind === 'ok' ? (week.body?.downloads ?? 0) : 0;
-  const lastMonth = month.kind === 'ok' ? (month.body?.downloads ?? 0) : 0;
+  const { lastDay, lastWeek, lastMonth } = totals;
   const createdAt = packageCreatedAt(meta);
   const latestVersion = meta?.['dist-tags']?.latest ?? null;
 
@@ -237,7 +286,11 @@ async function statsFor(name) {
   };
 }
 
-async function collectStats(pkgNames, { concurrency = 1, throttleMs = 250 } = {}) {
+async function collectStats(
+  pkgNames,
+  { concurrency = 1, throttleMs = 250, now = new Date() } = {},
+) {
+  const window = downloadWindow(now);
   const counts = {
     candidates: pkgNames.length,
     probed: 0,
@@ -258,7 +311,7 @@ async function collectStats(pkgNames, { concurrency = 1, throttleMs = 250 } = {}
       const name = pkgNames[idx];
       let result;
       try {
-        result = await statsFor(name);
+        result = await statsFor(name, window);
       } catch (err) {
         counts.probed += 1;
         counts.errors += 1;

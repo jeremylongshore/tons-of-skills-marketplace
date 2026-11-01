@@ -1202,3 +1202,26 @@ for (const path of ['scripts/ci-correctness-swallows.json', '.github/workflows/s
     assert.ok(row.values === null || row.values.site_counts === null);
   });
 }
+
+// The unprivileged runner must verify the installed binary, not a PATH substitute.
+test('temporary Dolt install proves its exact binary and PATH registration', (t) => {
+  const base = fixture(t);
+  const path = '.github/workflows/validate-plugins.yml';
+  const old = readFileSync(join(base.root, path), 'utf8');
+  const safe = old
+    .replace(
+      'sudo install -m 0755 "$dolt_extract/dolt-linux-amd64/bin/dolt" /usr/local/bin/dolt',
+      'mkdir -p "$RUNNER_TEMP/bin"\n          install -m 0755 "$dolt_extract/dolt-linux-amd64/bin/dolt" "$RUNNER_TEMP/bin/dolt"\n          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"',
+    )
+    .replace('$(dolt version', '$("$RUNNER_TEMP/bin/dolt" version');
+  put(base.root, path, safe);
+  assert.equal(buildExtendedScorecardRows(input(base))[58].values.pinned_dolt, true);
+  for (const unsafe of [
+    safe.replace('          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"\n', ''),
+    safe.replace('$("$RUNNER_TEMP/bin/dolt" version', '$(dolt version'),
+    safe.replace('"$dolt_extract/dolt-linux-amd64/bin/dolt"', '/tmp/unverified/dolt'),
+  ]) {
+    put(base.root, path, unsafe);
+    assert.equal(buildExtendedScorecardRows(input(base))[58].values.pinned_dolt, false);
+  }
+});

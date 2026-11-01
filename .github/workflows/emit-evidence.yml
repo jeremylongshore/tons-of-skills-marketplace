@@ -1,10 +1,13 @@
 # ── Emit this repo's own signed testing evidence for the labs dashboard ──
 #
 # PURELY ADDITIVE workflow: no existing workflow, gate, or branch-protection
-# context changes. It is NOT a PR check and never reports a status context —
-# the required gate stays {ci-required, gitleaks}.
+# context changes. It is NOT a PR check; required contexts remain
+# ci-required, gitleaks and the independent skill-conform.
 #
-# Why push-to-main (not tag/release triggered):
+# Run after main validation completes, rather than allocating a runner while
+# validation runs. workflow_run must be this repository's main push at the same
+# immutable SHA as the emitting workflow context. Fork/PR/stale completions skip.
+# Why protected-main identity (not tag/release triggered):
 #   (a) release.yml here is workflow_dispatch-only and pushes its tags/releases
 #       with GITHUB_TOKEN — and GITHUB_TOKEN-created refs SUPPRESS downstream
 #       workflow triggers, so a tag/release-triggered emit could never fire;
@@ -35,7 +38,9 @@
 name: Emit signed evidence manifest
 
 on:
-  push:
+  workflow_run:
+    workflows: [Validate Plugins]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
     inputs:
@@ -61,7 +66,15 @@ jobs:
     name: Emit signed gate-result evidence for the dashboard
     # Claims must pin refs/heads/main — a dispatch from any other ref would
     # produce an unverifiable manifest, so guard instead of emitting one.
-    if: github.ref == 'refs/heads/main' && !(github.event_name == 'workflow_dispatch' && inputs.cosign_v3_trial)
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      !(github.event_name == 'workflow_dispatch' && inputs.cosign_v3_trial) &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main' &&
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        github.event.workflow_run.head_sha == github.sha))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:

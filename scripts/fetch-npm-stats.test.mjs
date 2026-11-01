@@ -3,7 +3,14 @@ import test from 'node:test';
 
 import prettier from 'prettier';
 
-import { buildReadmeBlock, prepareStatsArtifacts, spliceReadmeStats } from './fetch-npm-stats.mjs';
+import {
+  buildReadmeBlock,
+  prepareStatsArtifacts,
+  spliceReadmeStats,
+  downloadWindow,
+  downloadWindowTotals,
+  statsFor,
+} from './fetch-npm-stats.mjs';
 
 const SAMPLE = {
   generatedAt: '2026-09-02T03:47:05.535Z',
@@ -95,4 +102,81 @@ test('the rendered block can only replace its bounded README region', () => {
 
   assert.ok(updated.startsWith('# Marketplace\n\n'));
   assert.ok(updated.endsWith('\n\nFooter\n'));
+});
+
+test('one UTC daily range preserves day/week/month counts across month and leap-year boundaries', () => {
+  const window = downloadWindow(new Date('2024-03-01T00:01:00Z'));
+  assert.deepEqual(window, { start: '2024-01-31', end: '2024-02-29' });
+  const date = new Date(window.start + 'T00:00:00Z');
+  const downloads = Array.from({ length: 30 }, (_, index) => {
+    const row = { day: date.toISOString().slice(0, 10), downloads: index + 1 };
+    date.setUTCDate(date.getUTCDate() + 1);
+    return row;
+  });
+  const body = { package: '@intentsolutionsio/fixture', ...window, downloads };
+  assert.deepEqual(downloadWindowTotals(body, body.package, window), {
+    lastDay: 30,
+    lastWeek: 189,
+    lastMonth: 465,
+  });
+  for (const mutate of [
+    (b) => b.downloads.pop(),
+    (b) => (b.downloads[0].downloads = -1),
+    (b) => (b.downloads[0].downloads = Infinity),
+    (b) => (b.downloads[0].downloads = 0.5),
+    (b) => (b.downloads[0].day = b.downloads[1].day),
+    (b) => (b.downloads[0].day = '1900-01-01'),
+    (b) => (b.package = 'foreign'),
+    (b) => (b.end = '2024-02-28'),
+  ]) {
+    const bad = globalThis.structuredClone(body);
+    mutate(bad);
+    assert.throws(() => downloadWindowTotals(bad, body.package, window));
+  }
+});
+
+test('published-package collection uses two requests and keeps explicit 404 zeros without accepting malformed success', async () => {
+  const name = '@intentsolutionsio/fixture',
+    window = downloadWindow(new Date('2024-03-01T00:01:00Z'));
+  const date = new Date(window.start + 'T00:00:00Z');
+  const downloads = Array.from({ length: 30 }, () => {
+    const row = { day: date.toISOString().slice(0, 10), downloads: 1 };
+    date.setUTCDate(date.getUTCDate() + 1);
+    return row;
+  });
+  const original = globalThis.fetch;
+  try {
+    for (const mode of ['ok', 'missing', 'malformed']) {
+      const calls = [];
+      globalThis.fetch = async (url) => {
+        calls.push(url);
+        if (calls.length === 1)
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              'dist-tags': { latest: '1.0.0' },
+              time: { created: '2020-01-01T00:00:00Z' },
+            }),
+          };
+        if (mode === 'missing') return { ok: false, status: 404 };
+        return {
+          ok: true,
+          status: 200,
+          json: async () => (mode === 'malformed' ? {} : { package: name, ...window, downloads }),
+        };
+      };
+      const result = await statsFor(name, window);
+      assert.equal(calls.length, 2);
+      assert.match(calls[1], /downloads\/range\/2024-01-31:2024-02-29/);
+      assert.equal(result.status, mode === 'malformed' ? 'error' : 'published');
+      if (mode !== 'malformed')
+        assert.deepEqual(
+          [result.lastDay, result.lastWeek, result.lastMonth],
+          mode === 'missing' ? [0, 0, 0] : [1, 7, 30],
+        );
+    }
+  } finally {
+    globalThis.fetch = original;
+  }
 });

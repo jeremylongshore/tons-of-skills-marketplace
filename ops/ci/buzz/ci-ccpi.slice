@@ -1,0 +1,7 @@
+[Unit]
+Description=Trusted Tons of Skills CI inside the estate CI cap
+[Slice]
+CPUQuota=200%
+CPUWeight=30
+MemoryHigh=2500M
+MemoryMax=3G

@@ -1376,17 +1376,28 @@ PY`;
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
-  const canonicalDoltInstall =
-    'sudo install -m 0755 "$dolt_extract/dolt-linux-amd64/bin/dolt" /usr/local/bin/dolt';
-  const doltDestinationReferences = doltLines.filter((line) =>
-    line.includes('/usr/local/bin/dolt'),
+  const temporaryDolt = doltRun.includes('mkdir -p "$RUNNER_TEMP/bin"');
+  const canonicalDoltInstall = temporaryDolt
+    ? 'install -m 0755 "$dolt_extract/dolt-linux-amd64/bin/dolt" "$RUNNER_TEMP/bin/dolt"'
+    : 'sudo install -m 0755 "$dolt_extract/dolt-linux-amd64/bin/dolt" /usr/local/bin/dolt';
+  const canonicalDoltProbe = temporaryDolt
+    ? `installed_dolt_version="$("$RUNNER_TEMP/bin/dolt" version | awk 'NR == 1 { print $3 }')"`
+    : `installed_dolt_version="$(dolt version | awk 'NR == 1 { print $3 }')"`;
+  const doltDestinationReferences = doltLines.filter(
+    (line) =>
+      line !== canonicalDoltProbe &&
+      line.includes(temporaryDolt ? '$RUNNER_TEMP/bin/dolt' : '/usr/local/bin/dolt'),
   );
   const jobDoltDestinationReferences = steps.flatMap((step) =>
     typeof step?.run === 'string'
       ? step.run
           .split(/\r?\n/)
           .map((line) => line.trim())
-          .filter((line) => line.includes('/usr/local/bin/dolt'))
+          .filter(
+            (line) =>
+              line !== canonicalDoltProbe &&
+              line.includes(temporaryDolt ? '$RUNNER_TEMP/bin/dolt' : '/usr/local/bin/dolt'),
+          )
       : [],
   );
   const allowedPinnedDoltLines = [
@@ -1402,6 +1413,9 @@ PY`;
     /^printf '%s {2}%s\\n' "\$dolt_sha256" "\$dolt_archive" \| sha256sum --check --strict$/,
     /^tar -xzf "\$dolt_archive" -C "\$dolt_extract"$/,
     new RegExp(`^${canonicalDoltInstall.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
+    /^mkdir -p "\$RUNNER_TEMP\/bin"$/,
+    /^echo "\$RUNNER_TEMP\/bin" >> "\$GITHUB_PATH"$/,
+    /^installed_dolt_version="\$\("\$RUNNER_TEMP\/bin\/dolt" version \| awk 'NR == 1 \{ print \$3 \}'\)"$/,
     /^installed_dolt_version="\$\(dolt version \| awk 'NR == 1 \{ print \$3 \}'\)"$/,
     /^readonly installed_dolt_version$/,
     /^test "\$installed_dolt_version" = "\$dolt_version"$/,
@@ -1445,10 +1459,10 @@ PY`;
         doltRun,
       ) &&
       /tar -xzf "\$dolt_archive" -C "\$dolt_extract"/.test(doltRun) &&
-      /sudo install -m 0755 "\$dolt_extract\/dolt-linux-amd64\/bin\/dolt" \/usr\/local\/bin\/dolt/.test(
-        doltRun,
-      ) &&
-      /installed_dolt_version="\$\(dolt version \| awk 'NR == 1 \{ print \$3 \}'\)"\s+readonly installed_dolt_version/.test(
+      doltLines.includes(canonicalDoltInstall) &&
+      doltLines.includes(canonicalDoltProbe) &&
+      (!temporaryDolt || doltLines.includes('echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"')) &&
+      /installed_dolt_version="\$\((?:dolt|"\$RUNNER_TEMP\/bin\/dolt") version \| awk 'NR == 1 \{ print \$3 \}'\)"\s+readonly installed_dolt_version/.test(
         doltRun,
       ) &&
       /test "\$installed_dolt_version" = "\$dolt_version"/.test(doltRun),

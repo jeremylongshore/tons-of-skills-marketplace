@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -125,15 +126,91 @@ def diff(before: str, after: str) -> list[dict[str, str]]:
     )
 
 
+STATS_PATHS = {
+    "marketplace/src/data/npm-stats.json",
+    "marketplace/src/data/github-stats.json",
+    "marketplace/src/data/skills-stats.json",
+}
+
+
+def stats_shape(value, key=""):
+    """Only numeric snapshots, timestamps, display counts and named-row order may vary."""
+    if isinstance(value, bool) or value is None:
+        return value
+    if isinstance(value, (int, float)):
+        if not math.isfinite(value) or value < 0 or value > 2**53 - 1:
+            raise ValueError("invalid numeric snapshot")
+        return ("number",)
+    if isinstance(value, str):
+        if key == "generatedAt":
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z", value):
+                raise ValueError("invalid snapshot timestamp")
+            return ("timestamp",)
+        if key in {"starsDisplay", "installsDisplay"}:
+            if not re.fullmatch(r"[0-9]+(?:[,.][0-9]+)*(?:[KM])?", value):
+                raise ValueError("invalid snapshot display")
+            return ("display",)
+        return ("string", value)
+    if isinstance(value, list):
+        if value and all(isinstance(row, dict) and isinstance(row.get("name"), str) for row in value):
+            if len({row["name"] for row in value}) != len(value):
+                raise ValueError("duplicate snapshot identities")
+            value = sorted(value, key=lambda row: row["name"])
+        return [stats_shape(row) for row in value]
+    if isinstance(value, dict):
+        return {name: stats_shape(row, name) for name, row in value.items()}
+    raise ValueError("unsupported snapshot value")
+
+
+def readme_stats_shape(raw):
+    if any(token in raw for token in ("<number>", "<timestamp>", "<package-link>", "\0")):
+        raise ValueError("invalid stats block token")
+    start = "<!-- NPM-STATS:START — do not edit; daily cron updates this -->"
+    end = "<!-- NPM-STATS:END -->"
+    if raw.count(start) != 1 or raw.count(end) != 1:
+        raise ValueError("ambiguous stats block")
+    prefix, rest = raw.split(start)
+    block, suffix = rest.split(end)
+    names = {row["name"] for row in json.loads(git("show", "HEAD:marketplace/src/data/npm-stats.json"))["top"]}
+
+    def link(match):
+        if match[1] != match[2] or match[1] not in names:
+            raise ValueError("unrecognized stats package link")
+        return "<package-link>"
+
+    block = re.sub(r"\[`([^`]+)`\]\(https://www\.npmjs\.com/package/([^()]+)\)", link, block)
+    block = re.sub(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z", "<timestamp>", block)
+    block = re.sub(r"[0-9]+(?:[,.][0-9]+)*", "<number>", block)
+    return prefix, block, suffix
+
+
 def safe(records: list[dict[str, str]]) -> bool:
-    return bool(records) and all(
-        item["path"] in SAFE_PATHS
-        and item["status"] == "M"
-        and item["old_mode"] == item["new_mode"] == "100644"
-        and item["old_oid"] != "0" * 40
-        and item["new_oid"] != "0" * 40
-        for item in records
-    )
+    if not records:
+        return False
+    for item in records:
+        if (
+            item["status"] != "M"
+            or item["old_mode"] != "100644"
+            or item["new_mode"] != "100644"
+            or not re.fullmatch(r"[0-9a-f]{40}", item["old_oid"])
+            or not re.fullmatch(r"[0-9a-f]{40}", item["new_oid"])
+            or item["old_oid"] == "0" * 40
+            or item["new_oid"] == "0" * 40
+        ):
+            return False
+        path = item["path"]
+        if path in SAFE_PATHS:
+            continue
+        if path in STATS_PATHS:
+            before, after = (json.loads(git("show", item[key])) for key in ("old_oid", "new_oid"))
+            if stats_shape(before) == stats_shape(after):
+                continue
+        elif path == "README.md":
+            before, after = (git("show", item[key]).decode("utf-8") for key in ("old_oid", "new_oid"))
+            if readme_stats_shape(before) == readme_stats_shape(after):
+                continue
+        return False
+    return True
 
 
 def classify(event: object, event_name: str, checkout: str) -> dict:

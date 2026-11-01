@@ -101,7 +101,9 @@ class WorkflowRoutingContractTests(unittest.TestCase):
                 "lane": "${{ steps.classify.outputs.lane }}",
             },
         )
-        self.assertEqual(classifier["steps"][0]["with"], {"fetch-depth": 0, "persist-credentials": False})
+        self.assertEqual(
+            classifier["steps"][0]["with"], {"fetch-depth": 0, "filter": "blob:none", "persist-credentials": False}
+        )
         step = next(step for step in classifier["steps"] if step.get("id") == "classify")
         self.assertEqual(step["env"], {"PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}"})
         upload = classifier["steps"][-1]
@@ -126,7 +128,8 @@ class WorkflowRoutingContractTests(unittest.TestCase):
         }
         for name, (lane, command) in protected.items():
             with self.subTest(step=name):
-                self.assertEqual(steps[name]["if"], f"matrix.test-type == '{lane}'")
+                expected = f"matrix.test-type == '{lane}'"
+                self.assertEqual(steps[name]["if"], expected)
                 self.assertIn(command, steps[name]["run"])
 
     def test_mcp_build_routes_only_the_exact_lightweight_lane_and_propagates_failure(self):

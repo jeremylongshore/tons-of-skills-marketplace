@@ -31,17 +31,42 @@ permissions:
   contents: read
 
 jobs:
-  link-check:
+  link-scan:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scan: [repo, marketplace]
     steps:
       - uses: actions/checkout@v7
+
+      - name: Select reviewed PR link inputs
+        id: scope
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          LINK_SCAN: ${{ matrix.scan }}
+        run: |
+          set -euo pipefail
+          # A PR cannot provide the code that narrows its own link coverage.
+          helper="scripts/ci/link_scope.py"
+          if [ "$EVENT_NAME" = pull_request ] && [[ "$PR_BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            git fetch --no-tags --depth=1 origin "$PR_BASE_SHA"
+            if git cat-file -e "$PR_BASE_SHA:$helper" 2>/dev/null; then
+              trusted=$(mktemp "$RUNNER_TEMP/link-scope.XXXXXX.py")
+              git show "$PR_BASE_SHA:$helper" > "$trusted"
+              python3 "$trusted" --base "$PR_BASE_SHA" --scan "$LINK_SCAN" --output "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          printf 'full=true\nrun=true\ninputs=\n' >> "$GITHUB_OUTPUT"
 
       - name: Restore lychee cache
         uses: actions/cache@v6
         with:
           path: .lycheecache
-          key: cache-lychee-${{ github.sha }}
-          restore-keys: cache-lychee-
+          key: cache-lychee-${{ matrix.scan }}-${{ github.sha }}
+          restore-keys: cache-lychee-${{ matrix.scan }}-
 
       # Two lychee invocations because the marketplace blog content uses
       # root-relative URLs (`/posts/foo`, `/explore`) that Astro renders
@@ -51,6 +76,7 @@ jobs:
       # without a base.
 
       - name: Run lychee (repo-side markdown)
+        if: matrix.scan == 'repo' && steps.scope.outputs.run == 'true'
         id: lychee_repo
         uses: lycheeverse/lychee-action@v2
         with:
@@ -81,8 +107,7 @@ jobs:
             --exclude-path '.audit-harness'
             --exclude-path 'coverage'
             --exclude-path '.pnpm-store'
-            './**/*.md'
-            './**/*.mdx'
+            ${{ steps.scope.outputs.full == 'true' && '"./**/*.md" "./**/*.mdx"' || steps.scope.outputs.inputs }}
           # Never red-X a PR on link results — external-host flakiness (conn
           # resets, rate-limits) produced ~200 false failures that read as
           # repo noise. Link rot is surfaced by the weekly scheduled run +
@@ -91,6 +116,7 @@ jobs:
           output: ./lychee-repo-report.md
 
       - name: Run lychee (marketplace content with site base)
+        if: matrix.scan == 'marketplace' && steps.scope.outputs.run == 'true'
         id: lychee_marketplace
         uses: lycheeverse/lychee-action@v2
         with:
@@ -100,8 +126,7 @@ jobs:
             --no-progress
             --cache
             --max-cache-age 1d
-            'marketplace/src/content/**/*.md'
-            'marketplace/src/content/**/*.mdx'
+            ${{ steps.scope.outputs.full == 'true' && '"marketplace/src/content/**/*.md" "marketplace/src/content/**/*.mdx"' || steps.scope.outputs.inputs }}
           # See note above — never block a PR on link results.
           fail: false
           output: ./lychee-marketplace-report.md
@@ -110,7 +135,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: lychee-reports-${{ github.run_id }}
+          name: lychee-reports-${{ github.run_id }}-${{ matrix.scan }}
           path: |
             ./lychee-repo-report.md
             ./lychee-marketplace-report.md
@@ -122,8 +147,9 @@ jobs:
       - name: Alert Slack on scheduled failure or broken links
         if: >-
           always() && !cancelled() && github.event_name != 'pull_request' &&
-          (failure() || steps.lychee_repo.outputs.exit_code != '0' ||
-          steps.lychee_marketplace.outputs.exit_code != '0')
+          (failure() ||
+           (matrix.scan == 'repo' && steps.scope.outputs.run == 'true' && steps.lychee_repo.outputs.exit_code != '0') ||
+           (matrix.scan == 'marketplace' && steps.scope.outputs.run == 'true' && steps.lychee_marketplace.outputs.exit_code != '0'))
         env:
           WEBHOOK: ${{ secrets.SLACK_OPERATION_HIRED_WEBHOOK_URL }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -139,3 +165,13 @@ jobs:
             --header 'Content-Type: application/json' --data "$PAYLOAD" \
             -- "$WEBHOOK" > /dev/null
           echo "Slack alert delivered."
+
+  link-check:
+    if: always()
+    needs: link-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require both link scans to complete successfully
+        env:
+          SCAN_RESULT: ${{ needs.link-scan.result }}
+        run: test "$SCAN_RESULT" = success
