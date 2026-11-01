@@ -8,6 +8,8 @@ import sys
 
 import pytest
 
+from tests.python_runtime import isolated_python_env
+
 
 SCRIPTS = (
     Path(__file__).resolve().parents[1]
@@ -35,7 +37,7 @@ def invoke(tmp_path, script, *arguments, python_flags=(), fixture_env=None):
     return subprocess.run(
         [sys.executable, *python_flags, str(SCRIPTS / script), *arguments],
         cwd=tmp_path,
-        env={"PATH": str(tmp_path), "PYTHONNOUSERSITE": "1", **(fixture_env or {})},
+        env=isolated_python_env({"PATH": str(tmp_path), "PYTHONNOUSERSITE": "1", **(fixture_env or {})}),
         text=True,
         capture_output=True,
         timeout=10,
