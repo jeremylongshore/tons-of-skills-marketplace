@@ -104,8 +104,8 @@ test('the rendered block can only replace its bounded README region', () => {
   assert.ok(updated.endsWith('\n\nFooter\n'));
 });
 
-test('one UTC daily range preserves day/week/month counts across month and leap-year boundaries', () => {
-  const window = downloadWindow(new Date('2024-03-01T00:01:00Z'));
+test('API-reported UTC range preserves day/week/month counts across leap-year boundaries', () => {
+  const window = downloadWindow('2024-02-29');
   assert.deepEqual(window, { start: '2024-01-31', end: '2024-02-29' });
   const date = new Date(window.start + 'T00:00:00Z');
   const downloads = Array.from({ length: 30 }, (_, index) => {
@@ -114,7 +114,7 @@ test('one UTC daily range preserves day/week/month counts across month and leap-
     return row;
   });
   const body = { package: '@intentsolutionsio/fixture', ...window, downloads };
-  assert.deepEqual(downloadWindowTotals(body, body.package, window), {
+  assert.deepEqual(downloadWindowTotals(body, body.package), {
     lastDay: 30,
     lastWeek: 189,
     lastMonth: 465,
@@ -131,13 +131,13 @@ test('one UTC daily range preserves day/week/month counts across month and leap-
   ]) {
     const bad = globalThis.structuredClone(body);
     mutate(bad);
-    assert.throws(() => downloadWindowTotals(bad, body.package, window));
+    assert.throws(() => downloadWindowTotals(bad, body.package));
   }
 });
 
 test('published-package collection uses two requests and keeps explicit 404 zeros without accepting malformed success', async () => {
   const name = '@intentsolutionsio/fixture',
-    window = downloadWindow(new Date('2024-03-01T00:01:00Z'));
+    window = downloadWindow('2024-02-29');
   const date = new Date(window.start + 'T00:00:00Z');
   const downloads = Array.from({ length: 30 }, () => {
     const row = { day: date.toISOString().slice(0, 10), downloads: 1 };
@@ -166,9 +166,9 @@ test('published-package collection uses two requests and keeps explicit 404 zero
           json: async () => (mode === 'malformed' ? {} : { package: name, ...window, downloads }),
         };
       };
-      const result = await statsFor(name, window);
+      const result = await statsFor(name);
       assert.equal(calls.length, 2);
-      assert.match(calls[1], /downloads\/range\/2024-01-31:2024-02-29/);
+      assert.match(calls[1], /downloads\/range\/last-month\//);
       assert.equal(result.status, mode === 'malformed' ? 'error' : 'published');
       if (mode !== 'malformed')
         assert.deepEqual(
@@ -178,5 +178,19 @@ test('published-package collection uses two requests and keeps explicit 404 zero
     }
   } finally {
     globalThis.fetch = original;
+  }
+});
+
+test('download windows reject malformed or normalized calendar dates', () => {
+  for (const end of [
+    undefined,
+    '',
+    'not-a-date',
+    '2024-02-30',
+    '2024-13-01',
+    '2024-2-29',
+    '2024-02-29T00:00:00Z',
+  ]) {
+    assert.throws(() => downloadWindow(end));
   }
 });

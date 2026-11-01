@@ -121,17 +121,19 @@ async function fetchRegistryMetadata(name) {
   return { kind: 'rate-limited' };
 }
 
-export function downloadWindow(now = new Date()) {
-  const end = new Date(now);
-  if (!Number.isFinite(end.getTime())) throw new Error('Invalid download-window date');
-  end.setUTCHours(0, 0, 0, 0);
-  end.setUTCDate(end.getUTCDate() - 1);
+export function downloadWindow(endDay) {
+  if (typeof endDay !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(endDay))
+    throw new Error('Invalid npm download-window end day');
+  const end = new Date(`${endDay}T00:00:00Z`);
+  if (!Number.isFinite(end.getTime()) || end.toISOString().slice(0, 10) !== endDay)
+    throw new Error('Invalid npm download-window end day');
   const start = new Date(end);
   start.setUTCDate(start.getUTCDate() - 29);
   return { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
 }
 
-export function downloadWindowTotals(body, name, window) {
+export function downloadWindowTotals(body, name) {
+  const window = downloadWindow(body?.end);
   if (
     !body ||
     body.package !== name ||
@@ -171,9 +173,9 @@ export function downloadWindowTotals(body, name, window) {
   return { lastDay: counts.at(-1), lastWeek: sum(counts.slice(-7)), lastMonth: sum(counts) };
 }
 
-async function fetchDownloadsRange(name, window) {
+async function fetchDownloadsRange(name) {
   const enc = encodeURIComponent(name);
-  const url = `https://api.npmjs.org/downloads/range/${window}/${enc}`;
+  const url = `https://api.npmjs.org/downloads/range/last-month/${enc}`;
   let lastError = null;
   // 6 retries with exponential backoff up to ~64 s.
   for (let i = 0; i < 6; i++) {
@@ -243,7 +245,7 @@ function packageCreatedAt(meta) {
 //   'foreign'      — registry has it but it's not ours (3rd-party collision)
 //   'rate-limited' — propagates upward as a hard failure
 //   'error'        — generic transient/network/server error
-export async function statsFor(name, window) {
+export async function statsFor(name) {
   const metaResult = await fetchRegistryMetadata(name);
   if (metaResult.kind === 'not-found') return { name, status: 'unpublished' };
   if (metaResult.kind === 'rate-limited') return { name, status: 'rate-limited' };
@@ -257,8 +259,10 @@ export async function statsFor(name, window) {
   const { meta } = metaResult;
   if (!isOurs(name, meta)) return { name, status: 'foreign' };
 
-  // One daily series covers all three windows with one stable UTC boundary.
-  const result = await fetchDownloadsRange(name, `${window.start}:${window.end}`);
+  // npm's relative range reports the same data cutoff as its point aliases.
+  // The available cutoff can lag UTC yesterday; explicit calendar dates can
+  // append unavailable, zero-filled days and silently change all three totals.
+  const result = await fetchDownloadsRange(name);
   if (result.kind === 'rate-limited') return { name, status: 'rate-limited' };
   if (!['ok', 'not-found'].includes(result.kind))
     return { name, status: 'error', detail: result.error || `downloads ${result.kind}` };
@@ -267,7 +271,7 @@ export async function statsFor(name, window) {
     totals =
       result.kind === 'not-found'
         ? { lastDay: 0, lastWeek: 0, lastMonth: 0 }
-        : downloadWindowTotals(result.body, name, window);
+        : downloadWindowTotals(result.body, name);
   } catch (error) {
     return { name, status: 'error', detail: error.message };
   }
@@ -286,11 +290,7 @@ export async function statsFor(name, window) {
   };
 }
 
-async function collectStats(
-  pkgNames,
-  { concurrency = 1, throttleMs = 250, now = new Date() } = {},
-) {
-  const window = downloadWindow(now);
+async function collectStats(pkgNames, { concurrency = 1, throttleMs = 250 } = {}) {
   const counts = {
     candidates: pkgNames.length,
     probed: 0,
@@ -311,7 +311,7 @@ async function collectStats(
       const name = pkgNames[idx];
       let result;
       try {
-        result = await statsFor(name, window);
+        result = await statsFor(name);
       } catch (err) {
         counts.probed += 1;
         counts.errors += 1;
