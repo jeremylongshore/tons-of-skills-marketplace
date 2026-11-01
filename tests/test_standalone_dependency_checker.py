@@ -8,6 +8,8 @@ import sys
 
 import pytest
 
+from tests.python_runtime import isolated_python_env
+
 
 SCRIPTS = (
     Path(__file__).resolve().parents[1] / "plugins/security/dependency-checker/skills/analyzing-dependencies/scripts"
@@ -77,12 +79,14 @@ sys.exit(case.get('code', 0))
         program = sys.executable if name == "python3" else shutil.which(name)
         if program:
             (binaries / name).symlink_to(program)
-    env = {
-        "PATH": str(binaries),
-        "DEPENDENCY_CHECK_PYTHON": sys.executable,
-        "CHECKER_FIXTURE_CALLS": str(calls),
-        "CHECKER_FIXTURE_TOOLS": "{}",
-    }
+    env = isolated_python_env(
+        {
+            "PATH": str(binaries),
+            "DEPENDENCY_CHECK_PYTHON": sys.executable,
+            "CHECKER_FIXTURE_CALLS": str(calls),
+            "CHECKER_FIXTURE_TOOLS": "{}",
+        }
+    )
     return tmp_path, env, calls
 
 
