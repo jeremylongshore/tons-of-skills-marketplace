@@ -1,0 +1,30 @@
+{
+  "name": "@intentsolutionsio/swift-ship",
+  "private": true,
+  "version": "1.1.0",
+  "description": "Five battle-tested skills that take a SwiftPM macOS app from 'builds on my machine' to a public GitHub release: generate .icns icons, package .app bundles and DMGs, set up portable CI, audit open-sour",
+  "keywords": [
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/community/swift-ship"
+  },
+  "homepage": "https://tonsofskills.com/plugins/swift-ship",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "chsistrying"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin",
+    "skills"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install swift-ship\\\\n  or /plugin install swift-ship@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "suresofttech",
+  "description": "Suresoft Technologies plugins for AI coding agents",
+  "owner": {
+    "name": "Suresoft Technologies",
+    "email": "bizcenter@suresofttech.com",
+    "url": "https://www.suresofttech.com"
+  },
+  "plugins": [
+    {
+      "name": "dvera",
+      "description": "Connect AI coding-agent context to CT (Controller Tester) C/C++ verification workflows: project preparation, analysis, test generation, execution, coverage, reporting, and regression follow-up.",
+      "source": "./",
+      "version": "0.1.4",
+      "category": "testing",
+      "tags": [
+        "dvera",
+        "ct",
+        "controller-tester",
+        "suresoft",
+        "c",
+        "cpp",
+        "embedded",
+        "unit-testing",
+        "integration-testing",
+        "test-automation",
+        "test-generation",
+        "code-coverage",
+        "mcdc",
+        "mission-critical",
+        "requirements-traceability",
+        "regression-testing",
+        "googletest",
+        "iso-26262",
+        "do-178c",
+        "en-50128"
+      ]
+    }
+  ]
+}

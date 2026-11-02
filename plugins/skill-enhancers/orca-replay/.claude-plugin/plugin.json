@@ -1,0 +1,11 @@
+{
+  "name": "orca-replay",
+  "version": "0.1.0",
+  "description": "Answer questions about a past agent run from its recording instead of from memory - which step changed a file, why a command ran, where the build broke - and replay or fork that run offline. Requires the orcareplay npm package with its MCP server registered as orca, and at least one recorded run.",
+  "author": {
+    "name": "Continuum AI",
+    "url": "https://github.com/Continuum-AI-Corp"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/Continuum-AI-Corp/OrcaReplay"
+}

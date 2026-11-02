@@ -1,0 +1,32 @@
+{
+  "synced_from": {
+    "repo": "chsistrying/swift-ship-skills",
+    "path": ".",
+    "branch": "main"
+  },
+  "last_sync": "2026-11-02T14:33:52.830Z",
+  "author": {
+    "name": "chsistrying",
+    "github": "chsistrying",
+    "email": "h431523595@gmail.com"
+  },
+  "license": "MIT",
+  "files_synced": 15,
+  "files": [
+    ".claude-plugin/marketplace.json",
+    ".claude-plugin/plugin.json",
+    "LICENSE",
+    "README.md",
+    "skills/macos-app-icon/SKILL.md",
+    "skills/macos-app-icon/scripts/make_icns.sh",
+    "skills/oss-readiness-audit/SKILL.md",
+    "skills/swift-ci-portability/SKILL.md",
+    "skills/swift-ci-portability/assets/ci.yml.template",
+    "skills/swift-ci-portability/references/portability-traps.md",
+    "skills/swift-release-flow/SKILL.md",
+    "skills/swiftpm-app-bundle/SKILL.md",
+    "skills/swiftpm-app-bundle/assets/Info.plist.template",
+    "skills/swiftpm-app-bundle/references/signing-notarization.md",
+    "skills/swiftpm-app-bundle/scripts/package_app.sh"
+  ]
+}
