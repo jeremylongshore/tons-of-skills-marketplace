@@ -1,0 +1,18 @@
+{
+  "synced_from": {
+    "repo": "Zandereins/schliff",
+    "path": "skills/schliff",
+    "branch": "main"
+  },
+  "last_sync": "2026-11-02T14:33:47.752Z",
+  "author": {
+    "name": "Zandereins",
+    "github": "Zandereins"
+  },
+  "license": "MIT",
+  "files_synced": 2,
+  "files": [
+    "LICENSE",
+    "SKILL.md"
+  ]
+}

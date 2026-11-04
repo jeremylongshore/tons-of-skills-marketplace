@@ -1,0 +1,30 @@
+{
+  "name": "@intentsolutionsio/orca-replay",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Answer questions about a past agent run from its recording instead of from memory - which step changed a file, why a command ran, where the build broke - and replay or fork that run offline. Requires ",
+  "keywords": [
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/skill-enhancers/orca-replay"
+  },
+  "homepage": "https://tonsofskills.com/plugins/orca-replay",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Continuum AI",
+    "url": "https://github.com/Continuum-AI-Corp"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install orca-replay\\\\n  or /plugin install orca-replay@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+  }
+}

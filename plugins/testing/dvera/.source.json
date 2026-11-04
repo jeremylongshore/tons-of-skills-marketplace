@@ -1,0 +1,35 @@
+{
+  "synced_from": {
+    "repo": "SuresoftTechnologies/dvera-plugin",
+    "path": ".",
+    "branch": "main"
+  },
+  "last_sync": "2026-11-02T14:33:50.783Z",
+  "author": {
+    "name": "Suresoft Technologies",
+    "github": "SuresoftTechnologies",
+    "email": "bizcenter@suresofttech.com"
+  },
+  "license": "MIT",
+  "files_synced": 18,
+  "files": [
+    ".claude-plugin/marketplace.json",
+    ".claude-plugin/plugin.json",
+    "LICENSE",
+    "README.md",
+    "skills/ct-analysis-loop/SKILL.md",
+    "skills/ct-extract-macro/SKILL.md",
+    "skills/ct-init-project/SKILL.md",
+    "skills/ct-kb-update/SKILL.md",
+    "skills/ct-make-conf/SKILL.md",
+    "skills/ct-open/SKILL.md",
+    "skills/ct-orchestrator/SKILL.md",
+    "skills/ct-regression/SKILL.md",
+    "skills/ct-report/SKILL.md",
+    "skills/ct-req-to-test/SKILL.md",
+    "skills/ct-run-gtest/SKILL.md",
+    "skills/ct-self-healing/SKILL.md",
+    "skills/ct-setup-project/SKILL.md",
+    "skills/ct-test-loop/SKILL.md"
+  ]
+}

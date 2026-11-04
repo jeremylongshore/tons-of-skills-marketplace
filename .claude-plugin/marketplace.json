@@ -8297,6 +8297,80 @@
       "homepage": "https://github.com/hashgraph-online/hol-guard",
       "repository": "https://github.com/hashgraph-online/hol-guard-plugin",
       "license": "Apache-2.0"
+    },
+    {
+      "name": "schliff",
+      "source": "./plugins/community/schliff",
+      "description": "Deterministic linter and scorer for SKILL.md, AGENTS.md and CLAUDE.md - no model in the loop, same bytes score the same everywhere; also checks whether the commands a file promises actually resolve in the repo.",
+      "version": "0.1.0",
+      "category": "community",
+      "author": {
+        "name": "Zandereins",
+        "url": "https://github.com/Zandereins"
+      },
+      "repository": "https://github.com/Zandereins/schliff",
+      "license": "MIT"
+    },
+    {
+      "name": "dvera",
+      "source": "./plugins/testing/dvera",
+      "description": "Prepare and coordinate C/C++ verification with CT (Controller Tester) for mission-critical software - project setup, analysis, test generation and execution, MC-DC coverage review, GoogleTest reuse, and regression follow-up.",
+      "version": "0.1.4",
+      "category": "testing",
+      "keywords": [
+        "dvera",
+        "ct",
+        "controller-tester",
+        "suresoft",
+        "c",
+        "cpp",
+        "embedded",
+        "unit-testing",
+        "integration-testing",
+        "test-automation",
+        "test-generation",
+        "code-coverage",
+        "mcdc",
+        "mission-critical",
+        "requirements-traceability",
+        "regression-testing",
+        "googletest",
+        "iso-26262",
+        "do-178c",
+        "en-50128"
+      ],
+      "author": {
+        "name": "Suresoft Technologies",
+        "url": "https://www.suresofttech.com",
+        "email": "bizcenter@suresofttech.com"
+      },
+      "homepage": "https://github.com/SuresoftTechnologies/dvera-plugin",
+      "repository": "https://github.com/SuresoftTechnologies/dvera-plugin",
+      "license": "MIT"
+    },
+    {
+      "name": "orca-replay",
+      "source": "./plugins/skill-enhancers/orca-replay",
+      "description": "Answer questions about a past agent run from its recording instead of from memory - which step changed a file, why a command ran, where the build broke - and replay or fork that run offline. Requires the orcareplay npm package with its MCP server registered as orca, and at least one recorded run.",
+      "version": "0.1.0",
+      "category": "skill-enhancers",
+      "author": {
+        "name": "Continuum AI",
+        "url": "https://github.com/Continuum-AI-Corp"
+      },
+      "repository": "https://github.com/Continuum-AI-Corp/OrcaReplay",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "swift-ship",
+      "source": "./plugins/community/swift-ship",
+      "description": "Five Agent Skills for shipping Swift/macOS apps — .icns icons, .app/DMG packaging, CI portability traps, OSS readiness audit, release flow",
+      "version": "1.1.0",
+      "category": "community",
+      "author": {
+        "name": "chsistrying"
+      },
+      "license": "MIT"
     }
   ]
 }

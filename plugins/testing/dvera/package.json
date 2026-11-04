@@ -1,0 +1,49 @@
+{
+  "name": "@intentsolutionsio/dvera",
+  "private": true,
+  "version": "0.1.4",
+  "description": "Connect AI coding-agent context to CT (Controller Tester) C/C++ verification workflows: project preparation, analysis, test generation, execution, coverage, reporting, and regression follow-up.",
+  "keywords": [
+    "dvera",
+    "ct",
+    "controller-tester",
+    "suresoft",
+    "c",
+    "cpp",
+    "embedded",
+    "unit-testing",
+    "integration-testing",
+    "test-automation",
+    "test-generation",
+    "code-coverage",
+    "mcdc",
+    "mission-critical",
+    "requirements-traceability",
+    "regression-testing",
+    "googletest",
+    "iso-26262",
+    "do-178c",
+    "en-50128"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/testing/dvera"
+  },
+  "homepage": "https://tonsofskills.com/plugins/dvera",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Suresoft Technologies",
+    "email": "bizcenter@suresofttech.com",
+    "url": "https://www.suresofttech.com"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin",
+    "skills"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install dvera\\\\n  or /plugin install dvera@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+  }
+}
