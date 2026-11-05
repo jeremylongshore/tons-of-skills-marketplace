@@ -14944,6 +14944,27 @@
     },
     {
       "type": "skill",
+      "id": "coreweave-ci-integration",
+      "slug": "coreweave-ci-integration",
+      "name": "UNOFFICIAL CI INTEGRATION FOR COREWEAVE",
+      "description": "Unofficial CI integration for CoreWeave deployments using GitHub Actions. Use when automating container builds, deploying inference services from CI, or validating GPU manifests in pull requests. Trigger with phrases like \"coreweave CI\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash(gh:*)"
+      ],
+      "compatibleWith": [],
+      "version": "1.11.0",
+      "parentPlugin": {
+        "name": "coreweave-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "unofficial ci integration for coreweave unofficial ci integration for coreweave deployments using github actions. use when automating container builds, deploying inference services from ci, or validating gpu manifests in pull requests. trigger with phrases like \"coreweave ci\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\". saas-packs read write edit bash(gh:*) "
+    },
+    {
+      "type": "skill",
       "id": "abridge-ci-integration",
       "slug": "abridge-ci-integration",
       "name": "abridge-ci-integration",
@@ -27499,27 +27520,6 @@
         "category": "community"
       },
       "searchText": "contribute-publish publish one prepared oss contribution action to github after a fresh human approval boundary. shows the exact target, content, command, commit, and test evidence before any mutation. use when local preparation is complete and the user explicitly asks to post a claim, create a design issue, comment, push a branch, or open a pull request. trigger with \"/contribute-publish\" or \"publish this prepared contribution\". community read bash(gh:*) bash(git:*) "
-    },
-    {
-      "type": "skill",
-      "id": "coreweave-ci-integration",
-      "slug": "coreweave-ci-integration",
-      "name": "coreweave-ci-integration",
-      "description": "Integrate CoreWeave deployments into CI/CD pipelines with GitHub Actions. Use when automating container builds, deploying inference services from CI, or validating GPU manifests in pull requests. Trigger with phrases like \"coreweave CI\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Bash(gh:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.11.0",
-      "parentPlugin": {
-        "name": "coreweave-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "coreweave-ci-integration integrate coreweave deployments into ci/cd pipelines with github actions. use when automating container builds, deploying inference services from ci, or validating gpu manifests in pull requests. trigger with phrases like \"coreweave ci\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\". saas-packs read write edit bash(gh:*) "
     },
     {
       "type": "skill",

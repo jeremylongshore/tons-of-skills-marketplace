@@ -9,6 +9,7 @@ import {
   normalizeListField,
   repositoryRelativePath,
   resolveSkillVersion,
+  resolveSkillDisplayName,
 } from './discover-skills.mjs';
 import { parseSkillFrontmatter as parseFrontmatter } from '../../scripts/skill-frontmatter.mjs';
 
@@ -265,4 +266,15 @@ items: ["R&D", "* wildcard", "A&B"]
       items: ['R&D', '* wildcard', 'A&B'],
     },
   );
+});
+
+test('public display names support explicit overrides and safe defaults', () => {
+  const frontmatter = {
+    name: 'coreweave-ci-integration',
+    metadata: { 'display-name': 'UNOFFICIAL CI INTEGRATION FOR COREWEAVE' },
+  };
+  assert.equal(resolveSkillDisplayName(frontmatter), 'UNOFFICIAL CI INTEGRATION FOR COREWEAVE');
+  assert.equal(resolveSkillDisplayName({ name: 'other-skill' }), 'other-skill');
+  assert.equal(resolveSkillDisplayName({ name: 'other-skill', metadata: { 'display-name': ' ' } }), 'other-skill');
+  assert.throws(() => resolveSkillDisplayName({ name: 'other-skill', metadata: { 'display-name': 42 } }), TypeError);
 });

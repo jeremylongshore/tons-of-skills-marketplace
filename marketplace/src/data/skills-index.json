@@ -3,6 +3,18 @@
   "level": "metadata",
   "skills": [
     {
+      "slug": "coreweave-ci-integration",
+      "name": "UNOFFICIAL CI INTEGRATION FOR COREWEAVE",
+      "description": "Unofficial CI integration for CoreWeave deployments using GitHub Actions. Use when automating container builds, deploying inference services from CI, or validating GPU manifests in pull requests. Trigger with phrases like \"coreweave CI\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\".",
+      "version": "1.11.0",
+      "category": "saas-packs",
+      "parentPlugin": "coreweave-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
       "slug": "abridge-ci-integration",
       "name": "abridge-ci-integration",
       "description": "Build a synthetic-data CI gate for customer-controlled Abridge integration code without calling undocumented vendor interfaces. Use when adding regression checks to an Abridge deployment repository. Trigger with \"test the Abridge integration\".",
@@ -6789,18 +6801,6 @@
       "version": "0.11.0",
       "category": "community",
       "parentPlugin": "contributing-clanker",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "coreweave-ci-integration",
-      "name": "coreweave-ci-integration",
-      "description": "Integrate CoreWeave deployments into CI/CD pipelines with GitHub Actions. Use when automating container builds, deploying inference services from CI, or validating GPU manifests in pull requests. Trigger with phrases like \"coreweave CI\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\".",
-      "version": "1.11.0",
-      "category": "saas-packs",
-      "parentPlugin": "coreweave-pack",
       "requires_env": [],
       "requires_tools": [],
       "fallback_for_env": [],

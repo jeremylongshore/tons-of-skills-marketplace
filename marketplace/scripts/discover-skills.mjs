@@ -253,6 +253,12 @@ function normalizeAuthor(value) {
   return value.email ? `${value.name} <${value.email}>` : value.name;
 }
 
+export function resolveSkillDisplayName(frontmatter) {
+  const name = optionalStringField(frontmatter, 'name', 'Unnamed Skill');
+  if (!isPlainMapping(frontmatter.metadata)) return name;
+  return optionalStringField(frontmatter.metadata, 'display-name', name).trim() || name;
+}
+
 /**
  * Project a full skill record down to its L0 metadata view.
  * Fields chosen for trigger-match / catalog browse + client-side visibility
@@ -393,7 +399,7 @@ function processSkillFile(filePath, opts = {}) {
 
     return {
       slug,
-      name,
+      name: resolveSkillDisplayName(frontmatter),
       description,
       allowedTools,
       compatibleWith,

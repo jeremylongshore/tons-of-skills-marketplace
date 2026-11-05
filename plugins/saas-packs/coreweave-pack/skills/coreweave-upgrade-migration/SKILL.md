@@ -182,4 +182,4 @@ If CUDA compatibility, scheduling, or the evaluation gate fails, undo the stagin
 
 ## Next Steps
 
-For CI/CD pipeline integration, see `coreweave-ci-integration`.
+For CI/CD pipeline integration, see `coreweave-ci-integration` (UNOFFICIAL CI INTEGRATION FOR COREWEAVE).
