@@ -12,7 +12,7 @@ description: 'Set up GPU monitoring and observability for CoreWeave workloads.
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

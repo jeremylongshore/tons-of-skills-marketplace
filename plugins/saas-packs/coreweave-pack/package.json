@@ -1,6 +1,6 @@
 {
   "name": "@intentsolutionsio/coreweave-pack",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Claude Code skill pack for CoreWeave - 24 skills covering GPU cloud infrastructure, ML workloads, and HPC",
   "main": "README.md",
   "type": "module",

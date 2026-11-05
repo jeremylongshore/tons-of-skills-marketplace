@@ -12,7 +12,7 @@ description: 'Collect CoreWeave cluster diagnostics for support tickets.
 
   '
 allowed-tools: Read, Bash(kubectl:*), Bash(tar:*), Grep
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

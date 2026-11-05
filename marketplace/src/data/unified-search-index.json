@@ -12160,7 +12160,7 @@
         "url": "https://github.com/jeremylongshore"
       },
       "authorType": "official",
-      "version": "1.11.0",
+      "version": "1.12.0",
       "isFeatured": false,
       "isNew": false,
       "badges": [],
@@ -14956,7 +14956,7 @@
         "Bash(gh:*)"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27534,7 +27534,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27556,7 +27556,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27578,7 +27578,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27600,7 +27600,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27622,7 +27622,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27643,7 +27643,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27666,7 +27666,7 @@
         "Bash(kustomize:*)"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27688,7 +27688,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27711,7 +27711,7 @@
         "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27736,7 +27736,7 @@
         "Bash(python3:*)"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27758,7 +27758,7 @@
         "Bash(dmesg:*)"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27779,7 +27779,7 @@
         "Bash(kubectl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27799,7 +27799,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27821,7 +27821,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27844,7 +27844,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27867,7 +27867,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27889,7 +27889,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27910,7 +27910,7 @@
         "Bash(kubectl:*)"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27930,7 +27930,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27950,7 +27950,7 @@
         "Edit"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27972,7 +27972,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
@@ -27994,7 +27994,7 @@
         "Grep"
       ],
       "compatibleWith": [],
-      "version": "1.11.0",
+      "version": "1.12.0",
       "parentPlugin": {
         "name": "coreweave-pack",
         "category": "saas-packs"
