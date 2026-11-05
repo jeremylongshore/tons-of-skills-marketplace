@@ -9165,7 +9165,7 @@
       "name": "coreweave-pack",
       "displayName": "coreweave pack",
       "description": "Claude Code skill pack for CoreWeave (23 skills)",
-      "version": "1.11.0",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "coreweave",

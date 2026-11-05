@@ -56,7 +56,7 @@ This skill pack provides real kubectl commands, YAML manifests, and Python patte
 
 | Skill | Description |
 |-------|-------------|
-| `coreweave-ci-integration` | GitHub Actions for container build and CKS deployment |
+| [UNOFFICIAL CI INTEGRATION FOR COREWEAVE](skills/coreweave-ci-integration/SKILL.md) | Community-contributed GitHub Actions for container build and CKS deployment |
 | `coreweave-deploy-integration` | Helm charts and Kustomize overlays for GPU deployments |
 | `coreweave-performance-tuning` | GPU selection, vLLM batching, HPA with DCGM metrics |
 | `coreweave-cost-tuning` | GPU pricing comparison, scale-to-zero, quantization savings |

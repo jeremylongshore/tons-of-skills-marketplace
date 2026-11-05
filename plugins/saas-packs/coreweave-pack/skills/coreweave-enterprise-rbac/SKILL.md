@@ -13,7 +13,7 @@ description: 'Configure RBAC and namespace isolation for CoreWeave multi-team GP
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

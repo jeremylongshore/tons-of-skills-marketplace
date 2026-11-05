@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-05
+
+- **fix(coreweave):** rename the public CI skill title to “UNOFFICIAL CI INTEGRATION FOR COREWEAVE” across its source and marketplace. Preserve the stable install identifier, URL, MIT license, and community affiliation disclaimer.
+
 ## 2026-10-26
 
 - **fix(anthropic):** retire the 30-skill Anthropic tutorial pack after its source

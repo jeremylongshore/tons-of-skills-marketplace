@@ -8796,7 +8796,7 @@
       "name": "coreweave-pack",
       "source": "./plugins/saas-packs/coreweave-pack",
       "description": "Claude Code skill pack for CoreWeave (23 skills)",
-      "version": "1.11.0",
+      "version": "1.12.0",
       "category": "saas-packs",
       "keywords": [
         "coreweave",
@@ -8816,7 +8816,7 @@
         "score": 91,
         "grade": "A",
         "badge": "gold",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "lastValidated": "2026-11-05T00:00:00.000Z"
       }
     },
     {

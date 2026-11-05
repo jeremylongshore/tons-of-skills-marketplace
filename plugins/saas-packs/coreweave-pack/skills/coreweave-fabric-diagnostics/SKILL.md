@@ -13,7 +13,7 @@ description: |
   working", "NCCL fell back to TCP", "NET/Socket", "GPUDirect RDMA", "infiniband not
   used", "multi-node training slow".
 allowed-tools: Read, Write, Edit, Glob, Bash(kubectl get:*), Bash(python3:*)
-version: 1.11.0
+version: 1.12.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

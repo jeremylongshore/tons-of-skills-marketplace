@@ -1,6 +1,6 @@
 ---
 name: coreweave-ci-integration
-description: 'Integrate CoreWeave deployments into CI/CD pipelines with GitHub Actions.
+description: 'Unofficial CI integration for CoreWeave deployments using GitHub Actions.
 
   Use when automating container builds, deploying inference services from CI,
 
@@ -12,7 +12,7 @@ description: 'Integrate CoreWeave deployments into CI/CD pipelines with GitHub A
 
   '
 allowed-tools: Read, Write, Edit, Bash(gh:*)
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -22,8 +22,10 @@ tags:
 - inference
 - coreweave
 compatibility: Designed for Claude Code
+metadata:
+  display-name: UNOFFICIAL CI INTEGRATION FOR COREWEAVE
 ---
-# CoreWeave CI Integration
+# UNOFFICIAL CI INTEGRATION FOR COREWEAVE
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 

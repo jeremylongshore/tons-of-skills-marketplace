@@ -9,7 +9,7 @@ description: |
   reset, or just reschedule. Trigger with "xid error", "gpu fell off the bus",
   "coreweave gpu dead", "should I RMA this GPU", "gpu node triage".
 allowed-tools: Read, Bash(python3:*), Bash(nvidia-smi -q:*), Bash(kubectl get:*), Bash(dmesg:*)
-version: 1.11.0
+version: 1.12.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

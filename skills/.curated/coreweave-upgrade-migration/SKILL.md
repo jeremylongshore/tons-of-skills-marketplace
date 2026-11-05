@@ -12,7 +12,7 @@ description: 'Upgrade CoreWeave deployments and migrate between GPU types.
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -182,4 +182,4 @@ If CUDA compatibility, scheduling, or the evaluation gate fails, undo the stagin
 
 ## Next Steps
 
-For CI/CD pipeline integration, see `coreweave-ci-integration`.
+For CI/CD pipeline integration, see `coreweave-ci-integration` (UNOFFICIAL CI INTEGRATION FOR COREWEAVE).

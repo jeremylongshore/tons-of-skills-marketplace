@@ -12,7 +12,7 @@ description: 'Deploy a GPU workload on CoreWeave with kubectl.
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*)
-version: 1.11.0
+version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
