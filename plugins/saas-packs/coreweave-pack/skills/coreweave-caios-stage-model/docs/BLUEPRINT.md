@@ -14,7 +14,7 @@
 | Sources | User-approved scope (provided); repository draft (observed); candidate primary reference below (verification pending for implementation) |
 | Assumptions | This distinct operator outcome warrants a separate skill; evaluate during implementation |
 | Unknowns | Real account compatibility, production outcomes, actual per-skill demand |
-| Related artifacts | [Skill issue #1844](https://github.com/jeremylongshore/tons-of-skills-marketplace/issues/1844); parent #1732; [pack blueprint](../../../docs/BLUEPRINT.md); planned SKILL.md and eval-spec.yaml in this skill directory |
+| Related artifacts | [Skill issue #1844](https://github.com/jeremylongshore/tons-of-skills-marketplace/issues/1844); parent #1732; [pack blueprint](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/eed0fd35d89838e5d8b4d78ce4786f8ea4df0dbe/plugins/saas-packs/coreweave-pack/docs/BLUEPRINT.md); SKILL.md and, where provided, eval-spec.yaml in this skill directory |
 | Supersession | Additive design; existing PRD/ARD and historical evidence remain intact until explicit reconciliation |
 
 ## Objective and scope
@@ -78,6 +78,6 @@ Pin the applicable endpoint/resource/version contract and access date during imp
 
 ## Implementation evidence snapshot — 2026-11-05
 
-The shipped helper has deterministic success, refusal, incomplete and hostile-input fixture coverage. See the [pack evidence record](../../../QUALITY.md) and [retained receipt](../../../offline-results.json) for exact coverage and source hashes.
+The shipped helper has deterministic success, refusal, incomplete and hostile-input fixture coverage. See the [pack evidence record](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/eed0fd35d89838e5d8b4d78ce4786f8ea4df0dbe/plugins/saas-packs/coreweave-pack/QUALITY.md) and [retained receipt](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/eed0fd35d89838e5d8b4d78ce4786f8ea4df0dbe/plugins/saas-packs/coreweave-pack/offline-results.json) for exact coverage and source hashes.
 
 Implementation is present for review. The proposed acceptance criteria above remain open wherever they require model behavior, runtime permission enforcement or a live account. Static grades and offline fixtures do not close those requirements.
