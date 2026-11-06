@@ -1,0 +1,878 @@
+{
+  "schema": "coreweave-offline-review/v2",
+  "date": "2026-11-05",
+  "scope": "Static schemas, packaged references, deterministic fixture contracts and mock-provider Terraform plans; no live account or model calls",
+  "tests": {
+    "python": "3.12.3",
+    "tests": 185,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "command": "python -m pytest tests/test_coreweave_operator_tools.py tests/test_coreweave_cost_gates.py tests/test_coreweave_reviewers.py tests/test_coreweave_pack_gate.py -q"
+  },
+  "ci_regressions": {
+    "tests": 41,
+    "failures": 0,
+    "scope": [
+      "tests/ci/test_path_routing.py",
+      "tests/ci/test_workflow_pr_titles.py",
+      "tests/ci/test_workflow_injection_hygiene.py"
+    ]
+  },
+  "terraform": {
+    "version": "1.14.3",
+    "mode": "mock_provider; command=plan; isolated local directories; source assets byte-matched",
+    "tests": [
+      {
+        "name": "private_owned_cluster",
+        "status": "PASS"
+      },
+      {
+        "name": "bounded_pool",
+        "status": "PASS"
+      }
+    ]
+  },
+  "pack_validation": {
+    "schema": "coreweave-pack-validation/v1",
+    "skills": [
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[scripts]",
+          "[line-length]",
+          "[stub-section]",
+          "[stub-section]"
+        ],
+        "grade": "A",
+        "score": 100
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[line-length]"
+        ],
+        "grade": "A",
+        "score": 98
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[scripts]",
+          "[line-length]",
+          "[stub-section]",
+          "[stub-section]"
+        ],
+        "grade": "A",
+        "score": 100
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-common-errors/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 98
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:allowed-tools-accuracy]",
+          "[line-length]"
+        ],
+        "grade": "A",
+        "score": 100
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:allowed-tools-accuracy]",
+          "[line-length]"
+        ],
+        "grade": "A",
+        "score": 99
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cost-tuning/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 99
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-data-handling/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 100
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-debug-bundle/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 96
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-deploy-integration/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 95
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:allowed-tools-accuracy]",
+          "[line-length]"
+        ],
+        "grade": "A",
+        "score": 98
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[reference-quality]",
+          "[reference-quality]"
+        ],
+        "grade": "A",
+        "score": 98
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:auth-documented]",
+          "[reference-quality]",
+          "[reference-quality]"
+        ],
+        "grade": "A",
+        "score": 98
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[reference-quality]",
+          "[reference-quality]"
+        ],
+        "grade": "A",
+        "score": 96
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-hello-world/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 97
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:allowed-tools-accuracy]",
+          "[line-length]"
+        ],
+        "grade": "A",
+        "score": 100
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-install-auth/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 97
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-local-dev-loop/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 98
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-multi-env-setup/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 98
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-observability/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 99
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-performance-tuning/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 100
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-prod-checklist/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 100
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-sdk-patterns/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 100
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-security-basics/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 98
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-upgrade-migration/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
+        ],
+        "grade": "A",
+        "score": 96
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/SKILL.md",
+        "errors": [],
+        "warnings": [
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:auth-documented]",
+          "[line-length]",
+          "[stub-section]",
+          "[stub-section]"
+        ],
+        "grade": "A",
+        "score": 100
+      }
+    ],
+    "agents": [
+      {
+        "path": "plugins/saas-packs/coreweave-pack/agents/coreweave-access-reviewer.md",
+        "errors": [],
+        "warnings": [],
+        "type": "agent"
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/agents/coreweave-cost-plan-reviewer.md",
+        "errors": [],
+        "warnings": [],
+        "type": "agent"
+      },
+      {
+        "path": "plugins/saas-packs/coreweave-pack/agents/coreweave-gpu-evidence-reviewer.md",
+        "errors": [],
+        "warnings": [],
+        "type": "agent"
+      }
+    ],
+    "eval_specs": [
+      {
+        "skill": "coreweave-caios-stage-model",
+        "spec_sha256": "c609ff0fea3e5ca48cd9f70d094f5d665cc61ff7150bc75401b6586634dd80f1",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 9,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-ci-integration",
+        "spec_sha256": "bbe42d47b933ebd25f5a0b7f9afa828036d0f33ebcdfc1194682447fa4f0252b",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 8,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-cks-provisioning",
+        "spec_sha256": "9f622fbe5cc7fe28cfbf67fe54c3e2627ae33b728137b7ea1b6bccef30d428a0",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 13,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-core-workflow-a",
+        "spec_sha256": "baccdc097f18bbb85bdcc3142f26c02002b63de4a27dc277a00a74890113d9c1",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 8,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-core-workflow-b",
+        "spec_sha256": "899736c37a0288e24d183caf8792f219c2acb27e46f61b528bc9c7337b2c70cc",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 8,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-enterprise-rbac",
+        "spec_sha256": "a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 8,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-fabric-diagnostics",
+        "spec_sha256": "3f87d8161884dabd8a15a7ea91887cefbf9c52b54be8da251bf0b66a876c6fdb",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 1,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-gpu-cost-leak-hunter",
+        "spec_sha256": "3a3b2fd711547c3cd2863b2cd394ffbedd8137ae8c82cb83bd23c1c81f17f99e",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 1,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-gpu-node-forensics",
+        "spec_sha256": "b0c1d9520878f887fd1bc15a836925540a252181e8cc828fa71fdea1fce0133e",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 1,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-incident-runbook",
+        "spec_sha256": "0157fa398f7749bd39c7e68ea2c53e17ae5c52bf803e82c0ff5b8abe566cb447",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 8,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      },
+      {
+        "skill": "coreweave-workload-health",
+        "spec_sha256": "688af470d2f6cc86438ed00ff872c97346023cf4715aed2a553a488ea89aa7c6",
+        "package_integrity": "PASS",
+        "offline_contract_cases": 9,
+        "model_judged_criteria": "NOT RUN",
+        "coverage": "deterministic helper contract only; trigger/model judgments not established"
+      }
+    ],
+    "behavioral_evaluation": "NOT RUN",
+    "live_account_validation": "NOT RUN",
+    "gitleaks": "PASS",
+    "errors": [],
+    "status": "PASS (static and offline contracts only)",
+    "hook_surface_review": "ABSENT: offline helpers need no automatic command interception",
+    "mcp_surface_review": "ABSENT: account access is not required; official MCP is documented, not auto-connected",
+    "advisory_messages_document": "docs/QUALITY-ADVISORIES.md"
+  },
+  "package": {
+    "files": 193,
+    "skill_guides": 26,
+    "skill_blueprints": 26,
+    "eval_specs": 11,
+    "provider_locks": 2,
+    "agents": 3
+  },
+  "additional_checks": {
+    "markdownlint": "PASS, repository rules, all pack Markdown",
+    "unicode_hygiene": "PASS, strict, all pack Markdown",
+    "ruff": "PASS, pack scripts, validator, focused tests",
+    "actionlint": "PASS, validate-plugins.yml",
+    "shellcheck": "PASS, pinned scanner installer",
+    "scanner_installer": "PASS, gitleaks 8.24.3 pinned SHA256 verified",
+    "standalone_links": "PASS: local links resolve within each standalone skill; pack-level design links use an immutable source revision",
+    "conformance": "2964 PASS, 1 ADVISORY, 1 NOT_APPLICABLE, zero FAIL",
+    "safety_ratchet": "PASS; reduced agent-error debt pinned at 229 unique errors",
+    "supply_chain_source_scan": "PASS: 0 REFUSE, 0 CHALLENGE, 26 informational Bash flags, zero waivers",
+    "ci_registry_regressions": "35 passed; only source hashes, step/line bindings and two new run-container counts changed"
+  },
+  "source_sha256": [
+    {
+      "path": "plugins/saas-packs/coreweave-pack/scripts/sync-cost-gates.py",
+      "sha256": "dc4f927b6a3495d6b7b9f59595bf181990fa8ee814153c3513c953f02fef9f52"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/shared/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/shared/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/SKILL.md",
+      "sha256": "bfb6eaaecb0656f75123fe82182f80d67aadb6052cfe722e61cbe71bb18971a0"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/eval-spec.yaml",
+      "sha256": "c609ff0fea3e5ca48cd9f70d094f5d665cc61ff7150bc75401b6586634dd80f1"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/scripts/review-transfer.py",
+      "sha256": "d788b3a231397e9d7010de430f60f3166241ff694832150e7e63109ce812b06e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/scripts/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/tests/fixtures/cases.json",
+      "sha256": "3ef8ce0cac35ed1b7e3684505e97a684c86cb747241ceb77962362a0574991aa"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/tests/fixtures/example.json",
+      "sha256": "1112413a2c3e271c4ed259a75aa25f7ded30d22de31d8b769e7b2026c9c933b9"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/SKILL.md",
+      "sha256": "ce71aad72857096f244aa109b2f5e1cfd68bc36b9fbddb44b3afca8026980957"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/eval-spec.yaml",
+      "sha256": "bbe42d47b933ebd25f5a0b7f9afa828036d0f33ebcdfc1194682447fa4f0252b"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/scripts/review-workflow.py",
+      "sha256": "f404829036b04b1dec831768069b5bb151086e3d8f9555e4c7ab753db0a424e0"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/scripts/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/tests/fixtures/cases.json",
+      "sha256": "11e3de1925ff533f6609fc3b0116b1bc1858691b6f08eb1c96ca5ad4b0974e3e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/tests/fixtures/example.json",
+      "sha256": "0ccdb9db5f05d8efb8cc37adf4067ca27f450fcc3db8aa3004974d79c6b0e784"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/SKILL.md",
+      "sha256": "4121df8312f2df51b3a04aa9ecacfb4f0c9c7a75e36727b393d30411ab87ada0"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/.terraform.lock.hcl",
+      "sha256": "533298643347b18af53db41918335429dfbee62957535b1d76438759d6db4f26"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/main.tf",
+      "sha256": "9cb7f416f76095e24c2864eb71d2eb50d06396598510369c4f04864f536017d7"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/node-pool/.terraform.lock.hcl",
+      "sha256": "e149f35b4e13dffde0466bc9cac480f388b54cdf9e7f22a7d0e9b1ffb7a214c0"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/node-pool/main.tf",
+      "sha256": "acf28a0f835aa2137137b99253bd0c4fbc2c65a64608327c3fcaa816de9a9cb3"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/node-pool/tests/offline.tftest.hcl",
+      "sha256": "dad8d09ba59359b8ef58855cf9863a44faca4b3e1759a2bddee8436396211e59"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/outputs.tf",
+      "sha256": "b94692ef0e1ad3bfa474e7456d09949b3c76afef1e029dc9cd8a88ee28a386f3"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/tests/offline.tftest.hcl",
+      "sha256": "29cbe5b5281143684fffbb2c127e0e46fcc49836e23ca92dbbe526fdc6239cc1"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/variables.tf",
+      "sha256": "2a8af14d9f0e9bd94ef67724df619366e30294a02fead1bdff11755d9ec75787"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/assets/terraform/versions.tf",
+      "sha256": "08b6300d2b378abf069cf7e5c6fbd414c72dc60f6419d563cc379d6cf276f9ce"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/eval-spec.yaml",
+      "sha256": "9f622fbe5cc7fe28cfbf67fe54c3e2627ae33b728137b7ea1b6bccef30d428a0"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/scripts/review-plan.py",
+      "sha256": "022f2036e07366dc11081bbc9a33d9ebd7e15ec605c59a7a67161c467d3b839e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/scripts/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/tests/fixtures/cases.json",
+      "sha256": "465028b65b3fedf160d5041983b6a37863fcae7193ce10424c189b4d7cea3d3f"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/tests/fixtures/example.json",
+      "sha256": "b065c446feed2e60373379362e779d74bf36d1f64c1c4d1a947bfd4e8cc5135e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-common-errors/SKILL.md",
+      "sha256": "a0f1529aefc62e3da63382b2e370e4631bab41be94fa92030c325f99b6d44589"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/SKILL.md",
+      "sha256": "698a7e16fa761dc81daa63abbe497d62461836b9e15c2653d40054273285b589"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/eval-spec.yaml",
+      "sha256": "baccdc097f18bbb85bdcc3142f26c02002b63de4a27dc277a00a74890113d9c1"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/scripts/review-inference.py",
+      "sha256": "48602366f9d325b83e78a6539657de80d8ce75fab0939ae0650d6e4cab8e91a7"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/scripts/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/tests/fixtures/cases.json",
+      "sha256": "92dc28413ed4109b260687946d985839d808904877d05560fa7b9c1e41950133"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/tests/fixtures/example.json",
+      "sha256": "bbbd35bd3c376e32e7699630469a600e2a99c91e3f2eaac044864e6255f3b473"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/SKILL.md",
+      "sha256": "3ee99094c40e7ef535653f4dcd7b53f4b980e0ea075e5116b9392624e33e3241"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/eval-spec.yaml",
+      "sha256": "899736c37a0288e24d183caf8792f219c2acb27e46f61b528bc9c7337b2c70cc"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/scripts/review-training.py",
+      "sha256": "fe86ee4e788709e9874830101810d43529685f379718a80411e2286252c5fd60"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/scripts/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/tests/fixtures/cases.json",
+      "sha256": "878bfe5fe52990a0a59c9beb78a35bb3935504b37f8557fcab3aa051cddc428e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/tests/fixtures/example.json",
+      "sha256": "e81535e96fbb8546ac982607d268417797465c18dd57115a50fda9060b155868"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cost-tuning/SKILL.md",
+      "sha256": "ac431371caf01bd343e9f630c7918ecd3617c011819e0ec18196a1407985f7a6"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-data-handling/SKILL.md",
+      "sha256": "7196baf135ce673205ac06f261623be0ebc81ba69696500e0d61d316ec6ea48e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-debug-bundle/SKILL.md",
+      "sha256": "b30cb7c99d52e7ef2b8445f0f058e33e7ce267af03e15b1afeeda1a570a4f535"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-deploy-integration/SKILL.md",
+      "sha256": "d3f30152beb65e92556591f6dd4798a7305b3af2c0c2b647c8a2cd46acede810"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-deploy-integration/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/SKILL.md",
+      "sha256": "eafe47abaa0070f65be2d74aee8d7046d2e06a6f9a4d62602c5564d7dd4abb98"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/eval-spec.yaml",
+      "sha256": "a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/scripts/review-access.py",
+      "sha256": "71e35c0428272235ed5dda8b4e8a161527dc63598489b8c33977333fa5c43b40"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/scripts/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/tests/fixtures/cases.json",
+      "sha256": "36d9f1b775e362910d3adf897637f142c0fb4dbd06724f8f2bd42d1c57b9402e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/tests/fixtures/example.json",
+      "sha256": "2e56420541fe073101d3233247a1826e08d3ae0eae1d8843e5b02914016deda9"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/SKILL.md",
+      "sha256": "790bb078cd6285f53436932921b8ea47fe67844464ced4f6fcab4b5f499d1c7c"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/eval-spec.yaml",
+      "sha256": "3f87d8161884dabd8a15a7ea91887cefbf9c52b54be8da251bf0b66a876c6fdb"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/scripts/fabric-check.py",
+      "sha256": "c73635f42b93f0745693f93e857741378247c65d1082c8350078591040bb91ac"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/SKILL.md",
+      "sha256": "c5c84ad72693bd1529382171ff86185dbba13086f148fcbe0081c5ab47cabc6f"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/eval-spec.yaml",
+      "sha256": "3a3b2fd711547c3cd2863b2cd394ffbedd8137ae8c82cb83bd23c1c81f17f99e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/scripts/rank-and-report.py",
+      "sha256": "38749fd509b94b8ad62828ff278422c67854818bb94c4eebcc7b072fa5f62107"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/SKILL.md",
+      "sha256": "3c0e31803b4006c8a9cad28c8cb4d703ecff188adbf14e5e835b519754fc056a"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/eval-spec.yaml",
+      "sha256": "b0c1d9520878f887fd1bc15a836925540a252181e8cc828fa71fdea1fce0133e"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/scripts/triage.py",
+      "sha256": "6344a78bde16fc553ebf4a16eda9cea5868879669166ad09e79afa18d4730c50"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-hello-world/SKILL.md",
+      "sha256": "8f60f161c1746c1f2169644acd58a1d498162e49ea9945d7b3fc61af763445f5"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-hello-world/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/SKILL.md",
+      "sha256": "d43acb20a9ebea69340cfbbbb58b7d8e9b4c42af0e37970aca0e6786892be727"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/eval-spec.yaml",
+      "sha256": "0157fa398f7749bd39c7e68ea2c53e17ae5c52bf803e82c0ff5b8abe566cb447"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/scripts/review-incident.py",
+      "sha256": "56ed2b58d36090ae17156fa1802a06031a719b586970279a56fb4d4166934faa"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/scripts/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/tests/fixtures/cases.json",
+      "sha256": "fab5f392b6299ae9461b370443b84fc8c0f1d26adbb270f265a0d2da18467ddd"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/tests/fixtures/example.json",
+      "sha256": "2350becaf1e5e5c0f4c994f1e6812653b2dcb1499aa8d34b4d5d24dfab95b476"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-install-auth/SKILL.md",
+      "sha256": "8fdb48d931b2170a6e05a8c4f408fe7b1f85a6d2ad2d41c8130cfd673feec8bc"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-local-dev-loop/SKILL.md",
+      "sha256": "c0d0cae8b63cff4704e1ca397e004035937a2c3fce92c8bdc3bd99dc7d7b3b43"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-multi-env-setup/SKILL.md",
+      "sha256": "82bcb9ad9b0b4743e50a1943d70198c51d970b4cc42963cf13ff12ead74f4405"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-multi-env-setup/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-observability/SKILL.md",
+      "sha256": "dee572778b99266f42f857264e3fa3a5f3a0f04a7b5805d04db545c30492e224"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-performance-tuning/SKILL.md",
+      "sha256": "e889c4624ed499610404f1fcb7467ea31392dfd738394897d57c4dc5b8c9cd8d"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-performance-tuning/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-prod-checklist/SKILL.md",
+      "sha256": "cc7d1596a4fbd73fd1e185374bcfbe0343a8f3f4a812bcd9ee7c294cb986c878"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-sdk-patterns/SKILL.md",
+      "sha256": "4516af46a8b0fa5a213190303f1c605113f80e6f0e808f5fcd22a61a9a8c43f5"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-security-basics/SKILL.md",
+      "sha256": "a357689064220cc1d1e0391a7cd6857469580aaec34e18211bef7d52a64c15d4"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-upgrade-migration/SKILL.md",
+      "sha256": "9feaa3d884f6e1f046832be3e20252a4ead9c9ea67d656bb73768b5b498db0f6"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-upgrade-migration/scripts/review-cost-plan.py",
+      "sha256": "e00912babb9ed37bb583a0763cea8174bd3269c6e102940cb0e18946624ce084"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/SKILL.md",
+      "sha256": "3f0ab6568161cb62b53dbac33629ebc076c44534f506443c26ded1bbab9daf70"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/eval-spec.yaml",
+      "sha256": "688af470d2f6cc86438ed00ff872c97346023cf4715aed2a553a488ea89aa7c6"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/scripts/check-health.py",
+      "sha256": "a90946c86a2edff1fbcedbf2088fcd7a52fb984a7d1e65bddc31782eefce8db1"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/scripts/review_common.py",
+      "sha256": "6c7db5961a73dff2d51c7df4ae1d53eaecc098eb2d0e0474823adb89191f5884"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/tests/fixtures/cases.json",
+      "sha256": "82cb53e6202997f47f72da4602eb1e2330762f08457b0aae7b13204b3cee3a3a"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/tests/fixtures/example.json",
+      "sha256": "f7a9d75e4c954d051cb01318d64cd7427f76f39007e4d4244a613ff37ba59a1d"
+    },
+    {
+      "path": "scripts/ci/install-coreweave-gitleaks.sh",
+      "sha256": "f0f2d59426d236c84fd8735c6a56793fa5dc948a7af48d6655a324d60b50ebbe"
+    },
+    {
+      "path": "scripts/validate-coreweave-pack.py",
+      "sha256": "a02f7b639c905ab3eca2a0de4150b6461482b0969ff9c0406c33924aac24776b"
+    },
+    {
+      "path": "tests/test_coreweave_cost_gates.py",
+      "sha256": "355c02a8d82ec376e12b603e49f0f0ff079e834952a1f4d60978db50b202bc48"
+    },
+    {
+      "path": "tests/test_coreweave_operator_tools.py",
+      "sha256": "fbaacd23ccd943d496015403c097190aec6d47d24355fe5d81ccc1147af58791"
+    },
+    {
+      "path": "tests/test_coreweave_pack_gate.py",
+      "sha256": "d468a7006e715d056b103f1b9139b8d65a104049487ed1c9b21e925a8ae5d03f"
+    },
+    {
+      "path": "tests/test_coreweave_reviewers.py",
+      "sha256": "012416d8f5d818103ba1a9be68d59aa56cf38ea8a4f64822b2de5d834d0df4de"
+    }
+  ],
+  "limits": [
+    "Unsigned local receipt; not independent certification.",
+    "Model-judged and trigger expectations in eval specs were NOT executed.",
+    "No real CoreWeave account, provisioning, storage upload, GPU benchmark or billing action.",
+    "Plugin agents validated statically; no model-runtime permission attestation.",
+    "Normalized evidence is supplied data, not authenticated account truth; reviewed does not mean authorized.",
+    "The 15 remaining guides have static validation but no dedicated eval spec.",
+    "Approval JSON/digests cannot authenticate the human approver; trusted-channel confirmation remains mandatory."
+  ],
+  "implementation_base_commit": "1e436adf5be6c5c71e203af65ab670fea361e108",
+  "source_binding": "Per-file source_sha256 entries bind tested working-tree changes atop the base commit; not a claim that every file equals the base revision.",
+  "advisory_messages_sha256": "1abeda98d2215f8e5c6790941f98ef7d27eee8677b9ffa3b01e35f7253071bfd"
+}

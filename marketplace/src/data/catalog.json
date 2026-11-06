@@ -6,7 +6,7 @@
   },
   "stats": {
     "totalPlugins": 428,
-    "totalSkills": 2713,
+    "totalSkills": 2716,
     "totalCommands": 82,
     "pluginsWithSkills": 394,
     "byCategory": {
@@ -9164,8 +9164,8 @@
       "slug": "coreweave-pack",
       "name": "coreweave-pack",
       "displayName": "coreweave pack",
-      "description": "Claude Code skill pack for CoreWeave (23 skills)",
-      "version": "1.12.0",
+      "description": "Community CoreWeave GPU operations pack (26 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by CoreWeave, Inc.",
+      "version": "1.13.0",
       "category": "saas-packs",
       "keywords": [
         "coreweave",
@@ -9174,7 +9174,7 @@
         "integration"
       ],
       "hasSkills": true,
-      "skillCount": 23,
+      "skillCount": 26,
       "commandCount": 0,
       "installCommand": "/plugin install coreweave-pack",
       "sourcePath": "./plugins/saas-packs/coreweave-pack",

@@ -12,7 +12,7 @@ description: 'Set up GPU monitoring and observability for CoreWeave workloads.
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,134 +23,71 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Observability
+# CoreWeave Signal and alert validation
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-CoreWeave runs GPU-intensive workloads on Kubernetes where hardware failures, memory exhaustion, and underutilization directly impact cost and reliability. Observability must cover DCGM GPU metrics, Kubernetes pod health, inference latency, and job completion rates. Proactive monitoring prevents wasted spend on idle GPUs and catches OOM conditions before they cascade.
+Correlate GPU, workload, storage and latency signals without claiming universal thresholds.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- A metrics backend receiving Kubernetes and DCGM exporter metrics.
-- A named dashboard and on-call owner for the namespace or service.
-- Log and trace redaction rules that exclude prompts, model outputs, tokens, and credentials.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-1. Tag metrics with bounded values such as namespace, model family, and status; do
-   not use request IDs, prompts, or user identifiers as labels.
-2. Build dashboards for utilization, memory, queue depth, latency, error rate, and
-   restart rate, then set alert thresholds from a measured baseline.
-3. Route critical alerts to the responsible on-call team and link a runbook that
-   includes a safe scale-down or rollback action.
-4. Test one alert in a non-production namespace and verify that the receipt contains
-   only operational metadata, not workload data.
+1. Use the official Mission Control MCP read-only tool catalog or approved Grafana access. Discover datasources, metric metadata and labels before querying; do not assume a metric or reservation label exists.
 
-## Key Metrics
+2. Bind queries to the cluster, namespace, time range and step. Record coverage and freshness. Distinguish no samples, an empty result, denied access and a valid measured zero.
 
-| Metric | Type | Target | Alert Threshold |
-|--------|------|--------|-----------------|
-| GPU utilization | Gauge | > 60% | < 20% for 30m |
-| GPU memory usage | Gauge | < 85% | > 95% for 5m |
-| Inference latency p99 | Histogram | < 200ms | > 500ms |
-| Job completion rate | Counter | > 99% | < 95% per hour |
-| Pod restart count | Counter | 0 | > 3 in 15m |
-| Node GPU temperature | Gauge | < 80C | > 85C for 10m |
+3. Build workload-specific dashboards for utilization, memory, queue delay, tail latency, successful work and failures. Correlate checkpoint/storage phases; a global average can hide one stalled GPU or rank.
 
-## Instrumentation
+4. Choose alert thresholds and routes with the service owner from measured baselines. Test one synthetic/non-sensitive incident in staging and verify delivery and restoration; do not scale production to zero to test an alert.
 
-```typescript
-async function trackInference(model: string, fn: () => Promise<any>) {
-  const start = Date.now();
-  try {
-    const result = await fn();
-    metrics.record('coreweave.inference.latency', Date.now() - start, { model, status: 'ok' });
-    metrics.increment('coreweave.inference.completed', { model });
-    return result;
-  } catch (err) {
-    metrics.increment('coreweave.inference.errors', { model, error: err.code });
-    throw err;
-  }
-}
-```
-
-## Health Check Dashboard
-
-```typescript
-async function coreweaveHealth(): Promise<Record<string, string>> {
-  const gpu = await queryPrometheus('avg(DCGM_FI_DEV_GPU_UTIL)');
-  const mem = await queryPrometheus('avg(DCGM_FI_DEV_FB_USED/(DCGM_FI_DEV_FB_USED+DCGM_FI_DEV_FB_FREE))');
-  const pods = await queryPrometheus('kube_deployment_status_replicas_available{namespace="inference"}');
-  return {
-    gpu_utilization: gpu > 20 ? 'healthy' : 'underutilized',
-    gpu_memory: mem < 0.9 ? 'healthy' : 'critical',
-    inference_pods: pods > 0 ? 'healthy' : 'down',
-  };
-}
-```
-
-## Alerting Rules
-
-```typescript
-const alerts = [
-  { metric: 'DCGM_FI_DEV_GPU_UTIL', condition: 'avg < 20', window: '30m', severity: 'warning' },
-  { metric: 'gpu_memory_pct', condition: '> 0.95', window: '5m', severity: 'critical' },
-  { metric: 'inference_latency_p99', condition: '> 500ms', window: '10m', severity: 'warning' },
-  { metric: 'pod_restart_count', condition: '> 3', window: '15m', severity: 'critical' },
-];
-```
-
-## Structured Logging
-
-```typescript
-function logGpuEvent(event: string, node: string, data: Record<string, any>) {
-  console.log(JSON.stringify({
-    service: 'coreweave', event, node,
-    gpu_model: data.gpu_model, utilization: data.util,
-    memory_pct: data.memPct, temperature: data.temp,
-    timestamp: new Date().toISOString(),
-  }));
-}
-```
-
-## Error Handling
-
-| Signal | Meaning | Action |
-|--------|---------|--------|
-| GPU util < 20% sustained | Idle GPUs burning cost | Scale down or reassign workload |
-| GPU memory > 95% | OOM imminent | Reduce batch size or add nodes |
-| Pod CrashLoopBackOff | Driver or config failure | Check DCGM logs, restart node |
-| Inference latency spike | Contention or throttling | Review GPU temp and queue depth |
-| Node NotReady | Hardware or network issue | Cordon node, migrate pods |
-
-## Output
-
-- A bounded-label GPU and workload dashboard with actionable alert rules.
-- A redacted event trail linking an alert to the namespace, model family, severity,
-  and response owner.
-- A tested incident path for capacity, memory, latency, and node-health failures.
+5. For Xid or transport failures, pass the relevant sanitized evidence to the dedicated offline tool. Preserve the observation and confidence separately from a proposed operational action.
 
 ## Examples
 
-Use a non-production workload to verify the alert route without disrupting a live
-service:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference-staging scale deployment/summarizer --replicas=0
-kubectl -n inference-staging get pods --watch
-# Confirm the unavailable-replica alert reaches the test route, then restore it.
-kubectl -n inference-staging scale deployment/summarizer --replicas=1
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "deployment/$CW_DEPLOYMENT" -o wide
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get pods
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get events --sort-by=.metadata.creationTimestamp
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get hpa
 ```
 
-Record the alert ID and restoration time, not request or model content. Escalate a
-node or memory alert through the runbook before deleting pods or changing quotas.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave Observability](https://www.coreweave.com/observability)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/observability/mission-control-mcp/reference/tools)
+- [Primary reference 2](https://docs.coreweave.com/observability/usage-monitoring)
+- [Primary reference 3](https://docs.coreweave.com/platform/fleet-management/node-lifecycle/state-transitions)
 
-## Next Steps
+## Evidence status
 
-For incident response, see `coreweave-incident-runbook`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

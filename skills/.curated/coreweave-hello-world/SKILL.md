@@ -11,8 +11,8 @@ description: 'Deploy a GPU workload on CoreWeave with kubectl.
   "coreweave gpu test", "run on coreweave".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*)
-version: 1.12.0
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,181 +23,79 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Hello World
+# CoreWeave GPU smoke-test review
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Deploy your first GPU workload on CoreWeave: a simple inference service using vLLM or a batch CUDA job. CoreWeave runs Kubernetes on bare-metal GPU nodes with A100, H100, and L40 GPUs.
+Check a small, owner-approved GPU Job and its cleanup before scaling a workload.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- Completed `coreweave-install-auth` setup
-- kubectl configured with CoreWeave kubeconfig
-- Namespace with GPU quota
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
+
+## Cost and safety gate
+
+Before any billable action, follow the [mandatory cost gate](references/cost-gate.md).
+Use the local `scripts/review-cost-plan.py` helper to inspect the exact plan;
+then obtain explicit user confirmation through the trusted approval channel.
+No plan, missing price, changed digest or expired approval means no execution.
+Default to offline inspection; server dry-run and Terraform plan are account calls.
 
 ## Instructions
 
-### Step 1: Deploy a vLLM Inference Server
+1. For first-time cluster, Node Pool, or self-managed inference provisioning, start with the official CoreWeave skills. This compatibility entry adds a bounded GPU runtime smoke-test review.
 
-```yaml
-# vllm-inference.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: vllm-server
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: vllm-server
-  template:
-    metadata:
-      labels:
-        app: vllm-server
-    spec:
-      containers:
-        - name: vllm
-          image: vllm/vllm-openai:latest
-          args:
-            - "--model"
-            - "meta-llama/Llama-3.1-8B-Instruct"
-            - "--port"
-            - "8000"
-          ports:
-            - containerPort: 8000
-          resources:
-            limits:
-              nvidia.com/gpu: 1
-              memory: 48Gi
-              cpu: "8"
-            requests:
-              nvidia.com/gpu: 1
-              memory: 32Gi
-              cpu: "4"
-          env:
-            - name: HUGGING_FACE_HUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: hf-token
-                  key: token
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: gpu.nvidia.com/class
-                    operator: In
-                    values: ["A100_PCIE_80GB"]
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: vllm-server
-spec:
-  selector:
-    app: vllm-server
-  ports:
-    - port: 8000
-      targetPort: 8000
-  type: ClusterIP
-```
+2. Choose an existing sandbox namespace, one GPU, an approved image digest and a short activeDeadlineSeconds. Agree the GPU-hour budget and exact Job name before scheduling.
 
-```bash
-# Create HuggingFace token secret
-kubectl create secret generic hf-token --from-literal=token="${HF_TOKEN}"
+3. Validate the supplied Job with server dry-run. Confirm limits.nvidia.com/gpu, CPU/memory, service account, backoffLimit and ttlSecondsAfterFinished. Discover the current instance ID rather than copying a legacy GPU label.
 
-# Deploy
-kubectl apply -f vllm-inference.yaml
-kubectl get pods -w  # Wait for Running state
+4. After explicit workload approval, apply only that Job. Wait for Complete or Failed with a timeout; a one-shot Job may finish before a Pod ever has an observable Ready condition.
 
-# Port-forward and test
-kubectl port-forward svc/vllm-server 8000:8000 &
-curl http://localhost:8000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{"model": "meta-llama/Llama-3.1-8B-Instruct", "messages": [{"role": "user", "content": "Hello!"}]}'
-```
-
-### Step 2: Batch GPU Job
-
-```yaml
-# gpu-batch-job.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: gpu-benchmark
-spec:
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-        - name: benchmark
-          image: pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
-          command: ["python3", "-c"]
-          args:
-            - |
-              import torch
-              print(f"CUDA available: {torch.cuda.is_available()}")
-              print(f"GPU: {torch.cuda.get_device_name(0)}")
-              x = torch.randn(10000, 10000, device="cuda")
-              y = torch.matmul(x, x)
-              print(f"Matrix multiply result shape: {y.shape}")
-              print("CoreWeave GPU test passed!")
-          resources:
-            limits:
-              nvidia.com/gpu: 1
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: gpu.nvidia.com/class
-                    operator: In
-                    values: ["A100_PCIE_80GB"]
-```
-
-```bash
-kubectl apply -f gpu-batch-job.yaml
-kubectl logs job/gpu-benchmark --follow
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Pod stuck Pending | No GPU capacity | Try different GPU type or check quota |
-| `nvidia-smi` not found | Wrong base image | Use NVIDIA CUDA images |
-| OOMKilled | Insufficient GPU memory | Use larger GPU (80GB A100) |
-| Image pull error | Registry auth | Create imagePullSecret |
-
-## Output
-
-- A minimal, namespace-scoped GPU workload or inference endpoint with one declared GPU.
-- A visible readiness signal and a bounded smoke-test response that confirms the GPU
-  runtime path without placing a model token or customer prompt in source control.
+5. Review a non-sensitive result such as CUDA availability and GPU enumeration. Record failure states separately from a successful test. Delete only the approved Job after evidence is retained; never its dataset PVC.
 
 ## Examples
 
-Validate the batch path first because it is cheaper and easier to roll back than a
-public endpoint:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n sandbox apply -f gpu-batch-job.yaml
-kubectl -n sandbox wait --for=condition=complete job/gpu-benchmark --timeout=15m
-kubectl -n sandbox logs job/gpu-benchmark
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply --dry-run=server -f smoke-job.yaml
+# After the owner approves this exact Job and budget:
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply -f smoke-job.yaml
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" wait --for=condition=complete "job/$CW_JOB" --timeout=5m
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "job/$CW_JOB"
 ```
 
-Delete the smoke job after recording its redacted result. If it remains Pending,
-inspect its events and namespace quota—do not broaden cluster permissions or embed
-registry credentials in the manifest to force it through.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave GPU Instances](https://docs.coreweave.com/docs/platform/instances/gpu-instances)
-- [Deploy vLLM](https://docs.coreweave.com/docs/products/cks/tutorials/deploy-vllm-inference)
-- [CoreWeave Examples](https://github.com/coreweave/kubernetes-cloud)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
+- [Primary reference 2](https://kubernetes.io/docs/reference/kubectl/)
 
-## Next Steps
+## Evidence status
 
-Proceed to `coreweave-local-dev-loop` for development workflow setup.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

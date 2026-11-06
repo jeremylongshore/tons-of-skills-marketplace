@@ -1,19 +1,8 @@
 ---
 name: coreweave-core-workflow-a
-description: 'Deploy KServe InferenceService on CoreWeave with autoscaling and GPU
-  scheduling.
-
-  Use when serving ML models with KServe, configuring scale-to-zero,
-
-  or deploying production inference endpoints on CoreWeave.
-
-  Trigger with phrases like "coreweave inference service", "coreweave kserve",
-
-  "coreweave model serving", "deploy model on coreweave".
-
-  '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.12.0
+description: 'Review a CoreWeave self-managed inference release, readiness and GPU scheduling. Use when deploying a model on CKS, checking KServe prerequisites, or diagnosing an inference rollout. Trigger with coreweave inference service, coreweave model serving, or coreweave kserve.'
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -24,140 +13,106 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Core Workflow: KServe Inference
+# CoreWeave Inference deployment preflight
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Deploy production inference services on CoreWeave using KServe InferenceService with GPU scheduling, autoscaling, and scale-to-zero. CKS natively integrates with KServe for serverless GPU inference.
+Review a self-managed CKS inference release and verify readiness before traffic.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- Completed `coreweave-install-auth` setup
-- KServe available on your CKS cluster
-- Model stored in S3, GCS, or HuggingFace
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
+
+## Cost and safety gate
+
+Before any billable action, follow the [mandatory cost gate](references/cost-gate.md).
+Use the local `scripts/review-cost-plan.py` helper to inspect the exact plan;
+then obtain explicit user confirmation through the trusted approval channel.
+No plan, missing price, changed digest or expired approval means no execution.
+Default to offline inspection; server dry-run and Terraform plan are account calls.
 
 ## Instructions
 
-### Step 1: Deploy an InferenceService
+1. Use CoreWeave official skills for creating the cluster/Node Pool and deploying a self-managed vLLM service. Choose explicitly between self-managed CKS, Dedicated Inference and Serverless Inference.
 
-```yaml
-# inference-service.yaml
-apiVersion: serving.kserve.io/v1beta1
-kind: InferenceService
-metadata:
-  name: llama-inference
-  annotations:
-    autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
-    autoscaling.knative.dev/metric: "concurrency"
-    autoscaling.knative.dev/target: "1"
-    autoscaling.knative.dev/minScale: "1"
-    autoscaling.knative.dev/maxScale: "5"
-spec:
-  predictor:
-    minReplicas: 1
-    maxReplicas: 5
-    containers:
-      - name: kserve-container
-        image: vllm/vllm-openai:latest
-        args:
-          - "--model"
-          - "meta-llama/Llama-3.1-8B-Instruct"
-          - "--port"
-          - "8080"
-        ports:
-          - containerPort: 8080
-            protocol: TCP
-        resources:
-          limits:
-            nvidia.com/gpu: "1"
-            memory: 48Gi
-            cpu: "8"
-          requests:
-            nvidia.com/gpu: "1"
-            memory: 32Gi
-            cpu: "4"
-        env:
-          - name: HUGGING_FACE_HUB_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: hf-token
-                key: token
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: gpu.nvidia.com/class
-                  operator: In
-                  values: ["A100_PCIE_80GB"]
-```
+2. For self-managed CKS, inspect the reviewed Deployment and Service. Require an immutable image, approved model/version/license, secret references, measured host/GPU memory budget and health/startup/readiness probes.
 
-```bash
-kubectl apply -f inference-service.yaml
-kubectl get inferenceservice llama-inference -w
-```
+3. Do not assume KServe or Knative is bundled with every CKS cluster. If a KServe design is requested, first verify the installed CRDs, controller versions and supported autoscaler configuration.
 
-### Step 2: Scale-to-Zero Configuration
+4. Run server dry-run and inspect the diff before an approved staging rollout. Bound replicas and GPU capacity; ensure readiness verifies the loaded model rather than only a process listening on a port.
 
-```yaml
-# For dev/staging -- scale down to zero when idle
-metadata:
-  annotations:
-    autoscaling.knative.dev/minScale: "0"    # Scale to zero
-    autoscaling.knative.dev/maxScale: "3"
-    autoscaling.knative.dev/scaleDownDelay: "5m"
-```
-
-### Step 3: Test the Endpoint
-
-```bash
-# Get inference URL
-INFERENCE_URL=$(kubectl get inferenceservice llama-inference \
-  -o jsonpath='{.status.url}')
-
-curl -X POST "${INFERENCE_URL}/v1/chat/completions" \
-  -H "Content-Type: application/json" \
-  -d '{"model": "meta-llama/Llama-3.1-8B-Instruct", "messages": [{"role": "user", "content": "Hello!"}]}'
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| InferenceService not ready | GPU not available | Check node capacity and affinity |
-| Scale-to-zero cold start | First request after idle | Set `minScale: 1` for production |
-| Model loading timeout | Large model download | Pre-cache model in PVC |
-| OOMKilled | Model too large | Use multi-GPU or quantized model |
-
-## Output
-
-- A namespace-scoped inference service with declared compute, GPU, and secret inputs.
-- A readiness and endpoint smoke-test result suitable for the deployment record.
-- A scale-to-zero configuration limited to appropriate non-production workloads,
-  with a documented production availability decision.
+5. Test through the approved private route with non-sensitive input. Compare correctness, latency, error rate and cold-start behavior before production approval; scaling Pods to zero does not necessarily remove reserved capacity charges.
 
 ## Examples
 
-Deploy to staging and wait for the service readiness condition before sending a
-minimal health request:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference-staging apply -f inference-service.yaml
-kubectl -n inference-staging get inferenceservice llama-inference --watch
-kubectl -n inference-staging get pods -l serving.kserve.io/inferenceservice=llama-inference
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "deployment/$CW_DEPLOYMENT" "service/$CW_SERVICE"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply --dry-run=server -f inference-reviewed.yaml
+# After approval of the reviewed staging change:
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply -f inference-reviewed.yaml
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout status "deployment/$CW_DEPLOYMENT" --timeout=15m
 ```
 
-If readiness stalls, inspect events, image pull status, GPU availability, and the
-secret reference. Do not expose the endpoint publicly or replace a secret reference
-with a plaintext token as a debugging shortcut.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave Inference](https://docs.coreweave.com/docs/products/cks/tutorials/deploy-vllm-inference)
-- [KServe Documentation](https://kserve.github.io/website/)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
+- [Primary reference 2](https://docs.coreweave.com/products/cks/deploy-model)
+- [Primary reference 3](https://docs.coreweave.com/products/inference/scaling)
 
-## Next Steps
+## Evidence status
 
-For GPU training workloads, see `coreweave-core-workflow-b`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
+
+## Offline verification
+
+The helper consumes an InferenceService object in `manifest`, CRD names in `crds`, `controller_version`, `model_provenance` (license_reviewed and SHA-256), `expected_model`, and a supplied `endpoint_result` (status_code, model, accepted). It checks observedGeneration against metadata.generation, GPU limits, bounded replicas and the model response independently. It supports the KServe model predictor shape in the fixture, not every custom predictor. Do not substitute Deployment readiness for endpoint acceptance. A source digest is not proof of the served weights unless the endpoint acceptance procedure binds that digest.
+
+From this skill directory, replay the synthetic example (its timestamp is intentionally
+fixed; it contains no account data):
+
+```bash
+python3 scripts/review-inference.py --input tests/fixtures/example.json --as-of 2026-11-05T12:01:00Z
+```
+
+For current evidence, omit `--as-of`; it defaults to current UTC. Required common
+fields: `schema: coreweave-evidence/v1`, `captured_at`, `context`, `namespace`,
+`expected_context`, `expected_namespace`. The scope must agree and evidence must
+be at most five minutes old. Explicit replay time is for testing historical fixtures,
+not a way to make stale production evidence current.
+
+Exit 0 / `reviewed` means the supplied assertions satisfy this bounded contract;
+2 / `blocked` requires correction; 3 / `incomplete` requires more evidence. Read the
+findings rather than relying only on exit status. Scripts never execute text from
+inputs, call a cloud API or authorize a change. Fixture and package checks are
+separate from model behavior and live compatibility.
+
+- [Input contract and limitations](references/evidence-contract.md)
+- [Skill blueprint and acceptance](docs/BLUEPRINT.md)

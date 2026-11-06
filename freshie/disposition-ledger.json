@@ -3,8 +3,8 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "f258ae1ac7ee68a736d048bbd76ff87575b2caf2d9e000553a89378c5010035a",
-    "artifact_count": 3304
+    "sha256": "7b7d1dfafc59d4e09859dee98f33bd46c611c6b44e3ac5e6d5a2ba46082b3072",
+    "artifact_count": 3307
   },
   "rule_order": [
     "G0",
@@ -21,7 +21,7 @@
   "counts": {
     "AUTO-MIGRATE": 0,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 2956,
+    "CERTIFY-PENDING-EVIDENCE": 2959,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
     "QUARANTINE": 347
@@ -14303,9 +14303,31 @@
       ]
     },
     {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/SKILL.md",
+      "grade": "A",
+      "score": 100,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 98,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/SKILL.md",
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14316,7 +14338,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-common-errors/SKILL.md",
       "grade": "A",
-      "score": 92,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14326,8 +14348,8 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/SKILL.md",
-      "grade": "B",
-      "score": 87,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14337,8 +14359,8 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/SKILL.md",
-      "grade": "B",
-      "score": 86,
+      "grade": "A",
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14349,7 +14371,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cost-tuning/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14360,7 +14382,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-data-handling/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14371,7 +14393,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-debug-bundle/SKILL.md",
       "grade": "A",
-      "score": 91,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14381,8 +14403,8 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-deploy-integration/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 95,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14393,7 +14415,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14404,7 +14426,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/SKILL.md",
       "grade": "A",
-      "score": 97,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14415,7 +14437,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/SKILL.md",
       "grade": "A",
-      "score": 96,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14426,7 +14448,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 96,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14436,8 +14458,8 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-hello-world/SKILL.md",
-      "grade": "B",
-      "score": 86,
+      "grade": "A",
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14448,7 +14470,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/SKILL.md",
       "grade": "A",
-      "score": 93,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14458,8 +14480,8 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-install-auth/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 97,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14469,8 +14491,8 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-local-dev-loop/SKILL.md",
-      "grade": "B",
-      "score": 87,
+      "grade": "A",
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14481,7 +14503,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-multi-env-setup/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14492,7 +14514,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-observability/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 99,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14503,7 +14525,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-performance-tuning/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14514,7 +14536,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-prod-checklist/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14524,8 +14546,8 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-sdk-patterns/SKILL.md",
-      "grade": "B",
-      "score": 85,
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14536,7 +14558,7 @@
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-security-basics/SKILL.md",
       "grade": "A",
-      "score": 90,
+      "score": 98,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -14546,8 +14568,19 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-upgrade-migration/SKILL.md",
-      "grade": "B",
-      "score": 88,
+      "grade": "A",
+      "score": 96,
+      "diagnostics": [],
+      "disposition": "CERTIFY-PENDING-EVIDENCE",
+      "gate": "G7",
+      "reason_codes": [
+        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+      ]
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/SKILL.md",
+      "grade": "A",
+      "score": 100,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

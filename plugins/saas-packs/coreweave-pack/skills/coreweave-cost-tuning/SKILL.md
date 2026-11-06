@@ -12,7 +12,7 @@ description: 'Optimize CoreWeave GPU cloud costs with right-sizing and schedulin
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,110 +23,72 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Cost Tuning
+# CoreWeave Cost experiment planning
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Reduce GPU spend by matching a workload's memory, throughput, availability, and
-latency requirements to the smallest approved capacity. Cost changes must preserve
-the service SLO and retain a measured rollback path; approximate public prices are
-planning inputs, not a billing source of truth.
+Evaluate reversible capacity changes against the actual contract and measured workload.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- Read-only access to workload utilization, namespace quota, and billing allocation data.
-- A named service owner and target SLO for the workload being resized.
-- Approval for any change that can reduce production capacity or alter availability.
-
-## GPU Pricing Reference (approximate)
-
-| GPU | Per GPU/hour | Best For |
-|-----|-------------|----------|
-| A100 40GB PCIe | ~$1.50 | Development, smaller models |
-| A100 80GB PCIe | ~$2.21 | Production inference |
-| H100 80GB PCIe | ~$4.76 | High-throughput inference |
-| H100 SXM5 (8x) | ~$6.15/GPU | Training, multi-GPU |
-| L40 | ~$1.10 | Image generation, light inference |
-
-## Cost Optimization Strategies
-
-### Scale-to-Zero for Dev/Staging
-
-```yaml
-autoscaling.knative.dev/minScale: "0"
-autoscaling.knative.dev/scaleDownDelay: "5m"
-```
-
-### Right-Size GPU Selection
-
-```python
-def recommend_gpu(model_size_b: float, inference_only: bool = True) -> str:
-    if model_size_b <= 7:
-        return "L40" if inference_only else "A100_PCIE_80GB"
-    elif model_size_b <= 13:
-        return "A100_PCIE_80GB"
-    elif model_size_b <= 70:
-        return "A100_PCIE_80GB (4x tensor parallel)"
-    else:
-        return "H100_SXM5 (8x tensor parallel)"
-```
-
-### Quantization to Use Smaller GPUs
-
-Use AWQ or GPTQ quantization to fit larger models on smaller GPUs:
-
-```bash
-# 70B model at 4-bit fits on single A100-80GB instead of 4x
-vllm serve meta-llama/Llama-3.1-70B-Instruct-AWQ --quantization awq
-```
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-1. Baseline seven days of GPU utilization, queue time, request latency, error rate,
-   and allocated cost by namespace; do not decide from a single peak.
-2. Propose one reversible change—right-size a non-production workload, set a
-   conservative scale-down delay, or run a quantized canary.
-3. Compare the canary against its SLO and budget for an agreed observation window.
-   Promote only if quality, latency, and error rate remain within the published limit.
-4. Record the instance choice, owner, forecast, and rollback trigger in the
-   change record. Revert capacity immediately if the workload breaches its SLO.
+1. Determine whether this is CKS Reserved Instances, Flex, Spot, On-Demand, Dedicated Inference or Serverless billing. Pod replica count and billed capacity are different quantities.
 
-## Output
+2. Read current customer rates and usage over a defined window. Record units, sampling coverage, taxes/credits and reservation terms. Use the cost-review script for scenario arithmetic; telemetry multiplied by a rate is an estimate, not an invoice.
 
-- A documented utilization baseline and cost allocation for the selected workload.
-- A right-sizing or scale-to-zero recommendation with its performance guardrails.
-- A reversible change record containing owner, observation window, and rollback threshold.
+3. Identify one feasible experiment: scheduling an interruptible workload, changing a tested instance type, reducing unused on-demand Nodes or changing a serving limit. A model parameter count alone does not determine GPU memory or performance.
 
-## Error Handling
+4. For right-sizing or quantization, verify representative quality, latency, memory and throughput first. Obtain the approved model artifact and supported image; do not invent a quantized repository name.
 
-| Condition | Likely cause | Safe response |
-|---|---|---|
-| Latency rises after downsizing | Insufficient GPU capacity or queueing | Restore the previous resource request and investigate with the service owner. |
-| Cost data is incomplete | Labels or billing export are missing | Stop the optimization; repair allocation labels before making a pricing decision. |
-| Quantized canary loses quality | Model or quantization setting is unsuitable | Route traffic back to the baseline model and retain the evaluation result. |
-| Scale-to-zero causes cold-start failures | Delay or startup budget is too small | Restore minimum replicas for the affected service and tune in a non-production lane. |
+5. Have the owner approve the exact resource or contract change. Scaling Pods to zero does not cancel a reserved commitment or a Flex holding fee. Report realized billing changes only after reconciliation.
 
 ## Examples
 
-Run an approved staging canary with an explicit resource limit, then compare it to
-the baseline before touching production:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference-staging patch deployment summarizer \
-  --type merge -p '{"spec":{"template":{"spec":{"containers":[{"name":"server","resources":{"limits":{"nvidia.com/gpu":1}}}]}}}}'
-kubectl -n inference-staging rollout status deployment/summarizer --timeout=10m
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get resourcequota
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "deployment/$CW_DEPLOYMENT" -o wide
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get hpa
+# Optional, separately authorized cluster inventory:
+kubectl --context="$CW_CONTEXT" get nodes -L node.kubernetes.io/instance-type
 ```
 
-If p95 latency, error rate, or evaluation quality crosses the signed threshold,
-restore the prior manifest and attach the redacted measurements to the change record.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave Pricing](https://www.coreweave.com/pricing)
-- [CoreWeave GPU Instances](https://docs.coreweave.com/docs/platform/instances/gpu-instances)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/platform/capacity-plans)
+- [Primary reference 2](https://docs.coreweave.com/observability/usage-monitoring)
+- [Primary reference 3](https://docs.coreweave.com/products/inference/billing)
 
-## Next Steps
+## Evidence status
 
-For architecture patterns, see `coreweave-reference-architecture`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

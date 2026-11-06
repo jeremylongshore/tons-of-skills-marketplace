@@ -1,42 +1,10 @@
 #!/usr/bin/env python3
-"""Deterministic GPU-node failure triage for coreweave-gpu-node-forensics.
+"""Offline NVIDIA Xid triage recommendations for CoreWeave operators.
 
-The LLM does NOT guess the verdict. This script maps a hardware signal — an
-NVIDIA Xid code (optionally with row-remapper state) OR a pasted
-dmesg / nvidia-smi blob — to a single, grounded triage decision:
-
-    {classification, severity, action, why, next_command, ...}
-
-`action` is one of the six operator moves:
-
-    reschedule           restart the job; the node/GPU is healthy (Xid 94 CONTAINED)
-    reset-gpu            drain + GPU reset; in-flight work is suspect (Xid 95 UNCONTAINED, 48, 74, 119/120)
-    reboot-node          bare-metal reboot; the card is gone until then (Xid 79)
-    rma                  terminal hardware fault; replace the card (row-remap FAILURE, Xid 64)
-    watch                correctable / trending; not yet actionable (Xid 92, thermal)
-    app-bug-not-hardware the app faulted, not the GPU; do NOT RMA (Xid 13/31/43/45)
-
-The headline decision is the 94-vs-95 split: a CONTAINED error (94) only cost
-you one job restart; an UNCONTAINED error (95) means the GPU could not isolate
-the fault and everything it touched is suspect.
-
-Grounding (see references/):
-  - NVIDIA Xid error catalog: https://docs.nvidia.com/deploy/xid-errors/
-  - references/xid-triage-table.md   (full code -> action table, cited)
-  - references/row-remap-decision.md (Xid 63/64 + ROW_REMAPPER logic)
-  - references/cordon-rules.md       (CoreWeave health-cordon hard rule)
-
-HARD RULE embedded here and surfaced in every hardware verdict: never manually
-uncordon a CoreWeave health cordon — the node-lifecycle controller owns it.
-
-Usage:
-    python3 triage.py --xid 94
-    python3 triage.py --xid 63 --pending yes
-    python3 triage.py --xid 48 --remap-failure yes
-    python3 triage.py --blob dmesg.txt          # parse a pasted blob (file or - for stdin)
-    cat dmesg.txt | python3 triage.py           # blob on stdin
-    python3 triage.py --xid 95 --json           # machine-readable only
-    python3 triage.py --self-test               # run bundled fixtures
+A code labels an observed event, not a universal root cause or permission to reset.
+Every recommendation requires GPU identity, architecture, driver/DCGM diagnostics,
+workload impact and managed lifecycle state to be corroborated. Never uncordon a
+controller-owned health cordon. Unknown or multi-GPU evidence stays inconclusive.
 """
 
 from __future__ import annotations
@@ -58,7 +26,8 @@ VALID_ACTIONS = (
     "reboot-node",
     "rma",
     "watch",
-    "app-bug-not-hardware",
+    "investigate",
+    "investigate-application",
 )
 
 # The CoreWeave hard rule, attached to every verdict that touches the node/GPU
@@ -67,7 +36,7 @@ VALID_ACTIONS = (
 # bad hardware and races the controller. See references/cordon-rules.md.
 CORDON_RULE = (
     "Do NOT manually uncordon a CoreWeave health cordon — the node-lifecycle "
-    "controller owns cordon/uncordon. Let it drain and replace the node."
+    "controller owns cordon/uncordon. Follow the managed recovery owner’s procedure."
 )
 
 # CoreWeave does not publish exact auto-RMA thresholds (how many SBE/remap
@@ -87,125 +56,110 @@ UNVERIFIED_RMA_THRESHOLD = (
 XID_TABLE: dict[int, tuple[str, str, str, str, str]] = {
     13: (
         "Graphics/compute engine exception",
-        "low",
-        "app-bug-not-hardware",
-        "Engine exception — almost always an application or CUDA-kernel bug "
-        "(illegal access, bad launch), not a hardware fault. Do NOT RMA.",
-        "Reproduce under compute-sanitizer / cuda-memcheck and fix the failing kernel.",
+        "medium",
+        "investigate-application",
+        "Application or driver faults are possible; this code alone does not exclude hardware.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     31: (
-        "GPU memory page fault (MMU fault)",
-        "low",
-        "app-bug-not-hardware",
-        "MMU page fault — an illegal / out-of-bounds memory access by the app, not hardware. Do NOT RMA.",
-        "Run the job under compute-sanitizer to locate the out-of-bounds access.",
+        "GPU memory page fault",
+        "medium",
+        "investigate-application",
+        "Investigate the failing kernel and driver; a page fault alone does not prove a healthy GPU.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     43: (
-        "GPU stopped processing (software-induced)",
-        "low",
-        "app-bug-not-hardware",
-        "Software-induced channel fault in the running job — not a hardware failure. Do NOT RMA; fix the app.",
-        "Debug the app; look earlier in dmesg for a preceding Xid 13/31 that triggered it.",
+        "GPU stopped processing",
+        "medium",
+        "investigate-application",
+        "Correlate prior Xids and application failures; do not classify hardware from this code alone.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     45: (
-        "Preemptive channel cleanup / robust channel recovery",
-        "low",
-        "app-bug-not-hardware",
-        "Channel teardown after a kill, Ctrl-C, or a prior fault — usually a "
-        "downstream symptom, not the root hardware cause. Do NOT RMA on this alone.",
-        "Scan earlier dmesg for the preceding Xid that caused the teardown.",
+        "Channel cleanup",
+        "medium",
+        "investigate-application",
+        "Usually a cleanup symptom; identify the earlier event before deciding a remedy.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     48: (
-        "Double-Bit ECC error (DBE, uncorrectable)",
+        "Double-bit ECC error",
         "critical",
         "reset-gpu",
-        "Uncorrectable double-bit ECC error — reset the GPU; a row-remap should "
-        "follow. If the remap FAILS the card is terminal -> RMA.",
-        "nvidia-smi -q -d ROW_REMAPPER on the GPU, drain + reset it; RMA if remapping failed.",
+        "Review memory-error and row-remapper evidence for this GPU; reset is a candidate recovery action, subject to architecture and support guidance.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     63: (
-        "ECC page retirement / row-remap recorded",
+        "Page retirement or row-remap event",
         "high",
-        "reset-gpu",
-        "A row-remap (or legacy page retirement) was recorded — routine ECC "
-        "self-healing that applies on the next GPU reset, UNLESS the remap "
-        "failed (terminal -> RMA).",
-        "Read nvidia-smi -q -d ROW_REMAPPER: 'Pending: Yes' -> reset to apply; "
-        "'Remapping Failure Occurred: Yes' -> RMA.",
+        "watch",
+        "Check whether remapping is pending or failed on the same GPU; this code alone does not authorize reset or replacement.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     64: (
-        "ECC row-remapper recording FAILURE",
+        "Page retirement or row-remap recording failure",
         "critical",
         "rma",
-        "The row-remapper could not record a remap — the sparing hardware itself "
-        "failed. This is terminal; the GPU needs replacement -> RMA.",
-        "Confirm nvidia-smi -q -d ROW_REMAPPER ('Remapping Failure Occurred: Yes'); cordon, drain, open an RMA.",
+        "Escalate with DCGM and row-remapper evidence; support must determine whether replacement is required.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     74: (
         "NVLink error",
         "high",
         "reset-gpu",
-        "NVLink / NVSwitch error between GPUs — reset the GPU and its NVLink "
-        "domain. If it recurs on the same link, escalate to node reboot / RMA.",
-        "nvidia-smi nvlink -e to read link errors; drain + GPU reset; escalate if it repeats.",
+        "Review topology, peer GPUs and Fabric Manager diagnostics; any reset must follow the supported procedure.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     79: (
-        "GPU has fallen off the bus",
+        "GPU inaccessible on PCIe bus",
         "critical",
         "reboot-node",
-        "The GPU dropped off the PCIe bus and is unreachable — it will NOT return "
-        "until the node is rebooted (bare-metal power-cycle). All work on it is lost.",
-        "Cordon + drain the node, then reboot it (RESTART_BM / power-cycle). If it recurs after reboot -> RMA.",
+        "Inspect driver/platform diagnostics and lifecycle state; a node reboot or power cycle may be needed, but is not authorized by this code alone.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     92: (
-        "High single-bit ECC (SBE) error rate",
+        "High correctable ECC error rate",
         "medium",
         "watch",
-        "Correctable single-bit ECC errors are trending high — the GPU is still "
-        "healthy and self-correcting. Watch the trend; act only if it escalates "
-        "to a DBE (Xid 48) or a remap failure.",
-        "Track SBE counts (nvidia-smi -q -d ECC); RMA only on escalation to uncorrectable/remap-failure.",
+        "Review trends and current diagnostics; correctable events do not establish complete GPU health.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     94: (
-        "Contained ECC/memory error",
+        "Contained memory error",
         "high",
         "reschedule",
-        "The error was CONTAINED to the faulting application's context — the GPU "
-        "and node are healthy. Just reschedule/restart the job; no reset or RMA needed.",
-        "Restart or reschedule the failed rank; the node stays in service.",
+        "Containment limits the reported error scope; review the affected workload and GPU diagnostics before restarting it. This is not proof the node is healthy.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     95: (
-        "Uncontained ECC/memory error",
+        "Uncontained memory error",
         "critical",
         "reset-gpu",
-        "The error was UNCONTAINED — the GPU could not isolate it, so every "
-        "context it touched is suspect. Drain the GPU and reset it; treat all "
-        "in-flight work as corrupt.",
-        "Cordon + drain, GPU-reset (nvidia-smi -r) or node reset; re-run any job that shared this GPU.",
+        "Escalate affected workload integrity and recovery scope. A reset may be required; confirm architecture, driver and lifecycle guidance before disruption.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     119: (
         "GSP RPC timeout",
         "high",
         "reset-gpu",
-        "The GPU System Processor (GSP) RPC timed out — a GPU reset usually "
-        "clears it. Reboot the node only if the reset does not.",
-        "Drain + GPU reset; if it recurs, reboot the node.",
+        "Review driver/GSP and GPU diagnostics; request support guidance before a managed reset or reboot.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     120: (
         "GSP error",
         "high",
         "reset-gpu",
-        "A GSP (GPU System Processor) error — a GPU reset usually clears it; reboot the node if reset does not.",
-        "Drain + GPU reset; escalate to node reboot if it persists.",
+        "Review driver/GSP and GPU diagnostics; a bare code does not establish the recovery scope.",
+        "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
 }
 
 # Non-Xid signal: thermal throttling parsed from nvidia-smi PERFORMANCE output.
 THERMAL_VERDICT = (
-    "Thermal throttling (not a hardware failure)",
+    "Thermal throttling observed",
     "medium",
     "watch",
-    "The GPU is clock-throttling due to heat — it is healthy but running hot. "
+    "Thermal throttling is reported; this alone does not establish hardware health. "
     "Investigate cooling / airflow / inlet temp, not the card. Reschedule off it "
     "only if throttling is tanking throughput.",
     "nvidia-smi -q -d PERFORMANCE to read the throttle reasons; check node airflow / datacenter cooling.",
@@ -234,6 +188,13 @@ def _verdict(
         "action": action,
         "why": why,
         "next_command": next_command,
+        "confidence": "moderate" if xid in XID_TABLE else "low",
+        "recommendation_only": True,
+        "requires_confirmation": [
+            "GPU identity and architecture",
+            "driver version and DCGM diagnostics",
+            "workload impact and lifecycle owner approval",
+        ],
     }
     if co_occurring:
         v["co_occurring_xids"] = co_occurring
@@ -263,23 +224,19 @@ def classify_xid(xid: int) -> dict:
         xid=xid,
         classification=f"Unmapped Xid {xid}",
         severity="high",
-        action="reset-gpu",
-        why=(
-            f"Xid {xid} is not in the triage table. Unmapped Xids default to a "
-            "conservative drain + GPU reset; consult the NVIDIA Xid catalog before "
-            "deciding on RMA."
-        ),
+        action="investigate",
+        why=f"Xid {xid} is not in this table. Preserve evidence and consult the current catalog; no reset is inferred.",
         next_command="See https://docs.nvidia.com/deploy/xid-errors/ for Xid "
-        f"{xid}; drain the node and reset the GPU, then observe.",
+        f"{xid}; collect supported diagnostics and escalate to the lifecycle owner.",
         unverified=[f"[unverified] Xid {xid} has no entry in xid-triage-table.md — verdict is a conservative default."],
     )
 
 
 def apply_remap_override(base: dict, pending: bool | None, remap_failure: bool | None) -> dict:
-    """Row-remapper state is authoritative for the ECC/DBE family.
+    """Row-remapper evidence informs recommendations for the ECC/DBE family.
 
-    - Remapping Failure Occurred: Yes  -> terminal, RMA (overrides any base).
-    - Pending: Yes (no failure)         -> reset-gpu (the remap applies on reset).
+    - Remapping Failure Occurred: Yes -> support/RMA review for the ECC family.
+    - Pending: Yes -> review a supported reset with the lifecycle owner.
     Anything else leaves the base verdict untouched.
 
     An override builds a FRESH verdict, so it must carry forward the forensic
@@ -287,18 +244,23 @@ def apply_remap_override(base: dict, pending: bool | None, remap_failure: bool |
     hedges — rather than silently dropping them.
     """
     xid = base.get("xid")
+    if xid not in (None, 48, 63, 64, 94, 95):
+        if pending or remap_failure:
+            base.setdefault("unverified", []).append(
+                "Row-remapper evidence requires same-GPU correlation; it did not override this Xid."
+            )
+        return base
     if remap_failure:
         v = _verdict(
             xid=xid,
-            classification="ECC row-remapper FAILURE (terminal)",
+            classification="Row-remapper failure reported",
             severity="critical",
             action="rma",
             why=(
                 "nvidia-smi reports 'Remapping Failure Occurred: Yes' — the GPU's "
-                "spare-row sparing failed. This is terminal hardware; no reset "
-                "recovers it. Replace the card -> RMA."
+                "reported a remapping failure. Escalate with GPU identity, driver and DCGM diagnostics; support determines whether replacement is required."
             ),
-            next_command="Cordon + drain the node and open a CoreWeave RMA for the GPU.",
+            next_command="Collect same-GPU diagnostics and open a CoreWeave support case; do not override lifecycle control.",
         )
     elif pending:
         v = _verdict(
@@ -309,9 +271,9 @@ def apply_remap_override(base: dict, pending: bool | None, remap_failure: bool |
             why=(
                 "nvidia-smi reports 'Pending: Yes' with no remap failure — a row-remap "
                 "is queued and applies on the next GPU reset. Routine ECC self-healing, "
-                "not an RMA."
+                "not sufficient evidence for an RMA."
             ),
-            next_command="Drain the GPU and reset it (nvidia-smi -r or node reset) to apply the pending remap.",
+            next_command="Confirm the same-GPU pending remap with DCGM and the lifecycle owner before scheduling supported recovery.",
         )
     else:
         return base
@@ -343,7 +305,8 @@ def parse_blob(text: str) -> dict:
     """Extract structured signals from a pasted dmesg / nvidia-smi blob."""
     xids = [int(m) for m in _XID_RE.findall(text)]
     remap_fail_m = _REMAP_FAIL_RE.search(text)
-    pending_m = _PENDING_RE.search(text)
+    row_section = re.search(r"Row Remapper(?P<body>(?:\n[ \t]+[^\n]*)+)", text, re.IGNORECASE)
+    pending_m = _PENDING_RE.search(row_section.group("body")) if row_section else None
     return {
         "xids": xids,
         "remap_failure": (remap_fail_m.group(1).lower() == "yes") if remap_fail_m else None,
@@ -355,6 +318,16 @@ def parse_blob(text: str) -> dict:
 def triage_from_blob(text: str) -> dict:
     """End-to-end: parse a blob, pick the governing signal, return one verdict."""
     parsed = parse_blob(text)
+    gpu_ids = set(re.findall(r"Xid\s*\(PCI:([^)]*)\)", text, re.I))
+    if len(gpu_ids) > 1:
+        return _verdict(
+            xid=None,
+            classification="Multiple GPU identities in input",
+            severity="high",
+            action="investigate",
+            why="Split evidence by GPU and time before correlating Xids or row-remapper state.",
+            next_command="Collect one GPU diagnostic set per report.",
+        )
     xids = parsed["xids"]
 
     if xids:
@@ -414,7 +387,7 @@ def render_verdict(v: dict) -> str:
     head = f"Xid {xid} — {v['classification']}" if xid is not None else v["classification"]
     lines = [
         f"VERDICT: {head} [severity: {v['severity'].upper()}]",
-        f"ACTION:  {v['action']}",
+        f"RECOMMENDED ACTION (confirmation required): {v['action']}",
         f"WHY:     {v['why']}",
         f"NEXT:    {v['next_command']}",
     ]
@@ -438,9 +411,9 @@ def _run_self_test() -> int:
         ("xid 94 CONTAINED -> reschedule", lambda: classify_xid(94), "reschedule"),
         ("xid 95 UNCONTAINED -> reset-gpu", lambda: classify_xid(95), "reset-gpu"),
         ("xid 79 fell-off-bus -> reboot-node", lambda: classify_xid(79), "reboot-node"),
-        ("xid 43 software -> app-bug-not-hardware", lambda: classify_xid(43), "app-bug-not-hardware"),
-        ("xid 13 engine-exception -> app-bug-not-hardware", lambda: classify_xid(13), "app-bug-not-hardware"),
-        ("xid 31 page-fault -> app-bug-not-hardware", lambda: classify_xid(31), "app-bug-not-hardware"),
+        ("xid 43 context -> investigate-application", lambda: classify_xid(43), "investigate-application"),
+        ("xid 13 engine-exception -> investigate-application", lambda: classify_xid(13), "investigate-application"),
+        ("xid 31 page-fault -> investigate-application", lambda: classify_xid(31), "investigate-application"),
         ("xid 92 SBE-trend -> watch", lambda: classify_xid(92), "watch"),
         ("xid 64 remap-record-failure -> rma", lambda: classify_xid(64), "rma"),
         (
@@ -572,7 +545,10 @@ def _run_self_test() -> int:
 def _yesno(val: str | None) -> bool | None:
     if val is None:
         return None
-    return str(val).strip().lower() in ("yes", "y", "true", "1")
+    lowered = str(val).strip().lower()
+    if lowered not in ("yes", "y", "true", "1", "no", "n", "false", "0"):
+        raise ValueError("boolean flag must be yes or no")
+    return lowered in ("yes", "y", "true", "1")
 
 
 def main() -> int:
@@ -588,7 +564,18 @@ def main() -> int:
     if args.self_test:
         return _run_self_test()
 
+    if args.xid is not None and args.blob:
+        ap.error("choose --xid or --blob, not both")
+    if args.xid is None and (args.pending is not None or args.remap_failure is not None):
+        ap.error("row-remapper flags require --xid; blob mode reads its own evidence")
     if args.xid is not None:
+        if args.xid < 0 or args.xid > 9999:
+            ap.error("Xid must be between 0 and 9999")
+        try:
+            _yesno(args.pending)
+            _yesno(args.remap_failure)
+        except ValueError as exc:
+            ap.error(str(exc))
         base = classify_xid(args.xid)
         verdict = apply_remap_override(base, _yesno(args.pending), _yesno(args.remap_failure))
     else:

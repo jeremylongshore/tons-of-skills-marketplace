@@ -15,17 +15,17 @@ A matching skill name proves structural repetition only. It does **not** prove t
 | Measure | Count |
 | --- | ---: |
 | Active SaaS packs | 96 |
-| Active skills | 2094 |
+| Active skills | 2097 |
 | Tutorial-lattice candidates | 1940 |
 | Packs containing candidates | 89 |
 | Packs entirely inside the lattice | 74 |
-| Packs at least 80% inside the lattice | 83 |
+| Packs at least 80% inside the lattice | 82 |
 | Packs with no lattice candidates | 7 |
 | Candidates admitted by explicit prefix aliases | 48 |
 | Suffix-only names excluded by prefix policy | 1 |
 
-- Catalog SHA-256: `f8f1e9721b2c952e42878140dd0dc87c4bcfc42a21750de716afffc936fe2fb3`
-- Tracked inventory SHA-256: `f56a66e9bdaac8ed8c3510cab18fbbf38c9ae4ca9cd9b93cbf1948fec7a0bc52`
+- Catalog SHA-256: `ce430a308096dc12a6ccd07d2f9a115e06f18d57597fb9f93aa364056ede65d3`
+- Tracked inventory SHA-256: `1f12a94f37bbe5617c81977997b9a3b2e4e0bbc8ce2a1a58f89e2a8003b89017`
 
 The earlier 2,011-candidate census used 24 base families and literal pack-name stems. This version expands the family set with `advanced-troubleshooting`, `architecture-variants`, `known-pitfalls`, `load-scale`, `policy-guardrails`, and `reliability-patterns`, then applies versioned exact aliases for `anthropic-pack`, `claude-pack`, and `langchain-py-pack`. The current generated counts above are authoritative. Suffix-only near-matches such as `langchain-otel-observability` and the explicitly recorded content-specific Customer.io workflows remain excluded.
 
@@ -159,8 +159,8 @@ Beads is the completion authority. Search direct children before creation, selec
 | 80 | `navan-pack` | 24 | 26 | 92.31% | A | 97 |
 | 81 | `sentry-pack` | 27 | 30 | 90.00% | A | 91 |
 | 82 | `customerio-pack` | 21 | 24 | 87.50% | A | 90 |
-| 83 | `coreweave-pack` | 20 | 23 | 86.96% | A | 91 |
-| 84 | `shopify-pack` | 30 | 38 | 78.95% | A | 93 |
+| 83 | `shopify-pack` | 30 | 38 | 78.95% | A | 93 |
+| 84 | `coreweave-pack` | 20 | 26 | 76.92% | A | 98 |
 | 85 | `langchain-py-pack` | 18 | 33 | 54.55% | A | 92 |
 | 86 | `guidewire-pack` | 5 | 10 | 50.00% | A | 96 |
 | 87 | `klingai-pack` | 12 | 30 | 40.00% | A | 97 |

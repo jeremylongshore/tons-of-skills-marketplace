@@ -11,8 +11,8 @@ description: 'Production readiness checklist for CoreWeave GPU workloads.
   "coreweave checklist", "coreweave launch".
 
   '
-allowed-tools: Read, Bash(kubectl:*), Grep
-version: 1.12.0
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,97 +23,71 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Production Checklist
+# CoreWeave Release evidence review
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Use this gate before exposing a CoreWeave inference or training workload to
-production. It proves that capacity, data protection, observability, and recovery
-are owned and tested; it is not a substitute for a service-specific risk review.
+Produce a go/no-go decision from actual readiness, quality, security and recovery evidence.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- A signed deployment change, named service owner, and approved production namespace.
-- Passing staging evaluation, capacity forecast, and rollback manifest.
-- On-call routing, secret-manager references, and data classification for the workload.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-1. Complete each checklist item with a link to its evidence, not a verbal assertion.
-2. Confirm a staged rollout, health check, and rollback command during the change window.
-3. Stop the release if any security, data, capacity, or observability gate lacks an owner.
-4. Record the final go/no-go decision, time, owner, and redacted verification receipt.
+1. Bind the release to an approved context, namespace, image digest, model version, capacity plan, owner and change window. Review staging results for the actual workload shape.
 
-## Inference Services
+2. Check model readiness, bounded autoscaling, CPU/host-memory/GPU budgets, storage integrity, private endpoint authentication and quota/capacity evidence. Minimum replicas alone do not eliminate cold starts or guarantee an SLO.
 
-- [ ] GPU type and count validated for model size
-- [ ] Autoscaling configured (KServe or HPA)
-- [ ] Health and readiness probes set
-- [ ] Resource requests AND limits specified
-- [ ] Node affinity targeting correct GPU class
-- [ ] `minReplicas >= 1` for production (no cold starts)
+3. Attach proof of least-privilege identity, secret handling, effective network controls, alert delivery and data-retention decisions. Mark any untested control as unknown.
 
-## Storage
+4. Inspect the retained rollback revision, image availability, external configuration and checkpoint compatibility. Kubernetes Deployment history does not restore separately changed Secrets, PVC contents or database schemas.
 
-- [ ] Model weights in PVC (not downloaded at startup)
-- [ ] Checkpoints saved to persistent storage
-- [ ] Storage class appropriate (SSD for inference, HDD for archival)
-
-## Security
-
-- [ ] Secrets for model tokens and registry access
-- [ ] Network policies applied
-- [ ] Container images from trusted registries
-
-## Monitoring
-
-- [ ] GPU utilization metrics collected
-- [ ] Inference latency and throughput tracked
-- [ ] Alert on pod restarts and OOM events
-- [ ] Log aggregation configured
-
-## Rollback
-
-```bash
-kubectl rollout undo deployment/my-inference
-kubectl rollout status deployment/my-inference
-```
-
-## Output
-
-- A production-readiness record linking capacity, storage, security, monitoring, and
-  rollback evidence to the deployment.
-- A clear go/no-go decision with a responsible owner and tested recovery command.
-
-## Error Handling
-
-| Failed gate | Required action |
-|---|---|
-| Readiness or staging test fails | Hold the release and restore the prior known-good revision. |
-| GPU capacity is unconfirmed | Do not launch; resolve quota or capacity with the platform owner. |
-| Secret or network policy is missing | Block deployment until the namespace hardening baseline is present. |
-| Monitoring route is absent | Block production exposure until alerts reach the on-call owner. |
+5. Issue a no-go for a missing critical gate. Publishing a checklist or passing syntax validation is not production certification; the owner makes the release decision from the evidence.
 
 ## Examples
 
-Run the last production checks during the approved change window:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference-prod apply -f release.yaml
-kubectl -n inference-prod rollout status deployment/my-inference --timeout=15m
-kubectl -n inference-prod get pods -l app=my-inference
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "deployment/$CW_DEPLOYMENT" "service/$CW_SERVICE"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout history "deployment/$CW_DEPLOYMENT"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get resourcequota,pvc
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get events --sort-by=.metadata.creationTimestamp
 ```
 
-If rollout or the smoke test fails, execute the documented rollback immediately,
-capture redacted events, and mark the change no-go rather than retrying with weaker
-security or capacity controls.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave CKS](https://docs.coreweave.com/docs/products/cks)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
+- [Primary reference 2](https://docs.coreweave.com/platform/capacity-plans)
+- [Primary reference 3](https://kubernetes.io/docs/reference/kubectl/)
 
-## Next Steps
+## Evidence status
 
-For upgrades, see `coreweave-upgrade-migration`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

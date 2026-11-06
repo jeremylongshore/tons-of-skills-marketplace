@@ -13,7 +13,7 @@ description: 'Configure CoreWeave Kubernetes Service (CKS) access with kubeconfi
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -24,132 +24,70 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Install & Auth
+# CoreWeave Access and identity verification
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Set up access to CoreWeave Kubernetes Service (CKS). CKS runs bare-metal Kubernetes with NVIDIA GPUs -- no hypervisor overhead. Access is via standard kubeconfig with CoreWeave-issued credentials.
+Verify an approved CKS kubeconfig and namespace before any workload operation.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- CoreWeave account at https://cloud.coreweave.com
-- `kubectl` v1.28+ installed
-- Kubernetes namespace provisioned by CoreWeave
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-### Step 1: Download Kubeconfig
+1. Obtain the cluster-specific kubeconfig through the Cloud Console and current Managed Auth instructions. Treat the entire file as a secret; it embeds a token. Store it in the approved private credential location, not .env, Git or a support bundle.
 
-1. Log in to https://cloud.coreweave.com
-2. Navigate to **API Access** > **Kubeconfig**
-3. Download the kubeconfig file
+2. Read the intended organization, cluster, context, namespace and token expiry from the access request. Review any exec-based credential plugin in an externally supplied kubeconfig before using it.
 
-```bash
-# Save kubeconfig
-mkdir -p ~/.kube
-cp ~/Downloads/coreweave-kubeconfig.yaml ~/.kube/coreweave
+3. Check namespace read permission and record the result. A successful client-version command does not prove server connectivity. Distinguish authentication failure from Kubernetes authorization denial.
 
-# Set as active context
-export KUBECONFIG=~/.kube/coreweave
+4. If access to Nodes is approved, inspect current instance-type labels and allocatable GPUs. A denied Node listing does not mean the organization has no GPUs.
 
-# Verify connection
-kubectl get nodes
-kubectl get namespaces
-```
-
-### Step 2: Configure API Token
-
-```bash
-# CoreWeave API token for programmatic access
-export COREWEAVE_API_TOKEN="your-api-token"
-
-# Store securely
-echo "COREWEAVE_API_TOKEN=${COREWEAVE_API_TOKEN}" >> .env
-echo "KUBECONFIG=~/.kube/coreweave" >> .env
-```
-
-### Step 3: Verify GPU Access
-
-```bash
-# List available GPU nodes
-kubectl get nodes -l gpu.nvidia.com/class -o custom-columns=\
-NAME:.metadata.name,GPU:.metadata.labels.gpu\.nvidia\.com/class,\
-STATUS:.status.conditions[-1].type
-
-# Check GPU allocatable resources
-kubectl describe nodes | grep -A5 "Allocatable:" | grep nvidia
-```
-
-### Step 4: Test with a Simple GPU Pod
-
-```yaml
-# test-gpu.yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: gpu-test
-spec:
-  restartPolicy: Never
-  containers:
-    - name: cuda-test
-      image: nvidia/cuda:12.2.0-base-ubuntu22.04
-      command: ["nvidia-smi"]
-      resources:
-        limits:
-          nvidia.com/gpu: 1
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: gpu.nvidia.com/class
-                operator: In
-                values: ["A100_PCIE_80GB"]
-```
-
-```bash
-kubectl apply -f test-gpu.yaml
-kubectl logs gpu-test  # Should show nvidia-smi output
-kubectl delete pod gpu-test
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Unable to connect to the server` | Wrong kubeconfig | Verify KUBECONFIG path |
-| `Forbidden` | Missing namespace permissions | Contact CoreWeave support |
-| No GPU nodes found | Wrong node labels | Check `gpu.nvidia.com/class` labels |
-| Pod stuck Pending | GPU capacity exhausted | Try different GPU type or region |
-
-## Output
-
-- A namespace-scoped Kubernetes context and a verified GPU scheduling result.
-- A credential setup that references the approved secret manager and never commits or prints live values.
-- A deleted smoke-test Pod after its redacted result is recorded.
+5. For Mission Control MCP, use the official configuration guide and discover read-only tools. Do not infer that an API token and a Kubernetes service-account token are interchangeable.
 
 ## Examples
 
-Configure a temporary shell session from your secret manager, then run the smallest GPU smoke test in a sandbox namespace:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-export KUBECONFIG="$HOME/.kube/coreweave-sandbox"
-kubectl -n sandbox apply -f test-gpu.yaml
-kubectl -n sandbox wait --for=condition=Ready pod/gpu-test --timeout=10m
-kubectl -n sandbox logs gpu-test
-kubectl -n sandbox delete -f test-gpu.yaml
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" auth can-i get pods
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get pods --request-timeout=20s
+# Only with approved cluster-level read access:
+kubectl --context="$CW_CONTEXT" get nodes -L node.kubernetes.io/instance-type --request-timeout=20s
 ```
 
-If access is denied or capacity is unavailable, retain the redacted status and contact the namespace owner. Do not put a token in `.env`, a manifest, shell history, or support tickets.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave Documentation](https://docs.coreweave.com)
-- [CKS Introduction](https://docs.coreweave.com/docs/products/cks)
-- [GPU Instance Types](https://docs.coreweave.com/docs/platform/instances/gpu-instances)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/auth-access/managed-auth/kubeconfig)
+- [Primary reference 2](https://docs.coreweave.com/observability/mission-control-mcp/reference/tools)
 
-## Next Steps
+## Evidence status
 
-Proceed to `coreweave-hello-world` to deploy your first inference service.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

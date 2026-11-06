@@ -13,7 +13,7 @@ description: 'Secure CoreWeave deployments with RBAC, network policies, and secr
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.12.0
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -24,151 +24,71 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Security Basics
+# CoreWeave Workload security review
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-CoreWeave provides bare-metal GPU cloud on Kubernetes. Security concerns center on compute credential management (kubeconfig, deploy tokens), network isolation between inference workloads, secrets for model registry access (HuggingFace, container registries), and protecting sensitive training data on persistent volumes. A compromised namespace can expose GPU resources, model weights, and customer inference data.
+Review CKS identity, credential, network and data boundaries before release.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- A named namespace owner and a current data classification for the workload.
-- Secrets-manager access for deployment credentials; no credentials in manifests or git.
-- Authority to apply Kubernetes policies in the target namespace and an approved rollback plan.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-1. Store API, registry, and model credentials in the approved secrets manager and
-   mount only the minimum secret into the intended workload.
-2. Apply namespace-scoped RBAC, ResourceQuota, and default-deny NetworkPolicy before
-   exposing an inference endpoint.
-3. Validate images and request payloads in CI, then test webhook signatures with a
-   known valid and invalid payload without logging raw secrets.
-4. Review access events and rotate/revoke the affected secret after suspected exposure.
+1. Map the kubeconfig, platform token, registry credential and model token to their actual audiences and principals. Use least privilege and managed secret injection; a Kubernetes Secret is not proof of encryption or limited exposure.
 
-## API Key Management
+2. Review RBAC, service-account token mounting, allowed workload images/digests, container security contexts and namespace access. Anyone allowed to create Pods may be able to mount same-namespace Secrets/PVCs; a PVC Role alone is not a mount isolation boundary.
 
-```typescript
-import { KubeConfig, CoreV1Api } from "@kubernetes/client-node";
+3. Review NetworkPolicy with the installed enforcement backend. Namespace separation alone does not isolate traffic, and a policy object alone does not prove enforcement; test allowed and denied paths in staging.
 
-function createCoreWeaveClient(): CoreV1Api {
-  const apiKey = process.env.COREWEAVE_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing COREWEAVE_API_KEY — set via secrets manager");
-  }
-  const kc = new KubeConfig();
-  kc.loadFromDefault();
-  const api = kc.makeApiClient(CoreV1Api);
-  // Never log kubeconfig or API key contents
-  console.log("CoreWeave client initialized for namespace:", process.env.CW_NAMESPACE);
-  return api;
-}
-```
+4. Validate externally supplied URLs, image references and artifact checksums. Do not insert them into shell commands or generated Python/TypeScript source. Avoid unsafe deserialization of untrusted model files.
 
-## Webhook Signature Verification
-
-```typescript
-import crypto from "crypto";
-import { Request, Response, NextFunction } from "express";
-
-function verifyCoreWeaveWebhook(req: Request, res: Response, next: NextFunction): void {
-  const signature = req.headers["x-coreweave-signature"] as string;
-  const secret = process.env.COREWEAVE_WEBHOOK_SECRET!;
-  const expected = crypto.createHmac("sha256", secret).update(req.body).digest("hex");
-  const supplied = Buffer.from(signature ?? "");
-  const expectedBuffer = Buffer.from(expected);
-  if (supplied.length !== expectedBuffer.length || !crypto.timingSafeEqual(supplied, expectedBuffer)) {
-    res.status(401).send("Invalid signature");
-    return;
-  }
-  next();
-}
-```
-
-## Input Validation
-
-```typescript
-import { z } from "zod";
-
-const WorkloadRequestSchema = z.object({
-  namespace: z.string().regex(/^[a-z0-9-]+$/).max(63),
-  gpu_type: z.enum(["A100_80GB", "A100_40GB", "H100_80GB", "RTX_A6000"]),
-  gpu_count: z.number().int().min(1).max(8),
-  image: z.string().regex(/^[a-z0-9.\-/]+:[a-z0-9.\-]+$/),
-  model_id: z.string().min(1).max(200),
-});
-
-function validateWorkloadRequest(data: unknown) {
-  return WorkloadRequestSchema.parse(data);
-}
-```
-
-## Data Protection
-
-```typescript
-const CW_SENSITIVE_FIELDS = ["kubeconfig", "hf_token", "registry_password", "api_key", "model_weights_url"];
-
-function redactCoreWeaveLog(record: Record<string, unknown>): Record<string, unknown> {
-  const redacted = { ...record };
-  for (const field of CW_SENSITIVE_FIELDS) {
-    if (field in redacted) redacted[field] = "[REDACTED]";
-  }
-  return redacted;
-}
-```
-
-## Security Checklist
-
-- [ ] Kubeconfig stored in secrets manager, never in repos
-- [ ] Kubernetes Secrets used for model tokens (not env vars in YAML)
-- [ ] Network policies restrict inference endpoint access
-- [ ] RBAC limits namespace access per team
-- [ ] Container images scanned for CVEs before deployment
-- [ ] PVCs encrypted at rest for training data
-- [ ] GPU workload namespaces isolated with NetworkPolicy
-- [ ] Deploy tokens scoped per-namespace, not cluster-wide
-
-## Error Handling
-
-| Vulnerability | Risk | Mitigation |
-|---|---|---|
-| Leaked kubeconfig | Full cluster access, GPU resource theft | Secrets manager + RBAC scoping |
-| Open inference endpoints | Unauthorized model access | NetworkPolicy ingress rules |
-| Unscanned container images | CVE exploitation in GPU pods | CI image scanning before deploy |
-| Overly broad RBAC | Cross-namespace data leakage | Per-team namespace RBAC bindings |
-| Unencrypted PVCs | Training data exposure | Encrypted storage classes |
-
-## Output
-
-- A namespace-level hardening baseline covering secrets, RBAC, network isolation,
-  image validation, and protected persistent storage.
-- A safe signature-validation and input-validation path that rejects malformed
-  requests without leaking credentials or workload data.
-- An incident response path that revokes access, preserves redacted evidence, and
-  verifies recovery with the namespace owner.
+5. Use a documented service-specific authentication/signature protocol. Do not invent x-coreweave-signature or an HMAC scheme; current Alerts integrations must follow their actual contract.
 
 ## Examples
 
-Apply a default-deny ingress policy before adding an explicitly reviewed service
-exception. Test it in the target namespace with a non-sensitive health endpoint:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference apply -f networkpolicy-default-deny.yaml
-kubectl -n inference get networkpolicy
-kubectl -n inference run policy-check --rm -i --restart=Never \
-  --image=curlimages/curl -- curl -fsS http://approved-service/health
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" auth can-i create pods
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get serviceaccount,rolebinding,networkpolicy
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "deployment/$CW_DEPLOYMENT" \
+  -o 'jsonpath={.spec.template.spec.serviceAccountName}{"\n"}{.spec.template.spec.automountServiceAccountToken}{"\n"}'
 ```
 
-If the expected workload is blocked, add the smallest labelled ingress rule and
-retest. Never temporarily open all namespace ingress as a diagnostic workaround.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave CKS Security](https://docs.coreweave.com/docs/products/cks)
-- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/auth-access/managed-auth/kubeconfig)
+- [Primary reference 2](https://kubernetes.io/docs/concepts/security/secrets-good-practices/)
+- [Primary reference 3](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 
-## Next Steps
+## Evidence status
 
-See `coreweave-prod-checklist`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

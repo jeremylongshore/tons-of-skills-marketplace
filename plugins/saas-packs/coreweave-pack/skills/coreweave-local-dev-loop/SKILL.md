@@ -11,8 +11,8 @@ description: 'Set up local development workflow for CoreWeave GPU deployments.
   "develop for coreweave", "coreweave container build".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(docker:*), Grep
-version: 1.12.0
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,108 +23,71 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Local Dev Loop
+# CoreWeave Local-to-staging review
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Local development workflow for CoreWeave: build containers, test YAML manifests with dry-run, push to registry, and deploy to CoreWeave CKS.
+Iterate on a reviewed image and manifest without borrowing production credentials.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- Completed `coreweave-install-auth` setup
-- Docker installed locally
-- Container registry access (Docker Hub, GHCR, or CoreWeave registry)
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-### Step 1: Project Structure
+1. Use fixtures and local unit tests before contacting CKS. Keep model tokens, kubeconfigs and datasets outside the build context and include a reviewed .dockerignore.
 
-```
-my-inference-service/
-├── Dockerfile
-├── src/
-│   ├── server.py          # Inference server code
-│   └── model_config.py    # Model configuration
-├── k8s/
-│   ├── deployment.yaml    # GPU deployment manifest
-│   ├── service.yaml       # Service and ingress
-│   └── hpa.yaml           # Horizontal pod autoscaler
-├── scripts/
-│   ├── build.sh           # Build and push container
-│   └── deploy.sh          # Deploy to CoreWeave
-├── .env.local
-└── Makefile
-```
+2. Build the owner-selected Dockerfile with locked dependencies. Scan the resulting image and record its registry digest; do not deploy a moving latest tag.
 
-### Step 2: Build and Push Container
+3. Render the selected staging overlay locally. Inspect namespace, image digest, secret references, resource bounds, volume mounts, service exposure and actual Node Pool labels.
 
-```bash
-# Build locally
-docker build -t my-inference:latest .
+4. Use server dry-run and diff with the staging context. Treat diff exit 1 as changes to review; exit greater than 1 is an error. Do not pipe unreviewed remote templates into apply.
 
-# Tag for registry
-docker tag my-inference:latest ghcr.io/myorg/my-inference:v1.0.0
-
-# Push
-docker push ghcr.io/myorg/my-inference:v1.0.0
-```
-
-### Step 3: Validate Manifests Before Deploy
-
-```bash
-# Dry-run against CoreWeave cluster
-kubectl apply -f k8s/deployment.yaml --dry-run=server
-
-# Diff against current state
-kubectl diff -f k8s/deployment.yaml
-
-# Check resource requests match available GPU types
-kubectl get nodes -l gpu.nvidia.com/class=A100_PCIE_80GB --no-headers | wc -l
-```
-
-### Step 4: Deploy and Watch
-
-```bash
-kubectl apply -f k8s/
-kubectl rollout status deployment/my-inference
-kubectl logs -f deployment/my-inference
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| Image pull backoff | Wrong registry or no pull secret | Create imagePullSecret |
-| CUDA mismatch | Driver vs container version | Match CUDA version to node drivers |
-| Dry-run fails | Invalid manifest | Fix YAML syntax |
-
-## Output
-
-- A locally built, versioned image and a server-validated deployment manifest.
-- A staging rollout receipt with readiness and bounded log evidence.
-- A repeatable local-to-cluster loop that leaves production credentials and data out of the workspace.
+5. After approval, apply the exact reviewed file, observe the rollout and save aggregate results. Restore the prior manifest if the staging acceptance check fails.
 
 ## Examples
 
-Use the staging namespace for the complete loop and inspect the diff before apply:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-docker build -t ghcr.io/myorg/my-inference:dev-20260826 .
-kubectl -n inference-staging diff -f k8s/deployment.yaml
-kubectl -n inference-staging apply --dry-run=server -f k8s/
-kubectl -n inference-staging apply -f k8s/
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply --dry-run=server -f reviewed-deployment.yaml
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" diff -f reviewed-deployment.yaml
+# Approval follows review of the diff, image digest and capacity:
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply -f reviewed-deployment.yaml
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout status "deployment/$CW_DEPLOYMENT" --timeout=10m
 ```
 
-If the server dry-run fails, correct the manifest before pushing an image or changing
-GPU quota. Do not point local development at production namespaces or copy kubeconfigs between environments.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave CKS Docs](https://docs.coreweave.com/docs/products/cks)
-- [kubectl dry-run](https://kubernetes.io/docs/reference/kubectl/)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
+- [Primary reference 2](https://kubernetes.io/docs/reference/kubectl/)
 
-## Next Steps
+## Evidence status
 
-See `coreweave-sdk-patterns` for inference client patterns.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

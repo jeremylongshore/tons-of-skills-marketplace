@@ -1,8 +1,8 @@
 {
   "$comment": "Triple-keyed safety-ratchet baseline (E4.3/E4.4/E4.11). Regenerate ONLY via `node scripts/check-safety-ratchet.mjs --write` in the PR that shrinks a class; the gate fails any growth or swap. shell_substitution is never waivable.",
-  "pinned_at": "2026-08-30",
+  "pinned_at": "2026-11-06",
   "schema_version": "4.1.0",
-  "agents_terminal_error_count": 236,
+  "agents_terminal_error_count": 230,
   "classes": {
     "bare_bash": {
       "count": 0,
@@ -20,14 +20,10 @@
       "members": []
     },
     "agents_only_errors": {
-      "count": 235,
-      "set_sha256": "14d6d38c794e0674e7d5436a886f9b1296101699ceb8269dc7eb98cbd9fc8f7d",
+      "count": 229,
+      "set_sha256": "e21de3dbf2477aa5137273f993e3338ae6e649af8912f09ff605f45e952ae9aa",
       "members": [
         "ERROR: Field 'author' must be object, got str",
-        "ERROR: [agent] 'disallowedTools' must be an array, got: str",
-        "ERROR: [agent] 'disallowedTools' must be an array, got: str",
-        "ERROR: [agent] 'disallowedTools' must be an array, got: str",
-        "ERROR: [agent] 'disallowedTools' must be an array, got: str",
         "ERROR: [agent] Invalid field 'type': Non-standard field. Not in the Anthropic sub-agents spec nor the kernel agent-definition contract. Remove it.",
         "ERROR: [agent] Invalid field 'type': Non-standard field. Not in the Anthropic sub-agents spec nor the kernel agent-definition contract. Remove it.",
         "ERROR: [agent] Invalid field 'type': Non-standard field. Not in the Anthropic sub-agents spec nor the kernel agent-definition contract. Remove it.",
@@ -255,9 +251,7 @@
         "ERROR: [agent] Missing required field: version",
         "ERROR: [agent] Missing required field: version",
         "ERROR: [agent] Missing required field: version",
-        "ERROR: [agent] Missing required field: version",
-        "ERROR: [agent] body references MCP tools (mcp__claude-in-chrome__computer, mcp__claude-in-chrome__find, mcp__claude-in-chrome__form_input, mcp__claude-in-chrome__get_page_text, mcp__claude-in-chrome__navigate…) but the `tools` allowlist declares no mcp__* tools — every call would be runtime-blocked (#843 CHECK 3)",
-        "ERROR: [agent] body references MCP tools (mcp__next-devtools__nextjs_call, mcp__next-devtools__nextjs_docs, mcp__next-devtools__nextjs_index) but the `tools` allowlist declares no mcp__* tools — every call would be runtime-blocked (#843 CHECK 3)"
+        "ERROR: [agent] Missing required field: version"
       ]
     }
   }

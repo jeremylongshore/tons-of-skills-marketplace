@@ -11,8 +11,8 @@ description: 'Upgrade CoreWeave deployments and migrate between GPU types.
   "coreweave cuda upgrade", "migrate coreweave".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.12.0
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
+version: 1.13.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
@@ -23,163 +23,80 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Upgrade & Migration
+# CoreWeave Migration and rollback planning
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-CoreWeave is a GPU-specialized cloud provider running Kubernetes-native infrastructure. Migrations involve upgrading between GPU instance types (A100 to H100), updating CUDA driver versions, and handling Kubernetes API version changes across namespaces. Tracking API versions is critical because CoreWeave's instance type labels and resource quotas change between platform releases, and deploying to a deprecated instance class will cause scheduling failures.
-
-## Version Detection
-
-```typescript
-import { KubeConfig, CoreV1Api } from "@kubernetes/client-node";
-
-async function detectCoreWeaveVersion(): Promise<void> {
-  const kc = new KubeConfig();
-  kc.loadFromDefault();
-  const k8sApi = kc.makeApiClient(CoreV1Api);
-
-  // Check current namespace GPU allocations
-  const pods = await k8sApi.listNamespacedPod("my-namespace");
-  for (const pod of pods.body.items) {
-    const gpuClass = pod.spec?.nodeSelector?.["gpu.nvidia.com/class"];
-    const cudaVersion = pod.metadata?.labels?.["cuda-version"];
-    console.log(`Pod ${pod.metadata?.name}: GPU=${gpuClass}, CUDA=${cudaVersion}`);
-  }
-
-  // Detect deprecated instance types
-  const deprecated = ["A100_PCIE_40GB", "V100_PCIE_16GB", "RTX_A5000"];
-  const activeGpus = pods.body.items
-    .map((p) => p.spec?.nodeSelector?.["gpu.nvidia.com/class"])
-    .filter(Boolean);
-  const stale = activeGpus.filter((g) => deprecated.includes(g!));
-  if (stale.length > 0) console.warn(`Deprecated GPU types in use: ${stale.join(", ")}`);
-}
-```
-
-## Migration Checklist
-
-- [ ] Review CoreWeave release notes for deprecated instance types
-- [ ] Audit all deployments for `gpu.nvidia.com/class` node selectors
-- [ ] Verify CUDA version compatibility with target GPU (see matrix below)
-- [ ] Update container base images to match new CUDA/cuDNN requirements
-- [ ] Test inference latency on new GPU type in staging namespace
-- [ ] Update resource requests (`nvidia.com/gpu`) for new instance memory
-- [ ] Migrate persistent volumes if switching regions or availability zones
-- [ ] Update Kubernetes API version in manifests (e.g., `apps/v1` changes)
-- [ ] Validate HPA scaling behavior on new instance type throughput
-- [ ] Run canary deployment with traffic split before full cutover
-
-## Schema Migration
-
-```typescript
-// CoreWeave instance type labels changed in 2025 platform update
-// Old: gpu.nvidia.com/class: "A100_PCIE_80GB"
-// New: gpu.nvidia.com/class: "H100_SXM5_80GB"
-
-interface DeploymentMigration {
-  oldSelector: Record<string, string>;
-  newSelector: Record<string, string>;
-  cudaMinVersion: string;
-}
-
-const GPU_MIGRATIONS: DeploymentMigration[] = [
-  {
-    oldSelector: { "gpu.nvidia.com/class": "A100_PCIE_80GB" },
-    newSelector: { "gpu.nvidia.com/class": "H100_SXM5_80GB" },
-    cudaMinVersion: "12.4",
-  },
-  {
-    oldSelector: { "gpu.nvidia.com/class": "A100_SXM4_80GB" },
-    newSelector: { "gpu.nvidia.com/class": "H100_SXM5_80GB" },
-    cudaMinVersion: "12.4",
-  },
-];
-
-function migrateNodeSelector(manifest: any, migration: DeploymentMigration): any {
-  const selector = manifest.spec?.template?.spec?.nodeSelector;
-  if (!selector) return manifest;
-  for (const [key, oldVal] of Object.entries(migration.oldSelector)) {
-    if (selector[key] === oldVal) {
-      selector[key] = migration.newSelector[key];
-    }
-  }
-  return manifest;
-}
-```
-
-## Rollback Strategy
+Review GPU, image, storage and deployment changes with a real recovery path.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- A versioned manifest, compatible CUDA/image matrix, and capacity confirmation for the target GPU or cluster change.
-- Staging evaluation evidence, named migration owner, and a verified previous deployment revision.
-- Backup/retention approval for any PVC, checkpoint, or model-artifact move.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
+
+## Cost and safety gate
+
+Before any billable action, follow the [mandatory cost gate](references/cost-gate.md).
+Use the local `scripts/review-cost-plan.py` helper to inspect the exact plan;
+then obtain explicit user confirmation through the trusted approval channel.
+No plan, missing price, changed digest or expired approval means no execution.
+Default to offline inspection; server dry-run and Terraform plan are account calls.
 
 ## Instructions
 
-1. Inventory current selectors, images, API versions, volumes, quotas, and service SLOs.
-2. Update the manifest in staging, validate server-side, and run compatibility and performance checks.
-3. Promote through a bounded canary only after the readiness, quality, latency, and integrity gates pass.
-4. Use the prior immutable revision on any failed gate; do not delete old data or nodes until the observation period closes.
+1. Inventory the actual instance IDs, driver/runtime compatibility, workload manifests, replicas, PVCs and application state. Do not infer that a GPU SKU is deprecated from a hardcoded list.
 
-```typescript
-import { AppsV1Api, KubeConfig } from "@kubernetes/client-node";
+2. Choose a target supported by current platform and image documentation. Benchmark representative workload quality, memory, throughput and latency; an A100-to-H100 move is not a Kubernetes schema migration.
 
-async function rollbackDeployment(namespace: string, name: string): Promise<void> {
-  const kc = new KubeConfig();
-  kc.loadFromDefault();
-  const appsApi = kc.makeApiClient(AppsV1Api);
+3. Validate a reviewed staging manifest and observe a bounded canary. Keep the prior immutable image and deployment revision available. Do not overwrite the only checkpoint or detach/delete a production PVC as a shortcut.
 
-  // Kubernetes rollout undo — reverts to previous revision
-  const deployment = await appsApi.readNamespacedDeployment(name, namespace);
-  const currentRevision = deployment.body.metadata?.annotations?.["deployment.kubernetes.io/revision"];
-  console.log(`Rolling back ${name} from revision ${currentRevision}`);
+4. Review rollout history and choose an explicit previous revision. A rollout restart changes the Pod template timestamp; it does not restore a prior image or configuration.
 
-  // Patch to trigger rollback via revision annotation
-  await appsApi.patchNamespacedDeployment(name, namespace, {
-    spec: { template: { metadata: { annotations: { "kubectl.kubernetes.io/restartedAt": new Date().toISOString() } } } },
-  }, undefined, undefined, undefined, undefined, undefined, { headers: { "Content-Type": "application/strategic-merge-patch+json" } });
-  console.log(`Rollback initiated for ${name} in ${namespace}`);
-}
-```
-
-## Error Handling
-
-| Migration Issue | Symptom | Fix |
-|----------------|---------|-----|
-| GPU class not schedulable | Pod stuck in `Pending` with `Insufficient nvidia.com/gpu` | Verify instance type exists in target region; check quota |
-| CUDA version mismatch | Container crashes with `CUDA driver version is insufficient` | Rebuild container with CUDA matching target GPU driver |
-| Namespace quota exceeded | `Forbidden: exceeded quota` on deployment | Request quota increase for new instance type via CoreWeave dashboard |
-| PVC migration failure | `VolumeAttachment` timeout on new node | Detach old PVC, recreate in target availability zone |
-| API version deprecated | `no matches for kind "Deployment" in version "extensions/v1beta1"` | Update manifest to `apps/v1` and adjust spec fields |
-
-## Output
-
-- A reviewed migration plan with compatibility results, capacity decision, owner, and rollback revision.
-- A staged/canary receipt proving readiness, SLO, and artifact-integrity checks.
-- A reversible fallback that preserves the old workload and approved data until sign-off.
+5. After rollback approval, use rollout undo with the selected revision and wait for readiness. Recover external data/configuration separately according to their own reviewed procedures.
 
 ## Examples
 
-Test the target manifest in staging before moving a production selector:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference-staging apply --dry-run=server -f migration.yaml
-kubectl -n inference-staging apply -f migration.yaml
-kubectl -n inference-staging rollout status deployment/inference --timeout=15m
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout history "deployment/$CW_DEPLOYMENT"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply --dry-run=server -f migration-reviewed.yaml
+# Recovery only after the owner approves the selected revision:
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout undo "deployment/$CW_DEPLOYMENT" --to-revision="$CW_PREVIOUS_REVISION"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout status "deployment/$CW_DEPLOYMENT" --timeout=10m
 ```
 
-If CUDA compatibility, scheduling, or the evaluation gate fails, undo the staging revision and stop promotion. Do not change production affinity or delete the old PVC to make a migration appear complete.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave GPU Instances](https://docs.coreweave.com/docs/platform/instances/gpu-instances)
-- CoreWeave Kubernetes Docs
-- [CoreWeave Changelog](https://docs.coreweave.com/docs/release-notes)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
+- [Primary reference 2](https://docs.coreweave.com/platform/fleet-management/node-lifecycle/state-transitions)
+- [Primary reference 3](https://kubernetes.io/docs/reference/kubectl/)
 
-## Next Steps
+## Evidence status
 
-For CI/CD pipeline integration, see `coreweave-ci-integration` (UNOFFICIAL CI INTEGRATION FOR COREWEAVE).
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
