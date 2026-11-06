@@ -21,7 +21,7 @@
 
 OBJ-CW-1: deliver original, useful Day-2 diagnostics and safe operator workflows, with a reviewable explanation of each skill's value and limits. The expected inventory is 23 existing plus three new skills. The 24 database stubs are not 24 additional product capabilities.
 
-Existing: repository skills and three diagnostic helpers. In development: the accuracy repairs, expanded safety gates, documentation and fixture coverage. Proposed: specialist agent composition and the acceptance contracts in each blueprint, until implemented and checked. No live CoreWeave account validation, paid model evaluation, measured savings, certification, endorsement or partnership is established by this work.
+Existing in this review branch: 26 skill guides, three original diagnostic helpers, eight added offline reviewers, shared cost gates, three restricted agent definitions and per-skill blueprints. In development: PR validation and review. Proposed/unverified: runtime agent composition, live platform compatibility and acceptance criteria beyond the retained offline evidence. No live CoreWeave account validation, paid model evaluation, measured savings, certification, endorsement or partnership is established by this work.
 
 Each skill receives its own integrated blueprint under `skills/<name>/docs/BLUEPRINT.md`, covering requirements, architecture decision, controls, risks, acceptance and evidence. This is the smallest useful Blueprint Docs selection for one skill, not 22 empty workbooks. Existing PRD/ARD records will be reconciled explicitly; pack submission documents `docs/PRD.md`, `docs/ADR.md` and `docs/ONE-PAGER.md` will summarize and link the authoritative designs rather than duplicate their requirements.
 
@@ -152,3 +152,7 @@ Each entry below has a distinct objective, input/output contract, failure criter
 ## Review state and next decisions
 
 Scope approval is recorded in the conversation; it is not reviewer acceptance of these new designs. Technical/security reviewers, actual account compatibility and all expanded criterion results remain unresolved. Proceed with cost gates first, then the five priority upgrades and three gaps, reconcile scaffolds, and complete the pack-wide evidence. Do not send outreach or claim vendor approval from these records.
+
+## Implementation evidence — 2026-11-05
+
+The expanded implementation is present for review. [QUALITY.md](../QUALITY.md) and [offline-results.json](../offline-results.json) retain the actual offline coverage and source hashes. GitHub parent #1732 and its 26 child issues remain open for acceptance; a static grade is not a behavioral pass.

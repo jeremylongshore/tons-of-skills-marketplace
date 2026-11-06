@@ -106,6 +106,9 @@ def main():
             ).read_bytes():
                 errors.append(str(skill) + ": shared evidence helper drift")
     errors.extend(links(PACK))
+    # Curated installations contain one skill, without the surrounding plugin tree.
+    for skill in skills:
+        errors.extend(links(skill.parent))
     for agent in sorted((PACK / "agents").glob("*.md")):
         result = canonical.validate_agent(agent)
         receipt["agents"].append({"path": str(agent.relative_to(ROOT)), **result})
