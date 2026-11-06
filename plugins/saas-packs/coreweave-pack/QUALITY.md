@@ -1,30 +1,36 @@
 # CoreWeave community pack: evidence and limits
 
-**Review date:** 2026-11-05. **Scope:** all 23 shipped skill guides, three scripts, their requirements/architecture/reference/eval records, package metadata and generated distribution copies.
+Community-contributed; not affiliated with, endorsed by, or sponsored by CoreWeave, Inc.
 
-## Observed offline results
+**Review date:** 2026-11-05. **Scope:** 26 skills, their individual blueprints, three restricted reviewer agents, shared cost gates, eight new offline evidence reviewers and three existing diagnostic helpers.
 
-- 64 focused operator regressions passed on Python 3.12.3 and 3.14.0, with zero failures, errors or skips.
-- All three script self-tests passed. The retained receipt contains the tested script hashes and output.
-- Each scripted skill passed 13 J-Rig package-integrity checks, with no package warnings or errors. This command does not run a model.
-- All 23 skills passed the marketplace schema/rubric with grade A and no schema errors. Scores and remaining advisory warnings are retained individually.
+## Observed results
 
-See [offline-results.json](offline-results.json) for the actual results, test-source hash and script hashes. The receipt is an unsigned local result, not an independent certification or a live-account attestation. Use the exact source revision when reproducing it.
+| Check | Observed result | What it establishes |
+| --- | --- | --- |
+| Focused Python regressions | 176 passed on Python 3.12.3; zero failures, errors or skips | Cost gates, evidence contracts, diagnostic behavior, documented CI examples and validator link boundaries |
+| CI regressions | 41 passed | Existing routing, PR title and injection checks remain intact |
+| Pack gate | 26 skills and three agents pass canonical static validation | All skill rubric grades A; advisory warnings retained in the receipt |
+| Eval packages | All 11 pass J-Rig package checks | Specification integrity; model judgments NOT run |
+| Fixture replay | 71 contract fixtures across eight reviewers, plus three diagnostic self-tests pass | Deterministic offline helper behavior; supplied snapshots are not account attestations |
+| Terraform | Two mock-provider plan tests pass with Terraform 1.14.3 | Original private cluster/VPC and bounded node-pool templates parse and satisfy mock assertions |
+| Artifact inspection | 26 guides, 26 blueprints, 11 eval specs, three agents and two provider lockfiles included | Required shipped files present; no Python bytecode included |
+| Hygiene | Gitleaks 8.24.3, Markdown lint, strict Unicode, Ruff, actionlint and shellcheck pass | Tested static surfaces and scoped secret scan; not a security certification |
 
-## Behavioral corrections covered by fixtures
+See [offline-results.json](offline-results.json) for source hashes, individual scores, warnings and explicit limits. This is an unsigned local receipt. The tested implementation commit and per-file hashes identify the relevant bytes; generated catalog commits may follow it.
 
-RDMA limits-only defaulting and explicit mismatches; per-container resource separation; transport warning versus positive selection; GPU-direct evidence separate from IB; Inactive ports; unknown/multi-GPU Xid evidence; same-device remap correlation; no remap downgrade of a PCIe failure; invalid/ambiguous CLI flags; non-finite, missing and malformed financial data; confidence default and billing-reference requirements; conflicting discount/repricing scenarios; report escaping and preservation of a prior report on invalid input; and private CI credential-file cleanup after a failed mocked rollout.
+## Safety boundaries tested
 
-## Documentation and integration corrections
+Cost-plan validation rejects missing/non-finite rates, stale approvals, changed artifact digests, over-budget totals, duplicate JSON keys and mismatched scope. A matching approval JSON is only a receipt: it cannot authenticate a human or authorize execution. Actual artifact bytes must be rehashed and trusted-channel approval checked immediately before a billable operation.
 
-Removed unsourced billing-API absence, universal performance/savings claims, fabricated benchmark tables, legacy scheduling/storage recipes, invented webhook signatures, unsafe generated-source interpolation, incorrect SDK calls, and a restart mislabeled as rollback. Current guides use explicit contexts/namespaces and owner-reviewed changes. A Pod/container memory OOM is distinguished from a CUDA allocation error. Quotas, RBAC, Pod creation and storage mounts are separate security boundaries.
+Evidence helpers preserve missing/stale data, refuse mismatched scope and do not execute instructions embedded in logs. Fixture runs intercept Python socket and subprocess operations and omit account credentials; this is targeted boundary testing, not a universal operating-system sandbox. RBAC group expansion, arbitrary shell semantics and unsupported GPU sharing modes require separate review.
 
-The read-only Mission Control MCP FOCUS tool returns usage, not dollar amounts; pagination, data_as_of, quantity units and current capacity plans matter. Existing research records from October 22 remain dated historical records. The updated skill requirements and architecture describe the corrected implementation, preserving their original pain anchors.
+Diagnostic regressions cover RDMA resource defaulting and per-container separation, selected transport versus warnings, GPU-direct evidence, device-specific Xid/remap attribution, non-finite/malformed cost inputs, confirmed versus estimated savings, report escaping and preservation, and private CI credential cleanup after a mocked failure. Terraform review allows a computed VPC ID only when it resolves to the reviewed same-plan root resource; unknown settings remain blocked.
 
-The community pack points provisioning users to CoreWeave’s official skill distribution and does not copy that proprietary code. Community authorship, MIT licensing and non-affiliation remain explicit; the requested unofficial CI title is preserved.
+## Coverage that remains open
 
-## Not established
+The 15 guides without eval specs have static metadata, link, packaging and disclaimer checks, plus shared cost-gate coverage where applicable. They do not inherit another skill's behavioral pass. All 26 blueprints retain proposed acceptance criteria that exceed the observed offline coverage.
 
-No live CoreWeave account, GPU workload, benchmark, billing invoice, hardware recovery, capacity reservation or real deployment was exercised. No provider-backed behavioral evaluation, baseline value comparison, trigger-quality measurement, model-variance result or production certification is claimed. Eval specifications were corrected and package-checked; they are not passing eval results.
+No live CoreWeave account, GPU workload, model upload, capacity reservation, billing invoice, recovery or real deployment was exercised. No paid model evaluation, trigger-quality measurement, baseline value comparison, model variance result, production certification, endorsement or partnership is claimed. Plugin agents were checked statically; their skill preloads and tool restrictions still need runtime verification in the deployment environment.
 
-Before live use, the authorized owner must validate credentials, resource/contract scope, current platform semantics, workload correctness, cost budget and recovery in a bounded non-production environment. Keep model/provider evaluation and live compute separate from this offline evidence.
+Before live use, the authorized operator must validate account scope, platform versions, pricing, workload acceptance and recovery in a bounded environment. [CoreWeave's official skills](https://github.com/coreweave/skills) are a separate distribution; this pack's implementation is original and does not copy their proprietary code.
