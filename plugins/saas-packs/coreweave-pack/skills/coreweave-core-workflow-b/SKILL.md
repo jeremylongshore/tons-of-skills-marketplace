@@ -99,3 +99,29 @@ These are operator examples, not commands run by this package’s offline tests.
 ## Evidence status
 
 Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
+
+## Offline verification
+
+Input includes `world_size`, one `workers` entry per process rank with rank/rendezvous/gpu_count/transport, `model_revision`, and `checkpoint` recovery evidence. Record transport from positive data-path logs, not bootstrap traffic. The helper assumes one declared GPU allocation per supplied process description; inventory from scheduler assignment must substantiate it. A shared rendezvous address is necessary but does not prove network reachability. A restore_test_passed flag records a supplied recovery result; the helper does not load a checkpoint or launch training. Use the fabric diagnostic for raw NCCL logs.
+
+From this skill directory, replay the synthetic example (its timestamp is intentionally
+fixed; it contains no account data):
+
+```bash
+python3 scripts/review-training.py --input tests/fixtures/example.json --as-of 2026-11-05T12:01:00Z
+```
+
+For current evidence, omit `--as-of`; it defaults to current UTC. Required common
+fields: `schema: coreweave-evidence/v1`, `captured_at`, `context`, `namespace`,
+`expected_context`, `expected_namespace`. The scope must agree and evidence must
+be at most five minutes old. Explicit replay time is for testing historical fixtures,
+not a way to make stale production evidence current.
+
+Exit 0 / `reviewed` means the supplied assertions satisfy this bounded contract;
+2 / `blocked` requires correction; 3 / `incomplete` requires more evidence. Read the
+findings rather than relying only on exit status. Scripts never execute text from
+inputs, call a cloud API or authorize a change. Fixture and package checks are
+separate from model behavior and live compatibility.
+
+- [Input contract and limitations](references/evidence-contract.md)
+- [Skill blueprint and acceptance](docs/BLUEPRINT.md)

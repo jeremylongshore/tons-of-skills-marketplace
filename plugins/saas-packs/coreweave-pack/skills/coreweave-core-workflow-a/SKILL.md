@@ -90,3 +90,29 @@ These are operator examples, not commands run by this package’s offline tests.
 ## Evidence status
 
 Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
+
+## Offline verification
+
+The helper consumes an InferenceService object in `manifest`, CRD names in `crds`, `controller_version`, `model_provenance` (license_reviewed and SHA-256), `expected_model`, and a supplied `endpoint_result` (status_code, model, accepted). It checks observedGeneration against metadata.generation, GPU limits, bounded replicas and the model response independently. It supports the KServe model predictor shape in the fixture, not every custom predictor. Do not substitute Deployment readiness for endpoint acceptance. A source digest is not proof of the served weights unless the endpoint acceptance procedure binds that digest.
+
+From this skill directory, replay the synthetic example (its timestamp is intentionally
+fixed; it contains no account data):
+
+```bash
+python3 scripts/review-inference.py --input tests/fixtures/example.json --as-of 2026-11-05T12:01:00Z
+```
+
+For current evidence, omit `--as-of`; it defaults to current UTC. Required common
+fields: `schema: coreweave-evidence/v1`, `captured_at`, `context`, `namespace`,
+`expected_context`, `expected_namespace`. The scope must agree and evidence must
+be at most five minutes old. Explicit replay time is for testing historical fixtures,
+not a way to make stale production evidence current.
+
+Exit 0 / `reviewed` means the supplied assertions satisfy this bounded contract;
+2 / `blocked` requires correction; 3 / `incomplete` requires more evidence. Read the
+findings rather than relying only on exit status. Scripts never execute text from
+inputs, call a cloud API or authorize a change. Fixture and package checks are
+separate from model behavior and live compatibility.
+
+- [Input contract and limitations](references/evidence-contract.md)
+- [Skill blueprint and acceptance](docs/BLUEPRINT.md)

@@ -141,3 +141,29 @@ Run the project’s own model-readiness and acceptance check after rollout befor
 ## Evidence status
 
 This workflow is a reviewed example, not a live deployment receipt. Offline checks do not establish that the target environment, secret, capacity or application acceptance test exists.
+
+## Offline verification
+
+Supply a parsed workflow object with the string key `on`, protected_environments, cost_review_bound_to_revision and credential_cleanup_test_passed evidence. Use a YAML 1.2 parser; YAML 1.1 may coerce `on` to boolean. The helper rejects mixed PR/deployment workflows conservatively, unpinned remote actions and common secret-output commands. Repository environment settings and cleanup results must be independently supplied: naming an environment does not enforce reviewer protection. Shell detection is heuristic and does not replace code review of referenced actions, reusable workflows or scripts.
+
+From this skill directory, replay the synthetic example (its timestamp is intentionally
+fixed; it contains no account data):
+
+```bash
+python3 scripts/review-workflow.py --input tests/fixtures/example.json --as-of 2026-11-05T12:01:00Z
+```
+
+For current evidence, omit `--as-of`; it defaults to current UTC. Required common
+fields: `schema: coreweave-evidence/v1`, `captured_at`, `context`, `namespace`,
+`expected_context`, `expected_namespace`. The scope must agree and evidence must
+be at most five minutes old. Explicit replay time is for testing historical fixtures,
+not a way to make stale production evidence current.
+
+Exit 0 / `reviewed` means the supplied assertions satisfy this bounded contract;
+2 / `blocked` requires correction; 3 / `incomplete` requires more evidence. Read the
+findings rather than relying only on exit status. Scripts never execute text from
+inputs, call a cloud API or authorize a change. Fixture and package checks are
+separate from model behavior and live compatibility.
+
+- [Input contract and limitations](references/evidence-contract.md)
+- [Skill blueprint and acceptance](docs/BLUEPRINT.md)

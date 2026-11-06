@@ -12,7 +12,7 @@ description: 'Configure RBAC and namespace isolation for CoreWeave multi-team GP
   "coreweave namespace isolation", "coreweave team access".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -92,3 +92,29 @@ These are operator examples, not commands run by this package’s offline tests.
 ## Evidence status
 
 Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
+
+## Offline verification
+
+Input contains Kubernetes `roles` and `bindings`, an exact `subject` (kind/name/namespace), and `snapshot_complete`. Roles use their Kubernetes kind, metadata and rules; roleRef resolution preserves Role namespace versus ClusterRole scope. The helper detects direct matching subjects, wildcard access, sensitive credential access and workload/impersonation/escalation paths. It does not expand group membership, aggregated ClusterRoles, admission policy or external identity systems. If any is relevant, completeness is false and a broader authorized access audit is required. The report does not claim a definitive authorization decision.
+
+From this skill directory, replay the synthetic example (its timestamp is intentionally
+fixed; it contains no account data):
+
+```bash
+python3 scripts/review-access.py --input tests/fixtures/example.json --as-of 2026-11-05T12:01:00Z
+```
+
+For current evidence, omit `--as-of`; it defaults to current UTC. Required common
+fields: `schema: coreweave-evidence/v1`, `captured_at`, `context`, `namespace`,
+`expected_context`, `expected_namespace`. The scope must agree and evidence must
+be at most five minutes old. Explicit replay time is for testing historical fixtures,
+not a way to make stale production evidence current.
+
+Exit 0 / `reviewed` means the supplied assertions satisfy this bounded contract;
+2 / `blocked` requires correction; 3 / `incomplete` requires more evidence. Read the
+findings rather than relying only on exit status. Scripts never execute text from
+inputs, call a cloud API or authorize a change. Fixture and package checks are
+separate from model behavior and live compatibility.
+
+- [Input contract and limitations](references/evidence-contract.md)
+- [Skill blueprint and acceptance](docs/BLUEPRINT.md)

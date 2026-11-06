@@ -11,7 +11,7 @@ description: 'Incident response runbook for CoreWeave GPU workload failures.
   "coreweave runbook", "coreweave service down".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -91,3 +91,29 @@ These are operator examples, not commands run by this package’s offline tests.
 ## Evidence status
 
 Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
+
+## Offline verification
+
+Supply ordered `timeline` timestamps, `affected_resources`, `incident_owner`, `state`, `escalation_route` and `recovery` with acceptance_passed, resource_scope and at. Containment claims also need an approval_reference. The helper rejects a resolution claim without matching, recent recovery evidence. An incident still being investigated returns incomplete intentionally. A passed recovery flag must refer to an actual workload acceptance record; this helper does not run recovery. Keep private support contacts and raw tenant logs outside public fixtures.
+
+From this skill directory, replay the synthetic example (its timestamp is intentionally
+fixed; it contains no account data):
+
+```bash
+python3 scripts/review-incident.py --input tests/fixtures/example.json --as-of 2026-11-05T12:01:00Z
+```
+
+For current evidence, omit `--as-of`; it defaults to current UTC. Required common
+fields: `schema: coreweave-evidence/v1`, `captured_at`, `context`, `namespace`,
+`expected_context`, `expected_namespace`. The scope must agree and evidence must
+be at most five minutes old. Explicit replay time is for testing historical fixtures,
+not a way to make stale production evidence current.
+
+Exit 0 / `reviewed` means the supplied assertions satisfy this bounded contract;
+2 / `blocked` requires correction; 3 / `incomplete` requires more evidence. Read the
+findings rather than relying only on exit status. Scripts never execute text from
+inputs, call a cloud API or authorize a change. Fixture and package checks are
+separate from model behavior and live compatibility.
+
+- [Input contract and limitations](references/evidence-contract.md)
+- [Skill blueprint and acceptance](docs/BLUEPRINT.md)
