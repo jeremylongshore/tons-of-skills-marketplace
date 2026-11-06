@@ -3,6 +3,18 @@
   "level": "metadata",
   "skills": [
     {
+      "slug": "coreweave-gpu-cost-leak-hunter",
+      "name": "GPU usage and cost review for CoreWeave",
+      "description": "Review CoreWeave GPU usage and cost scenarios from supplied billing and telemetry evidence. Use when investigating a high GPU bill, idle reservations, right-sizing or a commitment decision. Separate measured usage from estimated spend and billing-backed amounts. Trigger with \"coreweave cost\", \"why is my coreweave bill\", \"idle reserved capacity\", \"GPU cost leak\", or \"GPU usage and cost review\".",
+      "version": "1.12.0",
+      "category": "saas-packs",
+      "parentPlugin": "coreweave-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
       "slug": "coreweave-ci-integration",
       "name": "UNOFFICIAL CI INTEGRATION FOR COREWEAVE",
       "description": "Unofficial CI integration for CoreWeave deployments using GitHub Actions. Use when automating container builds, deploying inference services from CI, or validating GPU manifests in pull requests. Trigger with phrases like \"coreweave CI\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\".",
@@ -6821,7 +6833,7 @@
     {
       "slug": "coreweave-core-workflow-a",
       "name": "coreweave-core-workflow-a",
-      "description": "Deploy KServe InferenceService on CoreWeave with autoscaling and GPU scheduling. Use when serving ML models with KServe, configuring scale-to-zero, or deploying production inference endpoints on CoreWeave. Trigger with phrases like \"coreweave inference service\", \"coreweave kserve\", \"coreweave model serving\", \"deploy model on coreweave\".",
+      "description": "Review a CoreWeave self-managed inference release, readiness and GPU scheduling. Use when deploying a model on CKS, checking KServe prerequisites, or diagnosing an inference rollout. Trigger with coreweave inference service, coreweave model serving, or coreweave kserve.",
       "version": "1.12.0",
       "category": "saas-packs",
       "parentPlugin": "coreweave-pack",
@@ -6905,19 +6917,7 @@
     {
       "slug": "coreweave-fabric-diagnostics",
       "name": "coreweave-fabric-diagnostics",
-      "description": "Diagnose the most expensive silent failure on a CoreWeave multi-node GPU job: GPUDirect RDMA falling back from InfiniBand to TCP. When NCCL drops from NET/IB to NET/Socket, collectives keep running with NO error but throughput collapses (commonly 5-20x slower) while every GPU still bills at full rate — 5x the GPU bill for the same work, invisibly. Paste an NCCL_DEBUG=INFO log (and/or a pod-spec, ibstat, or all_reduce_perf output) and the bundled deterministic script verdicts whether RDMA is actually engaged, which of the three required conditions is missing, and the fix. Use when multi-node training is slow, when checking whether RDMA/InfiniBand is engaged, or when all-reduce bandwidth looks low. Trigger with \"coreweave slow training\", \"is RDMA working\", \"NCCL fell back to TCP\", \"NET/Socket\", \"GPUDirect RDMA\", \"infiniband not used\", \"multi-node training slow\".",
-      "version": "1.12.0",
-      "category": "saas-packs",
-      "parentPlugin": "coreweave-pack",
-      "requires_env": [],
-      "requires_tools": [],
-      "fallback_for_env": [],
-      "fallback_for_tools": []
-    },
-    {
-      "slug": "coreweave-gpu-cost-leak-hunter",
-      "name": "coreweave-gpu-cost-leak-hunter",
-      "description": "Hunt down CoreWeave GPU cost leaks — idle reserved capacity, wrong-GPU-type right-sizing waste, allocated-but-idle instances, and on-demand spend that should be committed — then produce a CFO-grokkable, dollar-ranked FinOps report. CoreWeave ships no cost dashboard and no billing API, so the spend view is built from PromQL against its managed Grafana. Use when a user asks why their CoreWeave GPU bill is high, wants to find wasted GPU spend or idle reservations, or needs a GPU FinOps cost report. Trigger with \"coreweave cost\", \"why is my coreweave bill\", \"wasted GPU spend\", \"idle reserved capacity\", \"GPU cost leak\".",
+      "description": "Diagnose CoreWeave NCCL transport and RDMA configuration from supplied logs, Pod resources and ibstat output. Use when multi-node training is slow, NET/Socket appears, or checking whether InfiniBand and GPU Direct RDMA are engaged. Trigger with \"coreweave slow training\", \"is RDMA working\", \"NCCL fell back to TCP\", \"GPUDirect RDMA\", or \"infiniband not used\".",
       "version": "1.12.0",
       "category": "saas-packs",
       "parentPlugin": "coreweave-pack",
@@ -6929,7 +6929,7 @@
     {
       "slug": "coreweave-gpu-node-forensics",
       "name": "coreweave-gpu-node-forensics",
-      "description": "Triage a dead or degraded GPU on a CoreWeave node fast — decide reschedule vs GPU-reset vs node-reboot vs RMA from an Xid code or a pasted dmesg / nvidia-smi blob, so a bad card does not silently kill a multi-day training run. Use when a GPU throws an Xid error, a node \"fell off the bus\", a training run stalls or NCCL hangs on one rank, or you need to know whether to replace, reset, or just reschedule. Trigger with \"xid error\", \"gpu fell off the bus\", \"coreweave gpu dead\", \"should I RMA this GPU\", \"gpu node triage\".",
+      "description": "Review NVIDIA Xid and row-remapper evidence for a CoreWeave GPU incident. Use when a GPU throws an Xid, a training rank stalls, a device falls off the bus, or deciding whether to restart a workload or escalate hardware recovery. Trigger with \"xid error\", \"gpu fell off the bus\", \"coreweave gpu dead\", \"should I RMA this GPU\", or \"gpu node triage\".",
       "version": "1.12.0",
       "category": "saas-packs",
       "parentPlugin": "coreweave-pack",
@@ -7037,7 +7037,7 @@
     {
       "slug": "coreweave-sdk-patterns",
       "name": "coreweave-sdk-patterns",
-      "description": "Production-ready patterns for CoreWeave GPU workload management with kubectl and Python. Use when building inference clients, managing GPU deployments programmatically, or creating reusable CoreWeave deployment templates. Trigger with phrases like \"coreweave patterns\", \"coreweave client\", \"coreweave Python\", \"coreweave deployment template\".",
+      "description": "Bounded integration patterns for CoreWeave GPU workload management with kubectl and Python. Use when building inference clients, managing GPU deployments programmatically, or creating reusable CoreWeave deployment templates. Trigger with phrases like \"coreweave patterns\", \"coreweave client\", \"coreweave Python\", \"coreweave deployment template\".",
       "version": "1.12.0",
       "category": "saas-packs",
       "parentPlugin": "coreweave-pack",

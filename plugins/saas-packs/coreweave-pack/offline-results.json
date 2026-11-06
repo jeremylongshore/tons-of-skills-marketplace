@@ -1,0 +1,312 @@
+{
+  "schema": "coreweave-offline-review/v1",
+  "date": "2026-11-05",
+  "scope": "Local fixtures, package integrity and static skill validation only",
+  "operator_tests": [
+    {
+      "python": "3.12.3",
+      "tests": 64,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "python": "3.14.0",
+      "tests": 64,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "test_source_sha256": "fbaacd23ccd943d496015403c097190aec6d47d24355fe5d81ccc1147af58791",
+  "self_tests": [
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/scripts/fabric-check.py",
+      "sha256": "9e201cd198401f9cf673f8d1774637383bcc0f2ecf835dd5c0e4da16221b8e0e",
+      "exit_code": 0,
+      "stdout": "SELF-TEST PASSED: transport evidence, limits defaulting, and port state\n"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/scripts/rank-and-report.py",
+      "sha256": "38749fd509b94b8ad62828ff278422c67854818bb94c4eebcc7b072fa5f62107",
+      "exit_code": 0,
+      "stdout": "SELF-TEST PASSED: arithmetic, estimate default, billing boundary and numeric refusal\n"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/scripts/triage.py",
+      "sha256": "6344a78bde16fc553ebf4a16eda9cea5868879669166ad09e79afa18d4730c50",
+      "exit_code": 0,
+      "stdout": "[PASS] xid 94 CONTAINED -> reschedule: expected=reschedule got=reschedule\n[PASS] xid 95 UNCONTAINED -> reset-gpu: expected=reset-gpu got=reset-gpu\n[PASS] xid 79 fell-off-bus -> reboot-node: expected=reboot-node got=reboot-node\n[PASS] xid 43 context -> investigate-application: expected=investigate-application got=investigate-application\n[PASS] xid 13 engine-exception -> investigate-application: expected=investigate-application got=investigate-application\n[PASS] xid 31 page-fault -> investigate-application: expected=investigate-application got=investigate-application\n[PASS] xid 92 SBE-trend -> watch: expected=watch got=watch\n[PASS] xid 64 remap-record-failure -> rma: expected=rma got=rma\n[PASS] xid 63 + Pending:Yes -> reset-gpu: expected=reset-gpu got=reset-gpu\n[PASS] remap-failure override -> rma: expected=rma got=rma\n[PASS] xid 48 DBE + remap-failure -> rma: expected=rma got=rma\n[PASS] blob: contained 94 -> reschedule: expected=reschedule got=reschedule\n[PASS] blob: uncontained 95 -> reset-gpu: expected=reset-gpu got=reset-gpu\n[PASS] blob: 79 fell off bus -> reboot-node: expected=reboot-node got=reboot-node\n[PASS] blob: nvidia-smi remap FAILURE -> rma: expected=rma got=rma\n[PASS] blob: nvidia-smi remap Pending -> reset-gpu: expected=reset-gpu got=reset-gpu\n[PASS] blob: thermal throttle -> watch: expected=watch got=watch\n[PASS] blob: co-occurring 43+79, 79 governs -> reboot-node: expected=reboot-node got=reboot-node\n[PASS] remap-failure override preserves co_occurring_xids + base hedge (no dupes)\n[PASS] pending override preserves co_occurring_xids + base hedge (no dupes)\n\nself-test: 20 passed, 0 failed\n"
+    }
+  ],
+  "package_checks": [
+    {
+      "skill": "coreweave-fabric-diagnostics",
+      "summary": {
+        "total": 13,
+        "passed": 13,
+        "warnings": 0,
+        "errors": 0
+      }
+    },
+    {
+      "skill": "coreweave-gpu-node-forensics",
+      "summary": {
+        "total": 13,
+        "passed": 13,
+        "warnings": 0,
+        "errors": 0
+      }
+    },
+    {
+      "skill": "coreweave-gpu-cost-leak-hunter",
+      "summary": {
+        "total": 13,
+        "passed": 13,
+        "warnings": 0,
+        "errors": 0
+      }
+    }
+  ],
+  "static_skills": [
+    {
+      "skill": "coreweave-ci-integration",
+      "score": 100,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)"
+      ]
+    },
+    {
+      "skill": "coreweave-common-errors",
+      "score": 98,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-core-workflow-a",
+      "score": 99,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-core-workflow-b",
+      "score": 96,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[frontmatter] Consider using action verbs (analyze, detect, forecast, etc.)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-cost-tuning",
+      "score": 99,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-data-handling",
+      "score": 100,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-debug-bundle",
+      "score": 96,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-deploy-integration",
+      "score": 95,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-enterprise-rbac",
+      "score": 97,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-fabric-diagnostics",
+      "score": 98,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[reference-quality] references/allreduce-baseline.md is too thin (4 non-blank lines, 654 chars after frontmatter)",
+        "[reference-quality] references/rdma-engagement-checklist.md is too thin (4 non-blank lines, 775 chars after frontmatter)"
+      ]
+    },
+    {
+      "skill": "coreweave-gpu-cost-leak-hunter",
+      "score": 98,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:auth-documented] External API surface referenced (curl/fetch/MCP/OAuth/etc.) but no authentication method documented — add an Auth section or reference auth.md",
+        "[reference-quality] references/cfo-output-format.md is too thin (4 non-blank lines, 934 chars after frontmatter)",
+        "[reference-quality] references/gpu-right-sizing.md is too thin (4 non-blank lines, 782 chars after frontmatter)"
+      ]
+    },
+    {
+      "skill": "coreweave-gpu-node-forensics",
+      "score": 96,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[reference-quality] references/cordon-rules.md is too thin (4 non-blank lines, 750 chars after frontmatter)",
+        "[reference-quality] references/row-remap-decision.md is too thin (4 non-blank lines, 646 chars after frontmatter)"
+      ]
+    },
+    {
+      "skill": "coreweave-hello-world",
+      "score": 97,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-incident-runbook",
+      "score": 98,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[frontmatter] Consider using action verbs (analyze, detect, forecast, etc.)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-install-auth",
+      "score": 97,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-local-dev-loop",
+      "score": 98,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-multi-env-setup",
+      "score": 98,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-observability",
+      "score": 99,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-performance-tuning",
+      "score": 100,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-prod-checklist",
+      "score": 100,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-sdk-patterns",
+      "score": 100,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-security-basics",
+      "score": 98,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    },
+    {
+      "skill": "coreweave-upgrade-migration",
+      "score": 96,
+      "grade": "A",
+      "errors": [],
+      "warnings": [
+        "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
+        "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ]
+    }
+  ],
+  "live_account_validation": "not_run",
+  "provider_behavioral_evaluation": "not_run",
+  "paid_compute_or_api_calls": false,
+  "performance_or_savings_measurements": "not_established"
+}

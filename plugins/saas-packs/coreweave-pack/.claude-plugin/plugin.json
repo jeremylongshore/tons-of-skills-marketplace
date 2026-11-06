@@ -1,7 +1,7 @@
 {
   "name": "coreweave-pack",
   "version": "1.12.0",
-  "description": "Claude Code skill pack for CoreWeave (23 skills). Community-contributed; not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.",
+  "description": "Community CoreWeave GPU operations pack (23 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by CoreWeave, Inc.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "jeremy@intentsolutions.io"

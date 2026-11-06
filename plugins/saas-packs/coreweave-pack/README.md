@@ -1,22 +1,15 @@
-# CoreWeave Skill Pack
+# Community GPU operations for CoreWeave
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
-22 production-grade Claude Code skills for GPU cloud computing with CoreWeave Kubernetes Service.
+23 skills: three offline diagnostic tools and scoped operator guides for reviewing CKS access, workload releases, storage, security, recovery and cost assumptions.
+The source remains MIT-licensed. Structural grades and offline fixtures do not establish production readiness, live account behavior or measured savings.
 
-## What Is CoreWeave?
+## Use CoreWeave’s official skills for provisioning
 
-[CoreWeave](https://www.coreweave.com) is a specialized GPU cloud platform built for AI/ML workloads. CoreWeave Kubernetes Service (CKS) runs Kubernetes directly on bare-metal GPU nodes -- no hypervisor, no VMs. The platform provides:
-
-- **Bare-metal GPU nodes** with A100, H100, L40, and GH200 GPUs
-- **KServe integration** for serverless inference with scale-to-zero
-- **Multi-node training** with NVLink and InfiniBand interconnect
-- **Shared storage** (HDD, SSD, NVMe) via Kubernetes PVCs
-- **DCGM metrics** for GPU utilization monitoring out of the box
-
-Access is via standard kubectl with CoreWeave-issued kubeconfig. GPU scheduling uses node affinity with `gpu.nvidia.com/class` labels. Typical cost savings: 30-50% compared to hyperscaler GPU instances.
-
-This skill pack provides real kubectl commands, YAML manifests, and Python patterns for every stage of CoreWeave deployment.
+[CoreWeave’s official distribution](https://github.com/coreweave/skills) covers cluster/Node Pool creation, self-managed vLLM deployment, model loading into object storage and workload-health checks.
+Install those through their own upstream distribution and review their current requirements and license.
+This community pack does not mirror or redistribute those proprietary skills; its original operator diagnostics and review procedures complement them.
 
 ## Installation
 
@@ -24,98 +17,71 @@ This skill pack provides real kubectl commands, YAML manifests, and Python patte
 /plugin install coreweave-pack@claude-code-plugins-plus
 ```
 
-## Skills Included
+Use the existing compatibility identifiers below. The CI skill’s public title remains **UNOFFICIAL CI INTEGRATION FOR COREWEAVE**.
 
-### Getting Started (S01-S04)
+## Offline tools first
 
-| Skill | Description |
-|-------|-------------|
-| `coreweave-install-auth` | Kubeconfig setup, API token, GPU access verification |
-| `coreweave-hello-world` | First GPU pod: vLLM inference server and batch CUDA job |
-| `coreweave-local-dev-loop` | Container build, YAML validation, deploy-watch cycle |
-| `coreweave-sdk-patterns` | GPU affinity helpers, inference client, deployment generators |
+- GPU forensics: classify supplied Xid evidence into qualified recommendations; unknown or multi-GPU evidence stays inconclusive.
+- Fabric review: distinguish actual NCCL transport from GPU-direct evidence and recognize Kubernetes request defaulting from RDMA limits.
+- GPU usage and cost review: validate supplied numeric scenarios, separate billing-backed amounts from estimates, and avoid adding overlapping findings into promised savings.
 
-### Core Workflows (S05-S08)
+The scripts do not invoke a cluster, provision capacity, reset hardware or call a model provider.
+Python 3 is required; fabric YAML parsing also needs its pinned `scripts/requirements.txt` dependency in an isolated environment.
 
-| Skill | Description |
-|-------|-------------|
-| `coreweave-core-workflow-a` | KServe InferenceService with autoscaling and scale-to-zero |
-| `coreweave-core-workflow-b` | Distributed GPU training with PyTorch DDP and shared storage |
-| `coreweave-common-errors` | Pod Pending, CUDA OOM, NCCL timeout, image pull failures |
-| `coreweave-debug-bundle` | Collect node status, GPU allocation, and pod logs for support |
+## Skills
 
-### Operations
+| Public task | Stable identifier |
+|---|---|
+| [UNOFFICIAL CI INTEGRATION FOR COREWEAVE](skills/coreweave-ci-integration/SKILL.md) | `coreweave-ci-integration` |
+| [CoreWeave Evidence-first workload triage](skills/coreweave-common-errors/SKILL.md) | `coreweave-common-errors` |
+| [CoreWeave Inference deployment preflight](skills/coreweave-core-workflow-a/SKILL.md) | `coreweave-core-workflow-a` |
+| [CoreWeave Training launch and recovery review](skills/coreweave-core-workflow-b/SKILL.md) | `coreweave-core-workflow-b` |
+| [CoreWeave Cost experiment planning](skills/coreweave-cost-tuning/SKILL.md) | `coreweave-cost-tuning` |
+| [CoreWeave Artifact integrity and storage review](skills/coreweave-data-handling/SKILL.md) | `coreweave-data-handling` |
+| [CoreWeave Scoped support evidence](skills/coreweave-debug-bundle/SKILL.md) | `coreweave-debug-bundle` |
+| [CoreWeave Manifest promotion review](skills/coreweave-deploy-integration/SKILL.md) | `coreweave-deploy-integration` |
+| [CoreWeave Access-boundary review](skills/coreweave-enterprise-rbac/SKILL.md) | `coreweave-enterprise-rbac` |
+| [CoreWeave Fabric Diagnostics](skills/coreweave-fabric-diagnostics/SKILL.md) | `coreweave-fabric-diagnostics` |
+| [GPU usage and cost review for CoreWeave](skills/coreweave-gpu-cost-leak-hunter/SKILL.md) | `coreweave-gpu-cost-leak-hunter` |
+| [CoreWeave GPU Node Forensics](skills/coreweave-gpu-node-forensics/SKILL.md) | `coreweave-gpu-node-forensics` |
+| [CoreWeave GPU smoke-test review](skills/coreweave-hello-world/SKILL.md) | `coreweave-hello-world` |
+| [CoreWeave Incident stabilization review](skills/coreweave-incident-runbook/SKILL.md) | `coreweave-incident-runbook` |
+| [CoreWeave Access and identity verification](skills/coreweave-install-auth/SKILL.md) | `coreweave-install-auth` |
+| [CoreWeave Local-to-staging review](skills/coreweave-local-dev-loop/SKILL.md) | `coreweave-local-dev-loop` |
+| [CoreWeave Environment promotion boundaries](skills/coreweave-multi-env-setup/SKILL.md) | `coreweave-multi-env-setup` |
+| [CoreWeave Signal and alert validation](skills/coreweave-observability/SKILL.md) | `coreweave-observability` |
+| [CoreWeave Measured performance experiments](skills/coreweave-performance-tuning/SKILL.md) | `coreweave-performance-tuning` |
+| [CoreWeave Release evidence review](skills/coreweave-prod-checklist/SKILL.md) | `coreweave-prod-checklist` |
+| [CoreWeave Client boundary design](skills/coreweave-sdk-patterns/SKILL.md) | `coreweave-sdk-patterns` |
+| [CoreWeave Workload security review](skills/coreweave-security-basics/SKILL.md) | `coreweave-security-basics` |
+| [CoreWeave Migration and rollback planning](skills/coreweave-upgrade-migration/SKILL.md) | `coreweave-upgrade-migration` |
 
-| Skill | Description |
-|-------|-------------|
-| `coreweave-security-basics` | Secrets for model tokens, network policies, RBAC |
-| `coreweave-prod-checklist` | Production readiness for inference and training workloads |
-| `coreweave-upgrade-migration` | GPU type migration (A100 to H100), CUDA version upgrades |
+## Before live use
 
-### Pro Skills
+Select an owner-approved organization, context, namespace, resource name and evidence window.
+Use a trusted cluster-specific kubeconfig from the approved secret store; Managed Auth kubeconfigs embed a token.
+Discover current `node.kubernetes.io/instance-type` values instead of copying legacy GPU-class labels.
+Read-only commands can still expose workload data; review and redact evidence before sharing.
+Any deployment, benchmark, reset, resource deletion, data export or capacity/contract change requires its own approved scope and budget.
 
-| Skill | Description |
-|-------|-------------|
-| [UNOFFICIAL CI INTEGRATION FOR COREWEAVE](skills/coreweave-ci-integration/SKILL.md) | Community-contributed GitHub Actions for container build and CKS deployment |
-| `coreweave-deploy-integration` | Helm charts and Kustomize overlays for GPU deployments |
-| `coreweave-performance-tuning` | GPU selection, vLLM batching, HPA with DCGM metrics |
-| `coreweave-cost-tuning` | GPU pricing comparison, scale-to-zero, quantization savings |
+CoreWeave provides [cost/usage monitoring](https://docs.coreweave.com/observability/usage-monitoring) and [Mission Control MCP](https://docs.coreweave.com/observability/mission-control-mcp/reference/tools), including a FOCUS usage tool that returns quantities rather than dollars.
+Rates, capacity plans and invoice reconciliation remain separate inputs; no universal discount, per-token ranking or savings percentage is claimed.
 
-### Flagship Skills
+## Verification and limitations
 
-| Skill | Description |
-|-------|-------------|
-| `coreweave-multi-env-setup` | Dev/staging/prod with different GPU types and quotas |
-| `coreweave-observability` | DCGM GPU metrics, Prometheus alerts, Grafana dashboards |
-| `coreweave-incident-runbook` | GPU workload failure triage and remediation |
-| `coreweave-data-handling` | PVC storage classes, model downloading, dataset management |
-| `coreweave-enterprise-rbac` | Namespace isolation, GPU quotas per team, role bindings |
-| `coreweave-gpu-cost-leak-hunter` | Find GPU cost leaks from PromQL usage (no billing API) and emit a dollar-ranked CFO report |
-| `coreweave-fabric-diagnostics` | Detect GPUDirect RDMA silently falling back to TCP (NET/Socket) from an NCCL log and give the fix |
+See [QUALITY.md](QUALITY.md) and the retained offline-results receipt for actual tests, source hashes and remaining gaps.
+No live CoreWeave account or paid model evaluation was used for this review.
+The npm package version and plugin display version follow separate repository version contracts; they are intentionally not forced to match.
 
-## Quick Start
+## Primary references
 
-### 1. Install the Pack
-
-```bash
-/plugin install coreweave-pack@claude-code-plugins-plus
-```
-
-### 2. Configure kubectl
-
-Download your kubeconfig from [cloud.coreweave.com](https://cloud.coreweave.com) and set it up:
-
-```bash
-export KUBECONFIG=~/.kube/coreweave
-kubectl get nodes
-```
-
-### 3. Deploy Your First GPU Workload
-
-```bash
-# Run nvidia-smi on an A100
-kubectl run gpu-test --image=nvidia/cuda:12.2.0-base-ubuntu22.04 \
-  --restart=Never \
-  --overrides='{"spec":{"containers":[{"name":"gpu-test","image":"nvidia/cuda:12.2.0-base-ubuntu22.04","command":["nvidia-smi"],"resources":{"limits":{"nvidia.com/gpu":"1"}}}]}}' \
-  -- nvidia-smi
-
-kubectl logs gpu-test
-kubectl delete pod gpu-test
-```
-
-### 4. Deploy an Inference Service
-
-Follow `coreweave-core-workflow-a` to deploy a KServe InferenceService with autoscaling.
-
-## Key CoreWeave Links
-
-- [CoreWeave Documentation](https://docs.coreweave.com) -- CKS and platform docs
-- [GPU Instance Types](https://docs.coreweave.com/docs/platform/instances/gpu-instances) -- available GPUs
-- [CoreWeave Pricing](https://www.coreweave.com/pricing) -- per-GPU-hour pricing
-- [CKS Introduction](https://docs.coreweave.com/docs/products/cks) -- Kubernetes service overview
-- [CoreWeave Examples](https://github.com/coreweave/kubernetes-cloud) -- sample YAML manifests
-- [CoreWeave Status](https://status.coreweave.com) -- platform status page
+- [CKS scheduling](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
+- [CKS Managed Auth](https://docs.coreweave.com/products/cks/auth-access/managed-auth/kubeconfig)
+- [Managed lifecycle](https://docs.coreweave.com/platform/fleet-management/node-lifecycle/state-transitions)
+- [RDMA configuration](https://docs.coreweave.com/products/networking/hpc-interconnect/use-gpudirect-rdma)
+- [NVIDIA Xid catalog](https://docs.nvidia.com/deploy/xid-errors/latest/analyzing-xid-catalog.html)
+- [Capacity plans](https://docs.coreweave.com/platform/capacity-plans)
 
 ## License
 
-MIT
+MIT for this community pack. Upstream linked projects retain their own licenses.

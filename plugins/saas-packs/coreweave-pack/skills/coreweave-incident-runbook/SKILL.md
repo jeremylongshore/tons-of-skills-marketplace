@@ -11,7 +11,7 @@ description: 'Incident response runbook for CoreWeave GPU workload failures.
   "coreweave runbook", "coreweave service down".
 
   '
-allowed-tools: Read, Bash(kubectl:*), Grep
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -23,104 +23,71 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Incident Runbook
+# CoreWeave Incident stabilization review
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Respond to GPU workload incidents by stabilizing customer impact, preserving
-redacted evidence, and restoring a known-good state. The incident commander owns
-communications and escalation; responders use only the access required for triage.
+Stabilize an affected workload using evidence, an approved recovery path and clear ownership.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- An incident ID, named commander, affected namespace/service, and on-call route.
-- Authorized read-only cluster access plus a documented production rollback revision.
-- A redaction policy for logs, prompts, model artifacts, and credentials.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-1. Declare severity and scope, then capture pod, event, node, and service status.
-2. Stabilize impact with the documented scale, failover, or rollback action before root-cause work.
-3. Collect only redacted, bounded diagnostics and escalate hardware or capacity issues through CoreWeave support.
-4. Verify recovery against the service SLO, update stakeholders, and create follow-up work for root cause and prevention.
+1. Record the incident commander, affected service, context, namespace, start time, impact and next update. Check CoreWeave status and distinguish platform impact from an application rollout failure.
 
-## Triage Steps
+2. Collect bounded operational status and events. Review Pod/container termination reasons, current replicas, quota, PVC binding and model readiness; do not execute commands in an arbitrary first matching Pod.
 
-```bash
-# 1. Check pod status
-kubectl get pods -l app=inference -o wide
+3. Choose an approved rollback, traffic failover or workload-priority change. Confirm the retained image and application/data compatibility. Rescheduling is not guaranteed when capacity, affinity or disruption constraints block it.
 
-# 2. Check recent events
-kubectl get events --sort-by=.lastTimestamp | tail -20
+4. For hardware or fabric events, use the offline forensics tools and inspect managed lifecycle state. Do not manually uncordon health-cordoned Nodes, reinstall drivers, or reboot managed hardware without the lifecycle owner.
 
-# 3. Check node status
-kubectl get nodes -l gpu.nvidia.com/class -o wide
-
-# 4. Check GPU health
-kubectl exec -it $(kubectl get pod -l app=inference -o name | head -1) -- nvidia-smi
-```
-
-## Common Incidents
-
-### Inference Service Down
-
-1. Check pod status and events
-2. If OOMKilled: reduce batch size or upgrade GPU
-3. If ImagePullBackOff: check registry credentials
-4. If Pending: check GPU quota and availability
-
-### GPU Node Failure
-
-1. Pods will be rescheduled automatically
-2. If no capacity: scale down non-critical workloads
-3. Contact CoreWeave support for extended outages
-
-### Model Loading Failure
-
-1. Check HuggingFace token secret exists
-2. Verify model name spelling
-3. Check PVC has sufficient storage
-4. Review container logs for download errors
-
-## Rollback
-
-```bash
-kubectl rollout undo deployment/inference
-```
-
-## Output
-
-- A time-stamped incident record with scope, owner, stabilization action, and redacted evidence.
-- A verified recovery or an explicit escalation with a safe customer-impact mitigation.
-
-## Error Handling
-
-| Incident complication | Required response |
-|---|---|
-| Rollback fails | Stop repeated deploy attempts, escalate to the platform owner, and preserve events. |
-| Diagnostics include a secret | Restrict distribution, rotate the secret, and recollect redacted evidence. |
-| No GPU capacity is available | Prioritize critical services under approved policy; do not remove tenant quotas. |
-| Recovery cannot meet SLO | Declare the continuing impact and use the approved fallback or communication path. |
+5. Verify recovery against service-specific success/latency/quality targets, record residual impact and preserve sanitized evidence. If recovery fails, escalate rather than retrying destructive operations.
 
 ## Examples
 
-For a failing production rollout, stabilize first and capture only the relevant evidence:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference-prod rollout undo deployment/inference
-kubectl -n inference-prod rollout status deployment/inference --timeout=10m
-kubectl -n inference-prod get events --sort-by=.lastTimestamp | tail -30
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "deployment/$CW_DEPLOYMENT" -o wide
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "pod/$CW_POD" -o wide
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get events --field-selector="involvedObject.name=$CW_POD" --sort-by=.metadata.creationTimestamp
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout history "deployment/$CW_DEPLOYMENT"
 ```
 
-Record the revision, outcome, and redacted events in the incident. Do not retry a broken image or expose a troubleshooting endpoint publicly.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- CoreWeave Support
-- [CoreWeave Status](https://status.coreweave.com)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/platform/fleet-management/node-lifecycle/state-transitions)
+- [Primary reference 2](https://status.coreweave.com)
+- [Primary reference 3](https://docs.coreweave.com/observability/mission-control-mcp/reference/tools)
 
-## Next Steps
+## Evidence status
 
-For data handling, see `coreweave-data-handling`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

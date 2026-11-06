@@ -2,6 +2,8 @@
 
 ## 2026-11-05
 
+- **fix(plugins-saas-packs):** review all 23 community CoreWeave skills against current primary sources; replace unsupported interfaces, benchmark/savings claims and unsafe operational examples. Harden offline fabric, Xid and cost review tools, retain reproducible regression receipts, and preserve unofficial naming and MIT licensing. Live-account and provider-backed behavioral validation remain unperformed.
+
 - **fix(coreweave):** rename the public CI skill title to “UNOFFICIAL CI INTEGRATION FOR COREWEAVE” across its source and marketplace. Preserve the stable install identifier, URL, MIT license, and community affiliation disclaimer.
 
 ## 2026-10-26

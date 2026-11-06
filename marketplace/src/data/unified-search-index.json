@@ -173,7 +173,6 @@
       "Bash(keytool:*)",
       "Bash(kubectl get:*)",
       "Bash(kubectl:*)",
-      "Bash(kustomize:*)",
       "Bash(lighthouse:*)",
       "Bash(ln:*)",
       "Bash(log-analysis:*)",
@@ -12146,7 +12145,7 @@
       "slug": "coreweave-pack",
       "name": "coreweave-pack",
       "displayName": "coreweave pack",
-      "description": "Claude Code skill pack for CoreWeave (23 skills)",
+      "description": "Community CoreWeave GPU operations pack (23 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by CoreWeave, Inc.",
       "category": "saas-packs",
       "keywords": [
         "coreweave",
@@ -12165,10 +12164,10 @@
       "isNew": false,
       "badges": [],
       "skillCount": 23,
-      "verificationScore": 91,
+      "verificationScore": 98,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "coreweave pack claude code skill pack for coreweave (23 skills) saas-packs coreweave saas sdk integration"
+      "searchText": "coreweave pack community coreweave gpu operations pack (23 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by coreweave, inc. saas-packs coreweave saas sdk integration"
     },
     {
       "type": "plugin",
@@ -14944,6 +14943,31 @@
     },
     {
       "type": "skill",
+      "id": "coreweave-gpu-cost-leak-hunter",
+      "slug": "coreweave-gpu-cost-leak-hunter",
+      "name": "GPU usage and cost review for CoreWeave",
+      "description": "Review CoreWeave GPU usage and cost scenarios from supplied billing and telemetry evidence. Use when investigating a high GPU bill, idle reservations, right-sizing or a commitment decision. Separate measured usage from estimated spend and billing-backed amounts. Trigger with \"coreweave cost\", \"why is my coreweave bill\", \"idle reserved capacity\", \"GPU cost leak\", or \"GPU usage and cost review\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Bash(curl:*)",
+        "Bash(jq:*)",
+        "Bash(kubectl get:*)",
+        "Bash(python3:*)"
+      ],
+      "compatibleWith": [],
+      "version": "1.12.0",
+      "parentPlugin": {
+        "name": "coreweave-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "gpu usage and cost review for coreweave review coreweave gpu usage and cost scenarios from supplied billing and telemetry evidence. use when investigating a high gpu bill, idle reservations, right-sizing or a commitment decision. separate measured usage from estimated spend and billing-backed amounts. trigger with \"coreweave cost\", \"why is my coreweave bill\", \"idle reserved capacity\", \"gpu cost leak\", or \"gpu usage and cost review\". saas-packs read write edit glob bash(curl:*) bash(jq:*) bash(kubectl get:*) bash(python3:*) "
+    },
+    {
+      "type": "skill",
       "id": "coreweave-ci-integration",
       "slug": "coreweave-ci-integration",
       "name": "UNOFFICIAL CI INTEGRATION FOR COREWEAVE",
@@ -14953,7 +14977,8 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(gh:*)"
+        "Bash(gh:*)",
+        "Bash(kubectl:*)"
       ],
       "compatibleWith": [],
       "version": "1.12.0",
@@ -14961,7 +14986,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "unofficial ci integration for coreweave unofficial ci integration for coreweave deployments using github actions. use when automating container builds, deploying inference services from ci, or validating gpu manifests in pull requests. trigger with phrases like \"coreweave ci\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\". saas-packs read write edit bash(gh:*) "
+      "searchText": "unofficial ci integration for coreweave unofficial ci integration for coreweave deployments using github actions. use when automating container builds, deploying inference services from ci, or validating gpu manifests in pull requests. trigger with phrases like \"coreweave ci\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\". saas-packs read write edit bash(gh:*) bash(kubectl:*) "
     },
     {
       "type": "skill",
@@ -27530,6 +27555,8 @@
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Write",
+        "Edit",
         "Bash(kubectl:*)",
         "Grep"
       ],
@@ -27539,14 +27566,14 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-common-errors diagnose and fix coreweave gpu scheduling, pod, and networking errors. use when pods are stuck pending, gpus are not allocated, or experiencing cuda and nccl errors. trigger with phrases like \"coreweave error\", \"coreweave pod pending\", \"coreweave gpu not found\", \"coreweave debug\", \"fix coreweave\". saas-packs read bash(kubectl:*) grep "
+      "searchText": "coreweave-common-errors diagnose and fix coreweave gpu scheduling, pod, and networking errors. use when pods are stuck pending, gpus are not allocated, or experiencing cuda and nccl errors. trigger with phrases like \"coreweave error\", \"coreweave pod pending\", \"coreweave gpu not found\", \"coreweave debug\", \"fix coreweave\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
       "id": "coreweave-core-workflow-a",
       "slug": "coreweave-core-workflow-a",
       "name": "coreweave-core-workflow-a",
-      "description": "Deploy KServe InferenceService on CoreWeave with autoscaling and GPU scheduling. Use when serving ML models with KServe, configuring scale-to-zero, or deploying production inference endpoints on CoreWeave. Trigger with phrases like \"coreweave inference service\", \"coreweave kserve\", \"coreweave model serving\", \"deploy model on coreweave\".",
+      "description": "Review a CoreWeave self-managed inference release, readiness and GPU scheduling. Use when deploying a model on CKS, checking KServe prerequisites, or diagnosing an inference rollout. Trigger with coreweave inference service, coreweave model serving, or coreweave kserve.",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -27561,7 +27588,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-core-workflow-a deploy kserve inferenceservice on coreweave with autoscaling and gpu scheduling. use when serving ml models with kserve, configuring scale-to-zero, or deploying production inference endpoints on coreweave. trigger with phrases like \"coreweave inference service\", \"coreweave kserve\", \"coreweave model serving\", \"deploy model on coreweave\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-core-workflow-a review a coreweave self-managed inference release, readiness and gpu scheduling. use when deploying a model on cks, checking kserve prerequisites, or diagnosing an inference rollout. trigger with coreweave inference service, coreweave model serving, or coreweave kserve. saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
@@ -27638,8 +27665,9 @@
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Write",
+        "Edit",
         "Bash(kubectl:*)",
-        "Bash(tar:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27648,7 +27676,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-debug-bundle collect coreweave cluster diagnostics for support tickets. use when preparing a support case, collecting gpu node status, or documenting pod failures. trigger with phrases like \"coreweave debug\", \"coreweave support\", \"coreweave diagnostics\", \"collect coreweave logs\". saas-packs read bash(kubectl:*) bash(tar:*) grep "
+      "searchText": "coreweave-debug-bundle collect coreweave cluster diagnostics for support tickets. use when preparing a support case, collecting gpu node status, or documenting pod failures. trigger with phrases like \"coreweave debug\", \"coreweave support\", \"coreweave diagnostics\", \"collect coreweave logs\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
@@ -27661,9 +27689,8 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(helm:*)",
         "Bash(kubectl:*)",
-        "Bash(kustomize:*)"
+        "Grep"
       ],
       "compatibleWith": [],
       "version": "1.12.0",
@@ -27671,7 +27698,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-deploy-integration deploy inference services on coreweave with helm charts and kustomize. use when deploying multi-model inference, managing gpu deployments at scale, or templating coreweave manifests. trigger with phrases like \"deploy coreweave\", \"coreweave helm\", \"coreweave kustomize\", \"coreweave deployment patterns\". saas-packs read write edit bash(helm:*) bash(kubectl:*) bash(kustomize:*) "
+      "searchText": "coreweave-deploy-integration deploy inference services on coreweave with helm charts and kustomize. use when deploying multi-model inference, managing gpu deployments at scale, or templating coreweave manifests. trigger with phrases like \"deploy coreweave\", \"coreweave helm\", \"coreweave kustomize\", \"coreweave deployment patterns\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
@@ -27700,7 +27727,7 @@
       "id": "coreweave-fabric-diagnostics",
       "slug": "coreweave-fabric-diagnostics",
       "name": "coreweave-fabric-diagnostics",
-      "description": "Diagnose the most expensive silent failure on a CoreWeave multi-node GPU job: GPUDirect RDMA falling back from InfiniBand to TCP. When NCCL drops from NET/IB to NET/Socket, collectives keep running with NO error but throughput collapses (commonly 5-20x slower) while every GPU still bills at full rate — 5x the GPU bill for the same work, invisibly. Paste an NCCL_DEBUG=INFO log (and/or a pod-spec, ibstat, or all_reduce_perf output) and the bundled deterministic script verdicts whether RDMA is actually engaged, which of the three required conditions is missing, and the fix. Use when multi-node training is slow, when checking whether RDMA/InfiniBand is engaged, or when all-reduce bandwidth looks low. Trigger with \"coreweave slow training\", \"is RDMA working\", \"NCCL fell back to TCP\", \"NET/Socket\", \"GPUDirect RDMA\", \"infiniband not used\", \"multi-node training slow\".",
+      "description": "Diagnose CoreWeave NCCL transport and RDMA configuration from supplied logs, Pod resources and ibstat output. Use when multi-node training is slow, NET/Socket appears, or checking whether InfiniBand and GPU Direct RDMA are engaged. Trigger with \"coreweave slow training\", \"is RDMA working\", \"NCCL fell back to TCP\", \"GPUDirect RDMA\", or \"infiniband not used\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -27716,39 +27743,14 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-fabric-diagnostics diagnose the most expensive silent failure on a coreweave multi-node gpu job: gpudirect rdma falling back from infiniband to tcp. when nccl drops from net/ib to net/socket, collectives keep running with no error but throughput collapses (commonly 5-20x slower) while every gpu still bills at full rate — 5x the gpu bill for the same work, invisibly. paste an nccl_debug=info log (and/or a pod-spec, ibstat, or all_reduce_perf output) and the bundled deterministic script verdicts whether rdma is actually engaged, which of the three required conditions is missing, and the fix. use when multi-node training is slow, when checking whether rdma/infiniband is engaged, or when all-reduce bandwidth looks low. trigger with \"coreweave slow training\", \"is rdma working\", \"nccl fell back to tcp\", \"net/socket\", \"gpudirect rdma\", \"infiniband not used\", \"multi-node training slow\". saas-packs read write edit glob bash(kubectl get:*) bash(python3:*) "
-    },
-    {
-      "type": "skill",
-      "id": "coreweave-gpu-cost-leak-hunter",
-      "slug": "coreweave-gpu-cost-leak-hunter",
-      "name": "coreweave-gpu-cost-leak-hunter",
-      "description": "Hunt down CoreWeave GPU cost leaks — idle reserved capacity, wrong-GPU-type right-sizing waste, allocated-but-idle instances, and on-demand spend that should be committed — then produce a CFO-grokkable, dollar-ranked FinOps report. CoreWeave ships no cost dashboard and no billing API, so the spend view is built from PromQL against its managed Grafana. Use when a user asks why their CoreWeave GPU bill is high, wants to find wasted GPU spend or idle reservations, or needs a GPU FinOps cost report. Trigger with \"coreweave cost\", \"why is my coreweave bill\", \"wasted GPU spend\", \"idle reserved capacity\", \"GPU cost leak\".",
-      "category": "saas-packs",
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Glob",
-        "Bash(curl:*)",
-        "Bash(jq:*)",
-        "Bash(kubectl get:*)",
-        "Bash(python3:*)"
-      ],
-      "compatibleWith": [],
-      "version": "1.12.0",
-      "parentPlugin": {
-        "name": "coreweave-pack",
-        "category": "saas-packs"
-      },
-      "searchText": "coreweave-gpu-cost-leak-hunter hunt down coreweave gpu cost leaks — idle reserved capacity, wrong-gpu-type right-sizing waste, allocated-but-idle instances, and on-demand spend that should be committed — then produce a cfo-grokkable, dollar-ranked finops report. coreweave ships no cost dashboard and no billing api, so the spend view is built from promql against its managed grafana. use when a user asks why their coreweave gpu bill is high, wants to find wasted gpu spend or idle reservations, or needs a gpu finops cost report. trigger with \"coreweave cost\", \"why is my coreweave bill\", \"wasted gpu spend\", \"idle reserved capacity\", \"gpu cost leak\". saas-packs read write edit glob bash(curl:*) bash(jq:*) bash(kubectl get:*) bash(python3:*) "
+      "searchText": "coreweave-fabric-diagnostics diagnose coreweave nccl transport and rdma configuration from supplied logs, pod resources and ibstat output. use when multi-node training is slow, net/socket appears, or checking whether infiniband and gpu direct rdma are engaged. trigger with \"coreweave slow training\", \"is rdma working\", \"nccl fell back to tcp\", \"gpudirect rdma\", or \"infiniband not used\". saas-packs read write edit glob bash(kubectl get:*) bash(python3:*) "
     },
     {
       "type": "skill",
       "id": "coreweave-gpu-node-forensics",
       "slug": "coreweave-gpu-node-forensics",
       "name": "coreweave-gpu-node-forensics",
-      "description": "Triage a dead or degraded GPU on a CoreWeave node fast — decide reschedule vs GPU-reset vs node-reboot vs RMA from an Xid code or a pasted dmesg / nvidia-smi blob, so a bad card does not silently kill a multi-day training run. Use when a GPU throws an Xid error, a node \"fell off the bus\", a training run stalls or NCCL hangs on one rank, or you need to know whether to replace, reset, or just reschedule. Trigger with \"xid error\", \"gpu fell off the bus\", \"coreweave gpu dead\", \"should I RMA this GPU\", \"gpu node triage\".",
+      "description": "Review NVIDIA Xid and row-remapper evidence for a CoreWeave GPU incident. Use when a GPU throws an Xid, a training rank stalls, a device falls off the bus, or deciding whether to restart a workload or escalate hardware recovery. Trigger with \"xid error\", \"gpu fell off the bus\", \"coreweave gpu dead\", \"should I RMA this GPU\", or \"gpu node triage\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
@@ -27763,7 +27765,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-gpu-node-forensics triage a dead or degraded gpu on a coreweave node fast — decide reschedule vs gpu-reset vs node-reboot vs rma from an xid code or a pasted dmesg / nvidia-smi blob, so a bad card does not silently kill a multi-day training run. use when a gpu throws an xid error, a node \"fell off the bus\", a training run stalls or nccl hangs on one rank, or you need to know whether to replace, reset, or just reschedule. trigger with \"xid error\", \"gpu fell off the bus\", \"coreweave gpu dead\", \"should i rma this gpu\", \"gpu node triage\". saas-packs read bash(python3:*) bash(nvidia-smi -q:*) bash(kubectl get:*) bash(dmesg:*) "
+      "searchText": "coreweave-gpu-node-forensics review nvidia xid and row-remapper evidence for a coreweave gpu incident. use when a gpu throws an xid, a training rank stalls, a device falls off the bus, or deciding whether to restart a workload or escalate hardware recovery. trigger with \"xid error\", \"gpu fell off the bus\", \"coreweave gpu dead\", \"should i rma this gpu\", or \"gpu node triage\". saas-packs read bash(python3:*) bash(nvidia-smi -q:*) bash(kubectl get:*) bash(dmesg:*) "
     },
     {
       "type": "skill",
@@ -27776,7 +27778,8 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(kubectl:*)"
+        "Bash(kubectl:*)",
+        "Grep"
       ],
       "compatibleWith": [],
       "version": "1.12.0",
@@ -27784,7 +27787,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-hello-world deploy a gpu workload on coreweave with kubectl. use when running your first gpu job, testing inference, or verifying coreweave cluster access. trigger with phrases like \"coreweave hello world\", \"coreweave first deploy\", \"coreweave gpu test\", \"run on coreweave\". saas-packs read write edit bash(kubectl:*) "
+      "searchText": "coreweave-hello-world deploy a gpu workload on coreweave with kubectl. use when running your first gpu job, testing inference, or verifying coreweave cluster access. trigger with phrases like \"coreweave hello world\", \"coreweave first deploy\", \"coreweave gpu test\", \"run on coreweave\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
@@ -27795,6 +27798,8 @@
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Write",
+        "Edit",
         "Bash(kubectl:*)",
         "Grep"
       ],
@@ -27804,7 +27809,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-incident-runbook incident response runbook for coreweave gpu workload failures. use when inference services are down, gpus are unavailable, or responding to production incidents on coreweave. trigger with phrases like \"coreweave incident\", \"coreweave outage\", \"coreweave runbook\", \"coreweave service down\". saas-packs read bash(kubectl:*) grep "
+      "searchText": "coreweave-incident-runbook incident response runbook for coreweave gpu workload failures. use when inference services are down, gpus are unavailable, or responding to production incidents on coreweave. trigger with phrases like \"coreweave incident\", \"coreweave outage\", \"coreweave runbook\", \"coreweave service down\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
@@ -27840,7 +27845,6 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
-        "Bash(docker:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27849,7 +27853,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-local-dev-loop set up local development workflow for coreweave gpu deployments. use when building containers locally, testing yaml manifests, or iterating on model serving configurations before deploying. trigger with phrases like \"coreweave dev setup\", \"coreweave local testing\", \"develop for coreweave\", \"coreweave container build\". saas-packs read write edit bash(kubectl:*) bash(docker:*) grep "
+      "searchText": "coreweave-local-dev-loop set up local development workflow for coreweave gpu deployments. use when building containers locally, testing yaml manifests, or iterating on model serving configurations before deploying. trigger with phrases like \"coreweave dev setup\", \"coreweave local testing\", \"develop for coreweave\", \"coreweave container build\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
@@ -27863,7 +27867,6 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
-        "Bash(kustomize:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27872,7 +27875,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-multi-env-setup configure coreweave across development, staging, and production environments. use when setting up multi-environment gpu infrastructure, separating namespaces, or managing per-environment gpu quotas. trigger with phrases like \"coreweave environments\", \"coreweave staging\", \"coreweave multi-env\", \"coreweave namespace setup\". saas-packs read write edit bash(kubectl:*) bash(kustomize:*) grep "
+      "searchText": "coreweave-multi-env-setup configure coreweave across development, staging, and production environments. use when setting up multi-environment gpu infrastructure, separating namespaces, or managing per-environment gpu quotas. trigger with phrases like \"coreweave environments\", \"coreweave staging\", \"coreweave multi-env\", \"coreweave namespace setup\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
@@ -27907,7 +27910,8 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(kubectl:*)"
+        "Bash(kubectl:*)",
+        "Grep"
       ],
       "compatibleWith": [],
       "version": "1.12.0",
@@ -27915,7 +27919,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-performance-tuning optimize coreweave gpu inference latency and throughput. use when reducing inference latency, maximizing gpu utilization, or tuning batch sizes and concurrency. trigger with phrases like \"coreweave performance\", \"coreweave latency\", \"coreweave throughput\", \"optimize coreweave inference\". saas-packs read write edit bash(kubectl:*) "
+      "searchText": "coreweave-performance-tuning optimize coreweave gpu inference latency and throughput. use when reducing inference latency, maximizing gpu utilization, or tuning batch sizes and concurrency. trigger with phrases like \"coreweave performance\", \"coreweave latency\", \"coreweave throughput\", \"optimize coreweave inference\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
@@ -27926,6 +27930,8 @@
       "category": "saas-packs",
       "allowedTools": [
         "Read",
+        "Write",
+        "Edit",
         "Bash(kubectl:*)",
         "Grep"
       ],
@@ -27935,19 +27941,21 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-prod-checklist production readiness checklist for coreweave gpu workloads. use when launching inference services, preparing gpu training for production, or validating deployment configurations. trigger with phrases like \"coreweave production\", \"coreweave go-live\", \"coreweave checklist\", \"coreweave launch\". saas-packs read bash(kubectl:*) grep "
+      "searchText": "coreweave-prod-checklist production readiness checklist for coreweave gpu workloads. use when launching inference services, preparing gpu training for production, or validating deployment configurations. trigger with phrases like \"coreweave production\", \"coreweave go-live\", \"coreweave checklist\", \"coreweave launch\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",
       "id": "coreweave-sdk-patterns",
       "slug": "coreweave-sdk-patterns",
       "name": "coreweave-sdk-patterns",
-      "description": "Production-ready patterns for CoreWeave GPU workload management with kubectl and Python. Use when building inference clients, managing GPU deployments programmatically, or creating reusable CoreWeave deployment templates. Trigger with phrases like \"coreweave patterns\", \"coreweave client\", \"coreweave Python\", \"coreweave deployment template\".",
+      "description": "Bounded integration patterns for CoreWeave GPU workload management with kubectl and Python. Use when building inference clients, managing GPU deployments programmatically, or creating reusable CoreWeave deployment templates. Trigger with phrases like \"coreweave patterns\", \"coreweave client\", \"coreweave Python\", \"coreweave deployment template\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
         "Write",
-        "Edit"
+        "Edit",
+        "Bash(kubectl:*)",
+        "Grep"
       ],
       "compatibleWith": [],
       "version": "1.12.0",
@@ -27955,7 +27963,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-sdk-patterns production-ready patterns for coreweave gpu workload management with kubectl and python. use when building inference clients, managing gpu deployments programmatically, or creating reusable coreweave deployment templates. trigger with phrases like \"coreweave patterns\", \"coreweave client\", \"coreweave python\", \"coreweave deployment template\". saas-packs read write edit "
+      "searchText": "coreweave-sdk-patterns bounded integration patterns for coreweave gpu workload management with kubectl and python. use when building inference clients, managing gpu deployments programmatically, or creating reusable coreweave deployment templates. trigger with phrases like \"coreweave patterns\", \"coreweave client\", \"coreweave python\", \"coreweave deployment template\". saas-packs read write edit bash(kubectl:*) grep "
     },
     {
       "type": "skill",

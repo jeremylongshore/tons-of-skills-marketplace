@@ -11,7 +11,7 @@ description: 'Optimize CoreWeave GPU inference latency and throughput.
   "coreweave throughput", "optimize coreweave inference".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*)
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -23,120 +23,71 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Performance Tuning
+# CoreWeave Measured performance experiments
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Tune GPU inference or training only against measured throughput, latency, quality,
-availability, and cost targets. A higher utilization figure is not a success if it
-causes queueing, memory pressure, or a customer-facing SLO regression.
+Locate scheduling, image, model-load, queueing or execution bottlenecks before tuning.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- A baseline for p95/p99 latency, throughput, error rate, GPU memory, and utilization.
-- A representative non-sensitive evaluation set and a named owner for the SLO.
-- A staging lane and a rollback manifest for every resource or serving change.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-1. Change one variable at a time—batching, GPU class, replicas, or memory target.
-2. Run the agreed load and quality evaluation in staging, then compare with baseline.
-3. Promote a canary only when all SLO and quality thresholds pass for the observation window.
-4. Revert to the prior manifest when latency, errors, or quality crosses the agreed limit.
+1. Record the workload, image/model version, precision, GPU/Node count, input/output lengths, concurrency, topology and warm/cold cache state. Without comparable conditions a throughput comparison is inconclusive.
 
-## GPU Selection by Workload
+2. Split latency into scheduling, image pull, model load, queue delay, prefill and decode where the runtime exposes those measurements. Track failures and quality alongside latency and completed work.
 
-| Workload | Recommended GPU | Why |
-|----------|----------------|-----|
-| LLM inference (7-13B) | A100 80GB | Good balance of memory and cost |
-| LLM inference (70B+) | 8xH100 | NVLink for tensor parallelism |
-| Image generation | L40 | Good for diffusion models |
-| Training (large models) | 8xH100 SXM5 | Fastest interconnect |
-| Batch processing | A100 40GB | Cost-effective |
+3. Run one owner-approved staging change at a time, using the pinned runtime version documentation for flags. Verify an autoscaler metric adapter exists before proposing DCGM-based HPA configuration.
 
-## Inference Optimization
+4. Compare the same evaluation set and load distribution against the baseline, including tail latency and cost per successful unit. Do not publish fabricated tokens/second, cold-start figures or fixed GPU rankings.
 
-```yaml
-# Continuous batching with vLLM
-containers:
-  - name: vllm
-    args:
-      - "--model=meta-llama/Llama-3.1-8B-Instruct"
-      - "--max-num-batched-tokens=8192"
-      - "--max-num-seqs=256"
-      - "--gpu-memory-utilization=0.90"
-      - "--enable-prefix-caching"
-      - "--dtype=float16"
-```
-
-## Autoscaling Tuning
-
-```yaml
-# HPA based on GPU utilization
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: inference-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: inference-server
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-    - type: Pods
-      pods:
-        metric:
-          name: DCGM_FI_DEV_GPU_UTIL
-        target:
-          type: AverageValue
-          averageValue: "70"
-```
-
-## Performance Benchmarks
-
-| Metric | A100-80GB | H100-80GB |
-|--------|-----------|-----------|
-| Llama-8B tokens/sec | ~2,000 | ~4,500 |
-| Llama-70B tokens/sec | ~200 (4x) | ~500 (4x) |
-| Cold start (vLLM) | 30-60s | 20-40s |
-
-## Output
-
-- A measured performance baseline and a single reviewed tuning recommendation.
-- A canary result covering throughput, latency, error rate, GPU memory, and quality.
-- A versioned rollback manifest with a named decision owner.
-
-## Error Handling
-
-| Condition | Safe response |
-|---|---|
-| GPU memory exceeds the guardrail | Restore the previous batch or memory setting and investigate the request distribution. |
-| Latency rises after batching | Reduce concurrency or restore replica count; do not raise timeouts to hide the regression. |
-| Evaluation quality drops | Route the canary back to the baseline configuration and preserve aggregate results. |
-| Autoscaler oscillates | Restore stable bounds and tune from a longer measured window. |
+5. Promote only after the agreed quality and latency guardrails pass. Restore the prior version on regression, and preserve aggregate measurements without prompts or model outputs.
 
 ## Examples
 
-Run a staging canary and save only aggregate measurements for review:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference-staging apply -f inference-tuned.yaml
-kubectl -n inference-staging rollout status deployment/inference-server --timeout=10m
-./scripts/load-test --target staging --duration 15m --report aggregate.json
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "deployment/$CW_DEPLOYMENT" -o wide
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get hpa
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get events --sort-by=.metadata.creationTimestamp
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout history "deployment/$CW_DEPLOYMENT"
 ```
 
-If the report breaches the signed SLO or quality threshold, apply the previous
-manifest immediately and attach `aggregate.json` to the change record.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave Inference](https://www.coreweave.com/solutions/ai-inference)
-- [vLLM Documentation](https://docs.vllm.ai)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/inference/scaling)
+- [Primary reference 2](https://docs.coreweave.com/observability/usage-monitoring)
+- [Primary reference 3](https://docs.vllm.ai/en/latest/)
 
-## Next Steps
+## Evidence status
 
-For cost optimization, see `coreweave-cost-tuning`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
