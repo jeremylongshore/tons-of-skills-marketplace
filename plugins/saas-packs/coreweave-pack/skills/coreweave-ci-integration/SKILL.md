@@ -43,6 +43,14 @@ The example assumes an npm project with `package-lock.json`, `npm test`, and a r
 - A runner with kubectl compatible with the cluster; install it through the project’s pinned toolchain before the deploy step.
 - A known-good prior manifest/revision, capacity budget and a non-sensitive workload acceptance check.
 
+## Cost and safety gate
+
+Before any billable action, follow the [mandatory cost gate](references/cost-gate.md).
+Use the local `scripts/review-cost-plan.py` helper to inspect the exact plan;
+then obtain explicit user confirmation through the trusted approval channel.
+No plan, missing price, changed digest or expired approval means no execution.
+Default to offline inspection; server dry-run and Terraform plan are account calls.
+
 ## Instructions
 
 1. Run local unit/manifest checks before push. Run PR tests on an isolated hosted runner with no CKS credential.

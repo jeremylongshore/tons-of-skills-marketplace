@@ -11,7 +11,7 @@ description: 'Configure CoreWeave across development, staging, and production en
   "coreweave multi-env", "coreweave namespace setup".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -39,6 +39,14 @@ These procedures complement [CoreWeave’s official skills](https://github.com/c
 - A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
 - Installed kubectl compatible with the cluster, and authority for each proposed read or change.
 - An agreed success criterion, resource budget, evidence destination and recovery owner.
+
+## Cost and safety gate
+
+Before any billable action, follow the [mandatory cost gate](references/cost-gate.md).
+Use the local `scripts/review-cost-plan.py` helper to inspect the exact plan;
+then obtain explicit user confirmation through the trusted approval channel.
+No plan, missing price, changed digest or expired approval means no execution.
+Default to offline inspection; server dry-run and Terraform plan are account calls.
 
 ## Instructions
 
