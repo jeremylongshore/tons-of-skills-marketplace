@@ -11,7 +11,7 @@ description: 'Unofficial CI integration for CoreWeave deployments using GitHub A
   "coreweave pipeline", "automate coreweave deploy".
 
   '
-allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(kubectl:*)
+allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(kubectl:*), Bash(python3:*)
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -61,10 +61,12 @@ Default to offline inspection; server dry-run and Terraform plan are account cal
 
 ## Examples
 
+Save the trusted deployment workflow separately from the PR workflow. Its environment
+review must bind the source SHA and manifest digest to the exact cost plan.
+
 ```yaml
 name: Unofficial CI integration for CoreWeave
 on:
-  pull_request:
   push:
     branches: [main]
 permissions:
@@ -111,6 +113,28 @@ jobs:
           kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply --dry-run=server -f k8s/staging.yaml
           kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply -f k8s/staging.yaml
           kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout status "deployment/$CW_DEPLOYMENT" --timeout=10m
+```
+
+Use a second file for credential-free PR checks:
+
+```yaml
+name: CoreWeave PR checks
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm test
 ```
 
 The environment must actually require approval; configure that in repository settings.

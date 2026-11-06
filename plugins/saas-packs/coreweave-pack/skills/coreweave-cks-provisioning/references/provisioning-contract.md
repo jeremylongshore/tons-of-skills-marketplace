@@ -28,3 +28,7 @@ are insufficient. Node pools can cause replacement/prefill capacity beyond the
 steady-state target; this template disables prefill and autoscaling until separately
 budgeted. `prevent_destroy` is deliberate. Retained volumes, capacity agreements
 and state backups need their own cost/retention decisions.
+
+The offline plan adapter resolves computed `vpc_id` only through a direct root-module
+reference to exactly one reviewed VPC in the same plan. Module, indexed, conditional
+and external references require separate operator review; unresolved settings remain blocked.

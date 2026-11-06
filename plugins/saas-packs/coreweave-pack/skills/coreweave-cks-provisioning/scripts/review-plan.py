@@ -12,6 +12,28 @@ def unknown(value):
     return value is True
 
 
+def planned_vpc_reference(plan, change):
+    """Resolve only a direct root-module VPC ID reference, never arbitrary unknowns."""
+    if change["change"].get("after_unknown", {}).get("vpc_id") is not True:
+        return False
+    resources = plan.get("configuration", {}).get("root_module", {}).get("resources", [])
+    configs = [item for item in resources if item.get("address") == change["address"]]
+    if len(configs) != 1:
+        return False
+    refs = configs[0].get("expressions", {}).get("vpc_id", {}).get("references", [])
+    candidates = [
+        item
+        for item in plan.get("resource_changes", [])
+        if item.get("type") == "coreweave_networking_vpc"
+        and item.get("mode", "managed") == "managed"
+        and item["change"].get("actions") in (["create"], ["no-op"])
+        and refs
+        and set(refs) <= {item["address"], item["address"] + ".id"}
+        and item["address"] + ".id" in refs
+    ]
+    return len(candidates) == 1
+
+
 def analyze(d, r):
     plan = d["plan"]
     changes = plan.get("resource_changes", [])
@@ -39,6 +61,9 @@ def analyze(d, r):
             if k
             not in ("id", "api_server_endpoint", "service_account_oidc_issuer_url", "kube_api_access_status", "object")
         }
+        linked_vpc = kind == "coreweave_cks_cluster" and planned_vpc_reference(plan, change)
+        if linked_vpc:
+            pending.pop("vpc_id", None)
         r.require(
             not unknown(pending), "unknown-configuration", "Unresolved desired settings prevent a concrete approval."
         )
@@ -50,6 +75,11 @@ def analyze(d, r):
                 "Exact resource name and zone are required.",
             )
         if kind == "coreweave_cks_cluster":
+            r.require(
+                bool(after.get("vpc_id")) or linked_vpc,
+                "cluster-vpc",
+                "Require an explicit VPC ID or a direct ID reference to one reviewed root-module VPC.",
+            )
             r.require(
                 all(after.get(k) for k in ("version", "pod_cidr_name", "service_cidr_name", "internal_lb_cidr_names")),
                 "cluster-configuration",

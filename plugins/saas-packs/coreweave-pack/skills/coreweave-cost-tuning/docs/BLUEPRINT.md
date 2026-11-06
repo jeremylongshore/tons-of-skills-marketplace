@@ -75,3 +75,9 @@ REL-CW-S14-1 requires a source revision, artifact digest, resolved dependencies/
 Candidate reference: https://docs.coreweave.com/platform/capacity-plans
 
 Pin the applicable endpoint/resource/version contract and access date during implementation. The source register must distinguish supplied claims, verified facts, derived decisions, assumptions, unknowns and justified not-applicable records. Do not copy proprietary CoreWeave skill text, code or Terraform.
+
+## Implementation evidence snapshot — 2026-11-05
+
+This guide has static schema, link, packaging and disclaimer checks; no dedicated behavioral evaluation has run. See the [pack evidence record](../../../QUALITY.md) and [retained receipt](../../../offline-results.json) for exact coverage and source hashes.
+
+Implementation is present for review. The proposed acceptance criteria above remain open wherever they require model behavior, runtime permission enforcement or a live account. Static grades and offline fixtures do not close those requirements.

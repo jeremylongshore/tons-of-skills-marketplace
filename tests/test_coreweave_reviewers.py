@@ -62,3 +62,33 @@ def test_malformed_evidence_is_not_a_success(slug, filename, tmp_path):
         text=True,
     )
     assert p.returncode == 2 and "secret-canary" not in p.stdout + p.stderr
+
+
+@pytest.mark.parametrize("workflow_index", [0, 1])
+def test_documented_ci_workflows_match_review_contract(workflow_index, tmp_path):
+    import re
+    import yaml
+
+    skill = SKILLS / "coreweave-ci-integration"
+    source = (skill / "SKILL.md").read_text()
+    workflow = yaml.load(re.findall(r"```yaml\n(.*?)```", source, re.S)[workflow_index], Loader=yaml.BaseLoader)
+    evidence = json.loads((skill / "tests/fixtures/example.json").read_text())
+    evidence["workflow"] = workflow
+    evidence["protected_environments"] = ["coreweave-staging"]
+    data = tmp_path / "documented-workflow.json"
+    data.write_text(json.dumps(evidence))
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(skill / "scripts/review-workflow.py"),
+            "--input",
+            str(data),
+            "--as-of",
+            "2026-11-05T12:01:00Z",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(result.stdout)["status"] == "reviewed"

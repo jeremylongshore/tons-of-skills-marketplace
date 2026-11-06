@@ -23,7 +23,8 @@
             "service_cidr_name": "services",
             "internal_lb_cidr_names": [
               "internal"
-            ]
+            ],
+            "vpc_id": "fixture-vpc-id"
           },
           "after_unknown": {
             "id": true
