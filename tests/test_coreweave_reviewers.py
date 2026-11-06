@@ -141,3 +141,36 @@ def test_inference_rejects_nonhex_artifact_digest(tmp_path):
     )
     assert result.returncode == 2
     assert "model-provenance" in {finding["code"] for finding in json.loads(result.stdout)["findings"]}
+
+
+@pytest.mark.parametrize(
+    "crds",
+    [
+        "inferenceservices.serving.kserve.io",
+        "prefix-inferenceservices.serving.kserve.io-suffix",
+        ["inferenceservices.serving.kserve.io.attacker.invalid"],
+        {"inferenceservices.serving.kserve.io": True},
+        None,
+    ],
+)
+def test_inference_requires_exact_crd_name_in_list(crds, tmp_path):
+    skill = SKILLS / "coreweave-core-workflow-a"
+    evidence = json.loads((skill / "tests/fixtures/example.json").read_text())
+    evidence["crds"] = crds
+    data = tmp_path / "crds.json"
+    data.write_text(json.dumps(evidence))
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(skill / "scripts/review-inference.py"),
+            "--input",
+            str(data),
+            "--as-of",
+            "2026-11-05T12:01:00Z",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 2
+    assert "kserve-crd" in {finding["code"] for finding in json.loads(result.stdout)["findings"]}

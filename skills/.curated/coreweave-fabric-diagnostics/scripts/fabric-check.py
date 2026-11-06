@@ -166,7 +166,11 @@ def main() -> int:
         return self_test()
     if args.infile == "-" and sys.stdin.isatty():
         parser.error("provide --in diagnostics.txt or pipe diagnostics on stdin")
-    raw = sys.stdin.read() if args.infile == "-" else open(args.infile, encoding="utf-8").read()
+    if args.infile == "-":
+        raw = sys.stdin.read()
+    else:
+        with open(args.infile, encoding="utf-8") as source:
+            raw = source.read()
     if not raw.strip():
         parser.error("empty diagnostic input")
     result = diagnose(raw)

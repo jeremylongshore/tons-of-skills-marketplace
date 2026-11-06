@@ -4,7 +4,7 @@
   "scope": "Static schemas, packaged references, deterministic fixture contracts and mock-provider Terraform plans; no live account or model calls",
   "tests": {
     "python": "3.12.3",
-    "tests": 180,
+    "tests": 185,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -436,9 +436,9 @@
     "gitleaks": "PASS",
     "errors": [],
     "status": "PASS (static and offline contracts only)",
-    "advisory_messages_document": "docs/QUALITY-ADVISORIES.md",
     "hook_surface_review": "ABSENT: offline helpers need no automatic command interception",
-    "mcp_surface_review": "ABSENT: account access is not required; official MCP is documented, not auto-connected"
+    "mcp_surface_review": "ABSENT: account access is not required; official MCP is documented, not auto-connected",
+    "advisory_messages_document": "docs/QUALITY-ADVISORIES.md"
   },
   "package": {
     "files": 193,
@@ -612,7 +612,7 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/scripts/review-inference.py",
-      "sha256": "cb3fd1d0951162da66bd90c7d27e82e26a651ba6eea4d1eeec4487a0413c14e5"
+      "sha256": "48602366f9d325b83e78a6539657de80d8ce75fab0939ae0650d6e4cab8e91a7"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/scripts/review_common.py",
@@ -708,7 +708,7 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/scripts/fabric-check.py",
-      "sha256": "d9045a4d531d12f0ca5e1c78082d02f087b0af3c833c396b6bdb094e15e233bc"
+      "sha256": "c73635f42b93f0745693f93e857741378247c65d1082c8350078591040bb91ac"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/SKILL.md",
@@ -860,7 +860,7 @@
     },
     {
       "path": "tests/test_coreweave_reviewers.py",
-      "sha256": "cd51b24707af28c7180b3f1232c20a5872de6c45f100d449593f65287e4aaf7c"
+      "sha256": "012416d8f5d818103ba1a9be68d59aa56cf38ea8a4f64822b2de5d834d0df4de"
     }
   ],
   "limits": [
@@ -872,7 +872,7 @@
     "The 15 remaining guides have static validation but no dedicated eval spec.",
     "Approval JSON/digests cannot authenticate the human approver; trusted-channel confirmation remains mandatory."
   ],
-  "implementation_base_commit": "90ce3387f83ff979f18ea72643f524359a48fa15",
+  "implementation_base_commit": "1e436adf5be6c5c71e203af65ab670fea361e108",
   "source_binding": "Per-file source_sha256 entries bind tested working-tree changes atop the base commit; not a claim that every file equals the base revision.",
   "advisory_messages_sha256": "1abeda98d2215f8e5c6790941f98ef7d27eee8677b9ffa3b01e35f7253071bfd"
 }

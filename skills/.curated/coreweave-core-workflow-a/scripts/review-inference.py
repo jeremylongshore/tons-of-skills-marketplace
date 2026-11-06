@@ -15,8 +15,9 @@ def analyze(d, r):
         "manifest-scope",
         "Manifest namespace differs from the intended namespace.",
     )
+    crds = d.get("crds", [])
     r.require(
-        "inferenceservices.serving.kserve.io" in d.get("crds", []),
+        isinstance(crds, list) and any(name == "inferenceservices.serving.kserve.io" for name in crds),
         "kserve-crd",
         "KServe CRD must be present in supplied discovery evidence.",
     )
