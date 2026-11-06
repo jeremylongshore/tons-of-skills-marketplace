@@ -7,7 +7,7 @@ description: |
   Trigger with "coreweave slow training", "is RDMA working", "NCCL fell back to TCP",
   "GPUDirect RDMA", or "infiniband not used".
 allowed-tools: Read, Write, Edit, Glob, Bash(kubectl get:*), Bash(python3:*)
-version: 1.13.0
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

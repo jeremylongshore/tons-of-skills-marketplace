@@ -2,17 +2,17 @@
 
 Community-contributed; not affiliated with, endorsed by, or sponsored by CoreWeave, Inc.
 
-**Review date:** 2026-11-05. **Scope:** 26 skills, their individual blueprints, three restricted reviewer agents, shared cost gates, eight new offline evidence reviewers and three existing diagnostic helpers.
+**Review date:** 2026-11-06. **Scope:** 26 skills, their individual blueprints, three restricted reviewer agents, shared cost gates, eight new offline evidence reviewers and three existing diagnostic helpers.
 
 ## Observed results
 
 | Check | Observed result | What it establishes |
 | --- | --- | --- |
-| Focused Python regressions | 185 passed on Python 3.12.3; zero failures, errors or skips | Cost gates, evidence contracts, diagnostic behavior, documented CI examples and validator link boundaries |
+| Focused Python regressions | 192 passed on Python 3.12.3; zero failures, errors or skips | Cost gates, evidence contracts, diagnostic behavior, documented CI examples and validator link boundaries |
 | CI regressions | 41 passed | Existing routing, PR title and injection checks remain intact |
 | Pack gate | 26 skills and three agents pass canonical static validation | All skill rubric grades A; advisory warnings retained in the receipt |
 | Eval packages | All 11 pass J-Rig package checks | Specification integrity; model judgments NOT run |
-| Fixture replay | 71 contract fixtures across eight reviewers, plus three diagnostic self-tests pass | Deterministic offline helper behavior; supplied snapshots are not account attestations |
+| Fixture replay | 77 contract fixtures across eight reviewers, plus three diagnostic self-tests pass | Deterministic offline helper behavior; supplied snapshots are not account attestations |
 | Terraform | Two mock-provider plan tests pass with Terraform 1.14.3 | Original private cluster/VPC and bounded node-pool templates parse and satisfy mock assertions |
 | Artifact inspection | 26 guides, 26 blueprints, 11 eval specs, three agents and two provider lockfiles included | Required shipped files present; no Python bytecode included |
 | Hygiene | Gitleaks 8.24.3, Markdown lint, strict Unicode, Ruff, actionlint and shellcheck pass | Tested static surfaces and scoped secret scan; not a security certification |

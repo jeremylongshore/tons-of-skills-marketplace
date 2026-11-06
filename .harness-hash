@@ -46,7 +46,7 @@ f7b81d302dacd600eabfc35666b0c283b3b23b36262a8321c620c503ae56e964  .github/workfl
 b91ee2d8ee323ac9591cdad232d31dbf639d7d4b2d32cc105dfa4bb05ab83ec8  plugins/productivity/intent-labs-pack/skills/validate-skillmd/eval-spec.yaml
 c609ff0fea3e5ca48cd9f70d094f5d665cc61ff7150bc75401b6586634dd80f1  plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/eval-spec.yaml
 bbe42d47b933ebd25f5a0b7f9afa828036d0f33ebcdfc1194682447fa4f0252b  plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/eval-spec.yaml
-9f622fbe5cc7fe28cfbf67fe54c3e2627ae33b728137b7ea1b6bccef30d428a0  plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/eval-spec.yaml
+d548e472f27c6f6def7cba8a8bd40b77d4a86c11400caef261b2b555e3e10865  plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/eval-spec.yaml
 baccdc097f18bbb85bdcc3142f26c02002b63de4a27dc277a00a74890113d9c1  plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/eval-spec.yaml
 899736c37a0288e24d183caf8792f219c2acb27e46f61b528bc9c7337b2c70cc  plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/eval-spec.yaml
 a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4  plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/eval-spec.yaml
@@ -95,7 +95,7 @@ bddc2fb7321bf9e17392dc6d07790b0ae2414616c6e2e025df9e47d4493cbce5  skills/.curate
 903555ec7e0e7d80db9f18076b50b8b9184a2f0a2b438859d15c9f8757428220  skills/.curated/audit-tests/eval-spec.yaml
 c609ff0fea3e5ca48cd9f70d094f5d665cc61ff7150bc75401b6586634dd80f1  skills/.curated/coreweave-caios-stage-model/eval-spec.yaml
 bbe42d47b933ebd25f5a0b7f9afa828036d0f33ebcdfc1194682447fa4f0252b  skills/.curated/coreweave-ci-integration/eval-spec.yaml
-9f622fbe5cc7fe28cfbf67fe54c3e2627ae33b728137b7ea1b6bccef30d428a0  skills/.curated/coreweave-cks-provisioning/eval-spec.yaml
+d548e472f27c6f6def7cba8a8bd40b77d4a86c11400caef261b2b555e3e10865  skills/.curated/coreweave-cks-provisioning/eval-spec.yaml
 baccdc097f18bbb85bdcc3142f26c02002b63de4a27dc277a00a74890113d9c1  skills/.curated/coreweave-core-workflow-a/eval-spec.yaml
 899736c37a0288e24d183caf8792f219c2acb27e46f61b528bc9c7337b2c70cc  skills/.curated/coreweave-core-workflow-b/eval-spec.yaml
 a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4  skills/.curated/coreweave-enterprise-rbac/eval-spec.yaml

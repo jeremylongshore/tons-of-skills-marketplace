@@ -12,7 +12,7 @@ description: 'Unofficial CI integration for CoreWeave deployments using GitHub A
 
   '
 allowed-tools: Read, Write, Edit, Bash(gh:*), Bash(kubectl:*), Bash(python3:*)
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

@@ -5,7 +5,7 @@ description: Plan CAIOS model transfers and verify exact object sizes, checksums
   model or checking supplied operational evidence. Trigger with "coreweave caios stage
   model".
 allowed-tools: Read, Write, Edit, Bash(python3:*), Grep
-version: 1.13.0
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Portable local Python 3.12+ fixture workflow; optional platform commands

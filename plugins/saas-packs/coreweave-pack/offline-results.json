@@ -1,10 +1,10 @@
 {
   "schema": "coreweave-offline-review/v2",
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "scope": "Static schemas, packaged references, deterministic fixture contracts and mock-provider Terraform plans; no live account or model calls",
   "tests": {
     "python": "3.12.3",
-    "tests": 185,
+    "tests": 192,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -360,9 +360,9 @@
       },
       {
         "skill": "coreweave-cks-provisioning",
-        "spec_sha256": "9f622fbe5cc7fe28cfbf67fe54c3e2627ae33b728137b7ea1b6bccef30d428a0",
+        "spec_sha256": "d548e472f27c6f6def7cba8a8bd40b77d4a86c11400caef261b2b555e3e10865",
         "package_integrity": "PASS",
-        "offline_contract_cases": 13,
+        "offline_contract_cases": 19,
         "model_judged_criteria": "NOT RUN",
         "coverage": "deterministic helper contract only; trigger/model judgments not established"
       },
@@ -571,8 +571,16 @@
       "sha256": "08b6300d2b378abf069cf7e5c6fbd414c72dc60f6419d563cc379d6cf276f9ce"
     },
     {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/docs/BLUEPRINT.md",
+      "sha256": "9047340b0417adc11223afdb81a6fe84e56bce940fa756661acde21b18205e9a"
+    },
+    {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/eval-spec.yaml",
-      "sha256": "9f622fbe5cc7fe28cfbf67fe54c3e2627ae33b728137b7ea1b6bccef30d428a0"
+      "sha256": "d548e472f27c6f6def7cba8a8bd40b77d4a86c11400caef261b2b555e3e10865"
+    },
+    {
+      "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/references/provisioning-contract.md",
+      "sha256": "fe7b0ec43891b7fad87c7aa07778cbba692521bd4e45a3ed67d45f9d33c001dc"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/scripts/review-cost-plan.py",
@@ -580,7 +588,7 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/scripts/review-plan.py",
-      "sha256": "022f2036e07366dc11081bbc9a33d9ebd7e15ec605c59a7a67161c467d3b839e"
+      "sha256": "15edffd7c46ac78aa1e1e449a021a6e09a6085479940875c5efa6ecd3f1f574c"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/scripts/review_common.py",
@@ -588,11 +596,11 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/tests/fixtures/cases.json",
-      "sha256": "465028b65b3fedf160d5041983b6a37863fcae7193ce10424c189b4d7cea3d3f"
+      "sha256": "6c8e7a4e6595711021fba694e43a5f23eb4906678c63435aad1cfb5720c4be69"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/tests/fixtures/example.json",
-      "sha256": "b065c446feed2e60373379362e779d74bf36d1f64c1c4d1a947bfd4e8cc5135e"
+      "sha256": "56727d40b56fc645efd02adba2a495c0da00e905e3afe241fc23655706072267"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-common-errors/SKILL.md",
@@ -860,7 +868,7 @@
     },
     {
       "path": "tests/test_coreweave_reviewers.py",
-      "sha256": "012416d8f5d818103ba1a9be68d59aa56cf38ea8a4f64822b2de5d834d0df4de"
+      "sha256": "b39e41941057020d96c7a7f1cd95752164ed49be309331561b3993bb151ae484"
     }
   ],
   "limits": [
@@ -872,7 +880,7 @@
     "The 15 remaining guides have static validation but no dedicated eval spec.",
     "Approval JSON/digests cannot authenticate the human approver; trusted-channel confirmation remains mandatory."
   ],
-  "implementation_base_commit": "1e436adf5be6c5c71e203af65ab670fea361e108",
+  "implementation_base_commit": "070b3b141e2b6fa08e8fa6a22feef2a2afd43a7f",
   "source_binding": "Per-file source_sha256 entries bind tested working-tree changes atop the base commit; not a claim that every file equals the base revision.",
   "advisory_messages_sha256": "1abeda98d2215f8e5c6790941f98ef7d27eee8677b9ffa3b01e35f7253071bfd"
 }

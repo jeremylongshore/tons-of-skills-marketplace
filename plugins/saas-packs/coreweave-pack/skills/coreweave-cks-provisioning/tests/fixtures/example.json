@@ -29,10 +29,14 @@
           "after_unknown": {
             "id": true
           }
-        }
+        },
+        "provider_name": "registry.terraform.io/coreweave/coreweave"
       }
     ]
   },
   "owned_state": true,
-  "cost_gate_reviewed": true
+  "cost_gate_reviewed": true,
+  "provider_selections": {
+    "registry.terraform.io/coreweave/coreweave": "0.26.0"
+  }
 }

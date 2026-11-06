@@ -2,7 +2,7 @@
 name: coreweave-core-workflow-a
 description: 'Review a CoreWeave self-managed inference release, readiness and GPU scheduling. Use when deploying a model on CKS, checking KServe prerequisites, or diagnosing an inference rollout. Trigger with coreweave inference service, coreweave model serving, or coreweave kserve.'
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

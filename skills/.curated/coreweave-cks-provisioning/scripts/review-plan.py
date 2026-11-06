@@ -4,6 +4,13 @@
 from review_common import run
 
 
+REVIEWED_PROVIDERS = {
+    "coreweave_networking_vpc": ("registry.terraform.io/coreweave/coreweave", "0.26.0"),
+    "coreweave_cks_cluster": ("registry.terraform.io/coreweave/coreweave", "0.26.0"),
+    "kubernetes_manifest": ("registry.terraform.io/hashicorp/kubernetes", "2.38.0"),
+}
+
+
 def unknown(value):
     if isinstance(value, dict):
         return any(unknown(v) for v in value.values())
@@ -42,6 +49,14 @@ def analyze(d, r):
     )
     r.require(bool(changes), "empty-plan", "No resource changes supplied.", unknown=True)
     allowed = {"coreweave_networking_vpc", "coreweave_cks_cluster", "kubernetes_manifest"}
+    selections = d.get("provider_selections")
+    r.require(
+        isinstance(selections, dict) and bool(selections),
+        "provider-evidence",
+        "Supply provider selections from the same reviewed Terraform working directory.",
+    )
+    if not isinstance(selections, dict):
+        selections = {}
     inventory = []
     for change in changes:
         c = change["change"]
@@ -49,6 +64,18 @@ def analyze(d, r):
         kind = change["type"]
         inventory.append({"address": change["address"], "type": kind, "actions": actions})
         r.require(kind in allowed, "resource-type", "Unexpected resource type requires explicit design review.")
+        if kind in REVIEWED_PROVIDERS:
+            source, version = REVIEWED_PROVIDERS[kind]
+            r.require(
+                change.get("provider_name") == source,
+                "provider-source",
+                "Plan resource provider must match the reviewed provider source.",
+            )
+            r.require(
+                selections.get(source) == version,
+                "provider-version",
+                "Provider version must match the packaged reviewed pin; missing or other versions require review.",
+            )
         r.require(
             actions in (["create"], ["no-op"]),
             "destructive-change",
