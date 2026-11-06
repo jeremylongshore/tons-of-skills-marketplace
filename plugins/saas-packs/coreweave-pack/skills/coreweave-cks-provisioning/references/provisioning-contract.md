@@ -32,3 +32,25 @@ and state backups need their own cost/retention decisions.
 The offline plan adapter resolves computed `vpc_id` only through a direct root-module
 reference to exactly one reviewed VPC in the same plan. Module, indexed, conditional
 and external references require separate operator review; unresolved settings remain blocked.
+
+## Provider evidence for offline plan review
+
+The evidence envelope must contain `provider_selections`, using the mapping from
+`terraform version -json` captured in the same working directory as the reviewed
+plan. Each `plan.resource_changes` entry retains Terraform's `provider_name`.
+The helper accepts CoreWeave resources only from
+`registry.terraform.io/coreweave/coreweave` at `0.26.0`, and NodePool manifests only
+from `registry.terraform.io/hashicorp/kubernetes` at `2.38.0`. Missing selections,
+missing provider names, different sources or other versions block review. These
+are the packaged, tested versions, not a claim that newer releases are unsafe.
+A dependency upgrade needs its own template, lockfile and fixture review.
+
+The operator must check that the supplied plan, working directory and lockfile
+belong together. JSON fields cannot authenticate a plan or prove that the reported
+provider ran. The helper never invokes Terraform or fetches a provider. Use the
+synthetic fixtures for project tests; no account access is needed.
+
+Contract references inspected 2026-11-06:
+
+- [Terraform JSON plan resource format](https://developer.hashicorp.com/terraform/internals/json-format)
+- [Terraform version JSON provider selections](https://developer.hashicorp.com/terraform/cli/commands/version)

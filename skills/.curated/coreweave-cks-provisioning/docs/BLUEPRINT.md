@@ -66,7 +66,7 @@ Tolerance: no unresolved blocker for unauthorized mutation, secrets, misleading 
 
 The fixture suite must include success, each named failure, missing evidence, stale evidence and adversarial instructions. Every test records its requirement ID, fixture digest, command, tool version, actual result and limitations. `eval-spec.yaml` defines behavior; offline helper tests do not prove a language model follows those instructions. Unsupported model-judged criteria are reported NOT RUN, never passed through a synthetic stub.
 
-**Current result for these proposed acceptance criteria: NOT RUN.** Earlier retained helper results, where present, apply only to their recorded source hashes and cases. They do not satisfy this expanded design automatically.
+**Expanded acceptance is partially verified.** Retained helper results apply only to their recorded source hashes and cases. They do not satisfy every criterion automatically; model behavior and live-account outcomes remain NOT RUN.
 
 REL-CW-S24-1 requires a source revision, artifact digest, resolved dependencies/SBOM when applicable, validator and fixture receipts, named reviewer, rollback artifact and closure evidence in the skill issue. No deployed-account evidence is available. Operational outcomes and response time baselines remain unknown; intended metrics are false-healthy cases, unsafe action attempts and reproducible correct fixture verdicts, measured without fabricated targets.
 
@@ -81,3 +81,14 @@ Pin the applicable endpoint/resource/version contract and access date during imp
 The shipped helper has deterministic success, refusal, incomplete and hostile-input fixture coverage. See the [pack evidence record](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/eed0fd35d89838e5d8b4d78ce4786f8ea4df0dbe/plugins/saas-packs/coreweave-pack/QUALITY.md) and [retained receipt](https://github.com/jeremylongshore/tons-of-skills-marketplace/blob/eed0fd35d89838e5d8b4d78ce4786f8ea4df0dbe/plugins/saas-packs/coreweave-pack/offline-results.json) for exact coverage and source hashes.
 
 Implementation is present for review. The proposed acceptance criteria above remain open wherever they require model behavior, runtime permission enforcement or a live account. Static grades and offline fixtures do not close those requirements.
+
+### Provider evidence acceptance follow-up
+
+The provider-identity/version portion of TEST-CW-S24-3 now has explicit offline
+cases for missing selections, unsupported CoreWeave and Kubernetes versions,
+missing resource provider names and an unreviewed provider source, plus a valid
+node-pool case. The policy-to-lockfile regression binds both accepted versions to
+the shipped dependencies. This checks supplied evidence; it cannot authenticate
+the operator's plan or provider runtime. [Issue #1843](https://github.com/jeremylongshore/tons-of-skills-marketplace/issues/1843)
+retains the correction and merged evidence. See the local
+[provider evidence contract](../references/provisioning-contract.md) for inputs.

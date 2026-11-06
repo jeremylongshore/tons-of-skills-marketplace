@@ -174,3 +174,25 @@ def test_inference_requires_exact_crd_name_in_list(crds, tmp_path):
     )
     assert result.returncode == 2
     assert "kserve-crd" in {finding["code"] for finding in json.loads(result.stdout)["findings"]}
+
+
+def test_plan_review_provider_policy_matches_packaged_lockfiles():
+    import ast
+    import re
+
+    skill = SKILLS / "coreweave-cks-provisioning"
+    tree = ast.parse((skill / "scripts/review-plan.py").read_text())
+    policy = next(
+        ast.literal_eval(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "REVIEWED_PROVIDERS" for target in node.targets)
+    )
+    locked = {
+        (source, version)
+        for lock in (skill / "assets").rglob(".terraform.lock.hcl")
+        for source, version in re.findall(r'provider "([^"]+)" \{\s+version\s*=\s*"([^"]+)"', lock.read_text())
+    }
+    assert len(locked) == 2
+    assert set(policy.values()) == locked
+    assert set(policy) == {"coreweave_networking_vpc", "coreweave_cks_cluster", "kubernetes_manifest"}
