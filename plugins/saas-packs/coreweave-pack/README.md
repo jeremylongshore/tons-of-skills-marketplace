@@ -1,87 +1,101 @@
-# Community GPU operations for CoreWeave
+# CoreWeave community operator pack
 
-> **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
+**26 skills for GPU operations, evidence review and bounded provisioning workflows.**
+Community-contributed; not affiliated with, endorsed by, or sponsored by CoreWeave, Inc.
+The stable pack name is `coreweave-pack`. This community implementation is MIT licensed.
 
-23 skills: three offline diagnostic tools and scoped operator guides for reviewing CKS access, workload releases, storage, security, recovery and cost assumptions.
-The source remains MIT-licensed. Structural grades and offline fixtures do not establish production readiness, live account behavior or measured savings.
+For CoreWeave's official skills, see [github.com/coreweave/skills](https://github.com/coreweave/skills).
+That separate distribution's proprietary text, scripts and Terraform are not included here.
+This pack emphasizes Day-2 GPU forensics, fabric interpretation, cost provenance,
+permission review and operational recovery.
 
-## Use CoreWeave’s official skills for provisioning
+## Start with evidence
 
-[CoreWeave’s official distribution](https://github.com/coreweave/skills) covers cluster/Node Pool creation, self-managed vLLM deployment, model loading into object storage and workload-health checks.
-Install those through their own upstream distribution and review their current requirements and license.
-This community pack does not mirror or redistribute those proprietary skills; its original operator diagnostics and review procedures complement them.
+Supply redacted logs, snapshots or the packaged fixtures. Helpers run locally;
+they never authenticate to CoreWeave, create resources or execute commands from input.
+A healthy-looking Pod is not proof of GPU activity; usage is not an invoice; an Xid
+code alone does not authorize hardware recovery. Missing evidence remains unknown.
 
-## Installation
+The three original diagnostic helpers remain available for raw logs and cost rows.
+Eight additional reviewers cover inference, DDP training, RBAC, CI, incidents,
+Terraform plans, CAIOS transfers and workload/GPU health. Three read-only plugin
+agents preload the relevant skills to review supplied findings; their execution
+permissions remain restricted. Direct skill use works without agent orchestration.
+
+## Safety and costs
+
+Before a billable action, show exact resources and target, GPU type/count, supplied
+hourly rates and duration, other charges, artifact digest and teardown. Obtain
+explicit user confirmation. The [shared cost gate](shared/cost-gate.md) and local
+copies enforce the review contract. A matching JSON confirmation is not authenticated
+permission and must not independently unlock deployment. Default to offline review.
+Server dry-run, Terraform plan and cloud CLI previews may still contact an account.
+
+## Skill inventory
+
+Every skill has an individual blueprint with requirements, risks and proposed
+acceptance. Safety describes the eventual operator workflow; no account operation
+was used to validate this pack.
+
+| Skill | Workflow safety | Offline executable evidence |
+| --- | --- | --- |
+| [coreweave-caios-stage-model](skills/coreweave-caios-stage-model/SKILL.md) | Creates billable resources; confirmation required | Fixture reviewer |
+| [coreweave-ci-integration](skills/coreweave-ci-integration/SKILL.md) | Creates billable resources; confirmation required | Fixture reviewer |
+| [coreweave-cks-provisioning](skills/coreweave-cks-provisioning/SKILL.md) | Creates billable resources; confirmation required | Fixture reviewer |
+| [coreweave-common-errors](skills/coreweave-common-errors/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-core-workflow-a](skills/coreweave-core-workflow-a/SKILL.md) | Creates billable resources; confirmation required | Fixture reviewer |
+| [coreweave-core-workflow-b](skills/coreweave-core-workflow-b/SKILL.md) | Creates billable resources; confirmation required | Fixture reviewer |
+| [coreweave-cost-tuning](skills/coreweave-cost-tuning/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-data-handling](skills/coreweave-data-handling/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-debug-bundle](skills/coreweave-debug-bundle/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-deploy-integration](skills/coreweave-deploy-integration/SKILL.md) | Creates billable resources; confirmation required | Static guide checks |
+| [coreweave-enterprise-rbac](skills/coreweave-enterprise-rbac/SKILL.md) | Read-only review | Fixture reviewer |
+| [coreweave-fabric-diagnostics](skills/coreweave-fabric-diagnostics/SKILL.md) | Read-only review | Diagnostic self-tests + regressions |
+| [coreweave-gpu-cost-leak-hunter](skills/coreweave-gpu-cost-leak-hunter/SKILL.md) | Read-only review | Diagnostic self-tests + regressions |
+| [coreweave-gpu-node-forensics](skills/coreweave-gpu-node-forensics/SKILL.md) | Read-only review | Diagnostic self-tests + regressions |
+| [coreweave-hello-world](skills/coreweave-hello-world/SKILL.md) | Creates billable resources; confirmation required | Static guide checks |
+| [coreweave-incident-runbook](skills/coreweave-incident-runbook/SKILL.md) | Read-only review | Fixture reviewer |
+| [coreweave-install-auth](skills/coreweave-install-auth/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-local-dev-loop](skills/coreweave-local-dev-loop/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-multi-env-setup](skills/coreweave-multi-env-setup/SKILL.md) | Creates billable resources; confirmation required | Static guide checks |
+| [coreweave-observability](skills/coreweave-observability/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-performance-tuning](skills/coreweave-performance-tuning/SKILL.md) | Creates billable resources; confirmation required | Static guide checks |
+| [coreweave-prod-checklist](skills/coreweave-prod-checklist/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-sdk-patterns](skills/coreweave-sdk-patterns/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-security-basics](skills/coreweave-security-basics/SKILL.md) | Read-only review | Static guide checks |
+| [coreweave-upgrade-migration](skills/coreweave-upgrade-migration/SKILL.md) | Creates billable resources; confirmation required | Static guide checks |
+| [coreweave-workload-health](skills/coreweave-workload-health/SKILL.md) | Read-only review | Fixture reviewer |
+
+The public CI title remains **UNOFFICIAL CI INTEGRATION FOR COREWEAVE**; its stable
+identifier is `coreweave-ci-integration`. The five deeper workflows are selected by
+operator value; there is no per-skill usage ranking supporting a “most-used” claim.
+
+## Reproduce offline validation
+
+From the marketplace repository with its pinned pnpm dependencies, Python/PyYAML
+and gitleaks installed:
 
 ```bash
-/plugin install coreweave-pack@claude-code-plugins-plus
+pnpm run validate:coreweave
+python3 -m pytest tests/test_coreweave_operator_tools.py tests/test_coreweave_cost_gates.py tests/test_coreweave_reviewers.py tests/test_coreweave_pack_gate.py
 ```
 
-Use the existing compatibility identifiers below. The CI skill’s public title remains **UNOFFICIAL CI INTEGRATION FOR COREWEAVE**.
+The gate delegates schema and rubric checks to the canonical repository validator,
+checks installed references and agent preloads, checks all 11 eval-spec packages,
+replays deterministic contracts and runs gitleaks. It reports model judgments as
+NOT RUN. Run a skill's helper with its packaged example for standalone inspection.
+Terraform templates have separate mock-provider tests; install the pinned providers
+first, then run `terraform test` in each root with credentials absent. No normal
+Terraform plan is used as an offline test.
 
-## Offline tools first
+## Evidence and maintenance
 
-- GPU forensics: classify supplied Xid evidence into qualified recommendations; unknown or multi-GPU evidence stays inconclusive.
-- Fabric review: distinguish actual NCCL transport from GPU-direct evidence and recognize Kubernetes request defaulting from RDMA limits.
-- GPU usage and cost review: validate supplied numeric scenarios, separate billing-backed amounts from estimates, and avoid adding overlapping findings into promised savings.
+- [Quality and limitations](QUALITY.md) and [local validation receipt](offline-results.json)
+- [Pack blueprint and per-skill designs](docs/BLUEPRINT.md)
+- [Retired scaffold inventory and reasons](docs/SCAFFOLD-DISPOSITION.md)
+- [Requirements](docs/PRD.md), [architecture decisions](docs/ADR.md), [review brief](docs/ONE-PAGER.md)
 
-The scripts do not invoke a cluster, provision capacity, reset hardware or call a model provider.
-Python 3 is required; fabric YAML parsing also needs its pinned `scripts/requirements.txt` dependency in an isolated environment.
-
-## Skills
-
-| Public task | Stable identifier |
-|---|---|
-| [UNOFFICIAL CI INTEGRATION FOR COREWEAVE](skills/coreweave-ci-integration/SKILL.md) | `coreweave-ci-integration` |
-| [CoreWeave Evidence-first workload triage](skills/coreweave-common-errors/SKILL.md) | `coreweave-common-errors` |
-| [CoreWeave Inference deployment preflight](skills/coreweave-core-workflow-a/SKILL.md) | `coreweave-core-workflow-a` |
-| [CoreWeave Training launch and recovery review](skills/coreweave-core-workflow-b/SKILL.md) | `coreweave-core-workflow-b` |
-| [CoreWeave Cost experiment planning](skills/coreweave-cost-tuning/SKILL.md) | `coreweave-cost-tuning` |
-| [CoreWeave Artifact integrity and storage review](skills/coreweave-data-handling/SKILL.md) | `coreweave-data-handling` |
-| [CoreWeave Scoped support evidence](skills/coreweave-debug-bundle/SKILL.md) | `coreweave-debug-bundle` |
-| [CoreWeave Manifest promotion review](skills/coreweave-deploy-integration/SKILL.md) | `coreweave-deploy-integration` |
-| [CoreWeave Access-boundary review](skills/coreweave-enterprise-rbac/SKILL.md) | `coreweave-enterprise-rbac` |
-| [CoreWeave Fabric Diagnostics](skills/coreweave-fabric-diagnostics/SKILL.md) | `coreweave-fabric-diagnostics` |
-| [GPU usage and cost review for CoreWeave](skills/coreweave-gpu-cost-leak-hunter/SKILL.md) | `coreweave-gpu-cost-leak-hunter` |
-| [CoreWeave GPU Node Forensics](skills/coreweave-gpu-node-forensics/SKILL.md) | `coreweave-gpu-node-forensics` |
-| [CoreWeave GPU smoke-test review](skills/coreweave-hello-world/SKILL.md) | `coreweave-hello-world` |
-| [CoreWeave Incident stabilization review](skills/coreweave-incident-runbook/SKILL.md) | `coreweave-incident-runbook` |
-| [CoreWeave Access and identity verification](skills/coreweave-install-auth/SKILL.md) | `coreweave-install-auth` |
-| [CoreWeave Local-to-staging review](skills/coreweave-local-dev-loop/SKILL.md) | `coreweave-local-dev-loop` |
-| [CoreWeave Environment promotion boundaries](skills/coreweave-multi-env-setup/SKILL.md) | `coreweave-multi-env-setup` |
-| [CoreWeave Signal and alert validation](skills/coreweave-observability/SKILL.md) | `coreweave-observability` |
-| [CoreWeave Measured performance experiments](skills/coreweave-performance-tuning/SKILL.md) | `coreweave-performance-tuning` |
-| [CoreWeave Release evidence review](skills/coreweave-prod-checklist/SKILL.md) | `coreweave-prod-checklist` |
-| [CoreWeave Client boundary design](skills/coreweave-sdk-patterns/SKILL.md) | `coreweave-sdk-patterns` |
-| [CoreWeave Workload security review](skills/coreweave-security-basics/SKILL.md) | `coreweave-security-basics` |
-| [CoreWeave Migration and rollback planning](skills/coreweave-upgrade-migration/SKILL.md) | `coreweave-upgrade-migration` |
-
-## Before live use
-
-Select an owner-approved organization, context, namespace, resource name and evidence window.
-Use a trusted cluster-specific kubeconfig from the approved secret store; Managed Auth kubeconfigs embed a token.
-Discover current `node.kubernetes.io/instance-type` values instead of copying legacy GPU-class labels.
-Read-only commands can still expose workload data; review and redact evidence before sharing.
-Any deployment, benchmark, reset, resource deletion, data export or capacity/contract change requires its own approved scope and budget.
-
-CoreWeave provides [cost/usage monitoring](https://docs.coreweave.com/observability/usage-monitoring) and [Mission Control MCP](https://docs.coreweave.com/observability/mission-control-mcp/reference/tools), including a FOCUS usage tool that returns quantities rather than dollars.
-Rates, capacity plans and invoice reconciliation remain separate inputs; no universal discount, per-token ranking or savings percentage is claimed.
-
-## Verification and limitations
-
-See [QUALITY.md](QUALITY.md) and the retained offline-results receipt for actual tests, source hashes and remaining gaps.
-No live CoreWeave account or paid model evaluation was used for this review.
-The npm package version and plugin display version follow separate repository version contracts; they are intentionally not forced to match.
-
-## Primary references
-
-- [CKS scheduling](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
-- [CKS Managed Auth](https://docs.coreweave.com/products/cks/auth-access/managed-auth/kubeconfig)
-- [Managed lifecycle](https://docs.coreweave.com/platform/fleet-management/node-lifecycle/state-transitions)
-- [RDMA configuration](https://docs.coreweave.com/products/networking/hpc-interconnect/use-gpudirect-rdma)
-- [NVIDIA Xid catalog](https://docs.nvidia.com/deploy/xid-errors/latest/analyzing-xid-catalog.html)
-- [Capacity plans](https://docs.coreweave.com/platform/capacity-plans)
-
-## License
-
-MIT for this community pack. Upstream linked projects retain their own licenses.
+Static grades, package integrity and fixture results do not establish model behavior,
+production compatibility, measured savings or endorsement. Preserve that distinction
+when sharing this pack. Live account validation and provider-backed model evaluations
+have not been performed. Do not publish a verified badge from these local receipts.

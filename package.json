@@ -71,7 +71,8 @@
     "lint:design:strict": "node scripts/lint-design-tells.mjs --strict",
     "format:check": "prettier --check 'scripts/**/*.{js,mjs,cjs,ts}' '*.{js,mjs,cjs,ts,json,md,yml,yaml}' 'packages/cli/src/**/*.{ts,json}'",
     "format": "prettier --write 'scripts/**/*.{js,mjs,cjs,ts}' '*.{js,mjs,cjs,ts,json,md,yml,yaml}' 'packages/cli/src/**/*.{ts,json}'",
-    "prepare": "husky"
+    "prepare": "husky",
+    "validate:coreweave": "python3 scripts/validate-coreweave-pack.py"
   },
   "keywords": [
     "claude-code",
