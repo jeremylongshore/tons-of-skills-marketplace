@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "9c483e83685a325bdd8d2c0863c210722e4ad185081d84bda32657462614059f"
+      "sha256": "b1f3d5befafffc8da81e425d1e9d7666c8aa6dd658e63f2abec9c8a89b78cf48"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -42,8 +42,8 @@
     "site_containers": 17,
     "workflows": 3,
     "jobs": 28,
-    "containers": 240,
-    "run_containers": 166,
+    "containers": 242,
+    "run_containers": 168,
     "opaque_actions": 74,
     "conditional_envelopes": 45
   },
@@ -80,7 +80,7 @@
       "job": "validate",
       "step": 13,
       "step_name": "Enforce the safety ratchet",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "592009d8a7bc847feb3aa5b3cf192b99bd5dd9e91ac1e95296c0b444992a8cd2",
       "run_sha256": "0502a1eb56c0748cf95dd68637452811c09c4702d343a0334371517c8ca7ebf5",
       "anchor": {
@@ -120,7 +120,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 835,
+          "line": 841,
           "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
         }
       ],
@@ -146,7 +146,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 973,
+          "line": 979,
           "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
         }
       ],
@@ -156,9 +156,9 @@
       "id": "catalog-drift-status",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 32,
+      "step": 34,
       "step_name": "Sync CLI marketplace catalog",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "f52645d81bb0c1c2056ef11c0894d8afb04102c45f02a02254de662d8522e80b",
       "run_sha256": "232568b2bef02489e07c3a26b204604fe9cc0fee0e6f014d7352615ee45dc606",
       "anchor": {
@@ -172,7 +172,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 310,
+          "line": 316,
           "text": "      - name: Sync CLI marketplace catalog"
         }
       ],
@@ -182,9 +182,9 @@
       "id": "credential-informational-sweep",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 56,
+      "step": 58,
       "step_name": "Security scan - Informational sweep (non-blocking)",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "b63dc39b057d39478a2ebfcf3a1448bc8f60f6d131dd634f9c628f258b3439c6",
       "run_sha256": "e30d8d8a76b7b725da343354b40414b821df1a9e2602de1177a3cc2baf79f417",
       "anchor": {
@@ -198,7 +198,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 536,
+          "line": 542,
           "text": "      - name: Security scan - Informational sweep (non-blocking)"
         }
       ],
@@ -208,9 +208,9 @@
       "id": "dangerous-rm-scan",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 57,
+      "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -224,7 +224,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 585,
+          "line": 591,
           "text": "          # grep status 1 means no matches; operational errors must still fail."
         },
         {
@@ -255,7 +255,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 1192,
+          "line": 1198,
           "text": "          # Normalize only grep's no-match status, never a find traversal error."
         },
         {
@@ -270,9 +270,9 @@
       "id": "agent-dependency-bootstrap",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 29,
+      "step": 31,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "47c304f65274cfde778c04665640d7bd3ec8e439d0b21a944fa2af18f099190f",
       "run_sha256": "67f55c92e26550b1de1af470d30d67a0d9661a65e346011562b15196f4c086de",
       "anchor": {
@@ -286,7 +286,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 285,
+          "line": 291,
           "text": "      - name: Validate agent frontmatter (report-only)"
         },
         {
@@ -296,7 +296,7 @@
         }
       ],
       "deadline_marker": {
-        "line": 284,
+        "line": 290,
         "sha256": "7d47b361dfcdc31da1bfed73d37ecf59970327a39c28d27391f9eaf2c2b2b6f7"
       }
     },
@@ -304,9 +304,9 @@
       "id": "agent-advisory-validator",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 29,
+      "step": 31,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "47c304f65274cfde778c04665640d7bd3ec8e439d0b21a944fa2af18f099190f",
       "run_sha256": "67f55c92e26550b1de1af470d30d67a0d9661a65e346011562b15196f4c086de",
       "anchor": {
@@ -319,7 +319,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 284,
+        "line": 290,
         "sha256": "7d47b361dfcdc31da1bfed73d37ecf59970327a39c28d27391f9eaf2c2b2b6f7"
       }
     },
@@ -327,9 +327,9 @@
       "id": "mcp-advisory-validator",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 30,
+      "step": 32,
       "step_name": "Validate .mcp.json configs (advisory + unambiguous gate)",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "5114e3fe37a1e6b52d6406dbc5887faf90d27e889613c7b5ce4a8212f55d4cf4",
       "run_sha256": "adeac5780a51f52948d5267db0492cd8800f1c8994cbaecc56295cd7d93ea55c",
       "anchor": {
@@ -342,7 +342,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 297,
+        "line": 303,
         "sha256": "072b2800b1106b1caa54501b378fec86d109b244c71816eed02d04649bf25aa2"
       }
     },
@@ -350,9 +350,9 @@
       "id": "eval-warning-scan",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 57,
+      "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -370,9 +370,9 @@
       "id": "dependency-audit-advisory",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 59,
+      "step": 61,
       "step_name": "Security scan - MCP plugin dependencies",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "17d47f29e01d45fcc117b109fed8fad651d44b00b7bca69f14d242c8a2cd3641",
       "run_sha256": "3e128fee838407825808235514a615b3d5c7564fe032207a6093965058594362",
       "anchor": {
@@ -385,7 +385,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 692,
+        "line": 698,
         "sha256": "985f0c97138dd6feaf0da81c53c4077b4163b15513b5ef1e0d0910dc81e61ff0"
       }
     },
@@ -448,7 +448,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 1302,
+        "line": 1308,
         "sha256": "7d6b5855b18e738bf217c22070f011abf2d4bfcd31b6f4e5384d3172f4ada3b1"
       }
     },
@@ -476,9 +476,9 @@
       "id": "numeric-http-warning",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 57,
+      "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -496,9 +496,9 @@
       "id": "base64-warning",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 57,
+      "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -516,9 +516,9 @@
       "id": "insecure-url-warning",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 58,
+      "step": 60,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "cf085d6c4bb286ac74f69520cace1e9c10a599199a2eed9e131753c239f6ec4d",
       "run_sha256": "75ad2f24c7cc506ce4f5f829ec854fc79a041831ba4e0df0fca782fde7752f07",
       "anchor": {
@@ -536,9 +536,9 @@
       "id": "short-url-warning",
       "workflow": ".github/workflows/validate-plugins.yml",
       "job": "validate",
-      "step": 58,
+      "step": 60,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "403ee6ee6e059675ceebb2408d9246cd588e29f96d375e4fdba665933ecfbf50",
+      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
       "step_sha256": "cf085d6c4bb286ac74f69520cace1e9c10a599199a2eed9e131753c239f6ec4d",
       "run_sha256": "75ad2f24c7cc506ce4f5f829ec854fc79a041831ba4e0df0fca782fde7752f07",
       "anchor": {

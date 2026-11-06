@@ -11,7 +11,7 @@ description: 'Run distributed GPU training jobs on CoreWeave with multi-node PyT
   "distributed training coreweave", "fine-tune on coreweave".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -23,150 +23,105 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Core Workflow: GPU Training
+# CoreWeave Training launch and recovery review
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Run distributed GPU training on CoreWeave: single-node multi-GPU and multi-node training with PyTorch DDP, Slurm-on-Kubernetes, and shared storage.
+Verify distributed training topology, storage and resume evidence before a costly launch.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- CKS cluster with multi-GPU node pools (8xA100 or 8xH100)
-- Shared storage (CoreWeave PVC or NFS)
-- Training container with PyTorch and NCCL
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
+
+## Cost and safety gate
+
+Before any billable action, follow the [mandatory cost gate](references/cost-gate.md).
+Use the local `scripts/review-cost-plan.py` helper to inspect the exact plan;
+then obtain explicit user confirmation through the trusted approval channel.
+No plan, missing price, changed digest or expired approval means no execution.
+Default to offline inspection; server dry-run and Terraform plan are account calls.
 
 ## Instructions
 
-### Step 1: Single-Node Multi-GPU Training
+1. Identify the actual launcher: a single-node torchrun Job is not multi-node training. For multi-node work, review rank/world-size, rendezvous, network reachability and the matching MPI, Slurm or operator contract.
 
-```yaml
-# training-job.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: llm-finetune
-spec:
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-        - name: trainer
-          image: ghcr.io/myorg/trainer:latest
-          command: ["torchrun"]
-          args:
-            - "--nproc_per_node=8"
-            - "train.py"
-            - "--model_name=meta-llama/Llama-3.1-8B"
-            - "--batch_size=4"
-            - "--epochs=3"
-          resources:
-            limits:
-              nvidia.com/gpu: "8"
-              memory: 512Gi
-              cpu: "64"
-          volumeMounts:
-            - name: data
-              mountPath: /data
-            - name: checkpoints
-              mountPath: /checkpoints
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: training-data
-        - name: checkpoints
-          persistentVolumeClaim:
-            claimName: model-checkpoints
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: gpu.nvidia.com/class
-                    operator: In
-                    values: ["A100_NVLINK_A100_SXM4_80GB"]
-```
+2. Confirm current instance IDs, per-rank GPUs, RDMA-capable Node Pools, supported image/driver combination and a shared checkpoint path. Use current DFS documentation and inspect available StorageClasses; do not assume regional shared-hdd/shared-ssd class names.
 
-### Step 2: Persistent Storage for Training Data
+3. Validate the full workload manifest and approved resource envelope. A minimal smoke run must verify rank discovery and a collective before a full budget is committed.
 
-```yaml
-# storage.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: training-data
-spec:
-  accessModes: ["ReadWriteMany"]
-  resources:
-    requests:
-      storage: 500Gi
-  storageClassName: shared-hdd-ord1
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: model-checkpoints
-spec:
-  accessModes: ["ReadWriteMany"]
-  resources:
-    requests:
-      storage: 200Gi
-  storageClassName: shared-ssd-ord1
-```
+4. Prove recovery by writing a checkpoint to a temporary artifact path, verifying all required shards/checksums and resuming in staging. A mounted PVC alone does not establish checkpoint validity.
 
-### Step 3: Monitor Training Progress
-
-```bash
-# Watch training logs
-kubectl logs -f job/llm-finetune
-
-# Check GPU utilization
-kubectl exec -it $(kubectl get pod -l job-name=llm-finetune -o name) -- nvidia-smi
-
-# Check training metrics
-kubectl exec -it $(kubectl get pod -l job-name=llm-finetune -o name) -- \
-  cat /checkpoints/training_log.json | tail -5
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| NCCL timeout | Network issue between GPUs | Use NVLink nodes (SXM4/SXM5) |
-| OOMKilled | Batch size too large | Reduce batch size or use gradient accumulation |
-| Checkpoint save failed | PVC full | Increase storage or prune old checkpoints |
-| Job evicted | Preemption | Use on-demand nodes for training |
-
-## Output
-
-- A GPU training Job bound to explicitly selected node, storage, and checkpoint resources.
-- A repeatable monitoring trail: pod state, GPU utilization, and training metrics are
-  available to the authorized operator without exposing model inputs or credentials.
-- Durable checkpoints on the approved PVC so a failed or preempted job can resume
-  from a known state rather than silently restarting training.
+5. Use bounded logs and the fabric diagnostic skill for observed transport. Never relabel stateful distributed training as interruptible merely to clear a maintenance block; agree the checkpoint-aware interruption policy.
 
 ## Examples
 
-Before scheduling a costly multi-GPU run, submit a small trusted smoke job to the
-same namespace and inspect its scheduling event and GPU allocation:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl apply -f training-job.yaml
-kubectl get job llm-finetune --watch
-kubectl get pods -l job-name=llm-finetune -o wide
-kubectl logs job/llm-finetune --tail=100
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "job/$CW_JOB" -o wide
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get pvc
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get pods -l "job-name=$CW_JOB" -o wide
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get events --field-selector="involvedObject.name=$CW_JOB" --sort-by=.metadata.creationTimestamp
 ```
 
-If the job cannot schedule, stop before increasing quota or changing node selectors.
-Confirm the namespace quota, approved GPU class, and PVC binding with the platform
-owner; preserve the failed event output with secrets and customer data redacted.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave CKS](https://docs.coreweave.com/docs/products/cks)
-- [PyTorch Distributed Training](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
+- [Primary reference 2](https://docs.coreweave.com/products/storage/distributed-file-storage/create-volumes)
+- [Primary reference 3](https://github.com/coreweave/nccl-tests)
 
-## Next Steps
+## Evidence status
 
-For troubleshooting, see `coreweave-common-errors`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
+
+## Offline verification
+
+Input includes `world_size`, one `workers` entry per process rank with rank/rendezvous/gpu_count/transport, `model_revision`, and `checkpoint` recovery evidence. Record transport from positive data-path logs, not bootstrap traffic. The helper assumes one declared GPU allocation per supplied process description; inventory from scheduler assignment must substantiate it. A shared rendezvous address is necessary but does not prove network reachability. A restore_test_passed flag records a supplied recovery result; the helper does not load a checkpoint or launch training. Use the fabric diagnostic for raw NCCL logs.
+
+From this skill directory, replay the synthetic example (its timestamp is intentionally
+fixed; it contains no account data):
+
+```bash
+python3 scripts/review-training.py --input tests/fixtures/example.json --as-of 2026-11-05T12:01:00Z
+```
+
+For current evidence, omit `--as-of`; it defaults to current UTC. Required common
+fields: `schema: coreweave-evidence/v1`, `captured_at`, `context`, `namespace`,
+`expected_context`, `expected_namespace`. The scope must agree and evidence must
+be at most five minutes old. Explicit replay time is for testing historical fixtures,
+not a way to make stale production evidence current.
+
+Exit 0 / `reviewed` means the supplied assertions satisfy this bounded contract;
+2 / `blocked` requires correction; 3 / `incomplete` requires more evidence. Read the
+findings rather than relying only on exit status. Scripts never execute text from
+inputs, call a cloud API or authorize a change. Fixture and package checks are
+separate from model behavior and live compatibility.
+
+- [Input contract and limitations](references/evidence-contract.md)
+- [Skill blueprint and acceptance](docs/BLUEPRINT.md)

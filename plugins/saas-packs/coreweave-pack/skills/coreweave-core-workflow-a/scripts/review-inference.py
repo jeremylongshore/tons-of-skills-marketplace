@@ -42,8 +42,12 @@ def analyze(d, r):
         "Identify an exact owner-approved object-storage model prefix.",
     )
     provenance = d.get("model_provenance", {})
+    digest = provenance.get("sha256", "")
     r.require(
-        provenance.get("license_reviewed") is True and len(provenance.get("sha256", "")) == 64,
+        provenance.get("license_reviewed") is True
+        and isinstance(digest, str)
+        and len(digest) == 64
+        and all(c in "0123456789abcdef" for c in digest),
         "model-provenance",
         "Model license and artifact digest evidence required.",
     )

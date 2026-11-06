@@ -49,11 +49,11 @@ def resource_findings(text: str) -> tuple[list[str], bool]:
             if not isinstance(resources, dict):
                 raise ValueError("resources must be a mapping")
             limits = resources.get("limits") or {}
-            requests = resources.get("requests") or {}
-            if not isinstance(limits, dict) or not isinstance(requests, dict):
+            resource_requests = resources.get("requests") or {}
+            if not isinstance(limits, dict) or not isinstance(resource_requests, dict):
                 raise ValueError("requests and limits must be mappings")
             limit = limits.get("rdma/ib")
-            request = requests.get("rdma/ib")
+            request = resource_requests.get("rdma/ib")
 
             # This resource is a documented boolean allocation flag (1), not a count.
             def valid(value):

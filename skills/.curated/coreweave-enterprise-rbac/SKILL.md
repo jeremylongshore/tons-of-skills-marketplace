@@ -12,7 +12,7 @@ description: 'Configure RBAC and namespace isolation for CoreWeave multi-team GP
   "coreweave namespace isolation", "coreweave team access".
 
   '
-allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -24,134 +24,97 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Enterprise RBAC
+# CoreWeave Access-boundary review
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-CoreWeave runs GPU workloads on Kubernetes, so RBAC maps directly to K8s namespace isolation and ResourceQuotas. Each team gets a dedicated namespace with GPU limits, storage caps, and network policies. This prevents noisy-neighbor problems where one team's training job starves another's inference service. SOC 2 and HIPAA workloads require namespace-level audit logging and team-scoped API key rotation.
+Review organization permissions, Kubernetes RBAC and workload isolation independently.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- A verified human or workload identity group from the organization identity provider.
-- Cluster-admin approval for namespace, quota, and RoleBinding changes.
-- A team owner, approved GPU quota, and data-classification decision for the namespace.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
 ## Instructions
 
-1. Create a namespace per team and apply ResourceQuota and NetworkPolicy before
-   granting workload permissions.
-2. Bind an IdP group to the smallest suitable ClusterRole; do not bind individual
-   users or reuse a cluster-wide `edit` role without a documented exception.
-3. Run a SubjectAccessReview for the intended verbs and resources, then retain the
-   redacted decision and audit entry with the access request.
-4. Review bindings and service-account tokens on a regular schedule; remove access
-   promptly when a team, project, or incident requires it.
+1. Distinguish CoreWeave organization/token permissions from Kubernetes Roles, RoleBindings and service accounts. There is no universal built-in “Team Lead” role with every permission listed by this pack.
 
-## Role Hierarchy
+2. Have the organization and cluster owners approve the exact identity, namespace, verbs and resources. Prefer scoped group bindings and dedicated workload identities; avoid granting edit/admin solely to fix a denied diagnostic command.
 
-| Role | Permissions | Scope |
-|------|------------|-------|
-| Cluster Admin | Full CKS control, namespace creation, quota management | All namespaces |
-| Team Lead | Deploy workloads, manage team API keys, adjust pod limits | Own namespace |
-| ML Engineer | Launch jobs, access PVCs, view logs | Own namespace |
-| Inference Operator | Deploy/scale inference endpoints, read metrics | Own namespace |
-| Viewer | Read-only pod status, logs, GPU utilization metrics | Own namespace |
+3. Use kubectl auth can-i for the current identity. Impersonation checks require explicit impersonation privilege; do not claim a denied impersonation attempt proves the target user is denied.
 
-## Permission Check
+4. Review cross-namespace and escalation paths, including Pod creation, Secrets, RoleBindings and service-account token creation. Quotas constrain resource consumption, not access to another tenant’s data.
 
-```typescript
-import { KubeConfig, RbacAuthorizationV1Api } from '@kubernetes/client-node';
-
-async function checkNamespaceAccess(user: string, namespace: string, verb: string, resource: string): Promise<boolean> {
-  const kc = new KubeConfig();
-  kc.loadFromDefault();
-  const rbac = kc.makeApiClient(RbacAuthorizationV1Api);
-  const review = { apiVersion: 'authorization.k8s.io/v1', kind: 'SubjectAccessReview',
-    spec: { user, resourceAttributes: { namespace, verb, resource } } };
-  const result = await rbac.createSubjectAccessReview(review);
-  return result.body.status?.allowed ?? false;
-}
-```
-
-## Role Assignment
-
-```typescript
-async function assignTeamNamespace(team: string, group: string, gpuLimit: number): Promise<void> {
-  await kubectl(`create namespace ${team}`);
-  await kubectl(`create resourcequota ${team}-gpu --namespace=${team} --hard=requests.nvidia.com/gpu=${gpuLimit}`);
-  await kubectl(`create rolebinding ${team}-access --namespace=${team} --clusterrole=edit --group=${group}`);
-  console.log(`Namespace ${team} created with ${gpuLimit} GPU quota bound to ${group}`);
-}
-
-async function revokeAccess(team: string, binding: string): Promise<void> {
-  await kubectl(`delete rolebinding ${binding} --namespace=${team}`);
-}
-```
-
-## Audit Logging
-
-```typescript
-interface CoreWeaveAuditEntry {
-  timestamp: string; user: string; namespace: string;
-  action: 'gpu_request' | 'deploy' | 'scale' | 'delete' | 'quota_change';
-  resource: string; gpuCount?: number; result: 'allowed' | 'denied';
-}
-
-function logAccess(entry: CoreWeaveAuditEntry): void {
-  console.log(JSON.stringify({ ...entry, cluster: process.env.CW_CLUSTER_ID }));
-}
-```
-
-## RBAC Checklist
-
-- [ ] Each team has a dedicated namespace with ResourceQuota
-- [ ] GPU limits set per namespace to prevent resource starvation
-- [ ] RoleBindings use AD/OIDC groups, not individual users
-- [ ] Network policies isolate namespace traffic
-- [ ] API keys scoped to team namespace, rotated quarterly
-- [ ] Viewer role assigned to finance/management for cost visibility
-- [ ] Audit logging enabled for all GPU allocation events
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `Forbidden: GPU quota exceeded` | Namespace quota reached | Increase ResourceQuota or free idle pods |
-| `RoleBinding not found` | Group name mismatch with IdP | Verify AD/OIDC group name matches RoleBinding subject |
-| `Namespace not found` | Team namespace not provisioned | Run namespace creation script before role assignment |
-| `SubjectAccessReview denied` | Missing ClusterRole binding | Check if ClusterRole exists and verb is permitted |
-
-## Output
-
-- An isolated team namespace with an enforced GPU quota and network boundary.
-- Least-privilege group bindings with a recorded access review and audit trail.
-- A repeatable revocation path for a compromised identity or completed project.
+5. Test both allowed and denied cases with the authorized identity in staging. Keep revocation, token expiry and audit ownership explicit. Namespace isolation alone does not establish regulatory compliance.
 
 ## Examples
 
-Confirm a deployment identity can create Jobs only in its team namespace before
-releasing a workload:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl auth can-i create jobs.batch \
-  --as=system:serviceaccount:research:trainer \
-  --namespace=research
-kubectl auth can-i create jobs.batch \
-  --as=system:serviceaccount:research:trainer \
-  --namespace=production
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" auth can-i create jobs.batch
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" auth can-i get secrets
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" auth can-i create rolebindings.rbac.authorization.k8s.io
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get rolebinding,serviceaccount,resourcequota
 ```
 
-The expected result is `yes` only for `research`. If the second check is allowed,
-remove the over-broad binding, re-run both checks, and preserve the redacted audit
-record before resuming deployments.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave CKS](https://docs.coreweave.com/docs/products/cks)
-- [Kubernetes RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [Primary reference 2](https://docs.coreweave.com/products/cks/auth-access/managed-auth/kubeconfig)
+- [Primary reference 3](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
 
-## Next Steps
+## Evidence status
 
-See `coreweave-security-basics`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.
+
+## Offline verification
+
+Input contains Kubernetes `roles` and `bindings`, an exact `subject` (kind/name/namespace), and `snapshot_complete`. Roles use their Kubernetes kind, metadata and rules; roleRef resolution preserves Role namespace versus ClusterRole scope. The helper detects direct matching subjects, wildcard access, sensitive credential access and workload/impersonation/escalation paths. It does not expand group membership, aggregated ClusterRoles, admission policy or external identity systems. If any is relevant, completeness is false and a broader authorized access audit is required. The report does not claim a definitive authorization decision.
+
+From this skill directory, replay the synthetic example (its timestamp is intentionally
+fixed; it contains no account data):
+
+```bash
+python3 scripts/review-access.py --input tests/fixtures/example.json --as-of 2026-11-05T12:01:00Z
+```
+
+For current evidence, omit `--as-of`; it defaults to current UTC. Required common
+fields: `schema: coreweave-evidence/v1`, `captured_at`, `context`, `namespace`,
+`expected_context`, `expected_namespace`. The scope must agree and evidence must
+be at most five minutes old. Explicit replay time is for testing historical fixtures,
+not a way to make stale production evidence current.
+
+Exit 0 / `reviewed` means the supplied assertions satisfy this bounded contract;
+2 / `blocked` requires correction; 3 / `incomplete` requires more evidence. Read the
+findings rather than relying only on exit status. Scripts never execute text from
+inputs, call a cloud API or authorize a change. Fixture and package checks are
+separate from model behavior and live compatibility.
+
+- [Input contract and limitations](references/evidence-contract.md)
+- [Skill blueprint and acceptance](docs/BLUEPRINT.md)

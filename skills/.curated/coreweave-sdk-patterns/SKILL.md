@@ -1,6 +1,6 @@
 ---
 name: coreweave-sdk-patterns
-description: 'Production-ready patterns for CoreWeave GPU workload management with
+description: 'Bounded integration patterns for CoreWeave GPU workload management with
   kubectl and Python.
 
   Use when building inference clients, managing GPU deployments programmatically,
@@ -12,7 +12,7 @@ description: 'Production-ready patterns for CoreWeave GPU workload management wi
   "coreweave Python", "coreweave deployment template".
 
   '
-allowed-tools: Read, Write, Edit
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -24,188 +24,70 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave SDK Patterns
+# CoreWeave Client boundary design
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-CoreWeave is Kubernetes-native -- use kubectl, Kubernetes Python client, or Helm for programmatic management. These patterns cover GPU-aware deployment templates, inference client wrappers, and node affinity configurations.
-
-## Instructions
-
-### GPU Affinity Helper
-
-```python
-# coreweave_helpers.py
-from dataclasses import dataclass
-
-@dataclass
-class GPUConfig:
-    gpu_class: str        # A100_PCIE_80GB, H100_SXM5, L40, etc.
-    gpu_count: int = 1
-    memory_gb: int = 32
-    cpu_cores: int = 4
-
-GPU_CATALOG = {
-    "a100-80gb": GPUConfig("A100_PCIE_80GB", memory_gb=48, cpu_cores=8),
-    "h100-80gb": GPUConfig("H100_SXM5", memory_gb=64, cpu_cores=12),
-    "l40":       GPUConfig("L40", memory_gb=24, cpu_cores=4),
-    "a100-8x":   GPUConfig("A100_NVLINK_A100_SXM4_80GB", gpu_count=8, memory_gb=256, cpu_cores=64),
-}
-
-def gpu_affinity_block(gpu_class: str) -> dict:
-    return {
-        "nodeAffinity": {
-            "requiredDuringSchedulingIgnoredDuringExecution": {
-                "nodeSelectorTerms": [{
-                    "matchExpressions": [{
-                        "key": "gpu.nvidia.com/class",
-                        "operator": "In",
-                        "values": [gpu_class],
-                    }]
-                }]
-            }
-        }
-    }
-
-def gpu_resources(config: GPUConfig) -> dict:
-    return {
-        "limits": {
-            "nvidia.com/gpu": str(config.gpu_count),
-            "memory": f"{config.memory_gb}Gi",
-            "cpu": str(config.cpu_cores),
-        },
-        "requests": {
-            "nvidia.com/gpu": str(config.gpu_count),
-            "memory": f"{config.memory_gb // 2}Gi",
-            "cpu": str(config.cpu_cores // 2),
-        },
-    }
-```
-
-### Inference Client Wrapper
-
-```python
-# inference_client.py
-import requests
-from typing import Optional
-
-class CoreWeaveInferenceClient:
-    def __init__(self, endpoint: str, timeout: int = 30):
-        self.endpoint = endpoint.rstrip("/")
-        self.timeout = timeout
-        self.session = requests.Session()
-
-    def generate(self, prompt: str, max_tokens: int = 256, **kwargs) -> str:
-        resp = self.session.post(
-            f"{self.endpoint}/v1/completions",
-            json={"prompt": prompt, "max_tokens": max_tokens, **kwargs},
-            timeout=self.timeout,
-        )
-        resp.raise_for_status()
-        return resp.json()["choices"][0]["text"]
-
-    def chat(self, messages: list[dict], **kwargs) -> str:
-        resp = self.session.post(
-            f"{self.endpoint}/v1/chat/completions",
-            json={"messages": messages, **kwargs},
-            timeout=self.timeout,
-        )
-        resp.raise_for_status()
-        return resp.json()["choices"][0]["message"]["content"]
-
-    def health(self) -> bool:
-        try:
-            resp = self.session.get(f"{self.endpoint}/health", timeout=5)
-            return resp.status_code == 200
-        except Exception:
-            return False
-```
-
-### Deployment Template Generator
-
-```python
-import yaml
-
-def generate_inference_deployment(
-    name: str,
-    image: str,
-    gpu_type: str = "a100-80gb",
-    replicas: int = 1,
-    port: int = 8000,
-) -> str:
-    config = GPU_CATALOG[gpu_type]
-    return yaml.dump({
-        "apiVersion": "apps/v1",
-        "kind": "Deployment",
-        "metadata": {"name": name},
-        "spec": {
-            "replicas": replicas,
-            "selector": {"matchLabels": {"app": name}},
-            "template": {
-                "metadata": {"labels": {"app": name}},
-                "spec": {
-                    "containers": [{
-                        "name": name,
-                        "image": image,
-                        "ports": [{"containerPort": port}],
-                        "resources": gpu_resources(config),
-                    }],
-                    "affinity": gpu_affinity_block(config.gpu_class),
-                },
-            },
-        },
-    })
-```
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| GPU class not found | Typo in node label | Use exact values from `gpu.nvidia.com/class` |
-| OOM on inference | Model too large for GPU | Use larger GPU or quantized model |
-| Connection refused | Service not ready | Check pod readiness probe |
+Choose the documented CoreWeave or Kubernetes interface and design a bounded adapter.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- A namespace-scoped Kubernetes credential and endpoint from the approved environment.
-- An image, GPU class, and resource budget reviewed for the target workload.
-- A secret-manager reference for private registry or model access; never pass tokens
-  into generated YAML or application logs.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
 
-## Output
+## Instructions
 
-- A reusable client or deployment manifest pattern with explicit GPU resources and
-  affinity constraints.
-- A readiness-aware request path that distinguishes unavailable services from a
-  valid application response.
-- A generated manifest that can be reviewed, versioned, and rolled back before apply.
+1. Distinguish CKS Kubernetes APIs, Dedicated Inference, Serverless Inference, storage APIs and Mission Control MCP. Their endpoints, authentication and response schemas are different.
+
+2. For CKS, use an explicit kubeconfig context and namespace. Pin the Kubernetes client version and follow its matching generated method signatures; examples from older clients using positional arguments may be incompatible.
+
+3. For inference, obtain the endpoint and supported model identifier from the owner-approved deployment. Confirm the API reference, TLS origin and credential audience before passing any token. Do not guess /v1/namespaces or invent a CoreWeave SDK.
+
+4. Set connect/read deadlines and bounded retries only for idempotent requests. Give write operations an explicit approval and deduplication strategy; do not automatically retry an uncertain create.
+
+5. Test timeout, 401/403, 429, empty, malformed and partial responses with fixtures. Return an unavailable or unknown result rather than a healthy boolean on incomplete evidence.
 
 ## Examples
 
-Generate a manifest, inspect it for the expected namespace and GPU resource limit,
-then apply it first in staging:
-
-```python
-manifest = generate_inference_deployment('summarizer', 'registry.example/summarizer:v1')
-open('summarizer.yaml', 'w').write(manifest)
-```
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n inference-staging apply --dry-run=server -f summarizer.yaml
-kubectl -n inference-staging apply -f summarizer.yaml
-kubectl -n inference-staging rollout status deployment/summarizer --timeout=10m
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" api-resources
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" auth can-i get deployments.apps
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "deployment/$CW_DEPLOYMENT" --request-timeout=20s
 ```
 
-If validation or rollout fails, retain the reviewed manifest and redacted events;
-do not broaden the client credential or bypass the admission policy.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave GPU Instances](https://docs.coreweave.com/docs/platform/instances/gpu-instances)
-- [Kubernetes Python Client](https://github.com/kubernetes-client/python)
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/observability/mission-control-mcp/reference/tools)
+- [Primary reference 2](https://docs.coreweave.com/products/inference/reference/api-overview)
+- [Primary reference 3](https://github.com/kubernetes-client/python)
 
-## Next Steps
+## Evidence status
 
-Apply patterns in `coreweave-core-workflow-a` for KServe inference deployments.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

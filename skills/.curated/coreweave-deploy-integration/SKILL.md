@@ -11,7 +11,7 @@ description: 'Deploy inference services on CoreWeave with Helm charts and Kustom
   "coreweave kustomize", "coreweave deployment patterns".
 
   '
-allowed-tools: Read, Write, Edit, Bash(helm:*), Bash(kubectl:*), Bash(kustomize:*)
+allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
 version: 1.12.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -23,155 +23,79 @@ tags:
 - coreweave
 compatibility: Designed for Claude Code
 ---
-# CoreWeave Deploy Integration
+# CoreWeave Manifest promotion review
 
 > **Community-contributed.** Not affiliated with, endorsed by, or sponsored by CoreWeave, Inc. CoreWeave is a registered trademark of CoreWeave, Inc.
 
 ## Overview
 
-Deploy GPU-accelerated inference services on CoreWeave Kubernetes (CKS). This skill covers containerizing inference workloads with NVIDIA CUDA base images, configuring GPU resource limits and node affinity for A100/H100 scheduling, setting up health checks that validate GPU availability and model loading, and executing rolling updates that respect GPU node draining. CoreWeave's scheduler requires explicit GPU resource requests to place pods on the correct hardware tier.
-
-## Docker Configuration
+Promote a reviewed Helm/Kustomize deployment while preserving its rollback artifacts.
+Use Read to inspect the approved input files, Write the evidence report, and Edit only the proposed local artifact before review.
+These procedures complement [CoreWeave’s official skills](https://github.com/coreweave/skills); they do not redistribute or replace that upstream distribution.
 
 ## Prerequisites
 
-- A reviewed image digest in an approved registry and a namespace-scoped image pull secret.
-- A production deployment manifest with resource limits, health checks, SLO, and rollback revision.
-- Approval for the target namespace, GPU capacity, and service exposure.
+- The owner-approved organization, cluster context, namespace and resource names.
+- A trusted kubeconfig from the approved secret location; no raw credentials in source, logs or terminal history.
+- Installed kubectl compatible with the cluster, and authority for each proposed read or change.
+- An agreed success criterion, resource budget, evidence destination and recovery owner.
+
+## Cost and safety gate
+
+Before any billable action, follow the [mandatory cost gate](references/cost-gate.md).
+Use the local `scripts/review-cost-plan.py` helper to inspect the exact plan;
+then obtain explicit user confirmation through the trusted approval channel.
+No plan, missing price, changed digest or expired approval means no execution.
+Default to offline inspection; server dry-run and Terraform plan are account calls.
 
 ## Instructions
 
-1. Build and scan the image, then deploy the immutable digest to staging first.
-2. Verify readiness, health, GPU allocation, and baseline request behavior before promotion.
-3. Use a controlled rolling update with a timeout and named observer.
-4. Roll back immediately if readiness, error rate, latency, or security verification fails.
+1. Render a locally reviewed chart or overlay from a pinned source. Check namespace, image digest, GPU limits, secret references, volume mounts, health probes and any cluster-scoped objects.
 
-```dockerfile
-FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04 AS base
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-pip curl && rm -rf /var/lib/apt/lists/*
-WORKDIR /app
-COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+2. Choose one deployment owner and manager. Do not mix Helm release changes with ad-hoc kubectl patches without a reconciliation plan; avoid hook Jobs that run unreviewed code during deployment.
 
-FROM base
-RUN groupadd -r app && useradd -r -g app app
-COPY --chown=app:app src/ ./src/
-COPY --chown=app:app models/ ./models/
-USER app
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
-CMD ["python3", "src/server.py"]
-```
+3. Confirm capacity and rollout strategy, including whether surge replicas need more GPUs than available. Use server dry-run and review the diff before apply.
 
-## Environment Variables
+4. After approval, deploy the exact rendered staging manifest and observe readiness and aggregate workload acceptance. A live DNS endpoint from a local shell may require the approved network route; do not invent a public CoreWeave hostname.
 
-```bash
-export COREWEAVE_API_KEY="cw_xxxxxxxxxxxx"
-export COREWEAVE_NAMESPACE="tenant-my-org"
-export MODEL_NAME="meta-llama/Llama-3.1-8B-Instruct"
-export GPU_TYPE="A100_PCIE_80GB"
-export GPU_COUNT="1"
-export LOG_LEVEL="info"
-export PORT="8080"
-```
-
-## Health Check Endpoint
-
-```typescript
-import express from 'express';
-import { execSync } from 'child_process';
-
-const app = express();
-
-app.get('/health', async (req, res) => {
-  try {
-    const gpuInfo = execSync('nvidia-smi --query-gpu=name,memory.used --format=csv,noheader').toString().trim();
-    const modelLoaded = globalThis.modelReady === true;
-    if (!modelLoaded) throw new Error('Model not loaded');
-    res.json({ status: 'healthy', gpu: gpuInfo, model: process.env.MODEL_NAME, timestamp: new Date().toISOString() });
-  } catch (error) {
-    res.status(503).json({ status: 'unhealthy', error: (error as Error).message });
-  }
-});
-```
-
-## Deployment Steps
-
-### Step 1: Build
-
-```bash
-docker build -t registry.coreweave.com/my-org/inference-svc:latest .
-docker push registry.coreweave.com/my-org/inference-svc:latest
-```
-
-### Step 2: Run
-
-```yaml
-# k8s/deployment.yaml
-resources:
-  limits:
-    nvidia.com/gpu: 1
-    cpu: "4"
-    memory: "48Gi"
-nodeSelector:
-  gpu.nvidia.com/class: A100_PCIE_80GB
-```
-
-```bash
-kubectl apply -f k8s/deployment.yaml -n tenant-my-org
-```
-
-### Step 3: Verify
-
-```bash
-kubectl get pods -n tenant-my-org -l app=inference-svc
-curl -s http://inference-svc.tenant-my-org.svc.cluster.local:8080/health | jq .
-```
-
-### Step 4: Rolling Update
-
-```bash
-kubectl set image deployment/inference-svc \
-  inference=registry.coreweave.com/my-org/inference-svc:v2 \
-  -n tenant-my-org
-kubectl rollout status deployment/inference-svc -n tenant-my-org --timeout=600s
-```
-
-## Error Handling
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| `Pending` pod stuck | No GPU nodes available for requested type | Check `kubectl describe node` for allocatable GPUs or switch GPU tier |
-| `OOMKilled` | Model exceeds GPU memory | Reduce model size, enable quantization, or request larger GPU |
-| `nvidia-smi` not found | Missing NVIDIA device plugin | Verify CoreWeave namespace has GPU operator installed |
-| `401 Unauthorized` | Invalid API key or expired credentials | Regenerate key in CoreWeave dashboard |
-| Slow rolling update | GPU nodes take time to drain | Set `terminationGracePeriodSeconds: 300` in deployment spec |
-
-## Output
-
-- A versioned, health-checked GPU deployment with declared capacity and ownership.
-- A rollout receipt containing image digest, readiness result, and redacted event evidence.
-- A known rollback command and threshold for using it.
+5. Retain the previous manifest/chart values and image digest. Use the manager-specific rollback, then verify application state separately from Pod readiness.
 
 ## Examples
 
-Deploy an immutable staging image and wait for the rollout before sending traffic:
+Set `CW_CONTEXT` and `CW_NAMESPACE` from the approved access request. Set each referenced resource variable to the exact owner-selected resource, not a wildcard or the first matching Pod.
 
 ```bash
-kubectl -n tenant-staging set image deployment/inference-svc \
-  inference=registry.coreweave.com/my-org/inference-svc@sha256:REVIEWED_DIGEST
-kubectl -n tenant-staging rollout status deployment/inference-svc --timeout=10m
+: "${CW_CONTEXT:?approved context required}" "${CW_NAMESPACE:?approved namespace required}"
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply --dry-run=server -f rendered-reviewed.yaml
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" diff -f rendered-reviewed.yaml
+# After approval of the rendered staging change:
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" apply -f rendered-reviewed.yaml
+kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" rollout status "deployment/$CW_DEPLOYMENT" --timeout=10m
 ```
 
-If the rollout fails, use `kubectl rollout undo` for the same deployment and record the redacted events. Do not retag `latest`, bypass health checks, or substitute plaintext credentials.
+These are operator examples, not commands run by this package’s offline tests. Mutating examples require approval for the exact manifest, environment and budget before execution.
+
+## Output
+
+- A UTC-stamped review identifying the observed state, evidence coverage and unresolved assumptions.
+- A specific proposed next step, the owner who can authorize it, and a measurable acceptance or recovery check.
+- A clear incomplete result when credentials, capacity, metrics or live validation are unavailable.
+
+## Error Handling
+
+| Condition | Response |
+|---|---|
+| Authentication or authorization denied | Stop; verify the intended identity and scope without escalating permissions automatically. |
+| Empty or stale evidence | Record unknown and collect a bounded fresh sample; never substitute zero or healthy. |
+| Admission, rollout or acceptance failure | Preserve the sanitized error and use the reviewed recovery path with its owner. |
+| Output may contain a secret or workload data | Restrict sharing and review/redact before retaining or uploading it. |
 
 ## Resources
 
-- [CoreWeave CKS Docs](https://docs.coreweave.com/docs/products/cks)
-- CoreWeave GPU Types
+- [Operator details and evidence boundaries](references/operator-notes.md)
+- [Primary reference 1](https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling)
+- [Primary reference 2](https://kubernetes.io/docs/reference/kubectl/)
 
-## Next Steps
+## Evidence status
 
-See `coreweave-webhooks-events`.
+Source-reviewed guidance with offline repository checks. No live CoreWeave account, paid GPU workload or provider-backed behavioral evaluation was used to validate this guide. Record live results separately before claiming workload success.

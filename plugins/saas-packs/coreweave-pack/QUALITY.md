@@ -8,7 +8,7 @@ Community-contributed; not affiliated with, endorsed by, or sponsored by CoreWea
 
 | Check | Observed result | What it establishes |
 | --- | --- | --- |
-| Focused Python regressions | 176 passed on Python 3.12.3; zero failures, errors or skips | Cost gates, evidence contracts, diagnostic behavior, documented CI examples and validator link boundaries |
+| Focused Python regressions | 180 passed on Python 3.12.3; zero failures, errors or skips | Cost gates, evidence contracts, diagnostic behavior, documented CI examples and validator link boundaries |
 | CI regressions | 41 passed | Existing routing, PR title and injection checks remain intact |
 | Pack gate | 26 skills and three agents pass canonical static validation | All skill rubric grades A; advisory warnings retained in the receipt |
 | Eval packages | All 11 pass J-Rig package checks | Specification integrity; model judgments NOT run |
@@ -17,7 +17,7 @@ Community-contributed; not affiliated with, endorsed by, or sponsored by CoreWea
 | Artifact inspection | 26 guides, 26 blueprints, 11 eval specs, three agents and two provider lockfiles included | Required shipped files present; no Python bytecode included |
 | Hygiene | Gitleaks 8.24.3, Markdown lint, strict Unicode, Ruff, actionlint and shellcheck pass | Tested static surfaces and scoped secret scan; not a security certification |
 
-See [offline-results.json](offline-results.json) for source hashes, individual scores, warnings and explicit limits. This is an unsigned local receipt. The tested implementation commit and per-file hashes identify the relevant bytes; generated catalog commits may follow it.
+See [offline-results.json](offline-results.json) for source hashes, individual scores, warnings and explicit limits. This is an unsigned local receipt. The implementation base commit records branch ancestry; per-file hashes bind the tested source changes atop it. Generated catalog commits may follow. Full [static advisory messages](docs/QUALITY-ADVISORIES.md) remain available and are not waived.
 
 ## Safety boundaries tested
 

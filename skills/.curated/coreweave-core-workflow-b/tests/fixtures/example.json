@@ -1,0 +1,29 @@
+{
+  "schema": "coreweave-evidence/v1",
+  "context": "fixture",
+  "expected_context": "fixture",
+  "namespace": "test",
+  "expected_namespace": "test",
+  "captured_at": "2026-11-05T12:00:00Z",
+  "world_size": 2,
+  "workers": [
+    {
+      "rank": 0,
+      "rendezvous": "fixture:29500",
+      "gpu_count": 1,
+      "transport": "IB"
+    },
+    {
+      "rank": 1,
+      "rendezvous": "fixture:29500",
+      "gpu_count": 1,
+      "transport": "IB"
+    }
+  ],
+  "model_revision": "fixture-v1",
+  "checkpoint": {
+    "restore_test_passed": true,
+    "world_size": 2,
+    "model_revision": "fixture-v1"
+  }
+}

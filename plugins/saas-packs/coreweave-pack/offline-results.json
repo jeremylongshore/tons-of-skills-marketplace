@@ -1,11 +1,10 @@
 {
   "schema": "coreweave-offline-review/v2",
   "date": "2026-11-05",
-  "tested_implementation_commit": "bb9a04e0e6fc09b5f023775c452e97297c5f9760",
   "scope": "Static schemas, packaged references, deterministic fixture contracts and mock-provider Terraform plans; no live account or model calls",
   "tests": {
     "python": "3.12.3",
-    "tests": 176,
+    "tests": 180,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -41,11 +40,11 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[scripts] Code block 1: Magic number '2026' - add comment explaining why",
-          "[line-length] Line 54 is 569 chars (recommended limit 500)",
-          "[stub-section] Section '## Examples' appears to be a stub (10 words, 1 sentence)",
-          "[stub-section] Section '## Output' appears to be a stub (12 words, 1 sentence)"
+          "[frontmatter]",
+          "[scripts]",
+          "[line-length]",
+          "[stub-section]",
+          "[stub-section]"
         ],
         "grade": "A",
         "score": 100
@@ -54,8 +53,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-ci-integration/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[line-length] Line 144 is 600 chars (recommended limit 500)"
+          "[frontmatter]",
+          "[line-length]"
         ],
         "grade": "A",
         "score": 98
@@ -64,11 +63,11 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cks-provisioning/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[scripts] Code block 1: Magic number '2026' - add comment explaining why",
-          "[line-length] Line 54 is 681 chars (recommended limit 500)",
-          "[stub-section] Section '## Examples' appears to be a stub (10 words, 1 sentence)",
-          "[stub-section] Section '## Output' appears to be a stub (12 words, 1 sentence)"
+          "[frontmatter]",
+          "[scripts]",
+          "[line-length]",
+          "[stub-section]",
+          "[stub-section]"
         ],
         "grade": "A",
         "score": 100
@@ -77,8 +76,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-common-errors/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 98
@@ -87,10 +86,10 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[scripts] Code block 2: Magic number '2026' - add comment explaining why",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration",
-          "[line-length] Line 81 is 627 chars (recommended limit 500)"
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:allowed-tools-accuracy]",
+          "[line-length]"
         ],
         "grade": "A",
         "score": 100
@@ -99,11 +98,11 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-b/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[frontmatter] Consider using action verbs (analyze, detect, forecast, etc.)",
-          "[scripts] Code block 2: Magic number '2026' - add comment explaining why",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration",
-          "[line-length] Line 80 is 618 chars (recommended limit 500)"
+          "[frontmatter]",
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:allowed-tools-accuracy]",
+          "[line-length]"
         ],
         "grade": "A",
         "score": 99
@@ -112,8 +111,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-cost-tuning/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 99
@@ -122,8 +121,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-data-handling/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 100
@@ -132,8 +131,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-debug-bundle/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 96
@@ -142,8 +141,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-deploy-integration/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 95
@@ -152,10 +151,10 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[scripts] Code block 2: Magic number '2026' - add comment explaining why",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration",
-          "[line-length] Line 72 is 639 chars (recommended limit 500)"
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:allowed-tools-accuracy]",
+          "[line-length]"
         ],
         "grade": "A",
         "score": 98
@@ -164,9 +163,9 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[reference-quality] references/allreduce-baseline.md is too thin (4 non-blank lines, 654 chars after frontmatter)",
-          "[reference-quality] references/rdma-engagement-checklist.md is too thin (4 non-blank lines, 775 chars after frontmatter)"
+          "[frontmatter]",
+          "[reference-quality]",
+          "[reference-quality]"
         ],
         "grade": "A",
         "score": 98
@@ -175,10 +174,10 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:auth-documented] External API surface referenced (curl/fetch/MCP/OAuth/etc.) but no authentication method documented \u2014 add an Auth section or reference auth.md",
-          "[reference-quality] references/cfo-output-format.md is too thin (4 non-blank lines, 934 chars after frontmatter)",
-          "[reference-quality] references/gpu-right-sizing.md is too thin (4 non-blank lines, 782 chars after frontmatter)"
+          "[frontmatter]",
+          "[tier2:auth-documented]",
+          "[reference-quality]",
+          "[reference-quality]"
         ],
         "grade": "A",
         "score": 98
@@ -187,9 +186,9 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[reference-quality] references/cordon-rules.md is too thin (4 non-blank lines, 750 chars after frontmatter)",
-          "[reference-quality] references/row-remap-decision.md is too thin (4 non-blank lines, 646 chars after frontmatter)"
+          "[frontmatter]",
+          "[reference-quality]",
+          "[reference-quality]"
         ],
         "grade": "A",
         "score": 96
@@ -198,8 +197,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-hello-world/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 97
@@ -208,11 +207,11 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[frontmatter] Consider using action verbs (analyze, detect, forecast, etc.)",
-          "[scripts] Code block 2: Magic number '2026' - add comment explaining why",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration",
-          "[line-length] Line 72 is 557 chars (recommended limit 500)"
+          "[frontmatter]",
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:allowed-tools-accuracy]",
+          "[line-length]"
         ],
         "grade": "A",
         "score": 100
@@ -221,8 +220,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-install-auth/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 97
@@ -231,8 +230,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-local-dev-loop/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 98
@@ -241,8 +240,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-multi-env-setup/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 98
@@ -251,8 +250,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-observability/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 99
@@ -261,8 +260,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-performance-tuning/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 100
@@ -271,8 +270,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-prod-checklist/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 100
@@ -281,8 +280,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-sdk-patterns/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 100
@@ -291,8 +290,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-security-basics/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 98
@@ -301,8 +300,8 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-upgrade-migration/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[tier2:allowed-tools-accuracy] Tool 'Grep' is declared in allowed-tools but never referenced in the skill body \u2014 over-permissive or stale declaration"
+          "[frontmatter]",
+          "[tier2:allowed-tools-accuracy]"
         ],
         "grade": "A",
         "score": 96
@@ -311,12 +310,12 @@
         "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/SKILL.md",
         "errors": [],
         "warnings": [
-          "[frontmatter] Missing conditional field: 'argument-hint' (relevant for this skill's configuration)",
-          "[scripts] Code block 1: Magic number '2026' - add comment explaining why",
-          "[tier2:auth-documented] External API surface referenced (curl/fetch/MCP/OAuth/etc.) but no authentication method documented \u2014 add an Auth section or reference auth.md",
-          "[line-length] Line 47 is 651 chars (recommended limit 500)",
-          "[stub-section] Section '## Examples' appears to be a stub (10 words, 1 sentence)",
-          "[stub-section] Section '## Output' appears to be a stub (12 words, 1 sentence)"
+          "[frontmatter]",
+          "[scripts]",
+          "[tier2:auth-documented]",
+          "[line-length]",
+          "[stub-section]",
+          "[stub-section]"
         ],
         "grade": "A",
         "score": 100
@@ -434,14 +433,15 @@
     ],
     "behavioral_evaluation": "NOT RUN",
     "live_account_validation": "NOT RUN",
-    "hooks": "ABSENT: offline helpers need no automatic command interception",
-    "mcp": "ABSENT: account access is not required; official MCP is documented, not auto-connected",
     "gitleaks": "PASS",
     "errors": [],
-    "status": "PASS (static and offline contracts only)"
+    "status": "PASS (static and offline contracts only)",
+    "advisory_messages_document": "docs/QUALITY-ADVISORIES.md",
+    "hook_surface_review": "ABSENT: offline helpers need no automatic command interception",
+    "mcp_surface_review": "ABSENT: account access is not required; official MCP is documented, not auto-connected"
   },
   "package": {
-    "files": 192,
+    "files": 193,
     "skill_guides": 26,
     "skill_blueprints": 26,
     "eval_specs": 11,
@@ -457,7 +457,9 @@
     "scanner_installer": "PASS, gitleaks 8.24.3 pinned SHA256 verified",
     "standalone_links": "PASS: local links resolve within each standalone skill; pack-level design links use an immutable source revision",
     "conformance": "2964 PASS, 1 ADVISORY, 1 NOT_APPLICABLE, zero FAIL",
-    "safety_ratchet": "PASS; reduced agent-error debt pinned at 229 unique errors"
+    "safety_ratchet": "PASS; reduced agent-error debt pinned at 229 unique errors",
+    "supply_chain_source_scan": "PASS: 0 REFUSE, 0 CHALLENGE, 26 informational Bash flags, zero waivers",
+    "ci_registry_regressions": "35 passed; only source hashes, step/line bindings and two new run-container counts changed"
   },
   "source_sha256": [
     {
@@ -486,7 +488,7 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/scripts/review-transfer.py",
-      "sha256": "95f060562f21e26d8cbdb78f98cfac3eeaa954b06557a1eeea04e1874c346a51"
+      "sha256": "d788b3a231397e9d7010de430f60f3166241ff694832150e7e63109ce812b06e"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-caios-stage-model/scripts/review_common.py",
@@ -610,7 +612,7 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/scripts/review-inference.py",
-      "sha256": "d65d978d1464cee1ffe2cbda3f541250d111363d5787c1f14ef5f111f522875e"
+      "sha256": "cb3fd1d0951162da66bd90c7d27e82e26a651ba6eea4d1eeec4487a0413c14e5"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-core-workflow-a/scripts/review_common.py",
@@ -706,7 +708,7 @@
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/scripts/fabric-check.py",
-      "sha256": "9e201cd198401f9cf673f8d1774637383bcc0f2ecf835dd5c0e4da16221b8e0e"
+      "sha256": "d9045a4d531d12f0ca5e1c78082d02f087b0af3c833c396b6bdb094e15e233bc"
     },
     {
       "path": "plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/SKILL.md",
@@ -858,7 +860,7 @@
     },
     {
       "path": "tests/test_coreweave_reviewers.py",
-      "sha256": "61aa6b4d9bfd940957a5705835059f6197d99404758dec7a57c51654344159d4"
+      "sha256": "cd51b24707af28c7180b3f1232c20a5872de6c45f100d449593f65287e4aaf7c"
     }
   ],
   "limits": [
@@ -869,5 +871,8 @@
     "Normalized evidence is supplied data, not authenticated account truth; reviewed does not mean authorized.",
     "The 15 remaining guides have static validation but no dedicated eval spec.",
     "Approval JSON/digests cannot authenticate the human approver; trusted-channel confirmation remains mandatory."
-  ]
+  ],
+  "implementation_base_commit": "90ce3387f83ff979f18ea72643f524359a48fa15",
+  "source_binding": "Per-file source_sha256 entries bind tested working-tree changes atop the base commit; not a claim that every file equals the base revision.",
+  "advisory_messages_sha256": "1abeda98d2215f8e5c6790941f98ef7d27eee8677b9ffa3b01e35f7253071bfd"
 }

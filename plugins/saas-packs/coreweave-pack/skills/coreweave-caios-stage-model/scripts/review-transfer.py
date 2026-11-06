@@ -6,17 +6,12 @@ from review_common import run
 
 def analyze(d, r):
     from pathlib import PurePosixPath
-    from urllib.parse import urlparse
 
-    endpoint = urlparse(d.get("endpoint", ""))
+    # This adapter supports exactly the documented public TLS endpoint.
+    # No generic URL parser or network-capable module is required.
+    endpoint = d.get("endpoint", "")
     r.require(
-        endpoint.scheme == "https"
-        and endpoint.hostname == "cwobject.com"
-        and not endpoint.username
-        and not endpoint.password
-        and endpoint.path in ("", "/")
-        and not endpoint.query
-        and not endpoint.fragment,
+        endpoint in ("https://cwobject.com", "https://cwobject.com/"),
         "storage-endpoint",
         "Use the documented TLS cwobject.com endpoint without URL credentials.",
     )

@@ -6819,6 +6819,30 @@
       "fallback_for_tools": []
     },
     {
+      "slug": "coreweave-caios-stage-model",
+      "name": "coreweave-caios-stage-model",
+      "description": "Plan CAIOS model transfers and verify exact object sizes, checksums and prefix ownership from supplied evidence. Use when reviewing CoreWeave caios stage model or checking supplied operational evidence. Trigger with \"coreweave caios stage model\".",
+      "version": "1.12.0",
+      "category": "saas-packs",
+      "parentPlugin": "coreweave-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
+      "slug": "coreweave-cks-provisioning",
+      "name": "coreweave-cks-provisioning",
+      "description": "Review original Terraform CKS cluster, VPC and node-pool plans for cost, ownership and replacement risks. Use when reviewing CoreWeave cks provisioning or checking supplied operational evidence. Trigger with \"coreweave cks provisioning\".",
+      "version": "1.12.0",
+      "category": "saas-packs",
+      "parentPlugin": "coreweave-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
       "slug": "coreweave-common-errors",
       "name": "coreweave-common-errors",
       "description": "Diagnose and fix CoreWeave GPU scheduling, pod, and networking errors. Use when pods are stuck Pending, GPUs are not allocated, or experiencing CUDA and NCCL errors. Trigger with phrases like \"coreweave error\", \"coreweave pod pending\", \"coreweave gpu not found\", \"coreweave debug\", \"fix coreweave\".",
@@ -7062,6 +7086,18 @@
       "slug": "coreweave-upgrade-migration",
       "name": "coreweave-upgrade-migration",
       "description": "Upgrade CoreWeave deployments and migrate between GPU types. Use when migrating from A100 to H100, upgrading CUDA versions, or updating inference server versions. Trigger with phrases like \"upgrade coreweave\", \"coreweave gpu migration\", \"coreweave cuda upgrade\", \"migrate coreweave\".",
+      "version": "1.12.0",
+      "category": "saas-packs",
+      "parentPlugin": "coreweave-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
+      "slug": "coreweave-workload-health",
+      "name": "coreweave-workload-health",
+      "description": "Verify workload readiness, GPU allocation and observed activity from pasted snapshots without changing workloads. Use when reviewing CoreWeave workload health or checking supplied operational evidence. Trigger with \"coreweave workload health\".",
       "version": "1.12.0",
       "category": "saas-packs",
       "parentPlugin": "coreweave-pack",
@@ -32559,7 +32595,7 @@
       "fallback_for_tools": []
     }
   ],
-  "count": 2713,
+  "count": 2716,
   "categories": [
     "ai-agency",
     "ai-ml",

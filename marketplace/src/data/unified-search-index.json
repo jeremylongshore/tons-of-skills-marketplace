@@ -6,9 +6,9 @@
   },
   "stats": {
     "totalPlugins": 428,
-    "totalSkills": 2713,
+    "totalSkills": 2716,
     "totalDocs": 25,
-    "totalItems": 3166,
+    "totalItems": 3169,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -1732,9 +1732,9 @@
       "zero-cost",
       "zod"
     ],
-    "totalAgents": 352,
+    "totalAgents": 355,
     "totalHooks": 26,
-    "pluginsWithAgents": 91,
+    "pluginsWithAgents": 92,
     "pluginsWithHooks": 18,
     "officialPlugins": 382,
     "communityPlugins": 46,
@@ -12145,7 +12145,7 @@
       "slug": "coreweave-pack",
       "name": "coreweave-pack",
       "displayName": "coreweave pack",
-      "description": "Community CoreWeave GPU operations pack (23 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by CoreWeave, Inc.",
+      "description": "Community CoreWeave GPU operations pack (26 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by CoreWeave, Inc.",
       "category": "saas-packs",
       "keywords": [
         "coreweave",
@@ -12163,11 +12163,11 @@
       "isFeatured": false,
       "isNew": false,
       "badges": [],
-      "skillCount": 23,
+      "skillCount": 26,
       "verificationScore": 98,
       "verificationGrade": "A",
       "verificationBadge": "gold",
-      "searchText": "coreweave pack community coreweave gpu operations pack (23 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by coreweave, inc. saas-packs coreweave saas sdk integration"
+      "searchText": "coreweave pack community coreweave gpu operations pack (26 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by coreweave, inc. saas-packs coreweave saas sdk integration"
     },
     {
       "type": "plugin",
@@ -14978,7 +14978,8 @@
         "Write",
         "Edit",
         "Bash(gh:*)",
-        "Bash(kubectl:*)"
+        "Bash(kubectl:*)",
+        "Bash(python3:*)"
       ],
       "compatibleWith": [],
       "version": "1.12.0",
@@ -14986,7 +14987,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "unofficial ci integration for coreweave unofficial ci integration for coreweave deployments using github actions. use when automating container builds, deploying inference services from ci, or validating gpu manifests in pull requests. trigger with phrases like \"coreweave ci\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\". saas-packs read write edit bash(gh:*) bash(kubectl:*) "
+      "searchText": "unofficial ci integration for coreweave unofficial ci integration for coreweave deployments using github actions. use when automating container builds, deploying inference services from ci, or validating gpu manifests in pull requests. trigger with phrases like \"coreweave ci\", \"coreweave github actions\", \"coreweave pipeline\", \"automate coreweave deploy\". saas-packs read write edit bash(gh:*) bash(kubectl:*) bash(python3:*) "
     },
     {
       "type": "skill",
@@ -27548,6 +27549,50 @@
     },
     {
       "type": "skill",
+      "id": "coreweave-caios-stage-model",
+      "slug": "coreweave-caios-stage-model",
+      "name": "coreweave-caios-stage-model",
+      "description": "Plan CAIOS model transfers and verify exact object sizes, checksums and prefix ownership from supplied evidence. Use when reviewing CoreWeave caios stage model or checking supplied operational evidence. Trigger with \"coreweave caios stage model\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash(python3:*)",
+        "Grep"
+      ],
+      "compatibleWith": [],
+      "version": "1.12.0",
+      "parentPlugin": {
+        "name": "coreweave-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "coreweave-caios-stage-model plan caios model transfers and verify exact object sizes, checksums and prefix ownership from supplied evidence. use when reviewing coreweave caios stage model or checking supplied operational evidence. trigger with \"coreweave caios stage model\". saas-packs read write edit bash(python3:*) grep "
+    },
+    {
+      "type": "skill",
+      "id": "coreweave-cks-provisioning",
+      "slug": "coreweave-cks-provisioning",
+      "name": "coreweave-cks-provisioning",
+      "description": "Review original Terraform CKS cluster, VPC and node-pool plans for cost, ownership and replacement risks. Use when reviewing CoreWeave cks provisioning or checking supplied operational evidence. Trigger with \"coreweave cks provisioning\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash(python3:*)",
+        "Grep"
+      ],
+      "compatibleWith": [],
+      "version": "1.12.0",
+      "parentPlugin": {
+        "name": "coreweave-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "coreweave-cks-provisioning review original terraform cks cluster, vpc and node-pool plans for cost, ownership and replacement risks. use when reviewing coreweave cks provisioning or checking supplied operational evidence. trigger with \"coreweave cks provisioning\". saas-packs read write edit bash(python3:*) grep "
+    },
+    {
+      "type": "skill",
       "id": "coreweave-common-errors",
       "slug": "coreweave-common-errors",
       "name": "coreweave-common-errors",
@@ -27580,6 +27625,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27588,7 +27634,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-core-workflow-a review a coreweave self-managed inference release, readiness and gpu scheduling. use when deploying a model on cks, checking kserve prerequisites, or diagnosing an inference rollout. trigger with coreweave inference service, coreweave model serving, or coreweave kserve. saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-core-workflow-a review a coreweave self-managed inference release, readiness and gpu scheduling. use when deploying a model on cks, checking kserve prerequisites, or diagnosing an inference rollout. trigger with coreweave inference service, coreweave model serving, or coreweave kserve. saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
     },
     {
       "type": "skill",
@@ -27602,6 +27648,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27610,7 +27657,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-core-workflow-b run distributed gpu training jobs on coreweave with multi-node pytorch. use when training models across multiple gpus, setting up distributed training, or running fine-tuning jobs on coreweave h100 clusters. trigger with phrases like \"coreweave training\", \"coreweave multi-gpu\", \"distributed training coreweave\", \"fine-tune on coreweave\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-core-workflow-b run distributed gpu training jobs on coreweave with multi-node pytorch. use when training models across multiple gpus, setting up distributed training, or running fine-tuning jobs on coreweave h100 clusters. trigger with phrases like \"coreweave training\", \"coreweave multi-gpu\", \"distributed training coreweave\", \"fine-tune on coreweave\". saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
     },
     {
       "type": "skill",
@@ -27690,6 +27737,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27698,7 +27746,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-deploy-integration deploy inference services on coreweave with helm charts and kustomize. use when deploying multi-model inference, managing gpu deployments at scale, or templating coreweave manifests. trigger with phrases like \"deploy coreweave\", \"coreweave helm\", \"coreweave kustomize\", \"coreweave deployment patterns\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-deploy-integration deploy inference services on coreweave with helm charts and kustomize. use when deploying multi-model inference, managing gpu deployments at scale, or templating coreweave manifests. trigger with phrases like \"deploy coreweave\", \"coreweave helm\", \"coreweave kustomize\", \"coreweave deployment patterns\". saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
     },
     {
       "type": "skill",
@@ -27712,6 +27760,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27720,7 +27769,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-enterprise-rbac configure rbac and namespace isolation for coreweave multi-team gpu access. use when managing team permissions, isolating gpu quotas, or implementing namespace-level access control. trigger with phrases like \"coreweave rbac\", \"coreweave permissions\", \"coreweave namespace isolation\", \"coreweave team access\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-enterprise-rbac configure rbac and namespace isolation for coreweave multi-team gpu access. use when managing team permissions, isolating gpu quotas, or implementing namespace-level access control. trigger with phrases like \"coreweave rbac\", \"coreweave permissions\", \"coreweave namespace isolation\", \"coreweave team access\". saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
     },
     {
       "type": "skill",
@@ -27779,6 +27828,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27787,7 +27837,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-hello-world deploy a gpu workload on coreweave with kubectl. use when running your first gpu job, testing inference, or verifying coreweave cluster access. trigger with phrases like \"coreweave hello world\", \"coreweave first deploy\", \"coreweave gpu test\", \"run on coreweave\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-hello-world deploy a gpu workload on coreweave with kubectl. use when running your first gpu job, testing inference, or verifying coreweave cluster access. trigger with phrases like \"coreweave hello world\", \"coreweave first deploy\", \"coreweave gpu test\", \"run on coreweave\". saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
     },
     {
       "type": "skill",
@@ -27801,6 +27851,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27809,7 +27860,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-incident-runbook incident response runbook for coreweave gpu workload failures. use when inference services are down, gpus are unavailable, or responding to production incidents on coreweave. trigger with phrases like \"coreweave incident\", \"coreweave outage\", \"coreweave runbook\", \"coreweave service down\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-incident-runbook incident response runbook for coreweave gpu workload failures. use when inference services are down, gpus are unavailable, or responding to production incidents on coreweave. trigger with phrases like \"coreweave incident\", \"coreweave outage\", \"coreweave runbook\", \"coreweave service down\". saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
     },
     {
       "type": "skill",
@@ -27867,6 +27918,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27875,7 +27927,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-multi-env-setup configure coreweave across development, staging, and production environments. use when setting up multi-environment gpu infrastructure, separating namespaces, or managing per-environment gpu quotas. trigger with phrases like \"coreweave environments\", \"coreweave staging\", \"coreweave multi-env\", \"coreweave namespace setup\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-multi-env-setup configure coreweave across development, staging, and production environments. use when setting up multi-environment gpu infrastructure, separating namespaces, or managing per-environment gpu quotas. trigger with phrases like \"coreweave environments\", \"coreweave staging\", \"coreweave multi-env\", \"coreweave namespace setup\". saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
     },
     {
       "type": "skill",
@@ -27911,6 +27963,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -27919,7 +27972,7 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-performance-tuning optimize coreweave gpu inference latency and throughput. use when reducing inference latency, maximizing gpu utilization, or tuning batch sizes and concurrency. trigger with phrases like \"coreweave performance\", \"coreweave latency\", \"coreweave throughput\", \"optimize coreweave inference\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-performance-tuning optimize coreweave gpu inference latency and throughput. use when reducing inference latency, maximizing gpu utilization, or tuning batch sizes and concurrency. trigger with phrases like \"coreweave performance\", \"coreweave latency\", \"coreweave throughput\", \"optimize coreweave inference\". saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
     },
     {
       "type": "skill",
@@ -27999,6 +28052,7 @@
         "Write",
         "Edit",
         "Bash(kubectl:*)",
+        "Bash(python3:*)",
         "Grep"
       ],
       "compatibleWith": [],
@@ -28007,7 +28061,29 @@
         "name": "coreweave-pack",
         "category": "saas-packs"
       },
-      "searchText": "coreweave-upgrade-migration upgrade coreweave deployments and migrate between gpu types. use when migrating from a100 to h100, upgrading cuda versions, or updating inference server versions. trigger with phrases like \"upgrade coreweave\", \"coreweave gpu migration\", \"coreweave cuda upgrade\", \"migrate coreweave\". saas-packs read write edit bash(kubectl:*) grep "
+      "searchText": "coreweave-upgrade-migration upgrade coreweave deployments and migrate between gpu types. use when migrating from a100 to h100, upgrading cuda versions, or updating inference server versions. trigger with phrases like \"upgrade coreweave\", \"coreweave gpu migration\", \"coreweave cuda upgrade\", \"migrate coreweave\". saas-packs read write edit bash(kubectl:*) bash(python3:*) grep "
+    },
+    {
+      "type": "skill",
+      "id": "coreweave-workload-health",
+      "slug": "coreweave-workload-health",
+      "name": "coreweave-workload-health",
+      "description": "Verify workload readiness, GPU allocation and observed activity from pasted snapshots without changing workloads. Use when reviewing CoreWeave workload health or checking supplied operational evidence. Trigger with \"coreweave workload health\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash(python3:*)",
+        "Grep"
+      ],
+      "compatibleWith": [],
+      "version": "1.12.0",
+      "parentPlugin": {
+        "name": "coreweave-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "coreweave-workload-health verify workload readiness, gpu allocation and observed activity from pasted snapshots without changing workloads. use when reviewing coreweave workload health or checking supplied operational evidence. trigger with \"coreweave workload health\". saas-packs read write edit bash(python3:*) grep "
     },
     {
       "type": "skill",

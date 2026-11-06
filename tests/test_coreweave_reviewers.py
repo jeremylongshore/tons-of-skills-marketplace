@@ -92,3 +92,52 @@ def test_documented_ci_workflows_match_review_contract(workflow_index, tmp_path)
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert json.loads(result.stdout)["status"] == "reviewed"
+
+
+@pytest.mark.parametrize(
+    "endpoint", ["https://cwobject.com:8443", "https://user@cwobject.com", "https://cwobject.com/models"]
+)
+def test_staging_endpoint_is_exact_public_tls_endpoint(endpoint, tmp_path):
+    skill = SKILLS / "coreweave-caios-stage-model"
+    evidence = json.loads((skill / "tests/fixtures/example.json").read_text())
+    evidence["endpoint"] = endpoint
+    data = tmp_path / "endpoint.json"
+    data.write_text(json.dumps(evidence))
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(skill / "scripts/review-transfer.py"),
+            "--input",
+            str(data),
+            "--as-of",
+            "2026-11-05T12:01:00Z",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 2
+    assert "storage-endpoint" in {finding["code"] for finding in json.loads(result.stdout)["findings"]}
+
+
+def test_inference_rejects_nonhex_artifact_digest(tmp_path):
+    skill = SKILLS / "coreweave-core-workflow-a"
+    evidence = json.loads((skill / "tests/fixtures/example.json").read_text())
+    evidence["model_provenance"]["sha256"] = "z" * 64
+    data = tmp_path / "digest.json"
+    data.write_text(json.dumps(evidence))
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(skill / "scripts/review-inference.py"),
+            "--input",
+            str(data),
+            "--as-of",
+            "2026-11-05T12:01:00Z",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 2
+    assert "model-provenance" in {finding["code"] for finding in json.loads(result.stdout)["findings"]}
