@@ -7,7 +7,7 @@ description: |
   Trigger with "xid error", "gpu fell off the bus", "coreweave gpu dead",
   "should I RMA this GPU", or "gpu node triage".
 allowed-tools: Read, Bash(python3:*), Bash(nvidia-smi -q:*), Bash(kubectl get:*), Bash(dmesg:*)
-version: 1.13.0
+version: 1.14.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

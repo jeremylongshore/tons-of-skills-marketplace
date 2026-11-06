@@ -12,7 +12,7 @@ description: 'Production readiness checklist for CoreWeave GPU workloads.
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.13.0
+version: 1.14.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
