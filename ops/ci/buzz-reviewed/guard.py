@@ -11,6 +11,8 @@ import sys
 REPO = "jeremylongshore/tons-of-skills-marketplace"
 POLICY = Path("/etc/ccpi-reviewed/admission.json")
 WORKFLOWS = {
+    "actionlint.yml",
+    "auto-bump-test.yml",
     "validate-plugins.yml",
     "skill-conform.yml",
     "secret-scan.yml",
