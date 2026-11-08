@@ -88,6 +88,32 @@ class SnapshotRoutingTests(unittest.TestCase):
         self.commit()
         self.assertEqual(links.select(self.root, self.base, "repo"), ["./guide.md"])
 
+    def test_codeql_budget_fits_reviewed_worker_without_reducing_scan_scope(self):
+        workflow = yaml.safe_load((ROOT / ".github/workflows/codeql.yml").read_text())
+        job = workflow["jobs"]["analyze"]
+        self.assertEqual(job["strategy"]["matrix"]["language"], ["javascript", "typescript", "python"])
+        self.assertIn("CCPI_REVIEWED_PR_RUNNER", job["strategy"]["max-parallel"])
+        self.assertTrue(job["strategy"]["max-parallel"].endswith("&& 1 || 3 }}"))
+        init = next(s for s in job["steps"] if s.get("uses", "").startswith("github/codeql-action/init@"))
+        self.assertEqual(init["with"]["queries"], "security-extended,security-and-quality")
+        # Init passes its explicit budget to analysis; empty hosted inputs keep auto-detection.
+        for key, budget in [("ram", 2048), ("threads", 2)]:
+            self.assertEqual(
+                init["with"][key], "${{ runner.environment == 'self-hosted' && '" + str(budget) + "' || '' }}"
+            )
+        service = (ROOT / "ops/ci/buzz-reviewed/gh-runner-ccpi-reviewed.service").read_text()
+        self.assertIn("MemoryMax=3G", service)
+        self.assertIn("CPUQuota=200%", service)
+
+    def test_gitleaks_report_is_inside_its_step_local_artifact_root(self):
+        workflow = yaml.safe_load((ROOT / ".github/workflows/secret-scan.yml").read_text())
+        job = workflow["jobs"]["gitleaks"]
+        scan = next(s for s in job["steps"] if s.get("uses", "").startswith("gitleaks/gitleaks-action@"))
+        self.assertEqual(scan["env"]["HOME"], "${{ github.workspace }}")
+        self.assertNotEqual(scan["env"].get("GITLEAKS_ENABLE_UPLOAD_ARTIFACT"), "false")
+        self.assertNotIn("continue-on-error", scan)
+        self.assertNotIn("HOME", job.get("env", {}))
+
     def test_each_pnpm_cache_has_its_package_manager_ready(self):
         workflow = yaml.safe_load((ROOT / ".github/workflows/validate-plugins.yml").read_text())
         for name, job in workflow["jobs"].items():

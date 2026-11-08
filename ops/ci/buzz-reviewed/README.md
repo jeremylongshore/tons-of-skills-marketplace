@@ -22,6 +22,13 @@ Each root-owned distribution and admission configuration are read-only to jobs.
 All CI remains under the existing estate limit of four CPUs and 6 GiB. Each worker
 has a two-CPU/three-GiB ceiling within that limit; the pool does not raise estate capacity.
 
+CodeQL receives an explicit 2048-MB/two-thread budget on self-hosted workers,
+with one analysis matrix job at a time; its language and query coverage is unchanged.
+The Gitleaks action uses the checkout as its step-local `HOME` so its SARIF upload
+root contains the report. Report uploads remain required. CoreWeave validation uses
+a dedicated virtual environment with pinned PyYAML, so clearing ambient environment
+variables for fixtures does not remove access to the helper dependency.
+
 The PR diff secret scan uses the checksum-pinned upstream TruffleHog 3.95.9 binary
 with the same base/head range, fail-on-findings behavior, and verified/unknown
 result classes. This avoids granting a root-equivalent host Docker socket. The

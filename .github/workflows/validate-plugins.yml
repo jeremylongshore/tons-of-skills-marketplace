@@ -182,11 +182,16 @@ jobs:
           python3 -c "import yaml" 2>/dev/null || python3 -m pip install --quiet pyyaml
           pnpm run validate:safety-ratchet
 
+      - name: Provision isolated Python for CoreWeave offline validation
+        run: |
+          python3 -m venv "$RUNNER_TEMP/coreweave-venv"
+          "$RUNNER_TEMP/coreweave-venv/bin/python" -m pip install 'PyYAML==6.0.1'
+
       - name: Install pinned scanner for CoreWeave offline validation
         run: bash scripts/ci/install-coreweave-gitleaks.sh "$RUNNER_TEMP/coreweave-tools"
 
       - name: Validate CoreWeave skills and offline evaluation contracts
-        run: python3 scripts/validate-coreweave-pack.py --gitleaks "$RUNNER_TEMP/coreweave-tools/gitleaks" --report "$RUNNER_TEMP/coreweave-validation.json"
+        run: '"$RUNNER_TEMP/coreweave-venv/bin/python" scripts/validate-coreweave-pack.py --gitleaks "$RUNNER_TEMP/coreweave-tools/gitleaks" --report "$RUNNER_TEMP/coreweave-validation.json"'
 
       - name: Test CI routing policy
         run: python3 -m unittest tests.ci.test_fastlane tests.ci.test_fastlane_workflow tests.ci.test_funding tests.ci.test_buzz_ci_guard tests.ci.test_reviewed_runner_guard tests.ci.test_reviewed_secret_scan -v
