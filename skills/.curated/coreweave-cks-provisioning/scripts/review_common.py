@@ -23,6 +23,7 @@ class Report:
     def __init__(self):
         self.findings = []
         self.observations = {}
+        self.evaluation_time = None
 
     def require(self, condition, code, message, unknown=False):
         if not condition:
@@ -77,6 +78,7 @@ def run(analyze):
                 "scope-" + key,
                 "Explicit intended and observed scope must agree.",
             )
+        report.evaluation_time = now
         analyze(data, report)
         result = report.result()
         result.update(input_sha256=hashlib.sha256(raw).hexdigest(), evaluated_at=now.isoformat())

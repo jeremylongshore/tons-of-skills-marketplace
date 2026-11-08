@@ -2,7 +2,7 @@
 
 Community-contributed; not affiliated with CoreWeave.
 
-Supply the Kubernetes `pod` JSON object, `gpu_allocations` mapping Pod UID to GPU UUID, and `gpu_samples` with uuid/pod_uid/at/utilization_percent. Allocation evidence must come from the approved device/Pod mapping; do not join only on a reused Pod name. Samples must be finite, in 0..100 and within five minutes of capture. Positive utilization shows activity in that window, not model correctness, sustained efficiency, all GPU architectures or application health. Idle but healthy batch workloads can return incomplete activity evidence. MIG/MPS/time-slicing need an explicit adapter; do not pretend full-GPU UUID semantics prove those allocations.
+Supply the Kubernetes `pod` JSON object, `gpu_allocations` mapping Pod UID to GPU UUID, and `gpu_samples` with uuid/pod_uid/at/utilization_percent. Allocation evidence must come from the approved device/Pod mapping; do not join only on a reused Pod name. Samples must be finite, in 0..100, no later than capture and within five minutes of evaluation. GPU limits accept whole integers and plain decimal strings such as `"1"`. A deletion timestamp makes readiness incomplete despite retained Ready conditions or positive activity. Positive utilization shows activity in that window, not model correctness, sustained efficiency, all GPU architectures or application health. Idle but healthy batch workloads can return incomplete activity evidence. MIG/MPS/time-slicing need an explicit adapter; do not pretend full-GPU UUID semantics prove those allocations.
 
 ## Input and review boundary
 
@@ -22,6 +22,6 @@ fixture before extending an adapter.
 
 Primary source: https://docs.coreweave.com/products/cks/clusters/scheduling/workload-scheduling
 
-Contract reviewed 2026-11-05. Repository examples are original. Vendor version and
+Contract reviewed 2026-11-07. Repository examples are original. Vendor version and
 account-specific availability must be confirmed separately; no live operation was
 performed for this pack. See the blueprint for requirements and release boundaries.

@@ -54,7 +54,7 @@ a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4  plugins/saas-p
 3a3b2fd711547c3cd2863b2cd394ffbedd8137ae8c82cb83bd23c1c81f17f99e  plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/eval-spec.yaml
 b0c1d9520878f887fd1bc15a836925540a252181e8cc828fa71fdea1fce0133e  plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/eval-spec.yaml
 0157fa398f7749bd39c7e68ea2c53e17ae5c52bf803e82c0ff5b8abe566cb447  plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/eval-spec.yaml
-688af470d2f6cc86438ed00ff872c97346023cf4715aed2a553a488ea89aa7c6  plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/eval-spec.yaml
+fbaf7ddb6cf3d8e4388e10708f461096ca27e478975bf27a810e9627cf72edaa  plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/eval-spec.yaml
 c981c39992716a9c8dfd678952ff45a237574e4192f26a3ccbd603471b3c9d5d  plugins/saas-packs/databricks-pack/skills/databricks-bundle-medic/eval-spec.yaml
 74a4324aa580cadd5db54db6af3d3ce8dba7ece90b98426c8567f3602a40d210  plugins/saas-packs/databricks-pack/skills/databricks-cluster-forensics/eval-spec.yaml
 612e95e032e99f3861a86ab4a6a6a7d675127951099b8ffa5fecf4243641cee1  plugins/saas-packs/databricks-pack/skills/databricks-cost-leak-hunter/eval-spec.yaml
@@ -103,7 +103,7 @@ a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4  skills/.curate
 3a3b2fd711547c3cd2863b2cd394ffbedd8137ae8c82cb83bd23c1c81f17f99e  skills/.curated/coreweave-gpu-cost-leak-hunter/eval-spec.yaml
 b0c1d9520878f887fd1bc15a836925540a252181e8cc828fa71fdea1fce0133e  skills/.curated/coreweave-gpu-node-forensics/eval-spec.yaml
 0157fa398f7749bd39c7e68ea2c53e17ae5c52bf803e82c0ff5b8abe566cb447  skills/.curated/coreweave-incident-runbook/eval-spec.yaml
-688af470d2f6cc86438ed00ff872c97346023cf4715aed2a553a488ea89aa7c6  skills/.curated/coreweave-workload-health/eval-spec.yaml
+fbaf7ddb6cf3d8e4388e10708f461096ca27e478975bf27a810e9627cf72edaa  skills/.curated/coreweave-workload-health/eval-spec.yaml
 c981c39992716a9c8dfd678952ff45a237574e4192f26a3ccbd603471b3c9d5d  skills/.curated/databricks-bundle-medic/eval-spec.yaml
 74a4324aa580cadd5db54db6af3d3ce8dba7ece90b98426c8567f3602a40d210  skills/.curated/databricks-cluster-forensics/eval-spec.yaml
 612e95e032e99f3861a86ab4a6a6a7d675127951099b8ffa5fecf4243641cee1  skills/.curated/databricks-cost-leak-hunter/eval-spec.yaml

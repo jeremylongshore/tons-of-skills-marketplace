@@ -10,12 +10,13 @@ import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import tarfile
 
 import yaml
 
@@ -39,7 +40,7 @@ FLAGSHIPS = {
 
 
 def command(args, **kwargs):
-    p = subprocess.run(args, cwd=ROOT, text=True, capture_output=True, timeout=180, **kwargs)
+    p = subprocess.run(args, cwd=kwargs.pop("cwd", ROOT), text=True, capture_output=True, timeout=180, **kwargs)
     if p.returncode:
         raise ValueError(f"Command failed ({p.returncode}): {args[0]} {args[1]}\n{p.stderr[:2000]}{p.stdout[:2000]}")
     return p.stdout
@@ -56,6 +57,75 @@ def links(root):
             if not resolved.exists() or not resolved.is_relative_to(root.resolve()):
                 errors.append(str(path.relative_to(root)) + ": " + target)
     return errors
+
+
+def unpack_package(archive, destination, source):
+    """Accept only byte-identical regular files under package/; never follow links."""
+    included = set()
+    with tarfile.open(archive, "r:gz") as bundle:
+        for member in bundle:
+            parts = PurePosixPath(member.name).parts
+            if not parts or parts[0] != "package" or ".." in parts or member.name.startswith("/"):
+                raise ValueError("Unsafe package path")
+            if member.isdir():
+                continue
+            if not member.isfile() or len(parts) < 2:
+                raise ValueError("Package links and special files are forbidden")
+            relative = Path(*parts[1:])
+            if relative in included:
+                raise ValueError("Duplicate package file")
+            original = source / relative
+            if not original.resolve().is_relative_to(source.resolve()) or any(
+                parent.is_symlink() for parent in [original, *original.parents] if parent != source.parent
+            ):
+                raise ValueError("Package source escapes through a link")
+            if not original.is_file() or member.size != original.stat().st_size:
+                raise ValueError("Package file is missing or differs from source")
+            with bundle.extractfile(member) as stream:
+                payload = stream.read()
+            if payload != original.read_bytes():
+                raise ValueError("Package bytes differ from source")
+            target = destination / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            included.add(relative)
+    required = set()
+    for name in ("skills", "agents", "shared", "scripts", "docs", ".claude-plugin"):
+        for path in (source / name).rglob("*"):
+            relative = path.relative_to(source)
+            if (
+                path.is_file()
+                and not any(part in {"__pycache__", ".terraform", "node_modules", ".git"} for part in relative.parts)
+                and path.suffix != ".pyc"
+            ):
+                required.add(relative)
+    required.update(Path(name) for name in ("README.md", "package.json", "QUALITY.md", "offline-results.json"))
+    missing = required - included
+    if missing:
+        raise ValueError("Package omits required files: " + ", ".join(map(str, sorted(missing))))
+    return len(included)
+
+
+def installed_package(scratch):
+    archive_dir = scratch / "archive"
+    archive_dir.mkdir()
+    command(["npm", "pack", str(PACK), "--ignore-scripts", "--json", "--pack-destination", str(archive_dir)])
+    archives = list(archive_dir.glob("*.tgz"))
+    if len(archives) != 1 or archives[0].is_symlink():
+        raise ValueError("Expected one regular npm package archive")
+    installed = scratch / "installed"
+    count = unpack_package(archives[0], installed, PACK)
+    failures = links(installed)
+    for skill in (installed / "skills").iterdir():
+        failures.extend(links(skill))
+    if failures:
+        raise ValueError("Installed references failed: " + "; ".join(failures))
+    return installed, {
+        "mode": "npm pack --ignore-scripts; byte-checked extraction; installed fixture replay",
+        "files": count,
+        "archive_sha256": hashlib.sha256(archives[0].read_bytes()).hexdigest(),
+        "references": "PASS: plugin and standalone skill boundaries",
+    }
 
 
 def main():
@@ -145,11 +215,13 @@ def main():
             raise ValueError("Eval inventory does not match offline adapters")
         with tempfile.TemporaryDirectory(prefix="cw-offline-") as directory:
             scratch = Path(directory)
+            installed, receipt["distribution"] = installed_package(scratch)
             (scratch / "sitecustomize.py").write_text(
                 'import sys\ndef guard(event,args):\n if event in ("socket.connect","socket.getaddrinfo","subprocess.Popen","os.system"):\n  raise RuntimeError("offline boundary")\nsys.addaudithook(guard)\n'
             )
             env = {"PATH": os.defpath, "PYTHONPATH": str(scratch), "PYTHONDONTWRITEBYTECODE": "1"}
-            for path in specs:
+            for source_spec in specs:
+                path = installed / source_spec.relative_to(PACK)
                 data = yaml.safe_load(path.read_text())
                 name = path.parent.name
                 slug = name.removeprefix("coreweave-")
@@ -184,6 +256,7 @@ def main():
                                 "2026-11-05T12:01:00Z",
                             ],
                             env=env,
+                            cwd=scratch,
                             capture_output=True,
                             text=True,
                             timeout=10,
@@ -198,12 +271,19 @@ def main():
                             raise ValueError(name + ": fixture failed " + fixture["id"])
                         if not set(fixture["expected_codes"]) <= {f["code"] for f in actual["findings"]}:
                             raise ValueError(name + ": missing expected refusal " + fixture["id"])
+                        for key, expected_value in fixture.get("expected_observations", {}).items():
+                            if actual["observations"].get(key) != expected_value:
+                                raise ValueError(name + ": incorrect observation " + fixture["id"] + ": " + key)
                         if "SECRET_CANARY" in p.stdout:
                             raise ValueError(name + ": injected instruction escaped evidence boundary")
                         passed += 1
                 else:
                     # Existing raw-log/arithmetic tools retain their original self-test adapters.
-                    command([sys.executable, str(path.parent / "scripts" / FLAGSHIPS[slug]), "--self-test"], env=env)
+                    command(
+                        [sys.executable, str(path.parent / "scripts" / FLAGSHIPS[slug]), "--self-test"],
+                        env=env,
+                        cwd=scratch,
+                    )
                     passed = 1
                 receipt["eval_specs"].append(
                     {
@@ -220,7 +300,7 @@ def main():
                 raise ValueError("gitleaks executable missing; secret scan cannot be skipped")
             command([executable, "dir", str(PACK), "--redact", "--no-banner"])
             receipt["gitleaks"] = "PASS"
-    except (ValueError, KeyError, OSError, subprocess.TimeoutExpired) as exc:
+    except (ValueError, KeyError, OSError, tarfile.TarError, subprocess.TimeoutExpired) as exc:
         errors.append(str(exc))
     receipt["errors"] = errors
     receipt["status"] = "FAIL" if errors else "PASS (static and offline contracts only)"
