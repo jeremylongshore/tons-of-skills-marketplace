@@ -1,6 +1,6 @@
 # Reviewed PR worker on Buzz
 
-This is a separate worker for explicitly reviewed revisions in this public repository.
+This is a separate pool of two workers for explicitly reviewed revisions in this public repository.
 The existing `tasks`, `stats` and deployment workers keep their protected-main guards.
 No fork code is admitted. This is a restricted host account, **not a VM sandbox**;
 review of the complete admitted revision remains required.
@@ -14,13 +14,13 @@ allowlist, exact head commit and exact synthetic merge commit to match a root-ow
 admission record. A PR cannot approve itself by changing workflow labels or policy
 files in its checkout. A changed head or base needs a fresh review and admission.
 
-The worker has its own no-login Unix identity, no sudo or Docker group, and no
+Each worker has its own no-login Unix identity, no sudo or Docker group, and no
 host Docker socket. Mount namespaces hide other homes. The service runs one job,
 exits, kills its process group and clears its work/home/tool directories before the
 next listener starts. Diagnostics stay outside that reset for incident review.
-Its root-owned distribution and admission configuration are read-only to jobs.
-All CI remains under the existing estate limit of four CPUs and 6 GiB. This worker
-adds a two-CPU/four-GiB ceiling within that limit; it does not raise estate capacity.
+Each root-owned distribution and admission configuration are read-only to jobs.
+All CI remains under the existing estate limit of four CPUs and 6 GiB. Each worker
+has a two-CPU/three-GiB ceiling within that limit; the pool does not raise estate capacity.
 
 The PR diff secret scan uses the checksum-pinned upstream TruffleHog 3.95.9 binary
 with the same base/head range, fail-on-findings behavior, and verified/unknown
@@ -32,10 +32,14 @@ requires a Windows worker; no Linux run is represented as native Windows evidenc
 
 Review the source and run `python3 -m unittest tests.ci.test_reviewed_runner_guard
 tests.ci.test_buzz_ci_guard` and shellcheck before installation. Install Git, curl,
-jq, tar, SQLite, shellcheck and gh as host prerequisites. Copy this directory to
-Buzz and run `sudo bash install.sh`. It installs only the new worker and starts
+jq, tar, SQLite, shellcheck and gh with `api --slurp` support as host prerequisites.
+The live setup uses the official GitHub CLI 2.87.3 archive with SHA256
+`c6e5537631fca45f277ef405ce8751d139b491e9402cc20891a003525a8773b2`;
+the installer refuses the older Ubuntu CLI that lacks this flag. Copy this directory to
+Buzz and run `sudo bash install.sh 1` and `sudo bash install.sh 2`. It installs only the new worker and starts
 with an empty admission policy. Pipe a short-lived repository registration token
-to `sudo /usr/local/lib/ccpi-reviewed/register.sh`; never log the token or put it in
+to `sudo /usr/local/lib/ccpi-reviewed/register.sh 1` or
+`sudo /usr/local/lib/ccpi-reviewed/register.sh 2`; never log the token or put it in
 command arguments. Registration is separate from revision admission.
 
 After reviewing and pushing a complete revision, fetch the PR through GitHub's
@@ -62,4 +66,4 @@ CI artifacts and the review issue. Failed admission is a failed job, not a pass.
 Verify online state, guard refusals, one-job restarts, cleanup and resource limits
 on the actual worker before declaring deployment complete. Retain all required
 contexts and test coverage. To roll back routing, remove the repository variable;
-then stop the dedicated service when idle. Preserve other workers and their guards.
+then stop the two dedicated services when idle. Preserve other workers and their guards.
