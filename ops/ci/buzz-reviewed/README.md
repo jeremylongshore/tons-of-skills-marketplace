@@ -36,8 +36,8 @@ jq, tar, SQLite, shellcheck and gh with `api --slurp` support as host prerequisi
 The live setup uses the official GitHub CLI 2.87.3 archive with SHA256
 `c6e5537631fca45f277ef405ce8751d139b491e9402cc20891a003525a8773b2`;
 the installer refuses the older Ubuntu CLI that lacks this flag. Copy this directory to
-Buzz and run `sudo bash install.sh 1` and `sudo bash install.sh 2`. It installs only the new worker and starts
-with an empty admission policy. Pipe a short-lived repository registration token
+Buzz and run `sudo bash install.sh 1` and `sudo bash install.sh 2`. Each invocation installs
+the selected worker and creates an empty admission policy only when none exists. Pipe a short-lived repository registration token
 to `sudo /usr/local/lib/ccpi-reviewed/register.sh 1` or
 `sudo /usr/local/lib/ccpi-reviewed/register.sh 2`; never log the token or put it in
 command arguments. Registration is separate from revision admission.
