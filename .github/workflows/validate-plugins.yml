@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   classify-changes:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     outputs:
       schema: ${{ steps.classify.outputs.schema }}
       lane: ${{ steps.classify.outputs.lane }}
@@ -76,7 +76,7 @@ jobs:
           retention-days: 90
 
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
         # Full history + tags are required for the secret-fingerprint verifier:
@@ -189,7 +189,7 @@ jobs:
         run: python3 scripts/validate-coreweave-pack.py --gitleaks "$RUNNER_TEMP/coreweave-tools/gitleaks" --report "$RUNNER_TEMP/coreweave-validation.json"
 
       - name: Test CI routing policy
-        run: python3 -m unittest tests.ci.test_fastlane tests.ci.test_fastlane_workflow tests.ci.test_funding -v
+        run: python3 -m unittest tests.ci.test_fastlane tests.ci.test_fastlane_workflow tests.ci.test_funding tests.ci.test_buzz_ci_guard tests.ci.test_reviewed_runner_guard tests.ci.test_reviewed_secret_scan -v
 
       - name: Validate funding metadata
         run: python3 scripts/ci/validate_funding.py .github/FUNDING.yml
@@ -767,7 +767,7 @@ jobs:
   # seconds, bounded here at two minutes.
   marketplace-compliance-ratchet:
     name: marketplace-compliance-ratchet
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     timeout-minutes: 2
     permissions:
       actions: read
@@ -847,7 +847,7 @@ jobs:
 
   # Verification Pipeline (scoring + badge generation)
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -885,7 +885,7 @@ jobs:
 
   test:
     # Fork and PR code never reaches the persistent production-adjacent host.
-    runs-on: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.test-type == 'python-tests' && fromJSON('["self-hosted", "linux", "ccpi-tasks"]') || 'ubuntu-latest' }}
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || github.event_name == 'push' && github.ref == 'refs/heads/main' && matrix.test-type == 'python-tests' && fromJSON('["self-hosted", "linux", "ccpi-tasks"]') || 'ubuntu-latest' }}
     # The matrix consumes no validate outputs. Run alongside validation;
     # ci-required still requires both jobs to succeed.
     needs: classify-changes
@@ -1327,7 +1327,7 @@ jobs:
 
   # Package Manager Policy Enforcement
   check-package-manager:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -1341,7 +1341,7 @@ jobs:
 
   # Marketplace Validation Gates
   marketplace-validation:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -1500,7 +1500,7 @@ jobs:
 
   # CLI Smoke Tests (EPIC D - D3)
   cli-smoke-tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     needs: [classify-changes, marketplace-validation]
     if: needs.classify-changes.outputs.lane != 'lightweight'
     steps:
@@ -1629,7 +1629,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────────────
 
   shellcheck-skills:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     needs: classify-changes
     if: needs.classify-changes.outputs.lane != 'lightweight'
     steps:
@@ -1637,8 +1637,10 @@ jobs:
 
       - name: Install shellcheck
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq shellcheck
+          if ! command -v shellcheck >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq shellcheck
+          fi
           shellcheck --version | head -2
 
       # BLOCKING — codebase passed baseline at PR #768 (2026-05-22, 223→0).
@@ -1666,7 +1668,7 @@ jobs:
             | xargs -0 shellcheck --severity=warning --shell=bash
 
   skill-codeblock-syntax:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     needs: classify-changes
     if: needs.classify-changes.outputs.lane != 'lightweight'
     steps:
@@ -1700,7 +1702,7 @@ jobs:
           python3 scripts/lint-skill-codeblocks.py --root plugins
 
   typescript-coverage-audit:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     needs: classify-changes
     if: needs.classify-changes.outputs.lane != 'lightweight'
     steps:
@@ -1721,7 +1723,7 @@ jobs:
           python3 scripts/audit-typescript-coverage.py --root plugins
 
   eslint-check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     needs: classify-changes
     if: needs.classify-changes.outputs.lane != 'lightweight'
     steps:
@@ -1746,7 +1748,7 @@ jobs:
         run: pnpm lint:root
 
   format-check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -1770,7 +1772,7 @@ jobs:
         run: pnpm format:check
 
   ruff-check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     needs: classify-changes
     if: needs.classify-changes.outputs.lane != 'lightweight'
     steps:
@@ -1794,7 +1796,7 @@ jobs:
         run: ruff check plugins/ scripts/
 
   ruff-format-check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     needs: classify-changes
     if: needs.classify-changes.outputs.lane != 'lightweight'
     steps:
@@ -1815,7 +1817,7 @@ jobs:
         run: ruff format --check plugins/ scripts/
 
   markdownlint:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -1881,7 +1883,7 @@ jobs:
   #   same PR. Only a provenance-authenticated automation PR may retain the
   #   existing --warn-only role. This is not human CHALLENGE approval; REFUSE blocks.
   scan-synced-content:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     name: scan-synced-content (supply-chain)
     permissions:
       contents: read
@@ -1975,7 +1977,7 @@ jobs:
   # selection refresh (newly-A skills, sources dropped below B) is the weekly
   # promote-curated.yml workflow's job, not this per-PR check.
   promote-curated-check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -1997,7 +1999,7 @@ jobs:
   # clean pass INSIDE the script (exit 0 + log line), so this job always reports
   # and the ci-required aggregate never sees an undesigned skip.
   check-submission-docs:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     name: check-submission-docs (intake gate)
     steps:
       - uses: actions/checkout@v7
@@ -2031,7 +2033,7 @@ jobs:
   # main) there is no title to lint, so the script logs and passes — the job
   # still REPORTS success, so the ci-required aggregate never sees a skip.
   commit-scope-check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -2116,7 +2118,7 @@ jobs:
   # if a plugin's `maintainer` field changed but CODEOWNERS was not regenerated,
   # this fails and names the fix. Always reports (no path filter).
   codeowners-drift:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -2135,7 +2137,7 @@ jobs:
   generated-content-drift:
     permissions:
       contents: read
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
@@ -2171,7 +2173,7 @@ jobs:
           node marketplace/scripts/generate-unified-search.mjs --check
 
   doc-governance:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -2379,7 +2381,7 @@ jobs:
   # The scan step skips outside pull_request (designed if:, same pattern as
   # scan-synced-content) so the job always reports for the aggregate.
   secret-diff-scan:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     name: secret-diff-scan (unverified, PR diff)
     steps:
       - uses: actions/checkout@v7
@@ -2387,7 +2389,7 @@ jobs:
           fetch-depth: 0
 
       - name: Scan the PR range for unverifiable secrets
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && runner.environment != 'self-hosted'
         # Same SHA pin as secret-scan.yml's weekly job — never @main; the
         # action appends --fail itself (do not repeat it in extra_args).
         uses: trufflesecurity/trufflehog@27b0417c16317ca9a472a9a8092acce143b49c55 # v3.95.9
@@ -2396,6 +2398,13 @@ jobs:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
           extra_args: --results=verified,unknown
+
+      - name: Scan the reviewed PR range without a host Docker socket
+        if: github.event_name == 'pull_request' && runner.environment == 'self-hosted'
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/ci/scan-reviewed-pr-secrets.sh
 
   # ───────────────────────────────────────────────────────────────────────────
   # Aggregate required gate. Branch protection also requires the independent
@@ -2411,7 +2420,7 @@ jobs:
   # ───────────────────────────────────────────────────────────────────────────
   ci-required:
     name: ci-required
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     if: always()
     needs:
       - classify-changes

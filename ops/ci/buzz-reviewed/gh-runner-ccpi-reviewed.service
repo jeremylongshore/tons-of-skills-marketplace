@@ -1,0 +1,43 @@
+[Unit]
+Description=Exact-revision reviewed PR worker for Tons of Skills
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/home/ci-ccpi-reviewed/runner/.runner
+
+[Service]
+Type=simple
+User=ci-ccpi-reviewed
+Group=ci-ccpi-reviewed
+Slice=ci.slice
+CPUQuota=200%
+MemoryHigh=3500M
+MemoryMax=4G
+WorkingDirectory=/home/ci-ccpi-reviewed/runner
+ExecStartPre=+/usr/local/lib/ccpi-reviewed/prepare.sh
+ExecStart=/home/ci-ccpi-reviewed/runner/bin/Runner.Listener run --startuptype service --once
+Restart=always
+RestartSec=5
+KillMode=control-group
+TimeoutStopSec=30
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=HOME=/home/ci-ccpi-reviewed/runner/_work/_home
+Environment=RUNNER_TOOL_CACHE=/home/ci-ccpi-reviewed/runner/_work/_tool
+Environment=AGENT_TOOLSDIRECTORY=/home/ci-ccpi-reviewed/runner/_work/_tool
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=tmpfs
+BindReadOnlyPaths=/home/ci-ccpi-reviewed/runner
+BindPaths=/home/ci-ccpi-reviewed/runner/_work /home/ci-ccpi-reviewed/runner/_diag
+InaccessiblePaths=-/var/run/docker.sock -/run/user -/etc/ssh -/etc/ssl/private
+ProtectProc=invisible
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

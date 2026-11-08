@@ -58,7 +58,7 @@ concurrency:
 jobs:
   kernel-shadow:
     name: kernel-shadow (advisory, non-blocking)
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
 

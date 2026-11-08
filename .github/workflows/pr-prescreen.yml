@@ -1,5 +1,5 @@
 name: 'PR Pre-screen'
-run-name: "PR Pre-screen #${{ github.event.pull_request.number || inputs.pr_number }}"
+run-name: 'PR Pre-screen #${{ github.event.pull_request.number || inputs.pr_number }}'
 
 # Two-job split (2026-07): a `pull_request_target` workflow that checks out
 # fork PR code can leak base-repo secrets (the "pwn request" pattern that
@@ -48,7 +48,7 @@ jobs:
   # =========================================================================
   validate:
     name: prescreen/validate
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     timeout-minutes: 8
     permissions:
       contents: read

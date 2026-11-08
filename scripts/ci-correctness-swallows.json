@@ -5,15 +5,15 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "b1f3d5befafffc8da81e425d1e9d7666c8aa6dd658e63f2abec9c8a89b78cf48"
+      "sha256": "7964c8b12d0724d2cc858b5e18dc17bf31a62081c7e2b5e54747a94e330d6590"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
-      "sha256": "a70053ad581480b0abbda26c6ddb404919839e81619ffa806adddb633cf97ad9"
+      "sha256": "040e9ce6bb160c412b4f4a710ec217a0c89cff5479046242c462478c169342a6"
     },
     {
       "path": ".github/workflows/skill-conform.yml",
-      "sha256": "aa110d3073a8fe180776bd43d7ad5daf7013e51d535db7fb77ccf3187991ec18"
+      "sha256": "f9df2dac1723e9a2ee4bdd3e9ca2478386e95b0fec605b963b42139ef5640689"
     }
   ],
   "aggregate_policy": {
@@ -42,10 +42,10 @@
     "site_containers": 17,
     "workflows": 3,
     "jobs": 28,
-    "containers": 242,
-    "run_containers": 168,
+    "containers": 243,
+    "run_containers": 169,
     "opaque_actions": 74,
-    "conditional_envelopes": 45
+    "conditional_envelopes": 46
   },
   "sites": [
     {
@@ -54,7 +54,7 @@
       "job": "classify-changes",
       "step": 1,
       "step_name": "Classify changed paths with the trusted policy",
-      "job_sha256": "4b0908264fb2d4e47f078df7b01936f4f6c37878222800c52707927d0df5d3c3",
+      "job_sha256": "c36c012dc60d7e38bc700808974d9bacb1718fedd61d2d176b1127cb27340999",
       "step_sha256": "bae7b8adc3ee0815c4247e4f24acca21139a91013acb5ee1885731d55f415ae1",
       "run_sha256": "1bc7b5b3fb355a95a60d0cea19f72cf013f82fa198e57096f1215b6d2aa63dbf",
       "anchor": {
@@ -80,7 +80,7 @@
       "job": "validate",
       "step": 13,
       "step_name": "Enforce the safety ratchet",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "592009d8a7bc847feb3aa5b3cf192b99bd5dd9e91ac1e95296c0b444992a8cd2",
       "run_sha256": "0502a1eb56c0748cf95dd68637452811c09c4702d343a0334371517c8ca7ebf5",
       "anchor": {
@@ -106,7 +106,7 @@
       "job": "marketplace-compliance-ratchet",
       "step": 5,
       "step_name": "Enforce R1/R2/R3/R4 marketplace compliance ratchet",
-      "job_sha256": "6a6ff604cb9b6671cbbc8fa564218b85be7b3591debfeef39ed93396e1293f4a",
+      "job_sha256": "7dd5c4ab6df4f48cffd9392cefb01d804bc83bda0424f5cb2ce9b5b065656129",
       "step_sha256": "cc0bc6126335ee8fac0bd7abf25ea9ecaf40139e11dd592b885bb5004830e8ca",
       "run_sha256": "01808192b383f66c41251f72686fa1dbc5a46b46e60b117b4c31cfd018e44071",
       "anchor": {
@@ -132,7 +132,7 @@
       "job": "test",
       "step": 10,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "fa57996a482d30c6d2580d2cce5e4b63305dbf5738e9f1b643a7bfa3deaa1bef",
+      "job_sha256": "551e0de2d2175a9e83a6c44065035b54d7c5e6c4b940fe8e4037f20d4a7c619c",
       "step_sha256": "0ac28de29e09eb0f0b736008710581a9ab2173436a633854e26406731b38a094",
       "run_sha256": "3bd48cb4ba12e8204b3fdb5085ddf3004be616077636e15c50fafef569483d55",
       "anchor": {
@@ -158,7 +158,7 @@
       "job": "validate",
       "step": 34,
       "step_name": "Sync CLI marketplace catalog",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "f52645d81bb0c1c2056ef11c0894d8afb04102c45f02a02254de662d8522e80b",
       "run_sha256": "232568b2bef02489e07c3a26b204604fe9cc0fee0e6f014d7352615ee45dc606",
       "anchor": {
@@ -184,7 +184,7 @@
       "job": "validate",
       "step": 58,
       "step_name": "Security scan - Informational sweep (non-blocking)",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "b63dc39b057d39478a2ebfcf3a1448bc8f60f6d131dd634f9c628f258b3439c6",
       "run_sha256": "e30d8d8a76b7b725da343354b40414b821df1a9e2602de1177a3cc2baf79f417",
       "anchor": {
@@ -210,7 +210,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -241,7 +241,7 @@
       "job": "test",
       "step": 18,
       "step_name": "Run Python tests",
-      "job_sha256": "fa57996a482d30c6d2580d2cce5e4b63305dbf5738e9f1b643a7bfa3deaa1bef",
+      "job_sha256": "551e0de2d2175a9e83a6c44065035b54d7c5e6c4b940fe8e4037f20d4a7c619c",
       "step_sha256": "8353895f7aa8bce1fc5c1ff033fc64d65367d5e7e832ab87d61b79c2101b8c2f",
       "run_sha256": "2cae59dbf4d6997a8620417566f688802fe45db92a8efcb156ba68323dc0a352",
       "anchor": {
@@ -272,7 +272,7 @@
       "job": "validate",
       "step": 31,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "47c304f65274cfde778c04665640d7bd3ec8e439d0b21a944fa2af18f099190f",
       "run_sha256": "67f55c92e26550b1de1af470d30d67a0d9661a65e346011562b15196f4c086de",
       "anchor": {
@@ -306,7 +306,7 @@
       "job": "validate",
       "step": 31,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "47c304f65274cfde778c04665640d7bd3ec8e439d0b21a944fa2af18f099190f",
       "run_sha256": "67f55c92e26550b1de1af470d30d67a0d9661a65e346011562b15196f4c086de",
       "anchor": {
@@ -329,7 +329,7 @@
       "job": "validate",
       "step": 32,
       "step_name": "Validate .mcp.json configs (advisory + unambiguous gate)",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "5114e3fe37a1e6b52d6406dbc5887faf90d27e889613c7b5ce4a8212f55d4cf4",
       "run_sha256": "adeac5780a51f52948d5267db0492cd8800f1c8994cbaecc56295cd7d93ea55c",
       "anchor": {
@@ -352,7 +352,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -372,7 +372,7 @@
       "job": "validate",
       "step": 61,
       "step_name": "Security scan - MCP plugin dependencies",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "17d47f29e01d45fcc117b109fed8fad651d44b00b7bca69f14d242c8a2cd3641",
       "run_sha256": "3e128fee838407825808235514a615b3d5c7564fe032207a6093965058594362",
       "anchor": {
@@ -395,7 +395,7 @@
       "job": "test",
       "step": 15,
       "step_name": "Install Python test dependencies",
-      "job_sha256": "fa57996a482d30c6d2580d2cce5e4b63305dbf5738e9f1b643a7bfa3deaa1bef",
+      "job_sha256": "551e0de2d2175a9e83a6c44065035b54d7c5e6c4b940fe8e4037f20d4a7c619c",
       "step_sha256": "ea3357190010050d0cbbb9f88575ac3f326df4165ed0949d77ac57098ac07aa2",
       "run_sha256": "90118d578cf93f6233ef9c53998290995808ce9f12117bc2a2325456d48c98bc",
       "anchor": {
@@ -415,7 +415,7 @@
       "job": "test",
       "step": 24,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "fa57996a482d30c6d2580d2cce5e4b63305dbf5738e9f1b643a7bfa3deaa1bef",
+      "job_sha256": "551e0de2d2175a9e83a6c44065035b54d7c5e6c4b940fe8e4037f20d4a7c619c",
       "step_sha256": "7cf2567ed8a9bcfcb34e9241b004c89bfdfea4a82ca1725bc02076b384b94817",
       "run_sha256": "1238ea5e0dff06efa78bf08e2b0a34c8d02acaf51f66754289a5bd2682ce8917",
       "anchor": {
@@ -435,7 +435,7 @@
       "job": "test",
       "step": 24,
       "step_name": "Run validation with universal validator",
-      "job_sha256": "fa57996a482d30c6d2580d2cce5e4b63305dbf5738e9f1b643a7bfa3deaa1bef",
+      "job_sha256": "551e0de2d2175a9e83a6c44065035b54d7c5e6c4b940fe8e4037f20d4a7c619c",
       "step_sha256": "7cf2567ed8a9bcfcb34e9241b004c89bfdfea4a82ca1725bc02076b384b94817",
       "run_sha256": "1238ea5e0dff06efa78bf08e2b0a34c8d02acaf51f66754289a5bd2682ce8917",
       "anchor": {
@@ -458,7 +458,7 @@
       "job": "trufflehog",
       "step": 2,
       "step_name": "Notify Slack on failure",
-      "job_sha256": "06efbcb7cf1428e98941f773397a2d951a28f0b2085c4577634d0ed655dd1b7c",
+      "job_sha256": "f1ff97dc14799bb1fc2f4a8a0db7b6a04a0d381375717df5be1e2ca99e9411d5",
       "step_sha256": "cbe62ccfb1137d95583c0755f9fa5149fa556e8ea61df7e682a5b84df5e0f206",
       "run_sha256": "85a46de61f91beacf66aba5fc19ca713bb281bb6f1752bbd2a8ae6a61befd446",
       "anchor": {
@@ -478,7 +478,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -498,7 +498,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -518,7 +518,7 @@
       "job": "validate",
       "step": 60,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "cf085d6c4bb286ac74f69520cace1e9c10a599199a2eed9e131753c239f6ec4d",
       "run_sha256": "75ad2f24c7cc506ce4f5f829ec854fc79a041831ba4e0df0fca782fde7752f07",
       "anchor": {
@@ -538,7 +538,7 @@
       "job": "validate",
       "step": 60,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "9bfdce26d745ed3736c2093597e9a210f0912d8d2321999f40fdee4312e3d2ab",
+      "job_sha256": "ef51b469bf604672f220b476ab6bffa7f2ad40c105472bcf7d31ed33d05f71d7",
       "step_sha256": "cf085d6c4bb286ac74f69520cace1e9c10a599199a2eed9e131753c239f6ec4d",
       "run_sha256": "75ad2f24c7cc506ce4f5f829ec854fc79a041831ba4e0df0fca782fde7752f07",
       "anchor": {
@@ -558,7 +558,7 @@
       "job": "test",
       "step": 10,
       "step_name": "Run plugin tests (widened loop — every package.json with a test script)",
-      "job_sha256": "fa57996a482d30c6d2580d2cce5e4b63305dbf5738e9f1b643a7bfa3deaa1bef",
+      "job_sha256": "551e0de2d2175a9e83a6c44065035b54d7c5e6c4b940fe8e4037f20d4a7c619c",
       "step_sha256": "0ac28de29e09eb0f0b736008710581a9ab2173436a633854e26406731b38a094",
       "run_sha256": "3bd48cb4ba12e8204b3fdb5085ddf3004be616077636e15c50fafef569483d55",
       "anchor": {
@@ -578,7 +578,7 @@
       "job": "scan-synced-content",
       "step": 4,
       "step_name": "Scan pushed plugin content (push to main)",
-      "job_sha256": "235a080748b5e77d832a227234263990e5607eabf1a3275e0dda57f79449f6d0",
+      "job_sha256": "5f5e6f3d372630cf46916ee2b1025417762ad3b680e28ac8ade931b2b9e36203",
       "step_sha256": "86d3fbe988376afb44bbd4448d9ab4316f31e324847dbcd862c2593e077c605e",
       "run_sha256": "cfdfb284ae8da9b8db8f6be85160732ce98262798930828c8215efe46f241662",
       "anchor": {
@@ -619,7 +619,7 @@
       "job": "scan-synced-content",
       "step": 3,
       "step_name": "Scan changed plugin content",
-      "job_sha256": "235a080748b5e77d832a227234263990e5607eabf1a3275e0dda57f79449f6d0",
+      "job_sha256": "5f5e6f3d372630cf46916ee2b1025417762ad3b680e28ac8ade931b2b9e36203",
       "step_sha256": "593ba6126912a738c7d4cbed5548701da3362146d4db470ca8af5413d645d544",
       "run_sha256": "647136af7a9864fcad2e0eab25bbd5f589b17d2fbe7c3cd968665a5f11ffa82f",
       "anchor": {
