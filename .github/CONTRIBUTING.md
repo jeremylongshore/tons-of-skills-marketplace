@@ -20,6 +20,19 @@ Thank you for your interest in contributing to the Claude Code Plugins marketpla
 >
 > If your submission deviates from the spec, the validator will flag it and the PR Pre-screen workflow will request changes before a human looks at it. Reading the spec up front saves a round-trip.
 
+## Marketplace acceptance and exceptions
+
+The IS marketplace gate is stricter than Anthropic's minimum requirements by design.
+Its verdict concerns acceptance into this marketplace; it does not establish validity for every agent host.
+The kernel shadow lane remains advisory, and a shadow diagnostic does not block your PR.
+
+For a field diagnostic, follow the [fix-it guide](../docs/sak-field-diagnostics.md).
+The historical 6767-h links preserve citation traceability; its required-field checklist has been replaced by the current eight-field set under the [authority disposition](../000-docs/727-AT-ARCH-master-modernization-blueprint.md#section-level-disposition-of-6767-h).
+
+To request an exception, [open an issue](https://github.com/jeremylongshore/tons-of-skills-marketplace/issues/new) with the kernel version/profile, file and field pointer, full diagnostic, linked standard section, a minimal sanitized example, and your rationale.
+Do not include secrets or private author data.
+Filing a request does not grant a waiver; maintainers must record an authorized, scoped disposition before applying one.
+
 ## Before You Submit — Read This
 
 Tons of Skills publishes Intent Solutions-grade plugins and skills. That means full-capability, enterprise-ready implementations — validators, tests, docs, license, the works.

@@ -99,6 +99,7 @@ import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import yaml from 'js-yaml';
+import { fieldDiagnostic, diagnosticSummary } from './kernel-field-diagnostics.mjs';
 import { collectRegistryShadow, registrySummaryLines } from './kernel-shadow-registry.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -331,6 +332,7 @@ function main() {
   const { py, script } = resolvePythonContext();
   const { verdicts: existing, registryShadow } = loadExistingVerdicts(py, script);
 
+  const fieldDiagnostics = [];
   let total = 0;
   let agree = 0;
   // RAW disagreements (conflate frontmatter + body scope).
@@ -364,6 +366,8 @@ function main() {
       kernelPass = validateKernel(fm.data) === true;
       if (!kernelPass) {
         kernelErrors = (validateKernel.errors || []).map((e) => ({
+          keyword: e.keyword,
+          schemaPath: e.schemaPath,
           instancePath: e.instancePath,
           message: e.message,
           params: e.params,
@@ -372,10 +376,23 @@ function main() {
       strictKernelPass = validateStrictKernel(fm.data) === true;
       if (!strictKernelPass) {
         strictKernelErrors = (validateStrictKernel.errors || []).map((e) => ({
+          keyword: e.keyword,
+          schemaPath: e.schemaPath,
           instancePath: e.instancePath,
           message: e.message,
           params: e.params,
         }));
+      }
+    }
+
+    for (const [lane, errors] of [
+      ['authoring/v1', kernelErrors],
+      ['authoring/v2', strictKernelErrors],
+    ]) {
+      for (const error of errors) {
+        fieldDiagnostics.push(
+          fieldDiagnostic(error, { lane, file: relTo(absPath), kernelVersion }),
+        );
       }
     }
 
@@ -501,6 +518,7 @@ function main() {
   const strictDecisionRate = total === 0 ? 0 : (strictExistingPassKernelFail / total) * 100;
 
   const report = {
+    fieldDiagnostics,
     mode: 'shadow-advisory',
     blocking: false,
     kernelPackage: '@intentsolutions/core',
@@ -636,6 +654,7 @@ function main() {
   console.log('═══════════════════════════════════════════════════════════════');
   console.log(`  Full machine report: ${relTo(outPath)}`);
   console.log(registrySummaryLines(registryShadow).join('\n'));
+  console.log(diagnosticSummary(fieldDiagnostics).join('\n'));
   console.log('  ADVISORY ONLY — this run never fails CI or blocks a PR.');
   console.log('');
 
@@ -678,6 +697,7 @@ function main() {
     lines.push(`| existing-FAIL / kernel-PASS | ${existingFailKernelPass} |`);
     lines.push('');
     lines.push(...registrySummaryLines(registryShadow));
+    lines.push(...diagnosticSummary(fieldDiagnostics));
     if (frontmatterDisagree > 0) {
       lines.push(
         '<details><summary>REAL frontmatter deviations — kernel gaps (first 40)</summary>',
