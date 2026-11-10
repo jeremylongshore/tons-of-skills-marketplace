@@ -79,6 +79,26 @@ Follow the current compatibility guidance in the schema changelog; the historica
 Use relevant tags in the shape required by the current profile and inspect any item-level pointer.
 The historical 6767-h checklist omits this field; its absence there is not a waiver of the current required set.
 
+## Reproducing the report
+
+After installing the repository's locked dependencies, run the same read-only observation used by the advisory workflow:
+
+```bash
+node scripts/kernel-shadow-validation.mjs
+```
+
+The generated `scripts/.kernel-shadow/report.json` includes the complete `fieldDiagnostics` array.
+Set `GITHUB_STEP_SUMMARY` to a temporary file to inspect the Markdown presentation locally.
+The command does not send notices or change gate authority.
+
+The deterministic fixture checks exercise the real CLI against the installed kernel schemas:
+
+```bash
+node --test scripts/kernel-field-diagnostics.test.mjs scripts/kernel-shadow-validation.test.mjs
+```
+
+Fixture evidence is synthetic and must not be presented as a corpus measurement or an author-delivery receipt.
+
 ## Activation boundary
 
 DR-049 still requires the complete public migration pack, direct notice to affected authors, VP DevRel co-sign, an elapsed fourteen-day public window and all other ratified flip prerequisites.
