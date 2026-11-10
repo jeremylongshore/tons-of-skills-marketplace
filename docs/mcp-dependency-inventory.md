@@ -52,3 +52,50 @@ Mirror findings require upstream fixes under the repository's ownership policy.
 and bead `bd_000-projects-mv1x8` remain open. The three November 7 deadlines remain
 expired. Required CI and PR #1852 remain blocked until the findings and waiver
 dispositions are resolved through the governed process.
+
+## Proposed disposition, pending approval
+
+The owned authentication command description was shortened in commit
+`b7a02bd22`. A repeat strict CLI scan reports three skill errors and five
+command/agent frontmatter errors. The remaining strict findings are in the
+Hermes Tweet, Skillcrossroads, Hyperflow and Brand Forge mirrors. Every one of
+the 31 error-bearing files in the separate canonical agent scan is under a
+`.source.json` mirror ancestor. No mirror was edited locally.
+
+The follow-redirects repair already exists in
+[PR #1851](https://github.com/jeremylongshore/tons-of-skills-marketplace/pull/1851);
+this PR does not duplicate it. The other high production finding is in the
+outdated Slack-channel mirror. Its source already contains the Zod migration.
+
+The proposed Slack source-lock update is from
+`89e93c97da24d8d0814b3619eacec2c6694168e6` to
+`c4abc2c393729020f1c01838284363b46d60b8a6`.
+The [immutable upstream comparison](https://github.com/jeremylongshore/claude-code-slack-channel/compare/89e93c97da24d8d0814b3619eacec2c6694168e6...c4abc2c393729020f1c01838284363b46d60b8a6)
+includes upstream-only files as well as the selected mirror files.
+The sync preview identifies exactly these selected changes:
+
+- Added: `validation-migration.test.ts`.
+- Changed: `README.md`, `biome.json`, `journal.ts`, `lib.ts`, `package.json`,
+  `policy.ts`, `server.test.ts`, `server.ts`, `tsconfig.json`.
+- Removed: none.
+
+Those ten files have 186 added and 26 removed lines. They upgrade Zod to 4.6.6,
+adapt record parsing, preserve legacy integer acceptance, add migration tests,
+and align the package name while retaining the old CLI alias. A detached checkout
+of the exact proposed upstream revision passed `bun test --timeout 15000`
+(1,406 tests) and `bun run typecheck`. This is upstream validation; the resulting
+marketplace mirror and regenerated pnpm lock still require their own gates.
+The sync preview remains quarantined and has changed no mirror or source-lock
+bytes. If approved, the implementation must recheck the exact upstream revision
+before invoking the canonical sync and reject any newer, unreviewed revision.
+
+Separately, the proposed waiver disposition extends only the three existing
+November 7 report-only deadlines to **November 17, 2026 UTC**. The deadline
+checker and all existing blocking gates remain active. The reason is to permit
+reviewed repair delivery while upstream mirror findings are resolved: PR #1851
+holds the redirect fix, the Slack source migration is ready for review, and the
+frontmatter scans retain the explicit mirror findings above. The replacement
+inventory fails on missing or inconsistent evidence even during that window.
+No new error suppression, baseline change, validator promotion, branch-policy
+change or direct author notice is proposed. This is a bounded proposal, not an
+approved waiver, and it does not establish completion of issue #1814.
