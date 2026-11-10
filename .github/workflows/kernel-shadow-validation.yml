@@ -30,6 +30,8 @@ on:
     paths:
       - 'scripts/kernel-shadow-validation.mjs'
       - 'scripts/kernel-shadow-registry.mjs'
+      - 'scripts/kernel-field-diagnostics.mjs'
+      - 'scripts/kernel-field-diagnostics.test.mjs'
       - 'scripts/kernel-shadow-validation.test.mjs'
       - 'scripts/kernel-shadow-agents.mjs'
       - 'scripts/kernel-shadow-agents.py'
@@ -85,7 +87,7 @@ jobs:
 
       - name: Exercise advisory registry report transport with synthetic fixtures
         continue-on-error: true
-        run: node --test scripts/kernel-shadow-validation.test.mjs
+        run: node --test scripts/kernel-field-diagnostics.test.mjs scripts/kernel-shadow-validation.test.mjs
 
       # The single advisory step. continue-on-error guarantees a harness failure
       # can never turn this check red in a blocking way.

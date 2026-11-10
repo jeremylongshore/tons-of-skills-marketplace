@@ -35,20 +35,31 @@ const matched = {
   },
 };
 
-function exercise(t, label, shadowEntries) {
+function exercise(t, label, shadowEntries, { emptyFrontmatter = false, existingErrors = 0 } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'kernel-shadow-registry-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   mkdirSync(join(dir, 'scripts'), { recursive: true });
   mkdirSync(join(dir, '.venv', 'bin'), { recursive: true });
   symlinkSync(join(root, 'node_modules'), join(dir, 'node_modules'), 'dir');
-  for (const name of ['kernel-shadow-validation.mjs', 'kernel-shadow-registry.mjs']) {
+  for (const name of [
+    'kernel-shadow-validation.mjs',
+    'kernel-shadow-registry.mjs',
+    'kernel-field-diagnostics.mjs',
+  ]) {
     const source = join(root, 'scripts', name);
     if (existsSync(source)) copyFileSync(source, join(dir, 'scripts', name));
   }
   // Supply a deterministic Python batch boundary; execute the real JS CLI,
   // installed kernel schemas, report writer, and GitHub summary writer.
   writeFileSync(join(dir, 'scripts', 'validate-skills-schema.py'), '# fixture\n');
-  const batch = [{ path: 'SKILL.md', errors: 0, error_details: [] }, ...shadowEntries];
+  const batch = [
+    {
+      path: 'SKILL.md',
+      errors: existingErrors,
+      error_details: existingErrors ? ['missing frontmatter'] : [],
+    },
+    ...shadowEntries,
+  ];
   writeFileSync(
     join(dir, '.venv', 'bin', 'python3'),
     `#!/usr/bin/env node\nconsole.log(${JSON.stringify(JSON.stringify(batch))});\n`,
@@ -56,9 +67,11 @@ function exercise(t, label, shadowEntries) {
   );
   writeFileSync(
     join(dir, 'SKILL.md'),
-    '---\nname: registry-probe\ndescription: Inspect a deterministic registry fixture.\n' +
-      'version: 1.0.0\nauthor: Fixture\nlicense: MIT\ncompatibility: Claude Code\n' +
-      'tags: [testing]\nallowed-tools: Read\n---\n\n## Overview\nFixture.\n',
+    emptyFrontmatter
+      ? '---\n{}\n---\n'
+      : '---\nname: registry-probe\ndescription: Inspect a deterministic registry fixture.\n' +
+          'version: 1.0.0\nauthor: Fixture\nlicense: MIT\ncompatibility: Claude Code\n' +
+          'tags: [testing]\nallowed-tools: Read\n---\n\n## Overview\nFixture.\n',
   );
   const summaryPath = join(dir, 'summary.md');
   const run = spawnSync(process.execPath, [join(dir, 'scripts', 'kernel-shadow-validation.mjs')], {
@@ -181,3 +194,37 @@ test('disallowed-tools match flags must agree with observed presence', (t) => {
   assert.equal(report.registryShadow.comparisons.disallowed_tools.status, 'invalid');
   assert.match(summary, /disallowed_tools.*invalid/);
 });
+
+for (const existingErrors of [0, 1]) {
+  test(`all missing-field diagnostics survive the CLI when Python errors=${existingErrors}`, (t) => {
+    const { report, summary, stdout } = exercise(
+      t,
+      `field-errors-${existingErrors}`,
+      [{ kernel_shadow: matched }],
+      { emptyFrontmatter: true, existingErrors },
+    );
+    for (const lane of ['authoring/v1', 'authoring/v2']) {
+      const findings = report.fieldDiagnostics.filter(
+        (row) => row.lane === lane && row.keyword === 'required',
+      );
+      const fields = new Set(findings.map((row) => row.fieldPointer));
+      for (const field of [
+        'name',
+        'description',
+        'allowed-tools',
+        'version',
+        'author',
+        'license',
+        'compatibility',
+        'tags',
+      ]) {
+        assert.ok(fields.has(`/${field}`), `${lane}: ${field}`);
+      }
+      assert.ok(findings.every((row) => row.schemaPath && row.exceptionUrl && row.historicalUrl));
+    }
+    assert.equal(report.blocking, false);
+    assert.match(summary, /6767-h § 3.1 \(superseded\)/);
+    assert.match(stdout, /exception request/);
+    assert.match(summary, /\/compatibility/);
+  });
+}
