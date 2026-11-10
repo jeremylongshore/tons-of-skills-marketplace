@@ -1,6 +1,6 @@
 ---
 name: validate-auth
-description: Review declared authentication configuration and explicit local JWT verification profiles
+description: Review authentication configuration and local JWT verification profiles
 shortcut: auth
 ---
 
