@@ -673,49 +673,23 @@ jobs:
 
           echo "✅ URL scan complete"
 
-      - name: Security scan - MCP plugin dependencies
-        if: hashFiles('plugins/mcp/*/package.json') != ''
-        run: |
-          echo "Scanning MCP plugin dependencies..."
-          for package in plugins/mcp/*/package.json; do
-            if [ -f "$package" ]; then
-              echo "Checking $package"
-              dir=$(dirname "$package")
-              cd "$dir"
+      - name: Test MCP workspace dependency inventory
+        run: node --test scripts/audit-mcp-workspace.test.mjs
 
-              # npm-audit policy — REPORT-ONLY (loud, not blocking) until the
-              # date below. Decision: a hard block on high/critical would
-              # red-wall every PR whenever an unrelated upstream advisory drops
-              # (this repo vendors ~450 plugins, each with its own deps) — i.e.
-              # fail on state the PR never touched. The prior `npm audit
-              # --production || true` was the opposite failure: silent, so a
-              # real high/critical advisory produced no signal at all. This is
-              # the honest middle — audit at --audit-level=high and SURFACE
-              # findings as a CI ::warning:: annotation, without failing.
-              #
-              # 2026-11-01 renewal: all 15 MCP npm audits return ENOLOCK; #1814
-              # tracks lock-aware inventory. Changed dependency audits stay blocking.
-              # REPORT-ONLY-UNTIL: 2026-11-07 (whole-corpus npm-audit inventory; #1814)
-              # 2026-10-01 revisit: the "scoped to the changed plugin's deps"
-              # block now exists. The changed-standalone-package audit below runs
-              # with --blocking, so a PR can no longer add or change a vulnerable
-              # plugin dependency graph. This whole-corpus loop stays a loud
-              # inventory because blocking it would fail PRs on state they never
-              # touched. Measured 2026-10-01: exactly one plugin reports
-              # high/critical, the external mirror plugins/mcp/pr-to-spec (4).
-              # Its fix lands upstream and arrives through the weekly sync. By
-              # this date, either that mirror is clean and the loop flips to
-              # blocking, or the extension is re-justified with a fresh count.
-              if command -v npm &> /dev/null; then
-                if ! npm audit --production --audit-level=high; then
-                  echo "::warning file=$dir/package.json::npm audit found high/critical advisories in $dir — report-only until 2026-11-07 (whole-corpus npm-audit inventory, #1814)"
-                fi
-              fi
+      # High/critical findings remain advisory pending reviewed disposition in #1814.
+      # Missing importer coverage and unavailable audit evidence fail closed.
+      # REPORT-ONLY-UNTIL: 2026-11-07 (whole-corpus dependency findings; #1814)
+      - name: Security scan - MCP workspace dependency inventory
+        run: node scripts/audit-mcp-workspace.mjs --output=mcp-workspace-audit.json
 
-              cd -
-            fi
-          done
-          echo "✅ Dependency scan complete"
+      - name: Retain MCP workspace dependency evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mcp-workspace-dependency-inventory
+          path: mcp-workspace-audit.json
+          if-no-files-found: warn
+          retention-days: 14
 
       # Non-workspace plugin packages are installed and tested in isolation by
       # the widened loop below, so the root lock cannot attest their dependency
