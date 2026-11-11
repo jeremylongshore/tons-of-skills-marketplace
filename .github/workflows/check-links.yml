@@ -32,7 +32,7 @@ permissions:
 
 jobs:
   link-scan:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -175,7 +175,7 @@ jobs:
   link-check:
     if: always()
     needs: link-scan
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     steps:
       - name: Require both link scans to complete successfully
         env:

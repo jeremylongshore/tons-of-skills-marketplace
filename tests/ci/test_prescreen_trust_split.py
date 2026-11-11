@@ -50,7 +50,12 @@ class ValidateIsUnprivileged(unittest.TestCase):
 
     def test_no_secrets_no_write_token_no_vars_gate(self):
         self.assertNotIn("secrets.", self.text)
-        self.assertNotIn("vars.", self.text)
+        # Runner selection may use an opt-in variable, but validation itself
+        # must still execute for forks that do not receive repository variables.
+        without_runner = json.loads(json.dumps(self.wf))
+        without_runner["jobs"]["validate"].pop("runs-on")
+        self.assertNotIn("vars.", json.dumps(without_runner))
+        self.assertIn("|| 'ubuntu-latest'", self.wf["jobs"]["validate"]["runs-on"])
         perms = self.wf["jobs"]["validate"]["permissions"]
         self.assertTrue(all(value == "read" for value in perms.values()), perms)
 

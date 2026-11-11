@@ -57,7 +57,7 @@ concurrency:
 
 jobs:
   bump:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
     if: |
       github.event.pull_request.head.repo.full_name == github.repository &&
       !startsWith(github.head_ref, 'automation/') &&

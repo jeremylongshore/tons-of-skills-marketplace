@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   windows-path-contract:
-    name: Windows path contract (hosted)
+    name: Windows path contract (advisory, non-blocking)
     runs-on: windows-latest
     timeout-minutes: 20
     steps:

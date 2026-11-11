@@ -88,6 +88,26 @@ class SnapshotRoutingTests(unittest.TestCase):
         self.commit()
         self.assertEqual(links.select(self.root, self.base, "repo"), ["./guide.md"])
 
+    def test_codeql_keeps_full_coverage_on_standard_hosted_capacity(self):
+        workflow = yaml.safe_load((ROOT / ".github/workflows/codeql.yml").read_text())
+        job = workflow["jobs"]["analyze"]
+        self.assertEqual(job["runs-on"], "ubuntu-latest")
+        self.assertEqual(job["strategy"]["matrix"]["language"], ["javascript", "typescript", "python"])
+        self.assertNotIn("max-parallel", job["strategy"])
+        init = next(s for s in job["steps"] if s.get("uses", "").startswith("github/codeql-action/init@"))
+        self.assertEqual(init["with"]["queries"], "security-extended,security-and-quality")
+        self.assertNotIn("ram", init["with"])
+        self.assertNotIn("threads", init["with"])
+
+    def test_gitleaks_report_is_inside_its_step_local_artifact_root(self):
+        workflow = yaml.safe_load((ROOT / ".github/workflows/secret-scan.yml").read_text())
+        job = workflow["jobs"]["gitleaks"]
+        scan = next(s for s in job["steps"] if s.get("uses", "").startswith("gitleaks/gitleaks-action@"))
+        self.assertEqual(scan["env"]["HOME"], "${{ github.workspace }}")
+        self.assertNotEqual(scan["env"].get("GITLEAKS_ENABLE_UPLOAD_ARTIFACT"), "false")
+        self.assertNotIn("continue-on-error", scan)
+        self.assertNotIn("HOME", job.get("env", {}))
+
     def test_each_pnpm_cache_has_its_package_manager_ready(self):
         workflow = yaml.safe_load((ROOT / ".github/workflows/validate-plugins.yml").read_text())
         for name, job in workflow["jobs"].items():

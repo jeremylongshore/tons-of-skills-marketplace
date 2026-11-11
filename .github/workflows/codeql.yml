@@ -25,6 +25,8 @@ concurrency:
 jobs:
   analyze:
     name: Analyze Code
+    # The reviewed Buzz workers cannot fit the complete query set (observed OOM).
+    # Standard public Linux runners provide 16 GB without larger-runner charges.
     runs-on: ubuntu-latest
     timeout-minutes: 360
     permissions:

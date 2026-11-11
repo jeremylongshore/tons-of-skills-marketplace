@@ -3365,14 +3365,14 @@
       "status": "partial",
       "values": {
         "coverage": {
-          "conditional_envelopes": 45,
-          "containers": 242,
+          "conditional_envelopes": 46,
+          "containers": 244,
           "containers_with_sites": 17,
           "counts_overlap": true,
           "jobs": 28,
           "opaque_actions": 74,
-          "run_containers": 168,
-          "unreviewed_run_containers": 151,
+          "run_containers": 170,
+          "unreviewed_run_containers": 153,
           "workflows": 3
         },
         "repository_unbounded_total": null,
@@ -3425,7 +3425,7 @@
           {
             "authority": [
               {
-                "line": 841,
+                "line": 846,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
               }
@@ -3444,7 +3444,7 @@
           {
             "authority": [
               {
-                "line": 979,
+                "line": 984,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3463,7 +3463,7 @@
           {
             "authority": [
               {
-                "line": 316,
+                "line": 321,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Sync CLI marketplace catalog"
               }
@@ -3476,13 +3476,13 @@
             "promotion": null,
             "rationale": "The inverted diff status selects an explicit exit 1 on catalog drift.",
             "run_line": 2,
-            "step": 34,
+            "step": 35,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
             "authority": [
               {
-                "line": 542,
+                "line": 547,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Security scan - Informational sweep (non-blocking)"
               }
@@ -3495,13 +3495,13 @@
             "promotion": null,
             "rationale": "The workflow labels this sweep informational; the separate gitleaks context owns blocking secret scanning.",
             "run_line": 20,
-            "step": 58,
+            "step": 59,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
             "authority": [
               {
-                "line": 591,
+                "line": 596,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # grep status 1 means no matches; operational errors must still fail."
               },
@@ -3519,13 +3519,13 @@
             "promotion": null,
             "rationale": "Only grep's no-match status 1 is normalized; producer and exclusion-filter errors remain blocking under pipefail. Extracted-workflow tests cover matches, exclusions and real scan/filter errors.",
             "run_line": 33,
-            "step": 59,
+            "step": 60,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
             "authority": [
               {
-                "line": 1198,
+                "line": 1203,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
@@ -3549,7 +3549,7 @@
           {
             "authority": [
               {
-                "line": 291,
+                "line": 296,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Validate agent frontmatter (report-only)"
               },
@@ -3565,13 +3565,13 @@
             "observed_deadline": {
               "date": "2026-11-07",
               "expiry_adjudicated": false,
-              "source_line": 290
+              "source_line": 295
             },
             "owner": null,
             "promotion": null,
             "rationale": "A failed dependency import falls back to installation; installation failure remains blocking before the advisory validator. Extracted-step tests cover import success, successful and failed installs, and unchanged advisory validator errors.",
             "run_line": 1,
-            "step": 31,
+            "step": 32,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3582,13 +3582,13 @@
             "observed_deadline": {
               "date": "2026-11-07",
               "expiry_adjudicated": false,
-              "source_line": 290
+              "source_line": 295
             },
             "owner": null,
             "promotion": null,
             "rationale": "Advisory correctness validation has a date but lacks established current ownership and promotion authority.",
             "run_line": 2,
-            "step": 31,
+            "step": 32,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3599,13 +3599,13 @@
             "observed_deadline": {
               "date": "2026-11-17",
               "expiry_adjudicated": false,
-              "source_line": 303
+              "source_line": 308
             },
             "owner": null,
             "promotion": null,
             "rationale": "The following unambiguous gate enforces only a subset; current advisory ownership is unresolved.",
             "run_line": 1,
-            "step": 32,
+            "step": 33,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3618,7 +3618,7 @@
             "promotion": null,
             "rationale": "Only grep's no-match status 1 is normalized across discovery and both exclusion filters; operational errors fail the existing capture under pipefail. Matching eval findings remain warning-only; role and bounds remain unresolved.",
             "run_line": 41,
-            "step": 59,
+            "step": 60,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3629,13 +3629,13 @@
             "observed_deadline": {
               "date": "2026-11-07",
               "expiry_adjudicated": false,
-              "source_line": 698
+              "source_line": 703
             },
             "owner": null,
             "promotion": null,
             "rationale": "Report-only audit has a date and historical issue reference, without an established current owner.",
             "run_line": 32,
-            "step": 61,
+            "step": 62,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3672,7 +3672,7 @@
             "observed_deadline": {
               "date": "2026-11-07",
               "expiry_adjudicated": false,
-              "source_line": 1308
+              "source_line": 1313
             },
             "owner": null,
             "promotion": null,
@@ -3704,7 +3704,7 @@
             "promotion": null,
             "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching numeric-HTTP findings remain warning-only; role and bounds remain unresolved.",
             "run_line": 48,
-            "step": 59,
+            "step": 60,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3717,7 +3717,7 @@
             "promotion": null,
             "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching base64 findings remain warning-only; role and bounds remain unresolved.",
             "run_line": 55,
-            "step": 59,
+            "step": 60,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3730,7 +3730,7 @@
             "promotion": null,
             "rationale": "Parent-shell PIPESTATUS handling checks every producer/filter status under pipefail, permitting no-match status 1 but failing operational errors. Matching insecure-URL findings remain warning-only; role and bounds remain unresolved.",
             "run_line": 16,
-            "step": 60,
+            "step": 61,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3743,7 +3743,7 @@
             "promotion": null,
             "rationale": "Parent-shell status handling permits grep's no-match status 1 and fails operational errors. Matching short-URL findings remain warning-only; role and bounds remain unresolved.",
             "run_line": 23,
-            "step": 60,
+            "step": 61,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
