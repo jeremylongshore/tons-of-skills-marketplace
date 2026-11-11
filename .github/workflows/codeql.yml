@@ -25,7 +25,9 @@ concurrency:
 jobs:
   analyze:
     name: Analyze Code
-    runs-on: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && fromJSON('["self-hosted","linux","ccpi-reviewed"]') || 'ubuntu-latest' }}
+    # The reviewed Buzz workers cannot fit the complete query set (observed OOM).
+    # Standard public Linux runners provide 16 GB without larger-runner charges.
+    runs-on: ubuntu-latest
     timeout-minutes: 360
     permissions:
       actions: read
@@ -34,8 +36,6 @@ jobs:
 
     strategy:
       fail-fast: false
-      # Two reviewed workers share the estate budget; keep heavy analyses serial.
-      max-parallel: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && vars.CCPI_REVIEWED_PR_RUNNER == 'enabled' && 1 || 3 }}
       matrix:
         language: ['javascript', 'typescript', 'python']
         # CodeQL supports: 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'swift'
@@ -48,10 +48,6 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-          # Host-wide auto-detection ignores the reviewed worker's 3-GiB/2-CPU cap.
-          # Leave headroom for the runner and native processes. Hosted defaults remain.
-          ram: ${{ runner.environment == 'self-hosted' && '2048' || '' }}
-          threads: ${{ runner.environment == 'self-hosted' && '2' || '' }}
           # Queries to run (security-extended includes more checks)
           queries: security-extended,security-and-quality
 

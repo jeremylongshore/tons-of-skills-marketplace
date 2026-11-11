@@ -7,7 +7,8 @@ review of the complete admitted revision remains required.
 
 ## Admission and lifecycle
 
-`CCPI_REVIEWED_PR_RUNNER=enabled` routes same-repository PR jobs to `ccpi-reviewed`.
+`CCPI_REVIEWED_PR_RUNNER=enabled` routes the configured same-repository Linux PR jobs
+to `ccpi-reviewed`. CodeQL and native Windows checks retain hosted runners.
 Forks and other events retain their existing runner routing. The root-owned job-start
 hook independently requires the repository, PR event/number, base branch, workflow
 allowlist, exact head commit and exact synthetic merge commit to match a root-owned
@@ -22,8 +23,12 @@ Each root-owned distribution and admission configuration are read-only to jobs.
 All CI remains under the existing estate limit of four CPUs and 6 GiB. Each worker
 has a two-CPU/three-GiB ceiling within that limit; the pool does not raise estate capacity.
 
-CodeQL receives an explicit 2048-MB/two-thread budget on self-hosted workers,
-with one analysis matrix job at a time; its language and query coverage is unchanged.
+CodeQL remains on standard `ubuntu-latest`: complete Python and JavaScript analyses
+ran out of memory at the 2048-MB budget inside these workers. All three language
+matrix entries and both query suites are retained. GitHub documents standard public
+Linux runners as free with 16 GB RAM in its
+[runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
+Account-level restrictions can still block those jobs; runner selection does not waive gates.
 The Gitleaks action uses the checkout as its step-local `HOME` so its SARIF upload
 root contains the report. Report uploads remain required. CoreWeave validation uses
 a dedicated virtual environment with pinned PyYAML, so clearing ambient environment
