@@ -48,6 +48,8 @@ def test_shipped_evidence_contract(slug, filename, case, tmp_path):
     assert result["status"] == case["expected_status"], result
     assert set(case["expected_codes"]) <= {f["code"] for f in result["findings"]}
     assert proc.returncode == {"reviewed": 0, "blocked": 2, "incomplete": 3}[result["status"]]
+    for key, expected in case.get("expected_observations", {}).items():
+        assert result["observations"].get(key) == expected, result
     assert "SECRET_CANARY" not in proc.stdout + proc.stderr
     assert not proc.stderr
 

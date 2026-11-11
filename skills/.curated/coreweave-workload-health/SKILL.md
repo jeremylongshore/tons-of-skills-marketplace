@@ -5,7 +5,7 @@ description: Verify workload readiness, GPU allocation and observed activity fro
   health or checking supplied operational evidence. Trigger with "coreweave workload
   health".
 allowed-tools: Read, Write, Edit, Bash(python3:*), Grep
-version: 1.14.0
+version: 1.15.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Portable local Python 3.12+ fixture workflow; optional platform commands
@@ -28,7 +28,7 @@ Use Read for supplied evidence and references, Write for a local report, Edit fo
 ## Prerequisites
 
 - Python 3.12+, the supplied evidence contract and explicit intended context/namespace.
-- An owner-reviewed resource scope, timestamps, model provenance and applicable platform versions.
+- The intended Pod UID/namespace, Node assignment, full-GPU device mapping and timestamped utilization samples.
 - Redacted local inputs; no kubeconfig, token or customer payload in fixtures or reports.
 
 ## Instructions
@@ -45,7 +45,7 @@ Use the fixture replay below before processing redacted operator evidence.
 
 ## Output
 
-A JSON report with status, findings, observations, input SHA-256 and evidence boundary.
+A JSON report with separate scheduling, readiness, allocation and GPU-activity observations; Pod UID, Node, capture time and per-device sample ages; input SHA-256 and evidence boundary.
 
 ## Error Handling
 
@@ -62,7 +62,7 @@ A JSON report with status, findings, observations, input SHA-256 and evidence bo
 
 ## Offline verification
 
-Supply the Kubernetes `pod` JSON object, `gpu_allocations` mapping Pod UID to GPU UUID, and `gpu_samples` with uuid/pod_uid/at/utilization_percent. Allocation evidence must come from the approved device/Pod mapping; do not join only on a reused Pod name. Samples must be finite, in 0..100 and within five minutes of capture. Positive utilization shows activity in that window, not model correctness, sustained efficiency, all GPU architectures or application health. Idle but healthy batch workloads can return incomplete activity evidence. MIG/MPS/time-slicing need an explicit adapter; do not pretend full-GPU UUID semantics prove those allocations.
+Supply the Kubernetes `pod` JSON object, `gpu_allocations` mapping Pod UID to GPU UUID, and `gpu_samples` with uuid/pod_uid/at/utilization_percent. Allocation evidence must come from the approved device/Pod mapping; do not join only on a reused Pod name. Samples must be finite, in 0..100, no later than capture and within five minutes of evaluation. Whole GPU limits may be integers or plain decimal strings such as `"1"`; other quantity forms require normalization. A Pod with a deletion timestamp returns incomplete even if its retained Ready condition and GPU samples are positive. Positive utilization shows activity in that window, not model correctness, sustained efficiency, all GPU architectures or application health. Idle but healthy batch workloads can return incomplete activity evidence. MIG/MPS/time-slicing need an explicit adapter; do not pretend full-GPU UUID semantics prove those allocations.
 
 From this skill directory, replay the synthetic example (its timestamp is intentionally
 fixed; it contains no account data):
