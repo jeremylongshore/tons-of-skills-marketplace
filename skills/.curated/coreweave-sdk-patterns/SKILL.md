@@ -13,7 +13,7 @@ description: 'Bounded integration patterns for CoreWeave GPU workload management
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
