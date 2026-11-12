@@ -3365,14 +3365,14 @@
       "status": "partial",
       "values": {
         "coverage": {
-          "conditional_envelopes": 45,
-          "containers": 242,
+          "conditional_envelopes": 46,
+          "containers": 244,
           "containers_with_sites": 17,
           "counts_overlap": true,
           "jobs": 28,
-          "opaque_actions": 74,
-          "run_containers": 168,
-          "unreviewed_run_containers": 151,
+          "opaque_actions": 75,
+          "run_containers": 169,
+          "unreviewed_run_containers": 152,
           "workflows": 3
         },
         "repository_unbounded_total": null,
@@ -3425,7 +3425,7 @@
           {
             "authority": [
               {
-                "line": 841,
+                "line": 828,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
               }
@@ -3444,7 +3444,7 @@
           {
             "authority": [
               {
-                "line": 979,
+                "line": 966,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3525,7 +3525,7 @@
           {
             "authority": [
               {
-                "line": 1198,
+                "line": 1185,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
@@ -3629,13 +3629,13 @@
             "observed_deadline": {
               "date": "2026-11-07",
               "expiry_adjudicated": false,
-              "source_line": 698
+              "source_line": 683
             },
             "owner": null,
             "promotion": null,
-            "rationale": "Report-only audit has a date and historical issue reference, without an established current owner.",
-            "run_line": 32,
-            "step": 61,
+            "rationale": "The workspace audit distinguishes findings from incomplete evidence and preserves raw receipts, but both remain warning-only under the unchanged expired deadline. Mechanism repair does not adjudicate the remaining advisory policy or findings; disposition remains unresolved under GH1814.",
+            "run_line": 8,
+            "step": 62,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3672,7 +3672,7 @@
             "observed_deadline": {
               "date": "2026-11-07",
               "expiry_adjudicated": false,
-              "source_line": 1308
+              "source_line": 1295
             },
             "owner": null,
             "promotion": null,
