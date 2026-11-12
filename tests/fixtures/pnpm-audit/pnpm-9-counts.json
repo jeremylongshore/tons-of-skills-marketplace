@@ -1,0 +1,467 @@
+{
+  "provenance": {
+    "source": "https://github.com/pnpm/pnpm/blob/v9.15.9/lockfile/plugin-commands-audit/test/utils/responses/all-vulnerabilities-response.json",
+    "source_sha256": "5d8d4ac084b65b972d0a24098e3dc71925c4c7dd9e56cd68423e3c879b5bba5f",
+    "scope": "Count-contract projection retaining original severity/module/findings and metadata; advisory prose omitted. Not a fresh security inventory.",
+    "license": "MIT; pnpm v9.15.9 LICENSE retained beside fixture"
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 4,
+      "moderate": 17,
+      "high": 21,
+      "critical": 4
+    },
+    "dependencies": 439,
+    "devDependencies": 0,
+    "optionalDependencies": 0,
+    "totalDependencies": 439
+  },
+  "advisories": {
+    "1004869": {
+      "findings": [
+        {
+          "version": "4.0.1",
+          "paths": [".>karma>log4js>loggly>request>har-validator>is-my-json-valid>jsonpointer"]
+        }
+      ],
+      "module_name": "jsonpointer",
+      "severity": "moderate"
+    },
+    "1005018": {
+      "findings": [
+        {
+          "version": "0.15.3",
+          "paths": [".>axios"]
+        }
+      ],
+      "module_name": "axios",
+      "severity": "high"
+    },
+    "1005040": {
+      "findings": [
+        {
+          "version": "4.4.15",
+          "paths": [".>karma>chokidar>fsevents>node-pre-gyp>tar"]
+        }
+      ],
+      "module_name": "tar",
+      "severity": "high"
+    },
+    "1005043": {
+      "findings": [
+        {
+          "version": "4.4.15",
+          "paths": [".>karma>chokidar>fsevents>node-pre-gyp>tar"]
+        }
+      ],
+      "module_name": "tar",
+      "severity": "high"
+    },
+    "1005046": {
+      "findings": [
+        {
+          "version": "4.4.15",
+          "paths": [".>karma>chokidar>fsevents>node-pre-gyp>tar"]
+        }
+      ],
+      "module_name": "tar",
+      "severity": "high"
+    },
+    "1005062": {
+      "findings": [
+        {
+          "version": "3.0.0",
+          "paths": [".>karma>log4js>mailgun-js>proxy-agent>pac-proxy-agent>pac-resolver"]
+        }
+      ],
+      "module_name": "pac-resolver",
+      "severity": "high"
+    },
+    "1005084": {
+      "findings": [
+        {
+          "version": "1.4.7",
+          "paths": [".>karma>log4js>amqplib>url-parse"]
+        }
+      ],
+      "module_name": "url-parse",
+      "severity": "moderate"
+    },
+    "1005107": {
+      "findings": [
+        {
+          "version": "3.1.3",
+          "paths": [".>karma>socket.io>socket.io-parser"]
+        }
+      ],
+      "module_name": "socket.io-parser",
+      "severity": "high"
+    },
+    "1005175": {
+      "findings": [
+        {
+          "version": "1.5.5",
+          "paths": [".>karma>socket.io>socket.io-client>engine.io-client>xmlhttprequest-ssl"]
+        }
+      ],
+      "module_name": "xmlhttprequest-ssl",
+      "severity": "critical"
+    },
+    "1005260": {
+      "findings": [
+        {
+          "version": "1.5.5",
+          "paths": [".>karma>socket.io>socket.io-client>engine.io-client>xmlhttprequest-ssl"]
+        }
+      ],
+      "module_name": "xmlhttprequest-ssl",
+      "severity": "high"
+    },
+    "1005277": {
+      "findings": [
+        {
+          "version": "2.8.0",
+          "paths": [".>karma>log4js>redis"]
+        }
+      ],
+      "module_name": "redis",
+      "severity": "low"
+    },
+    "1005307": {
+      "findings": [
+        {
+          "version": "2.7.2",
+          "paths": [".>karma>log4js>nodemailer"]
+        }
+      ],
+      "module_name": "nodemailer",
+      "severity": "critical"
+    },
+    "1005367": {
+      "findings": [
+        {
+          "version": "1.7.0",
+          "paths": [
+            ".>karma>log4js>nodemailer>nodemailer-direct-transport>smtp-connection>httpntlm>underscore"
+          ]
+        }
+      ],
+      "module_name": "underscore",
+      "severity": "high"
+    },
+    "1005392": {
+      "findings": [
+        {
+          "version": "1.0.6",
+          "paths": [".>karma>log4js>mailgun-js>proxy-agent>pac-proxy-agent>pac-resolver>netmask"]
+        }
+      ],
+      "module_name": "netmask",
+      "severity": "moderate"
+    },
+    "1005404": {
+      "findings": [
+        {
+          "version": "1.4.7",
+          "paths": [".>karma>log4js>amqplib>url-parse"]
+        }
+      ],
+      "module_name": "url-parse",
+      "severity": "high"
+    },
+    "1005490": {
+      "findings": [
+        {
+          "version": "2.0.4",
+          "paths": [".>karma>socket.io"]
+        }
+      ],
+      "module_name": "socket.io",
+      "severity": "moderate"
+    },
+    "1005506": {
+      "findings": [
+        {
+          "version": "0.15.3",
+          "paths": [".>axios"]
+        }
+      ],
+      "module_name": "axios",
+      "severity": "high"
+    },
+    "1005563": {
+      "findings": [
+        {
+          "version": "1.1.2",
+          "paths": [".>karma>log4js>loggly>request>bl"]
+        }
+      ],
+      "module_name": "bl",
+      "severity": "high"
+    },
+    "1005586": {
+      "findings": [
+        {
+          "version": "1.18.0",
+          "paths": [".>karma>http-proxy"]
+        }
+      ],
+      "module_name": "http-proxy",
+      "severity": "high"
+    },
+    "1005745": {
+      "findings": [
+        {
+          "version": "2.3.0",
+          "paths": [".>karma>log4js>loggly>timespan"]
+        }
+      ],
+      "module_name": "timespan",
+      "severity": "low"
+    },
+    "1005902": {
+      "findings": [
+        {
+          "version": "0.6.2",
+          "paths": [".>sync-exec"]
+        }
+      ],
+      "module_name": "sync-exec",
+      "severity": "moderate"
+    },
+    "1006110": {
+      "findings": [
+        {
+          "version": "6.0.2",
+          "paths": [".>karma>chokidar>anymatch>micromatch>kind-of"]
+        }
+      ],
+      "module_name": "kind-of",
+      "severity": "high"
+    },
+    "1006180": {
+      "findings": [
+        {
+          "version": "0.0.8",
+          "paths": [".>karma>chokidar>fsevents>node-pre-gyp>mkdirp>minimist"]
+        },
+        {
+          "version": "0.0.10",
+          "paths": [".>karma>optimist>minimist"]
+        }
+      ],
+      "module_name": "minimist",
+      "severity": "moderate"
+    },
+    "1006342": {
+      "findings": [
+        {
+          "version": "0.1.5",
+          "paths": [".>karma>expand-braces>braces"]
+        }
+      ],
+      "module_name": "braces",
+      "severity": "low"
+    },
+    "1006349": {
+      "findings": [
+        {
+          "version": "0.15.3",
+          "paths": [".>axios"]
+        }
+      ],
+      "module_name": "axios",
+      "severity": "high"
+    },
+    "1006373": {
+      "findings": [
+        {
+          "version": "0.4.3",
+          "paths": [".>karma>log4js>loggly>request>tunnel-agent"]
+        }
+      ],
+      "module_name": "tunnel-agent",
+      "severity": "moderate"
+    },
+    "1006603": {
+      "findings": [
+        {
+          "version": "2.0.5",
+          "paths": [".>karma>log4js>loggly>request>hawk>cryptiles"]
+        }
+      ],
+      "module_name": "cryptiles",
+      "severity": "critical"
+    },
+    "1006659": {
+      "findings": [
+        {
+          "version": "2.16.3",
+          "paths": [".>karma>log4js>loggly>request>hawk>hoek"]
+        }
+      ],
+      "module_name": "hoek",
+      "severity": "moderate"
+    },
+    "1006724": {
+      "findings": [
+        {
+          "version": "0.2.3",
+          "paths": [".>karma>log4js>hipchat-notifier>request>http-signature>jsprim>json-schema"]
+        }
+      ],
+      "module_name": "json-schema",
+      "severity": "moderate"
+    },
+    "1006788": {
+      "findings": [
+        {
+          "version": "2.7.2",
+          "paths": [".>karma>log4js>nodemailer"]
+        }
+      ],
+      "module_name": "nodemailer",
+      "severity": "moderate"
+    },
+    "1006822": {
+      "findings": [
+        {
+          "version": "1.0.6",
+          "paths": [".>karma>log4js>mailgun-js>proxy-agent>pac-proxy-agent>pac-resolver>netmask"]
+        }
+      ],
+      "module_name": "netmask",
+      "severity": "critical"
+    },
+    "1006837": {
+      "findings": [
+        {
+          "version": "0.1.5",
+          "paths": [".>karma>expand-braces>braces"]
+        }
+      ],
+      "module_name": "braces",
+      "severity": "low"
+    },
+    "1006865": {
+      "findings": [
+        {
+          "version": "1.0.0",
+          "paths": [".>axios>follow-redirects"]
+        },
+        {
+          "version": "1.9.0",
+          "paths": [".>karma>http-proxy>follow-redirects"]
+        }
+      ],
+      "module_name": "follow-redirects",
+      "severity": "high"
+    },
+    "1006902": {
+      "findings": [
+        {
+          "version": "2.11.0",
+          "paths": [".>karma>log4js"]
+        }
+      ],
+      "module_name": "log4js",
+      "severity": "moderate"
+    },
+    "1006947": {
+      "findings": [
+        {
+          "version": "3.1.0",
+          "paths": [".>karma>chokidar>glob-parent"]
+        }
+      ],
+      "module_name": "glob-parent",
+      "severity": "high"
+    },
+    "1006948": {
+      "findings": [
+        {
+          "version": "4.17.15",
+          "paths": [".>karma>lodash"]
+        }
+      ],
+      "module_name": "lodash",
+      "severity": "high"
+    },
+    "1006949": {
+      "findings": [
+        {
+          "version": "4.17.15",
+          "paths": [".>karma>lodash"]
+        }
+      ],
+      "module_name": "lodash",
+      "severity": "moderate"
+    },
+    "1006952": {
+      "findings": [
+        {
+          "version": "4.17.15",
+          "paths": [".>karma>lodash"]
+        }
+      ],
+      "module_name": "lodash",
+      "severity": "high"
+    },
+    "1006975": {
+      "findings": [
+        {
+          "version": "3.1.5",
+          "paths": [".>karma>socket.io>engine.io"]
+        }
+      ],
+      "module_name": "engine.io",
+      "severity": "high"
+    },
+    "1006997": {
+      "findings": [
+        {
+          "version": "2.0.5",
+          "paths": [".>karma"]
+        }
+      ],
+      "module_name": "karma",
+      "severity": "moderate"
+    },
+    "1007017": {
+      "findings": [
+        {
+          "version": "6.10.2",
+          "paths": [".>karma>log4js>hipchat-notifier>request>har-validator>ajv"]
+        }
+      ],
+      "module_name": "ajv",
+      "severity": "moderate"
+    },
+    "1007026": {
+      "findings": [
+        {
+          "version": "1.0.0",
+          "paths": [".>axios>follow-redirects"]
+        },
+        {
+          "version": "1.9.0",
+          "paths": [".>karma>http-proxy>follow-redirects"]
+        }
+      ],
+      "module_name": "follow-redirects",
+      "severity": "moderate"
+    },
+    "1007030": {
+      "findings": [
+        {
+          "version": "1.4.7",
+          "paths": [".>karma>log4js>amqplib>url-parse"]
+        }
+      ],
+      "module_name": "url-parse",
+      "severity": "high"
+    }
+  }
+}

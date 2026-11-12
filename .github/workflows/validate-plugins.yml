@@ -673,49 +673,36 @@ jobs:
 
           echo "✅ URL scan complete"
 
-      - name: Security scan - MCP plugin dependencies
+      - name: Test workspace dependency audit inventory
+        run: node --test scripts/audit-workspace-dependencies.test.mjs
+
+      - name: Security scan - MCP workspace dependency inventory
+        id: workspace-audit
         if: hashFiles('plugins/mcp/*/package.json') != ''
         run: |
-          echo "Scanning MCP plugin dependencies..."
-          for package in plugins/mcp/*/package.json; do
-            if [ -f "$package" ]; then
-              echo "Checking $package"
-              dir=$(dirname "$package")
-              cd "$dir"
+          # REPORT-ONLY-UNTIL: 2026-11-07 (whole-corpus npm-audit inventory; #1814)
+          # Audit the root lock actually installed by the MCP test lane. The
+          # report covers the entire pnpm workspace, not only MCP dependencies.
+          # Findings and incomplete evidence remain distinct; retirement of this
+          # existing waiver requires fresh inventory and reviewed disposition.
+          set +e
+          node scripts/audit-workspace-dependencies.mjs --output "$RUNNER_TEMP/workspace-audit"
+          audit_status=$?
+          set -e
+          if [ "$audit_status" -eq 1 ]; then
+            echo "::warning::Workspace production audit reports high/critical findings; see retained inventory (#1814)."
+          elif [ "$audit_status" -ne 0 ]; then
+            echo "::warning::Workspace production audit is INCOMPLETE; no clean coverage claim (#1814)."
+          fi
 
-              # npm-audit policy — REPORT-ONLY (loud, not blocking) until the
-              # date below. Decision: a hard block on high/critical would
-              # red-wall every PR whenever an unrelated upstream advisory drops
-              # (this repo vendors ~450 plugins, each with its own deps) — i.e.
-              # fail on state the PR never touched. The prior `npm audit
-              # --production || true` was the opposite failure: silent, so a
-              # real high/critical advisory produced no signal at all. This is
-              # the honest middle — audit at --audit-level=high and SURFACE
-              # findings as a CI ::warning:: annotation, without failing.
-              #
-              # 2026-11-01 renewal: all 15 MCP npm audits return ENOLOCK; #1814
-              # tracks lock-aware inventory. Changed dependency audits stay blocking.
-              # REPORT-ONLY-UNTIL: 2026-11-07 (whole-corpus npm-audit inventory; #1814)
-              # 2026-10-01 revisit: the "scoped to the changed plugin's deps"
-              # block now exists. The changed-standalone-package audit below runs
-              # with --blocking, so a PR can no longer add or change a vulnerable
-              # plugin dependency graph. This whole-corpus loop stays a loud
-              # inventory because blocking it would fail PRs on state they never
-              # touched. Measured 2026-10-01: exactly one plugin reports
-              # high/critical, the external mirror plugins/mcp/pr-to-spec (4).
-              # Its fix lands upstream and arrives through the weekly sync. By
-              # this date, either that mirror is clean and the loop flips to
-              # blocking, or the extension is re-justified with a fresh count.
-              if command -v npm &> /dev/null; then
-                if ! npm audit --production --audit-level=high; then
-                  echo "::warning file=$dir/package.json::npm audit found high/critical advisories in $dir — report-only until 2026-11-07 (whole-corpus npm-audit inventory, #1814)"
-                fi
-              fi
-
-              cd -
-            fi
-          done
-          echo "✅ Dependency scan complete"
+      - name: Retain workspace dependency audit evidence
+        if: always() && steps.workspace-audit.outcome != 'skipped' && steps.workspace-audit.outcome != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: workspace-dependency-audit
+          path: ${{ runner.temp }}/workspace-audit/
+          retention-days: 30
+          if-no-files-found: error
 
       # Non-workspace plugin packages are installed and tested in isolation by
       # the widened loop below, so the root lock cannot attest their dependency
