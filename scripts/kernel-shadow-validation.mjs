@@ -92,6 +92,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -508,6 +509,14 @@ function main() {
     kernelPin: KERNEL_PIN,
     registryShadow,
     comparedAgainst: 'scripts/validate-skills-schema.py --marketplace --json',
+    productionChecks: Object.fromEntries(
+      ['skill_production_gate.py', 'skill_production_policy.json'].map((name) => [
+        name,
+        createHash('sha256')
+          .update(readFileSync(join(REPO_ROOT, 'scripts', name)))
+          .digest('hex'),
+      ]),
+    ),
     composedSchema: LANES[0].schemaId,
     lanes: {
       'authoring/v1': {

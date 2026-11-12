@@ -41,7 +41,12 @@ function exercise(t, label, shadowEntries) {
   mkdirSync(join(dir, 'scripts'), { recursive: true });
   mkdirSync(join(dir, '.venv', 'bin'), { recursive: true });
   symlinkSync(join(root, 'node_modules'), join(dir, 'node_modules'), 'dir');
-  for (const name of ['kernel-shadow-validation.mjs', 'kernel-shadow-registry.mjs']) {
+  for (const name of [
+    'kernel-shadow-validation.mjs',
+    'kernel-shadow-registry.mjs',
+    'skill_production_gate.py',
+    'skill_production_policy.json',
+  ]) {
     const source = join(root, 'scripts', name);
     if (existsSync(source)) copyFileSync(source, join(dir, 'scripts', name));
   }

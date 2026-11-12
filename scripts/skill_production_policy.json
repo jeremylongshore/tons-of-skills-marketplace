@@ -1,0 +1,9 @@
+{
+  "schema_version": "skill-production-policy/v1",
+  "canonical_fence_baseline_commit": "ed4778951a4007d1ca56781a468233212e371502",
+  "canonical_source": "scripts/validate-skills-schema.py",
+  "code_fence": {
+    "pattern": "^\\s*(```|~~~)",
+    "flags": 32
+  }
+}
