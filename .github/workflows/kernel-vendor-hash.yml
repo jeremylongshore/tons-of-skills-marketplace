@@ -44,6 +44,7 @@ on:
       - 'scripts/kernel-vendor-hash.mjs'
       - 'scripts/kernel-vendor-hash.test.mjs'
       - 'scripts/validate-skills-schema.py'
+      - 'scripts/agent_body_tools.py'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - '.kernel-vendor/**'

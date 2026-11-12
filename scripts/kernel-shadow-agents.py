@@ -47,6 +47,7 @@ def observe(root: Path) -> dict:
         "status": "complete" if rows and all(row["available"] for row in rows) else "partial",
         "validator_schema_version": validator.SCHEMA_VERSION,
         "validator_sha256": hashlib.sha256(validator_path.read_bytes()).hexdigest(),
+        "agent_body_tools_sha256": hashlib.sha256(validator_path.with_name("agent_body_tools.py").read_bytes()).hexdigest(),
         "discovered": len(agents),
         "rows": rows,
     }
