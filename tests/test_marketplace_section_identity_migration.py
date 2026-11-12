@@ -32,6 +32,7 @@ class SectionIdentityMigrationTests(unittest.TestCase):
         validator = self.root / migration.VALIDATOR_PATH
         validator.parent.mkdir()
         validator.write_bytes((ROOT / migration.VALIDATOR_PATH).read_bytes())
+        validator.with_name("agent_body_tools.py").write_bytes((ROOT / "scripts/agent_body_tools.py").read_bytes())
         self.skill_path = "plugins/example/skills/example/SKILL.md"
         self.skill = self.root / self.skill_path
         self.skill.parent.mkdir(parents=True)
