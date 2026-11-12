@@ -136,4 +136,3 @@ def check_agent_body_vs_allowlist(fm: Dict[str, Any], body: str) -> Tuple[List[s
             )
 
     return errors, warnings
-
