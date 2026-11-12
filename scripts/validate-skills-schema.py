@@ -1685,7 +1685,7 @@ def calculate_modifiers(path: Path, body: str, fm: dict) -> dict:
     if refs_dir.exists():
         orphan_refs = []
         for match in re.finditer(r"\[([^\]]*)\]\((references/[^)]+)\)", body):
-            ref_target = skill_dir / match.group(2)
+            ref_target = skill_dir / relative_link_file_target(match.group(2))
             if not ref_target.exists():
                 orphan_refs.append(match.group(2))
         if orphan_refs:
@@ -3565,6 +3565,11 @@ def validate_resource_files_exist(path: Path, body: str) -> Tuple[List[str], Lis
     return errors, warnings
 
 
+def relative_link_file_target(target: str) -> str:
+    """Remove the fragment for file checks; do not validate headings or decode URLs."""
+    return target.split("#", 1)[0]
+
+
 def validate_relative_links(path: Path, body: str) -> Tuple[List[str], List[str]]:
     """
     Validate that relative markdown links in SKILL.md point to existing files.
@@ -3594,7 +3599,8 @@ def validate_relative_links(path: Path, body: str) -> Tuple[List[str], List[str]
         if link_target.startswith(("#", "mailto:", "${")):
             continue
 
-        target_path = (skill_dir / link_target).resolve()
+        file_target = relative_link_file_target(link_target)
+        target_path = (skill_dir / file_target).resolve()
 
         # Ensure path doesn't escape skill directory
         try:
@@ -3606,7 +3612,7 @@ def validate_relative_links(path: Path, body: str) -> Tuple[List[str], List[str]
         if not target_path.exists():
             warnings.append(
                 f"[relative-link] Linked file not found: [{link_text}]({link_target}) "
-                f"(expected at {skill_dir.name}/{link_target})"
+                f"(expected at {skill_dir.name}/{file_target})"
             )
 
     return errors, warnings
