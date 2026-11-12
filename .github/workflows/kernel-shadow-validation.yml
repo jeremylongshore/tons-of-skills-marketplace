@@ -37,6 +37,8 @@ on:
       - 'scripts/validate-mcp-config.mjs'
       - 'scripts/validate-skills-schema.py'
       - 'scripts/agent_body_tools.py'
+      - 'scripts/skill_production_gate.py'
+      - 'scripts/skill_production_policy.json'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'plugins/**/SKILL.md'

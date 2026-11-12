@@ -1,0 +1,214 @@
+{
+  "original_function_sha256": {
+    "parse_allowed_tools": "61295f7a141072c7c4de4791e418f9450f6164239ed986afd0aaf7793b11390d",
+    "_tier2_extract_declared_base_tools": "e5271c70b1e3a65dc0836a8f375f6115be1d82de294ea019fe3a282737d98cb5",
+    "tier2_check_allowed_tools_accuracy": "7a232e5fc8632103558e09db87e865da9bcbe8e461559f007dea85f2e7af3a2f",
+    "tier2_check_auth_documented": "24a14c21c37f508d35c57487935dd40797bfbdc4061fae4b488fac8a72bafab9",
+    "tier2_check_dead_code": "d892a79978bda73190cdbebc5ed19a52b2687648caf7453e7bea5c81b2d4c9b0",
+    "tier2_check_tool_safety": "b109f297164540babc4609327ac0228a6b32740862f4adf943b42b6a58a35061",
+    "tier2_check_orchestration_bounds": "b1932660b44c1725ead1254912b39354489996ad726b81124c17b8b4996b5a6b",
+    "validate_tier2_production_gate": "630980631307482dcf12d81ab7ca1205ced59de3ba1a7c9a256d3b4b568aa2f6"
+  },
+  "license_sha256": "32ef688a3e3c3b0c811cb5909788e1e4af711f2a672ee3a9941702e6603aa33b",
+  "source_commit": "ed4778951a4007d1ca56781a468233212e371502",
+  "source_hashes": {
+    "validate-skills-schema.py": "fb202d6362f8e33c55654ff8b278dbe5bccd122b297bccb3ca15a6aac3358595",
+    "agent_body_tools.py": "646c4bd196086c3102b1c9604c884787481db39494d0c1c286e97b9f992bfaf6"
+  },
+  "inputs_sha256": "fc49ca4c09292762ab8a82acc451be3ea66ec213c4899f508483e4cfc4a5f7f3",
+  "scope": "Exact original five-check results; no runtime-safety or whole-schema equivalence claim",
+  "cases": [
+    {
+      "id": "empty",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "sorted-warning",
+      "errors": [
+        "[tier2:tool-safety] Unscoped Bash + Write/WebFetch declared without a Safety Justification section — high-risk combo. Add `## Safety Justification` explaining why."
+      ],
+      "warnings": [
+        "[tier2:allowed-tools-accuracy] Tool 'Write' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "api-noauth",
+      "errors": [],
+      "warnings": [
+        "[tier2:auth-documented] External API surface referenced (curl/fetch/MCP/OAuth/etc.) but no authentication method documented — add an Auth section or reference auth.md"
+      ],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "api-auth",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "first-three",
+      "errors": [],
+      "warnings": [
+        "[tier2:dead-code] Literal-false branch found at line ~1: 'if false'",
+        "[tier2:dead-code] Literal-false branch found at line ~2: 'if false'",
+        "[tier2:dead-code] Literal-false branch found at line ~3: 'if false'"
+      ],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "unsafe",
+      "errors": [
+        "[tier2:tool-safety] Unscoped Bash + Write/WebFetch declared without a Safety Justification section — high-risk combo. Add `## Safety Justification` explaining why."
+      ],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "justified",
+      "errors": [],
+      "warnings": [
+        "[tier2:allowed-tools-accuracy] Tool 'Write' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "scoped",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "orchestrates",
+      "errors": [
+        "[tier2:orchestration-bounds] Body contains orchestration smell 'delegate to /' — cross-skill orchestration is plugin-layer concern, not skill-layer"
+      ],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "backticks",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "tildes",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "negated-quote-table",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "all-order",
+      "errors": [
+        "[tier2:tool-safety] Unscoped Bash + Write/WebFetch declared without a Safety Justification section — high-risk combo. Add `## Safety Justification` explaining why.",
+        "[tier2:orchestration-bounds] Body contains orchestration smell 'spawn another skill' — cross-skill orchestration is plugin-layer concern, not skill-layer"
+      ],
+      "warnings": [
+        "[tier2:allowed-tools-accuracy] Tool 'Read' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration",
+        "[tier2:allowed-tools-accuracy] Tool 'Write' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration",
+        "[tier2:auth-documented] External API surface referenced (curl/fetch/MCP/OAuth/etc.) but no authentication method documented — add an Auth section or reference auth.md",
+        "[tier2:dead-code] Literal-false branch found at line ~2: 'if false'"
+      ],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "case-sensitive",
+      "errors": [],
+      "warnings": [
+        "[tier2:allowed-tools-accuracy] Tool 'Read' is declared in allowed-tools but never referenced in the skill body — over-permissive or stale declaration"
+      ],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "missing-tools",
+      "errors": [],
+      "warnings": [
+        "[tier2:auth-documented] External API surface referenced (curl/fetch/MCP/OAuth/etc.) but no authentication method documented — add an Auth section or reference auth.md"
+      ],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "empty-tools",
+      "errors": [],
+      "warnings": [
+        "[tier2:auth-documented] External API surface referenced (curl/fetch/MCP/OAuth/etc.) but no authentication method documented — add an Auth section or reference auth.md"
+      ],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "malformed-tools",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "list-scope",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "mixed-parser",
+      "errors": [],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    },
+    {
+      "id": "first-smell",
+      "errors": [
+        "[tier2:orchestration-bounds] Body contains orchestration smell 'spawn another skill' — cross-skill orchestration is plugin-layer concern, not skill-layer"
+      ],
+      "warnings": [],
+      "infos": [
+        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
+      ]
+    }
+  ]
+}

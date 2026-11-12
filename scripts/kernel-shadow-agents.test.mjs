@@ -47,6 +47,7 @@ function setup(t) {
     'kernel-shadow-agents.py',
     'validate-skills-schema.py',
     'agent_body_tools.py',
+    'skill_production_gate.py',
   ]) {
     copyFileSync(join(ROOT, 'scripts', name), join(root, 'scripts', name));
   }
@@ -97,6 +98,7 @@ function payload() {
     validator_schema_version: 'fixture',
     validator_sha256: 'a'.repeat(64),
     agent_body_tools_sha256: 'c'.repeat(64),
+    skill_production_gate_sha256: 'd'.repeat(64),
     discovered: 1,
     rows: [
       {
@@ -259,6 +261,18 @@ for (const [label, edit] of [
     'missing verdict',
     (p) => {
       delete p.rows[0].errors;
+    },
+  ],
+  [
+    'missing skill helper hash',
+    (p) => {
+      delete p.skill_production_gate_sha256;
+    },
+  ],
+  [
+    'malformed skill helper hash',
+    (p) => {
+      p.skill_production_gate_sha256 = 'invalid';
     },
   ],
   [

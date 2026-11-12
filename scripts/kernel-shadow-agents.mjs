@@ -80,6 +80,7 @@ function loadPython() {
     typeof payload.validator_schema_version !== 'string' ||
     !hash(payload.validator_sha256) ||
     !hash(payload.agent_body_tools_sha256) ||
+    !hash(payload.skill_production_gate_sha256) ||
     !Array.isArray(payload.rows) ||
     !payload.rows.length ||
     payload.discovered !== payload.rows.length
@@ -140,6 +141,7 @@ function observe(report) {
     schemaVersion: python.validator_schema_version,
     sha256: python.validator_sha256,
     agentBodyToolsSha256: python.agent_body_tools_sha256,
+    skillProductionGateSha256: python.skill_production_gate_sha256,
   };
   report.inventory = {
     discovered: python.discovered,

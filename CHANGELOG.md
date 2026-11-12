@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — shared skill production checks
+
+- Extract the five existing static skill production checks and exact allowed-tools
+  parser into a marketplace-owned module. Preserve findings, ordering and caller
+  tier policy; bind the canonical fence expression explicitly and retain its
+  historical section-migration identity. Packaging includes a source-owned fence
+  descriptor and provenance; heuristic results do not prove runtime safety.
+
 ## 2026-11-12
 
 - **refactor(scripts):** extract the existing agent body/tool-list checker into a reusable, marketplace-owned module. Preserve all findings and severity, anchor imports to the trusted validator location, and retain helper provenance in agent shadow observations. This lexical check does not prove runtime tool access. Refs bead `bd_000-projects-k5e22.2`.

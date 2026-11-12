@@ -50,6 +50,9 @@ def observe(root: Path) -> dict:
         "agent_body_tools_sha256": hashlib.sha256(
             validator_path.with_name("agent_body_tools.py").read_bytes()
         ).hexdigest(),
+        "skill_production_gate_sha256": hashlib.sha256(
+            validator_path.with_name("skill_production_gate.py").read_bytes()
+        ).hexdigest(),
         "discovered": len(agents),
         "rows": rows,
     }

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "empty",
+    "body": "Plain instructions.",
+    "frontmatter": {}
+  },
+  {
+    "id": "sorted-warning",
+    "body": "Read",
+    "frontmatter": {
+      "allowed-tools": ["Write", "Read", "Bash"]
+    }
+  },
+  {
+    "id": "api-noauth",
+    "body": "curl endpoint",
+    "frontmatter": {}
+  },
+  {
+    "id": "api-auth",
+    "body": "curl endpoint; authentication is documented",
+    "frontmatter": {}
+  },
+  {
+    "id": "first-three",
+    "body": "if false\nif false\nif false\nif false",
+    "frontmatter": {}
+  },
+  {
+    "id": "unsafe",
+    "body": "Write output",
+    "frontmatter": {
+      "allowed-tools": "Bash Write"
+    }
+  },
+  {
+    "id": "justified",
+    "body": "Safety Justification: bounded inputs",
+    "frontmatter": {
+      "allowed-tools": "Bash Write"
+    }
+  },
+  {
+    "id": "scoped",
+    "body": "Write output",
+    "frontmatter": {
+      "allowed-tools": "Bash(git add *) Write"
+    }
+  },
+  {
+    "id": "orchestrates",
+    "body": "delegate to /other",
+    "frontmatter": {}
+  },
+  {
+    "id": "backticks",
+    "body": "```\ndelegate to /other\n```",
+    "frontmatter": {}
+  },
+  {
+    "id": "tildes",
+    "body": "~~~\ndelegate to /other\n~~~",
+    "frontmatter": {}
+  },
+  {
+    "id": "negated-quote-table",
+    "body": "never delegate to /other\n> delegate to /other\n| delegate to /other |",
+    "frontmatter": {}
+  },
+  {
+    "id": "all-order",
+    "body": "curl endpoint\nif false\nspawn another skill",
+    "frontmatter": {
+      "allowed-tools": ["Write", "Bash", "Read"]
+    }
+  },
+  {
+    "id": "case-sensitive",
+    "body": "read",
+    "frontmatter": {
+      "allowed-tools": "Read"
+    }
+  },
+  {
+    "id": "missing-tools",
+    "body": "mcp__server__call",
+    "frontmatter": {}
+  },
+  {
+    "id": "empty-tools",
+    "body": "mcp__server__call",
+    "frontmatter": {
+      "allowed-tools": []
+    }
+  },
+  {
+    "id": "malformed-tools",
+    "body": "Plain instructions",
+    "frontmatter": {
+      "allowed-tools": 42
+    }
+  },
+  {
+    "id": "list-scope",
+    "body": "Write",
+    "frontmatter": {
+      "allowed-tools": ["Bash(git add *)", "Write"]
+    }
+  },
+  {
+    "id": "mixed-parser",
+    "body": "Read Write",
+    "frontmatter": {
+      "allowed-tools": "Read Write,Bash(git:*)"
+    }
+  },
+  {
+    "id": "first-smell",
+    "body": "spawn another skill and delegate to /second",
+    "frontmatter": {}
+  }
+]
