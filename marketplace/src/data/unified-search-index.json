@@ -5251,7 +5251,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 96,
+      "verificationScore": 97,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "engineer design diagram generate production-grade engineering design diagrams (architecture, sequence, delta, drift) as self-contained dark-themed html files with accessible inline svg. grounds every diagram in real repo topology via dci — package manifests, docker-compose, k8s, terraform, import graph. four modes: generate, diff, trace, watch. semantic oklch palette; mermaid fallback for large graphs. devops architecture diagram visualization svg html pr-review drift-detection sequence-diagram engineering-design documentation onboarding"
@@ -13818,7 +13818,7 @@
       "isNew": false,
       "badges": [],
       "skillCount": 1,
-      "verificationScore": 94,
+      "verificationScore": 95,
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "aomi aomi for ai agents — drive the aomi cli from natural-language prompts to chat, simulate, and sign on-chain transactions with account-abstraction-first execution across defi, perps, cex, and social apps on evm mainnets and l2s. crypto crypto defi web3 evm ethereum wallet account-abstraction trading agent mcp"
