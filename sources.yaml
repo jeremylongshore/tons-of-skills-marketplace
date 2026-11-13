@@ -742,6 +742,7 @@ sources:
       - 'LICENSE'
       - 'SECURITY.md'
       - '.claude-plugin/**'
+      - '.mcp.json'
       - 'skills/**'
     exclude:
       # Held: this unshipped skill fails three marketplace validation rules
