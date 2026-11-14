@@ -1,6 +1,6 @@
 ---
 title: "Test Gate Exit Codes: Add a Could-Not-Run Result (pytest)"
-description: "A test gate needs a pinned interpreter and a could-not-run exit code beside its test verdict. Here \\"No module named pytest\\" cost six weekly agent runs."
+description: "A test gate needs a pinned interpreter and a could-not-run exit code beside its test verdict. Here \"No module named pytest\" cost six weekly agent runs."
 date: "2026-11-08"
 tags: ["ai-agents", "testing", "ci-cd", "automation", "python", "claude-code"]
 featured: false
