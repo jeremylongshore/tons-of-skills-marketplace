@@ -92,16 +92,16 @@
     {
       "plugin": "slack-channel",
       "readme": "plugins/mcp/slack-channel/README.md",
-      "source_sha256": "c751ca08125dd5311a8ee2796491efbe53662da5ccef00c84d22204ce1051b26",
-      "current_sha256": "c751ca08125dd5311a8ee2796491efbe53662da5ccef00c84d22204ce1051b26",
+      "source_sha256": "ef149e1d4a882eb86c5cde21a6e9c70869fc9e26f2903f029be37b664481531d",
+      "current_sha256": "ef149e1d4a882eb86c5cde21a6e9c70869fc9e26f2903f029be37b664481531d",
       "ownership": "upstream-mirror",
       "sources_lock_key": "slack-channel",
       "provenance": "plugins/mcp/slack-channel/.source.json",
       "upstream": "jeremylongshore/claude-code-slack-channel",
       "route": "https://github.com/jeremylongshore/claude-code-slack-channel/issues/new",
       "limitation": "The safe marketplace renderer displays the three upstream named installation anchors and the official partner badge HTML as escaped text. The adjacent partner description remains readable; raw HTML is not executed.",
-      "source_commit": "940fb8d99161cb8c4b6834334e8c5f31a1674888",
-      "reaudited_at": "2026-10-22"
+      "source_commit": "23d1082d1bd19b1a5a704078ea338906799f22f8",
+      "reaudited_at": "2026-11-14"
     },
     {
       "plugin": "servicegraph",
