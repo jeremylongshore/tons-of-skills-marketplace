@@ -3365,14 +3365,14 @@
       "status": "partial",
       "values": {
         "coverage": {
-          "conditional_envelopes": 45,
+          "conditional_envelopes": 44,
           "containers": 242,
-          "containers_with_sites": 17,
+          "containers_with_sites": 16,
           "counts_overlap": true,
           "jobs": 28,
           "opaque_actions": 74,
           "run_containers": 168,
-          "unreviewed_run_containers": 151,
+          "unreviewed_run_containers": 152,
           "workflows": 3
         },
         "repository_unbounded_total": null,
@@ -3381,7 +3381,7 @@
           "authorized_control_flow": 9,
           "informational": 1,
           "unbounded_correctness": 0,
-          "unresolved": 14
+          "unresolved": 13
         },
         "sites": [
           {
@@ -3425,7 +3425,7 @@
           {
             "authority": [
               {
-                "line": 841,
+                "line": 818,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
               }
@@ -3444,7 +3444,7 @@
           {
             "authority": [
               {
-                "line": 979,
+                "line": 956,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3463,7 +3463,7 @@
           {
             "authority": [
               {
-                "line": 316,
+                "line": 322,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Sync CLI marketplace catalog"
               }
@@ -3482,7 +3482,7 @@
           {
             "authority": [
               {
-                "line": 542,
+                "line": 548,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Security scan - Informational sweep (non-blocking)"
               }
@@ -3501,7 +3501,7 @@
           {
             "authority": [
               {
-                "line": 591,
+                "line": 597,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # grep status 1 means no matches; operational errors must still fail."
               },
@@ -3525,7 +3525,7 @@
           {
             "authority": [
               {
-                "line": 1198,
+                "line": 1175,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
@@ -3549,7 +3549,7 @@
           {
             "authority": [
               {
-                "line": 291,
+                "line": 297,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Validate agent frontmatter (report-only)"
               },
@@ -3563,9 +3563,9 @@
             "id": "agent-dependency-bootstrap",
             "job": "validate",
             "observed_deadline": {
-              "date": "2026-11-07",
+              "date": "2026-11-28",
               "expiry_adjudicated": false,
-              "source_line": 290
+              "source_line": 296
             },
             "owner": null,
             "promotion": null,
@@ -3580,9 +3580,9 @@
             "id": "agent-advisory-validator",
             "job": "validate",
             "observed_deadline": {
-              "date": "2026-11-07",
+              "date": "2026-11-28",
               "expiry_adjudicated": false,
-              "source_line": 290
+              "source_line": 296
             },
             "owner": null,
             "promotion": null,
@@ -3599,7 +3599,7 @@
             "observed_deadline": {
               "date": "2026-11-17",
               "expiry_adjudicated": false,
-              "source_line": 303
+              "source_line": 309
             },
             "owner": null,
             "promotion": null,
@@ -3619,23 +3619,6 @@
             "rationale": "Only grep's no-match status 1 is normalized across discovery and both exclusion filters; operational errors fail the existing capture under pipefail. Matching eval findings remain warning-only; role and bounds remain unresolved.",
             "run_line": 41,
             "step": 59,
-            "workflow": ".github/workflows/validate-plugins.yml"
-          },
-          {
-            "authority": [],
-            "classification": "unresolved",
-            "id": "dependency-audit-advisory",
-            "job": "validate",
-            "observed_deadline": {
-              "date": "2026-11-07",
-              "expiry_adjudicated": false,
-              "source_line": 698
-            },
-            "owner": null,
-            "promotion": null,
-            "rationale": "Report-only audit has a date and historical issue reference, without an established current owner.",
-            "run_line": 32,
-            "step": 61,
             "workflow": ".github/workflows/validate-plugins.yml"
           },
           {
@@ -3670,14 +3653,14 @@
             "id": "cli-strict-advisory",
             "job": "test",
             "observed_deadline": {
-              "date": "2026-11-07",
+              "date": "2026-11-28",
               "expiry_adjudicated": false,
-              "source_line": 1308
+              "source_line": 1289
             },
             "owner": null,
             "promotion": null,
             "rationale": "The CLI marker and historical issue reference do not establish a current owner.",
-            "run_line": 50,
+            "run_line": 54,
             "step": 24,
             "workflow": ".github/workflows/validate-plugins.yml"
           },

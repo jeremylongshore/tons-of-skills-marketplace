@@ -68,8 +68,8 @@ function fixture() {
     { path: 'CLAUDE.md', line: 1, text: '# Synthetic authority' },
   ];
   review.expected = {
-    sites: 24,
-    site_containers: 17,
+    sites: 23,
+    site_containers: 16,
     workflows: 3,
     jobs: 0,
     containers: 0,
@@ -126,7 +126,7 @@ test('reviewed subset is reproducible without claiming repository totals or shel
     authorized_control_flow: 9,
     informational: 1,
     unbounded_correctness: 0,
-    unresolved: 14,
+    unresolved: 13,
   });
   assert.deepEqual(result.values.coverage, {
     ...Object.fromEntries(
@@ -134,19 +134,19 @@ test('reviewed subset is reproducible without claiming repository totals or shel
         ([key]) => !['sites', 'site_containers'].includes(key),
       ),
     ),
-    containers_with_sites: 17,
-    unreviewed_run_containers: f.review.expected.run_containers - 17,
+    containers_with_sites: 16,
+    unreviewed_run_containers: f.review.expected.run_containers - 16,
     counts_overlap: true,
   });
   assert.equal(result.values.reviewed_unbounded_correctness_lower_bound, 0);
   assert.equal(result.values.unbounded_correctness_total, null);
   assert.equal(result.values.repository_unbounded_total, null);
   assert.equal(result.values.target_met, false);
-  assert.equal(result.values.sites.length, 24);
+  assert.equal(result.values.sites.length, 23);
   assert.ok(result.values.sites.every((s) => s.owner === null && s.promotion === null));
   assert.deepEqual(
     result.values.sites.filter((s) => s.observed_deadline).map((s) => s.observed_deadline.date),
-    ['2026-10-31', '2026-10-31', '2026-11-17', '2026-10-31', '2026-10-31'],
+    ['2026-10-31', '2026-10-31', '2026-11-17', '2026-10-31'],
   );
   assert.equal(
     result.values.sites.find((s) => s.id === 'enterprise-validator-advisory').observed_deadline,
