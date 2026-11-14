@@ -328,8 +328,8 @@ def apply_remap_override(base: dict, pending: bool | None, remap_failure: bool |
 # pasted dmesg / nvidia-smi dump.
 # ---------------------------------------------------------------------------
 # Matches:  "NVRM: Xid (PCI:0000:3b:00): 79, pid=..."  and  "[Xid 48]"  and  "Xid: 94"
-# Also "XID 79", "Xid=79", "Xid (0000:03:00): 79" and redacted tags like "Xid [REDACTED]: 79".
-_XID_RE = re.compile(r"\bXid\s*(?:\([^)]*\)|\[[^\]]*\])?\s*[:,=]?\s*(\d{1,4})\b", re.IGNORECASE)
+# Also "XID 79", "Xid=79", "Xid (0000:03:00): 79" and redacted tags like "Xid [REDACTED]: 79" or "Xid ...: 13".
+_XID_RE = re.compile(r"\bXid\s*(?:\([^)]*\)|\[[^\]]*\]|\.{3}|\u2026)?\s*[:,=]?\s*(\d{1,4})\b", re.IGNORECASE)
 _GPU_ID_RE = re.compile(r"\bXid\s*\((?:PCI:)?((?:[0-9a-f]{4}:)?[0-9a-f]{2}:[0-9a-f]{2}(?:\.[0-7])?)\)", re.IGNORECASE)
 _RECOVERY_RE = re.compile(r"recovery action changed from\s+\S+\s*\([^)]*\)\s*to\s+\S+\s*\(([^)]*)\)", re.IGNORECASE)
 _REMAP_FAIL_RE = re.compile(r"Remapping\s+Failure\s+Occurred\s*:\s*(Yes|No)", re.IGNORECASE)

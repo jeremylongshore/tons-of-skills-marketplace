@@ -419,3 +419,4 @@ def test_xid_code_extraction_is_case_and_separator_tolerant(blob):
 def test_redacted_pci_tag_still_yields_code():
     assert triage.parse_blob("NVRM: Xid (PCI:<redacted>): 79, GPU has fallen off the bus")["xids"] == [79]
     assert triage.parse_blob("NVRM: Xid [REDACTED]: 79, GPU has fallen off the bus")["xids"] == [79]
+    assert triage.parse_blob("NVRM: Xid ...: 13, Graphics Exception")["xids"] == [13]
