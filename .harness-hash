@@ -52,7 +52,7 @@ baccdc097f18bbb85bdcc3142f26c02002b63de4a27dc277a00a74890113d9c1  plugins/saas-p
 a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4  plugins/saas-packs/coreweave-pack/skills/coreweave-enterprise-rbac/eval-spec.yaml
 3f87d8161884dabd8a15a7ea91887cefbf9c52b54be8da251bf0b66a876c6fdb  plugins/saas-packs/coreweave-pack/skills/coreweave-fabric-diagnostics/eval-spec.yaml
 3a3b2fd711547c3cd2863b2cd394ffbedd8137ae8c82cb83bd23c1c81f17f99e  plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-cost-leak-hunter/eval-spec.yaml
-b0c1d9520878f887fd1bc15a836925540a252181e8cc828fa71fdea1fce0133e  plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/eval-spec.yaml
+ce18721b968e92fd1d97a8e59d15acbfdf31095977131525d0d8e77d90807be3  plugins/saas-packs/coreweave-pack/skills/coreweave-gpu-node-forensics/eval-spec.yaml
 0157fa398f7749bd39c7e68ea2c53e17ae5c52bf803e82c0ff5b8abe566cb447  plugins/saas-packs/coreweave-pack/skills/coreweave-incident-runbook/eval-spec.yaml
 688af470d2f6cc86438ed00ff872c97346023cf4715aed2a553a488ea89aa7c6  plugins/saas-packs/coreweave-pack/skills/coreweave-workload-health/eval-spec.yaml
 c981c39992716a9c8dfd678952ff45a237574e4192f26a3ccbd603471b3c9d5d  plugins/saas-packs/databricks-pack/skills/databricks-bundle-medic/eval-spec.yaml
@@ -101,7 +101,7 @@ baccdc097f18bbb85bdcc3142f26c02002b63de4a27dc277a00a74890113d9c1  skills/.curate
 a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4  skills/.curated/coreweave-enterprise-rbac/eval-spec.yaml
 3f87d8161884dabd8a15a7ea91887cefbf9c52b54be8da251bf0b66a876c6fdb  skills/.curated/coreweave-fabric-diagnostics/eval-spec.yaml
 3a3b2fd711547c3cd2863b2cd394ffbedd8137ae8c82cb83bd23c1c81f17f99e  skills/.curated/coreweave-gpu-cost-leak-hunter/eval-spec.yaml
-b0c1d9520878f887fd1bc15a836925540a252181e8cc828fa71fdea1fce0133e  skills/.curated/coreweave-gpu-node-forensics/eval-spec.yaml
+ce18721b968e92fd1d97a8e59d15acbfdf31095977131525d0d8e77d90807be3  skills/.curated/coreweave-gpu-node-forensics/eval-spec.yaml
 0157fa398f7749bd39c7e68ea2c53e17ae5c52bf803e82c0ff5b8abe566cb447  skills/.curated/coreweave-incident-runbook/eval-spec.yaml
 688af470d2f6cc86438ed00ff872c97346023cf4715aed2a553a488ea89aa7c6  skills/.curated/coreweave-workload-health/eval-spec.yaml
 c981c39992716a9c8dfd678952ff45a237574e4192f26a3ccbd603471b3c9d5d  skills/.curated/databricks-bundle-medic/eval-spec.yaml
