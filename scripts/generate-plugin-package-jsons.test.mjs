@@ -102,6 +102,7 @@ const expectedUpstreamMirrorDirectories = [
   'plugins/mcp/slack-channel',
   'plugins/mcp/x-bug-triage',
   'plugins/productivity/cli-power-skills',
+  'plugins/saas-packs/coreweave-pack',
 ];
 
 function managedMirrorPackage(directory = 'plugins/community/example-plugin') {
@@ -240,7 +241,7 @@ test('upstream-owned source package remains byte/object unchanged', () => {
   assert.equal(JSON.stringify(result.pkg), before);
 });
 
-test('current source-owned package census has exactly 34 managed and 4 upstream manifests', () => {
+test('current source-owned package census has exactly 34 managed and 5 upstream manifests', () => {
   const rows = sourcePackageRows(repositoryRoot);
   const managed = rows
     .filter((row) => isRepositoryGeneratedTrackingManifest(row.package, row.directory))
@@ -249,7 +250,7 @@ test('current source-owned package census has exactly 34 managed and 4 upstream 
     .filter((row) => !isRepositoryGeneratedTrackingManifest(row.package, row.directory))
     .map((row) => row.directory);
 
-  assert.equal(rows.length, 38);
+  assert.equal(rows.length, 39);
   assert.deepEqual(managed, expectedManagedMirrorDirectories);
   assert.deepEqual(upstream, expectedUpstreamMirrorDirectories);
 });

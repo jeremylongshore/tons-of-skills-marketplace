@@ -1474,6 +1474,45 @@ sources:
       - '.git/**'
       - '*.log'
 
+  # ============================================================
+  # Unofficial CoreWeave operator pack (Jeremy Longshore / Intent Solutions)
+  # https://github.com/jeremylongshore/unofficial-coreweave-operator-pack
+  # The standalone repository is the source of truth since 2026-11-14.
+  # Same target path and pack name as the former in-repo pack, so the
+  # marketplace's CoreWeave validator and tests keep checking these files.
+  # Not mirrored: the standalone repo's own tests/, tools/ and CI.
+  # ============================================================
+  - name: coreweave-pack
+    description: Unofficial community CoreWeave GPU operations pack (26 skills) — Xid triage, NCCL fabric checks, cost review; not affiliated with or endorsed by CoreWeave, Inc.
+    repo: jeremylongshore/unofficial-coreweave-operator-pack
+    source_path: .
+    target_path: plugins/saas-packs/coreweave-pack
+    author:
+      name: Jeremy Longshore
+      github: jeremylongshore
+      email: jeremy@intentsolutions.io
+    license: MIT
+    category: saas-packs
+    verified: true
+    include:
+      - '/.claude-plugin/**'
+      - '/skills/**'
+      - '/agents/**'
+      - '/shared/**'
+      - '/scripts/**'
+      - '/docs/**'
+      - '/000-docs/**'
+      - '/README.md'
+      - '/QUALITY.md'
+      - '/offline-results.json'
+      - '/package.json'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+      - '**/__pycache__/**'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)
