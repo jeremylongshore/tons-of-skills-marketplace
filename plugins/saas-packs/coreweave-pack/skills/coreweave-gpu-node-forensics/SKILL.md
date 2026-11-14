@@ -7,7 +7,7 @@ description: |
   Trigger with "xid error", "gpu fell off the bus", "coreweave gpu dead",
   "should I RMA this GPU", or "gpu node triage".
 allowed-tools: Read, Bash(python3:*), Bash(nvidia-smi -q:*), Bash(kubectl get:*), Bash(dmesg:*)
-version: 1.14.0
+version: 1.15.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code
@@ -35,8 +35,8 @@ The script never executes cluster commands, resets, reboots, RMA requests or unc
 1. Read the supplied evidence and identify one GPU and run. Split multi-GPU logs; do not apply another device’s row-remapper state to the current fault.
 2. Run the bundled classifier. Read `action` as a recommendation requiring confirmation, alongside `confidence`, `requires_confirmation` and `unverified` fields.
 3. For Xid 94, explain containment of the reported application event; do not claim the Node is healthy or that a convenient later reset is never useful. For Xid 95, explain uncontained scope and the documented reset requirement for supported devices before workload restart. Confirm architecture/driver guidance and managed recovery first.
-4. For Xids 13/31/43/45, investigate application/driver context without excluding hardware from a bare code. Unknown codes stay `investigate`, not an automatic reset.
-5. Correlate pending/failure row-remapper evidence with the same GPU. Pending remap can inform supported reset planning; reported failure requires support/DCGM review before declaring terminal hardware or requesting replacement.
+4. For Xids 13/31/43, investigate application/driver context without excluding hardware from a bare code. Xid 45 is a follow-on code: act on the accompanying Xid. An Xid 154 recovery action (GPU Reset Required, Node Reboot Required) sets the verdict. Unknown codes stay `investigate`, rank below mapped codes and never trigger an automatic reset.
+5. Correlate pending/failure row-remapper evidence (`Remapped Rows` in `nvidia-smi -q`) with the same GPU. Pending remap can inform supported reset planning; reported failure requires support review and NVIDIA's field diagnostic before declaring terminal hardware or requesting replacement.
 6. Read lifecycle state, pending-state and cordon provenance. Never manually uncordon a controller-owned health cordon; follow the platform owner’s supported recovery path.
 
 ## Examples
@@ -64,7 +64,7 @@ Do not translate a recommendation into `nvidia-smi -r`, reboot, drain or uncordo
 |---|---|
 | Unknown Xid | Consult the current catalog and collect diagnostics; do not default to reset. |
 | Different GPU identities in a blob | Split the evidence; no single combined recovery action. |
-| Pending field outside Row Remapper | Do not treat an unrelated Pending value as a memory-remap signal. |
+| Pending field outside Remapped Rows | Do not treat an unrelated Pending value as a memory-remap signal. |
 | PCIe-bus failure plus a remap field | Preserve the governing bus failure; a remap must not downgrade it to a simpler reset. |
 | No signal found | Report missing evidence, not a clean health result. |
 

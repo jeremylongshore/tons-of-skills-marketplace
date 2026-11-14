@@ -76,10 +76,10 @@ XID_TABLE: dict[int, tuple[str, str, str, str, str]] = {
         "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     45: (
-        "Channel cleanup",
-        "medium",
-        "investigate-application",
-        "Usually a cleanup symptom; identify the earlier event before deciding a remedy.",
+        "Preemptive channel cleanup (follow-on code)",
+        "low",
+        "investigate",
+        "Xid 45 follows another event: act on the accompanying Xid. When it appears alone, NVIDIA's catalog action is restarting Fabric Manager on NVSwitch systems; the lifecycle owner performs that.",
         "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     48: (
@@ -98,9 +98,9 @@ XID_TABLE: dict[int, tuple[str, str, str, str, str]] = {
     ),
     64: (
         "Page retirement or row-remap recording failure",
-        "critical",
-        "rma",
-        "Escalate with DCGM and row-remapper evidence; support must determine whether replacement is required.",
+        "high",
+        "reset-gpu",
+        "NVIDIA's action is a GPU reset or node reboot, then contact support if it recurs. RMA review only applies when a remapping failure is reported and NVIDIA's field diagnostic fails.",
         "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
     ),
     74: (
@@ -151,6 +151,38 @@ XID_TABLE: dict[int, tuple[str, str, str, str, str]] = {
         "reset-gpu",
         "Review driver/GSP and GPU diagnostics; a bare code does not establish the recovery scope.",
         "Collect nvidia-smi -q and DCGM diagnostics for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
+    ),
+    154: (
+        "GPU recovery action changed",
+        "medium",
+        "investigate",
+        "The driver reports a recovery action; read the 'to 0xN (<action>)' text, which sets the verdict when present.",
+        "Read the full Xid 154 line and nvidia-smi -q for the identified GPU; consult the current NVIDIA Xid catalog and CoreWeave lifecycle owner.",
+    ),
+}
+
+# Xid 154 "GPU recovery action changed from 0xA (<old>) to 0xB (<new>)": the driver's
+# own recovery requirement. Label -> (severity, action, why).
+RECOVERY_ACTIONS: dict[str, tuple[str, str, str]] = {
+    "gpu reset required": (
+        "high",
+        "reset-gpu",
+        "The driver reports 'GPU Reset Required' (Xid 154). Drain the GPU's workload, then reset through the supported recovery path.",
+    ),
+    "node reboot required": (
+        "critical",
+        "reboot-node",
+        "The driver reports 'Node Reboot Required' (Xid 154). A GPU reset is not sufficient; drain the node for a managed reboot.",
+    ),
+    "drain and reset": (
+        "high",
+        "reset-gpu",
+        "The driver reports 'Drain and Reset' (Xid 154). Drain workloads first, then reset through the supported recovery path.",
+    ),
+    "drain p2p": (
+        "high",
+        "investigate",
+        "The driver reports 'Drain P2P' (Xid 154). Drain peer-to-peer workloads and follow NVIDIA's guidance for this action.",
     ),
 }
 
@@ -255,12 +287,13 @@ def apply_remap_override(base: dict, pending: bool | None, remap_failure: bool |
             xid=xid,
             classification="Row-remapper failure reported",
             severity="critical",
-            action="rma",
+            action="investigate",
             why=(
-                "nvidia-smi reports 'Remapping Failure Occurred: Yes' — the GPU's "
-                "reported a remapping failure. Escalate with GPU identity, driver and DCGM diagnostics; support determines whether replacement is required."
+                "nvidia-smi reports 'Remapping Failure Occurred: Yes'. Take the GPU out of service and "
+                "open a support case; RMA review applies only if NVIDIA's field diagnostic then fails."
             ),
-            next_command="Collect same-GPU diagnostics and open a CoreWeave support case; do not override lifecycle control.",
+            next_command="Collect same-GPU diagnostics and request NVIDIA's field diagnostic through CoreWeave support; do not override lifecycle control.",
+            unverified=[UNVERIFIED_RMA_THRESHOLD],
         )
     elif pending:
         v = _verdict(
@@ -295,7 +328,10 @@ def apply_remap_override(base: dict, pending: bool | None, remap_failure: bool |
 # pasted dmesg / nvidia-smi dump.
 # ---------------------------------------------------------------------------
 # Matches:  "NVRM: Xid (PCI:0000:3b:00): 79, pid=..."  and  "[Xid 48]"  and  "Xid: 94"
-_XID_RE = re.compile(r"Xid\s*(?:\([^)]*\))?\s*[:,]?\s*(\d{1,4})\b")
+# Also "XID 79", "Xid=79", "Xid (0000:03:00): 79" and redacted tags like "Xid [REDACTED]: 79" or "Xid ...: 13".
+_XID_RE = re.compile(r"\bXid\s*(?:\([^)]*\)|\[[^\]]*\]|\.{3}|\u2026)?\s*[:,=]?\s*(\d{1,4})\b", re.IGNORECASE)
+_GPU_ID_RE = re.compile(r"\bXid\s*\((?:PCI:)?((?:[0-9a-f]{4}:)?[0-9a-f]{2}:[0-9a-f]{2}(?:\.[0-7])?)\)", re.IGNORECASE)
+_RECOVERY_RE = re.compile(r"recovery action changed from\s+\S+\s*\([^)]*\)\s*to\s+\S+\s*\(([^)]*)\)", re.IGNORECASE)
 _REMAP_FAIL_RE = re.compile(r"Remapping\s+Failure\s+Occurred\s*:\s*(Yes|No)", re.IGNORECASE)
 _PENDING_RE = re.compile(r"\bPending\s*:\s*(Yes|No)", re.IGNORECASE)
 _THERMAL_RE = re.compile(r"(HW|SW)\s+Thermal\s+Slowdown\s*:\s*Active", re.IGNORECASE)
@@ -304,21 +340,24 @@ _THERMAL_RE = re.compile(r"(HW|SW)\s+Thermal\s+Slowdown\s*:\s*Active", re.IGNORE
 def parse_blob(text: str) -> dict:
     """Extract structured signals from a pasted dmesg / nvidia-smi blob."""
     xids = [int(m) for m in _XID_RE.findall(text)]
+    recovery = _RECOVERY_RE.findall(text)
     remap_fail_m = _REMAP_FAIL_RE.search(text)
-    row_section = re.search(r"Row Remapper(?P<body>(?:\n[ \t]+[^\n]*)+)", text, re.IGNORECASE)
+    # nvidia-smi -q prints "Remapped Rows"; older docs and tools say "Row Remapper".
+    row_section = re.search(r"(?:Row Remapper|Remapped Rows)(?P<body>(?:\n[ \t]+[^\n]*)+)", text, re.IGNORECASE)
     pending_m = _PENDING_RE.search(row_section.group("body")) if row_section else None
     return {
         "xids": xids,
         "remap_failure": (remap_fail_m.group(1).lower() == "yes") if remap_fail_m else None,
         "pending": (pending_m.group(1).lower() == "yes") if pending_m else None,
         "thermal": bool(_THERMAL_RE.search(text)),
+        "recovery_action": recovery[-1].strip().lower() if recovery else None,
     }
 
 
 def triage_from_blob(text: str) -> dict:
     """End-to-end: parse a blob, pick the governing signal, return one verdict."""
     parsed = parse_blob(text)
-    gpu_ids = set(re.findall(r"Xid\s*\(PCI:([^)]*)\)", text, re.I))
+    gpu_ids = {gpu.lower().removeprefix("0000:") for gpu in _GPU_ID_RE.findall(text)}
     if len(gpu_ids) > 1:
         return _verdict(
             xid=None,
@@ -330,9 +369,27 @@ def triage_from_blob(text: str) -> dict:
         )
     xids = parsed["xids"]
 
+    recovery = RECOVERY_ACTIONS.get(parsed["recovery_action"] or "")
+    if recovery:
+        # The driver's own Xid 154 recovery requirement governs; other codes are noted.
+        severity, action, why = recovery
+        v = _verdict(
+            xid=154,
+            classification=f"GPU recovery action: {parsed['recovery_action']}",
+            severity=severity,
+            action=action,
+            why=why,
+            next_command=XID_TABLE[154][4],
+        )
+        others = sorted({x for x in xids if x != 154})
+        if others:
+            v["co_occurring_xids"] = others
+        return v
+
     if xids:
-        # The most severe Xid governs the triage move; the rest are noted.
-        governing = max(xids, key=lambda x: SEVERITY_RANK.get(_severity_of(x), 1))
+        # The most severe known Xid governs; unknown codes rank below known ones and
+        # follow-on Xid 45 below everything, so neither overrides a mapped event.
+        governing = max(xids, key=_governing_rank)
         base = classify_xid(governing)
         others = sorted({x for x in xids if x != governing})
         if others:
@@ -378,6 +435,14 @@ def _severity_of(xid: int) -> str:
     return XID_TABLE[xid][1] if xid in XID_TABLE else "high"
 
 
+def _governing_rank(xid: int) -> int:
+    if xid == 45:
+        return -2
+    if xid not in XID_TABLE:
+        return -1
+    return SEVERITY_RANK[XID_TABLE[xid][1]]
+
+
 # ---------------------------------------------------------------------------
 # Rendering
 # ---------------------------------------------------------------------------
@@ -415,21 +480,21 @@ def _run_self_test() -> int:
         ("xid 13 engine-exception -> investigate-application", lambda: classify_xid(13), "investigate-application"),
         ("xid 31 page-fault -> investigate-application", lambda: classify_xid(31), "investigate-application"),
         ("xid 92 SBE-trend -> watch", lambda: classify_xid(92), "watch"),
-        ("xid 64 remap-record-failure -> rma", lambda: classify_xid(64), "rma"),
+        ("xid 64 remap-record-failure -> reset-gpu", lambda: classify_xid(64), "reset-gpu"),
         (
             "xid 63 + Pending:Yes -> reset-gpu",
             lambda: apply_remap_override(classify_xid(63), pending=True, remap_failure=False),
             "reset-gpu",
         ),
         (
-            "remap-failure override -> rma",
+            "remap-failure override -> investigate (field diagnostic before RMA)",
             lambda: apply_remap_override(classify_xid(63), pending=False, remap_failure=True),
-            "rma",
+            "investigate",
         ),
         (
-            "xid 48 DBE + remap-failure -> rma",
+            "xid 48 DBE + remap-failure -> investigate",
             lambda: apply_remap_override(classify_xid(48), pending=False, remap_failure=True),
-            "rma",
+            "investigate",
         ),
         (
             "blob: contained 94 -> reschedule",
@@ -447,9 +512,9 @@ def _run_self_test() -> int:
             "reboot-node",
         ),
         (
-            "blob: nvidia-smi remap FAILURE -> rma",
+            "blob: nvidia-smi remap FAILURE -> investigate",
             lambda: triage_from_blob("    Remapping Failure Occurred          : Yes\n    Pending: No"),
-            "rma",
+            "investigate",
         ),
         (
             "blob: nvidia-smi remap Pending -> reset-gpu",
@@ -504,7 +569,7 @@ def _run_self_test() -> int:
     ctx_checks.append(
         (
             "remap-failure override preserves co_occurring_xids + base hedge (no dupes)",
-            v_fail.get("action") == "rma"
+            v_fail.get("action") == "investigate"
             and v_fail.get("co_occurring_xids") == [79, 94]
             and "[unverified] base-only forensic hedge" in v_fail.get("unverified", [])
             and UNVERIFIED_RMA_THRESHOLD in v_fail.get("unverified", [])
