@@ -93,17 +93,6 @@ bddc2fb7321bf9e17392dc6d07790b0ae2414616c6e2e025df9e47d4493cbce5  plugins/skill-
 bddc2fb7321bf9e17392dc6d07790b0ae2414616c6e2e025df9e47d4493cbce5  skills/.curated/artifact-creator/eval-spec.yaml
 41b055cba5e19f3713a2c4885c63db105a628768924ce9b46fd6f4901831972d  skills/.curated/artifact-validator/eval-spec.yaml
 903555ec7e0e7d80db9f18076b50b8b9184a2f0a2b438859d15c9f8757428220  skills/.curated/audit-tests/eval-spec.yaml
-c609ff0fea3e5ca48cd9f70d094f5d665cc61ff7150bc75401b6586634dd80f1  skills/.curated/coreweave-caios-stage-model/eval-spec.yaml
-bbe42d47b933ebd25f5a0b7f9afa828036d0f33ebcdfc1194682447fa4f0252b  skills/.curated/coreweave-ci-integration/eval-spec.yaml
-d548e472f27c6f6def7cba8a8bd40b77d4a86c11400caef261b2b555e3e10865  skills/.curated/coreweave-cks-provisioning/eval-spec.yaml
-baccdc097f18bbb85bdcc3142f26c02002b63de4a27dc277a00a74890113d9c1  skills/.curated/coreweave-core-workflow-a/eval-spec.yaml
-899736c37a0288e24d183caf8792f219c2acb27e46f61b528bc9c7337b2c70cc  skills/.curated/coreweave-core-workflow-b/eval-spec.yaml
-a03d9754bdbe4a9908887ba6e5391e31fc640ffb56475a6c75631dac371b40c4  skills/.curated/coreweave-enterprise-rbac/eval-spec.yaml
-3f87d8161884dabd8a15a7ea91887cefbf9c52b54be8da251bf0b66a876c6fdb  skills/.curated/coreweave-fabric-diagnostics/eval-spec.yaml
-3a3b2fd711547c3cd2863b2cd394ffbedd8137ae8c82cb83bd23c1c81f17f99e  skills/.curated/coreweave-gpu-cost-leak-hunter/eval-spec.yaml
-ce18721b968e92fd1d97a8e59d15acbfdf31095977131525d0d8e77d90807be3  skills/.curated/coreweave-gpu-node-forensics/eval-spec.yaml
-0157fa398f7749bd39c7e68ea2c53e17ae5c52bf803e82c0ff5b8abe566cb447  skills/.curated/coreweave-incident-runbook/eval-spec.yaml
-688af470d2f6cc86438ed00ff872c97346023cf4715aed2a553a488ea89aa7c6  skills/.curated/coreweave-workload-health/eval-spec.yaml
 c981c39992716a9c8dfd678952ff45a237574e4192f26a3ccbd603471b3c9d5d  skills/.curated/databricks-bundle-medic/eval-spec.yaml
 74a4324aa580cadd5db54db6af3d3ce8dba7ece90b98426c8567f3602a40d210  skills/.curated/databricks-cluster-forensics/eval-spec.yaml
 612e95e032e99f3861a86ab4a6a6a7d675127951099b8ffa5fecf4243641cee1  skills/.curated/databricks-cost-leak-hunter/eval-spec.yaml

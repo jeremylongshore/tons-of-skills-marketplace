@@ -2480,7 +2480,7 @@
         "answers": [
           {
             "cohort": "curated-mirror",
-            "value": 2452
+            "value": 2426
           },
           {
             "cohort": "curriculum",
@@ -2488,7 +2488,7 @@
           },
           {
             "cohort": "first-party",
-            "value": 2460
+            "value": 2434
           },
           {
             "cohort": "graded",
@@ -2557,10 +2557,10 @@
       "source": ["sources.lock.json", "sources.yaml"],
       "status": "measured",
       "values": {
-        "lock_keys": 44,
+        "lock_keys": 45,
         "lock_only": [],
         "target_equal": true,
-        "yaml_keys": 44,
+        "yaml_keys": 45,
         "yaml_only": []
       }
     },
@@ -2604,23 +2604,24 @@
         "plugins/productivity/publishing-skills/.source.json",
         "plugins/productivity/schedule-after-usage-reset/.source.json",
         "plugins/productivity/skyvern/.source.json",
+        "plugins/saas-packs/coreweave-pack/.source.json",
         "plugins/security/hol-guard/.source.json",
         "plugins/testing/cli-ux-tester/.source.json",
         "plugins/testing/kobiton-automate/.source.json"
       ],
       "status": "measured",
       "values": {
-        "mirrors_shipping_license_text": 38,
+        "mirrors_shipping_license_text": 39,
         "missing_license_text": [],
-        "provenance_marked_mirrors": 38,
-        "target_shipping_license_text": 38
+        "provenance_marked_mirrors": 39,
+        "target_shipping_license_text": 39
       }
     },
     "29": {
       "cohort": "provenance-marked mirrors",
       "dimension": "Mirror SKILL.md contradicting upstream license",
       "measured_proxy": {
-        "local_source_records_with_parseable_json": 38
+        "local_source_records_with_parseable_json": 39
       },
       "reason_code": "MISSING_PINNED_UPSTREAM_LICENSE_EVIDENCE",
       "reproduce": "pnpm run measure:e1 --row=29 --stdout",
@@ -2664,6 +2665,7 @@
         "plugins/productivity/publishing-skills/.source.json",
         "plugins/productivity/schedule-after-usage-reset/.source.json",
         "plugins/productivity/skyvern/.source.json",
+        "plugins/saas-packs/coreweave-pack/.source.json",
         "plugins/security/hol-guard/.source.json",
         "plugins/testing/cli-ux-tester/.source.json",
         "plugins/testing/kobiton-automate/.source.json"
@@ -2749,6 +2751,8 @@
         "plugins/productivity/schedule-after-usage-reset/package.json",
         "plugins/productivity/skyvern/.source.json",
         "plugins/productivity/skyvern/package.json",
+        "plugins/saas-packs/coreweave-pack/.source.json",
+        "plugins/saas-packs/coreweave-pack/package.json",
         "plugins/security/hol-guard/.source.json",
         "plugins/security/hol-guard/package.json",
         "plugins/testing/cli-ux-tester/.source.json",
@@ -2759,9 +2763,9 @@
       "status": "partial",
       "values": {
         "non_private": [],
-        "private_packages": 38,
-        "repository_package_mirrors": 38,
-        "scoped_packages": 34,
+        "private_packages": 39,
+        "repository_package_mirrors": 39,
+        "scoped_packages": 35,
         "target_publishable": 0
       }
     },
@@ -2843,6 +2847,8 @@
         "plugins/productivity/schedule-after-usage-reset/package.json",
         "plugins/productivity/skyvern/.source.json",
         "plugins/productivity/skyvern/package.json",
+        "plugins/saas-packs/coreweave-pack/.source.json",
+        "plugins/saas-packs/coreweave-pack/package.json",
         "plugins/security/hol-guard/.source.json",
         "plugins/security/hol-guard/package.json",
         "plugins/testing/cli-ux-tester/.source.json",
@@ -3992,17 +3998,6 @@
         "skills/.curated/artifact-creator/eval-spec.yaml",
         "skills/.curated/artifact-validator/eval-spec.yaml",
         "skills/.curated/audit-tests/eval-spec.yaml",
-        "skills/.curated/coreweave-caios-stage-model/eval-spec.yaml",
-        "skills/.curated/coreweave-ci-integration/eval-spec.yaml",
-        "skills/.curated/coreweave-cks-provisioning/eval-spec.yaml",
-        "skills/.curated/coreweave-core-workflow-a/eval-spec.yaml",
-        "skills/.curated/coreweave-core-workflow-b/eval-spec.yaml",
-        "skills/.curated/coreweave-enterprise-rbac/eval-spec.yaml",
-        "skills/.curated/coreweave-fabric-diagnostics/eval-spec.yaml",
-        "skills/.curated/coreweave-gpu-cost-leak-hunter/eval-spec.yaml",
-        "skills/.curated/coreweave-gpu-node-forensics/eval-spec.yaml",
-        "skills/.curated/coreweave-incident-runbook/eval-spec.yaml",
-        "skills/.curated/coreweave-workload-health/eval-spec.yaml",
         "skills/.curated/databricks-bundle-medic/eval-spec.yaml",
         "skills/.curated/databricks-cluster-forensics/eval-spec.yaml",
         "skills/.curated/databricks-cost-leak-hunter/eval-spec.yaml",
@@ -4041,10 +4036,10 @@
       "status": "measured",
       "values": {
         "adoption_percent": 1.71,
-        "curated_copies": 48,
+        "curated_copies": 37,
         "plugin_skill_rows": 2807,
         "source_eval_specs": 48,
-        "tracked_eval_specs": 96
+        "tracked_eval_specs": 85
       }
     },
     "58": {
