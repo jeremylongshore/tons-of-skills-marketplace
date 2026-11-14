@@ -54,7 +54,9 @@ kubectl --context="$CW_CONTEXT" --namespace="$CW_NAMESPACE" get "pod/$CW_POD" -o
 ```
 
 A positive `Using network IB` observation sets transport to IB; without a GDR marker, `gpu_direct_rdma_confirmed` stays false.
-The compatibility field `rdma_engaged` describes the observed transport category, not complete fabric health or GPU-direct verification.
+The compatibility field `rdma_engaged` describes the observed transport category, not complete fabric health or GPU-direct verification. It is `not-applicable` for a single-node run (`nNodes 1`, or only P2P/SHM channels), where no traffic crosses the network.
+
+On NCCL 2.22 and newer, TCP fallback prints `NET/IB : No device found.` and then `NET/IB : Using [RO]; OOB <if>` with an empty device list. IB counts only when a real `[n]device:port/IB` or `/RoCE` entry appears, so that run reads as Socket. External `IBext`/`IBext_vN` plugins count as IB, and log lines are read even when the `NCCL INFO` prefix was lost in pasting.
 
 ## Output
 

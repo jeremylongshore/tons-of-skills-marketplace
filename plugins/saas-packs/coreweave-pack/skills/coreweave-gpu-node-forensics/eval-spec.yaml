@@ -92,7 +92,7 @@ test_cases:
   - app-bugs-not-rmad
   - action-grounded-in-the-xid-not-guessed
 - id: remap-failure-rma
-  description: Row-remap failure should yield an RMA verdict
+  description: Row-remap failure should escalate to support and NVIDIA's field diagnostic before any RMA
   tier: edge
   prompt: 'nvidia-smi shows ''Remapping Failure Occurred : Yes'' on a GPU after an Xid 63. Is this card
     done?'
