@@ -6480,7 +6480,8 @@
         "name": "Jeremy Longshore",
         "email": "jeremy@intentsolutions.io",
         "url": "https://github.com/jeremylongshore"
-      }
+      },
+      "repository": "https://github.com/jeremylongshore/unofficial-coreweave-operator-pack"
     },
     {
       "name": "elevenlabs-pack",

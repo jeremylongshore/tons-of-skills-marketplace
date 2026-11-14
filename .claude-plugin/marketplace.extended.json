@@ -8809,6 +8809,8 @@
         "email": "jeremy@intentsolutions.io",
         "url": "https://github.com/jeremylongshore"
       },
+      "repository": "https://github.com/jeremylongshore/unofficial-coreweave-operator-pack",
+      "external_sync": true,
       "components": {
         "skills": 26
       },
