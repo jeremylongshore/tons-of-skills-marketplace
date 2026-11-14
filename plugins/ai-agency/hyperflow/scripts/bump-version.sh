@@ -1,82 +1,83 @@
 #!/usr/bin/env bash
-
+# Stamp a prepared release version. This helper never commits, tags, or pushes.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-PACKAGE_JSON="$ROOT/package.json"
-PLUGIN_JSON="$ROOT/.claude-plugin/plugin.json"
-CODEX_PLUGIN_JSON="$ROOT/.codex-plugin/plugin.json"
-MARKETPLACE_JSON="$ROOT/.claude-plugin/marketplace.json"
-README_MD="$ROOT/README.md"
-SKILL_VERSION="$ROOT/skills/hyperflow/VERSION"
-
-# Validate argument
-if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <new-version>"
-  echo "Example: $0 1.2.0"
+if [ "${HYPERFLOW_RELEASE_PREPARE:-0}" != "1" ]; then
+  printf 'Error: use scripts/release.sh; direct version stamping is disabled.\n' >&2
   exit 1
 fi
 
-NEW_VERSION="$1"
-
-if [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  echo "Error: version must be semver format X.Y.Z (got: $NEW_VERSION)"
+VERSION="${1:-}"
+SEMVER_RE='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+if [[ ! "$VERSION" =~ $SEMVER_RE ]]; then
+  printf 'Usage: scripts/bump-version.sh X.Y.Z\n' >&2
   exit 1
 fi
 
-DOCS_HTML=("$ROOT/docs/index.html" "$ROOT/docs/installation.html" "$ROOT/docs/orchestration.html" "$ROOT/docs/404.html")
-SITEMAP_XML="$ROOT/docs/sitemap.xml"
-
-# Verify all files exist
-for FILE in "$PACKAGE_JSON" "$PLUGIN_JSON" "$CODEX_PLUGIN_JSON" "$MARKETPLACE_JSON" "$README_MD" "${DOCS_HTML[@]}" "$SITEMAP_XML"; do
-  if [[ ! -f "$FILE" ]]; then
-    echo "Error: file not found: $FILE"
-    exit 1
-  fi
-done
-
-# Detect sed in-place flag (BSD vs GNU)
 if sed --version >/dev/null 2>&1; then
-  SED_INPLACE=(-i)
+  SED_IN_PLACE=(-i)
 else
-  SED_INPLACE=(-i '')
+  SED_IN_PLACE=(-i '')
 fi
 
-# Update package.json
-sed "${SED_INPLACE[@]}" 's/"version": "[^"]*"/"version": "'"$NEW_VERSION"'"/' "$PACKAGE_JSON"
-echo "Updated $PACKAGE_JSON"
+replace() {
+  local expression="$1" file="$2"
+  [ -f "$file" ] || return
+  sed "${SED_IN_PLACE[@]}" "$expression" "$file"
+}
 
-# Update plugin.json
-sed "${SED_INPLACE[@]}" 's/"version": "[^"]*"/"version": "'"$NEW_VERSION"'"/' "$PLUGIN_JSON"
-echo "Updated $PLUGIN_JSON"
-
-# Update Codex plugin.json
-sed "${SED_INPLACE[@]}" 's/"version": "[^"]*"/"version": "'"$NEW_VERSION"'"/' "$CODEX_PLUGIN_JSON"
-echo "Updated $CODEX_PLUGIN_JSON"
-
-# Update marketplace.json (both occurrences)
-sed "${SED_INPLACE[@]}" 's/"version": "[^"]*"/"version": "'"$NEW_VERSION"'"/g' "$MARKETPLACE_JSON"
-echo "Updated $MARKETPLACE_JSON (2 occurrences)"
-
-# Update README.md version badge
-sed "${SED_INPLACE[@]}" 's/<code>v[^<]*<\/code>/<code>v'"$NEW_VERSION"'<\/code>/' "$README_MD"
-sed "${SED_INPLACE[@]}" 's|badge/version-v[^-]*-blueviolet|badge/version-v'"$NEW_VERSION"'-blueviolet|' "$README_MD"
-sed "${SED_INPLACE[@]}" 's/alt="version v[^"]*"/alt="version v'"$NEW_VERSION"'"/' "$README_MD"
-echo "Updated $README_MD"
-
-# Update skill VERSION file
-echo "$NEW_VERSION" > "$SKILL_VERSION"
-echo "Updated $SKILL_VERSION"
-
-# Update docs site — footer versions, index JSON-LD, sitemap lastmod
-for HTML in "${DOCS_HTML[@]}"; do
-  sed "${SED_INPLACE[@]}" 's/footer-version">v[0-9.]*</footer-version">v'"$NEW_VERSION"'</' "$HTML"
+for file in \
+  "$ROOT/package.json" \
+  "$ROOT/.claude-plugin/plugin.json" \
+  "$ROOT/.claude-plugin/marketplace.json" \
+  "$ROOT/.codex-plugin/plugin.json"; do
+  [ -f "$file" ] || { printf 'Error: missing manifest: %s\n' "$file" >&2; exit 1; }
+  replace 's/"version": "[0-9][0-9.]*"/"version": "'"$VERSION"'"/g' "$file"
 done
-sed "${SED_INPLACE[@]}" 's/"softwareVersion": "[0-9.]*"/"softwareVersion": "'"$NEW_VERSION"'"/' "$ROOT/docs/index.html"
-TODAY="$(date +%Y-%m-%d)"
-sed "${SED_INPLACE[@]}" 's|<lastmod>[0-9-]*</lastmod>|<lastmod>'"$TODAY"'</lastmod>|g' "$SITEMAP_XML"
-echo "Updated docs site (4 footers, JSON-LD, sitemap lastmod)"
 
-echo "Version bumped to $NEW_VERSION (11 files)"
+for skill in hyperflow-plan hyperflow-smash hyperflow-crash hyperflow-agents-skill; do
+  replace 's/^version: [0-9][0-9.]*/version: '"$VERSION"'/' "$ROOT/skills/$skill/SKILL.md"
+done
+
+for file in "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md"; do
+  replace 's/hyperflow:doctrine:start version=[0-9][0-9.]*/hyperflow:doctrine:start version='"$VERSION"'/' "$file"
+done
+
+replace 's/<code>v[0-9][0-9.]*<\/code>/<code>v'"$VERSION"'<\/code>/g' "$ROOT/README.md"
+replace 's/\[!\[version v[0-9][0-9.]*\]/[![version v'"$VERSION"']/' "$ROOT/README.md"
+replace 's/badge\/version-v[0-9][0-9.]*-blueviolet/badge\/version-v'"$VERSION"'-blueviolet/g' "$ROOT/README.md"
+
+node - "$VERSION" "$ROOT/CHANGELOG.md" <<'NODE'
+const [version, path] = process.argv.slice(2);
+const fs = require("node:fs");
+const source = fs.readFileSync(path, "utf8");
+const marker = "## [Unreleased]\n";
+if (!source.includes(marker)) throw new Error("CHANGELOG.md is missing [Unreleased]");
+const releaseVersions = [...source.matchAll(/^## \[(\d+\.\d+\.\d+)\]/gm)].map((match) => match[1]);
+const previousVersion = releaseVersions[0];
+if (!previousVersion) throw new Error("CHANGELOG.md is missing a previous release heading");
+const olderVersion = releaseVersions[1];
+const date = new Date().toISOString().slice(0, 10);
+let updated = source.replace(marker, `${marker}\n## [${version}] — ${date}\n`);
+const compareBase = "https://github.com/Mohammed-Abdelhady/hyperflow/compare";
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function setReference(text, label, url) {
+  const entry = `[${label}]: ${url}`;
+  const pattern = new RegExp(`^\\[${escapeRegExp(label)}\\]:.*$`, "m");
+  return pattern.test(text) ? text.replace(pattern, entry) : `${text.trimEnd()}\n${entry}\n`;
+}
+
+updated = setReference(updated, "Unreleased", `${compareBase}/v${version}...HEAD`);
+updated = setReference(updated, version, `${compareBase}/v${previousVersion}...v${version}`);
+updated = setReference(
+  updated,
+  previousVersion,
+  olderVersion ? `${compareBase}/v${olderVersion}...v${previousVersion}` : `${compareBase}/v${previousVersion}`,
+);
+fs.writeFileSync(path, updated);
+NODE
+
+printf 'Stamped Hyperflow %s. No commit, tag, or push was created.\n' "$VERSION"

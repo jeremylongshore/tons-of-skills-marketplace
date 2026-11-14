@@ -10547,8 +10547,8 @@
     {
       "name": "hyperflow",
       "source": "./plugins/ai-agency/hyperflow",
-      "description": "Advanced multi-agent orchestration with persistent cross-session memory, per-step multi-level review, persona stitching, and adaptive flow profiles",
-      "version": "4.26.1",
+      "description": "Four Hyperflow workflows for planning, delegation, review and delegate configuration, with inert startup.",
+      "version": "8.0.0",
       "category": "ai-agency",
       "keywords": [
         "claude-code-plugin",
@@ -10571,10 +10571,10 @@
       "license": "MIT",
       "publication": "quarantined",
       "verification": {
-        "score": 77,
-        "grade": "C",
-        "badge": "silver",
-        "lastValidated": "2026-09-11T00:00:00.000Z"
+        "score": 68,
+        "grade": "D",
+        "badge": "bronze",
+        "lastValidated": "2026-11-14T00:00:00.000Z"
       }
     },
     {

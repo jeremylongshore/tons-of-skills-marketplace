@@ -1,10 +1,19 @@
 {
   "name": "hyperflow",
   "private": true,
-  "version": "5.9.0",
-  "description": "Point it at a GitHub issue, get back a reviewed pull request. Multi-agent orchestration for Claude Code, Codex, OpenCode, Grok, Antigravity & Cursor — every step reviewed, memory that stays in your repo.",
+  "version": "8.0.0",
+  "description": "Dependency-aware planning, delegated implementation and independent review for coding harnesses.",
   "type": "module",
   "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "unittest": "node --test tests/*.test.js",
+    "validate": "node --test tests/core-contract.test.js",
+    "validate-plugin": "node scripts/validate-plugin.mjs",
+    "evals": "node scripts/run-evals.mjs",
+    "test:runtime": "node --test tests/runtime-*.test.js",
+    "hyperflow": "node runtime/cli.mjs"
+  },
   "author": {
     "name": "Mohammed Abdelhady",
     "url": "https://github.com/Mohammed-Abdelhady"
@@ -13,19 +22,43 @@
     "type": "git",
     "url": "https://github.com/Mohammed-Abdelhady/hyperflow"
   },
+  "homepage": "https://mohammed-abdelhady.github.io/hyperflow/",
+  "bugs": {
+    "url": "https://github.com/Mohammed-Abdelhady/hyperflow/issues"
+  },
   "keywords": [
     "ai-coding",
-    "multi-agent",
+    "agent-orchestration",
     "orchestration",
+    "project-memory",
+    "multi-session",
+    "markdown-workflows",
+    "doctrine",
     "claude-code",
     "claude-code-plugin",
     "codex",
-    "codex-plugin",
+    "codex-cli",
     "opencode",
-    "grok",
-    "xai",
-    "parallel-execution",
+    "antigravity",
+    "gemini",
     "code-review",
     "skills"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "hyperflow": "./runtime/cli.mjs"
+  },
+  "files": [
+    "runtime/",
+    "skills/",
+    "commands/",
+    ".claude-plugin/",
+    ".codex-plugin/",
+    "scripts/install/",
+    "install.sh",
+    "docs/",
+    "PRIVACY.md"
   ]
 }

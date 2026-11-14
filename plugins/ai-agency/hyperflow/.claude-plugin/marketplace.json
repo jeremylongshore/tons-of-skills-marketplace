@@ -5,8 +5,8 @@
     "url": "https://github.com/Mohammed-Abdelhady"
   },
   "metadata": {
-    "description": "Official marketplace for Hyperflow — multi-agent orchestration with a reviewed-every-step pipeline, 22 specialist agents, and persistent per-project memory",
-    "version": "5.9.0"
+    "description": "Claude Code-first Markdown orchestration; Codex preview and OpenCode compatibility shim",
+    "version": "8.0.0"
   },
   "plugins": [
     {
@@ -15,23 +15,23 @@
         "source": "url",
         "url": "https://github.com/Mohammed-Abdelhady/hyperflow.git"
       },
-      "description": "Point it at a GitHub issue and get back a reviewed pull request. Hyperflow turns one AI coding session into a structured engineering pipeline: plan sharpens and decomposes the work, dispatch fans out parallel workers, and a domain specialist reviews every step — nothing ships unreviewed. 18 skills, 22 specialist reviewer and investigator agents, adaptive depth so a 5-line fix never triggers a deep run, and persistent per-project memory that lives in your repo and never leaves it. Runs on whatever model your session already uses — zero config, no API keys, no daemon. Works across Claude Code, Codex App/CLI, OpenCode, Grok, Antigravity, and Cursor.",
-      "version": "5.9.0",
+      "description": "Four portable skills for planning static workflows, unattended delegated execution, independent code review, and delegate configuration. The active coding host remains coordinator.",
+      "version": "8.0.0",
       "author": {
         "name": "Mohammed Abdelhady",
         "url": "https://github.com/Mohammed-Abdelhady"
       },
       "keywords": [
-        "multi-agent",
-        "dynamic-workflows",
-        "workflow-chain",
-        "triageflow",
-        "personas",
-        "flow-profiles",
-        "parallel-execution",
-        "code-review",
+        "agent-orchestration",
         "project-memory",
-        "multi-tool"
+        "multi-session",
+        "markdown",
+        "doctrine",
+        "direct-focused-deep",
+        "code-review",
+        "token-efficient",
+        "orchestration",
+        "git-handoff"
       ],
       "strict": true
     }
