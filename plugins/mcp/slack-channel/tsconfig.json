@@ -12,5 +12,5 @@
     "noEmit": true,
     "types": ["bun-types"]
   },
-  "include": ["server.ts", "lib.ts", "server.test.ts", "policy.ts", "journal.ts", "supervisor.ts", "features/**/*.ts"]
+  "include": ["server.ts", "lib.ts", "server.test.ts", "validation-migration.test.ts", "policy.ts", "journal.ts", "supervisor.ts", "features/**/*.ts"]
 }

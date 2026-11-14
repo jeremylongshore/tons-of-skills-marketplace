@@ -275,7 +275,8 @@ export const JournalEvent = z
      *  boot and never resets within a chain. A gap between consecutive
      *  events is a tamper signal during verification — see audit-
      *  journal-architecture.md §61-73. */
-    seq: z.number().int().nonnegative(),
+    // ADR-005: retain the legacy integer domain; Zod 4 .int() adds a ceiling.
+    seq: z.number().nonnegative().refine(Number.isInteger, { message: 'Expected integer' }),
 
     /** Discriminated tag identifying what happened. See `EventKind`
      *  above for the enumerated set. */
