@@ -7,7 +7,7 @@ description: |
   Trigger with "coreweave cost", "why is my coreweave bill", "idle reserved capacity",
   "GPU cost leak", or "GPU usage and cost review".
 allowed-tools: Read, Write, Edit, Glob, Bash(curl:*), Bash(jq:*), Bash(kubectl get:*), Bash(python3:*)
-version: 1.14.0
+version: 1.15.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Designed for Claude Code

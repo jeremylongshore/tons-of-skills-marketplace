@@ -12,7 +12,7 @@ description: 'Run distributed GPU training jobs on CoreWeave with multi-node PyT
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Bash(python3:*), Grep
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:
