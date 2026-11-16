@@ -1,0 +1,11 @@
+{
+  "name": "swift-ship",
+  "displayName": "Swift Ship",
+  "description": "Five battle-tested skills that take a SwiftPM macOS app from 'builds on my machine' to a public GitHub release: generate .icns icons, package .app bundles and DMGs, set up portable CI, audit open-source readiness, and cut releases.",
+  "version": "1.1.0",
+  "author": {
+    "name": "chsistrying"
+  },
+  "license": "MIT",
+  "skills": "./skills"
+}

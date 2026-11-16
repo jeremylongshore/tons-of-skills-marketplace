@@ -1,0 +1,30 @@
+{
+  "name": "@intentsolutionsio/schliff",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Deterministic linter and scorer for SKILL.md, AGENTS.md and CLAUDE.md - no model in the loop, same bytes score the same everywhere; also checks whether the commands a file promises actually resolve in",
+  "keywords": [
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/community/schliff"
+  },
+  "homepage": "https://tonsofskills.com/plugins/schliff",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Zandereins",
+    "url": "https://github.com/Zandereins"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install schliff\\\\n  or /plugin install schliff@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+  }
+}
