@@ -47,6 +47,7 @@ Schema:  3.8.0  (see 000-docs/SCHEMA_CHANGELOG.md)
 import argparse
 import difflib
 import hashlib
+import importlib.util
 import json as json_module
 import os
 import re
@@ -2006,124 +2007,27 @@ def validate_plugin_json(path: Path, strict: bool = False) -> Dict[str, Any]:
     return {"errors": errors, "warnings": warnings}
 
 
-_MCP_VERB_PREFIXES = (
-    "list",
-    "get",
-    "create",
-    "delete",
-    "update",
-    "reserve",
-    "terminate",
-    "confirm",
-    "upload",
-    "fetch",
-    "cancel",
-    "start",
-    "stop",
+# Load relative to this trusted validator, not cwd, PYTHONPATH, or --repo-root.
+# Prescreen runs the base validator against PR data; its helper must also be base-authored.
+_AGENT_TOOLS_SPEC = importlib.util.spec_from_file_location(
+    "_marketplace_agent_body_tools", Path(__file__).resolve().with_name("agent_body_tools.py")
 )
-# Fully-qualified MCP tool reference: mcp__<server>__<tool>.
-# The server segment accepts kebab/snake names (mcp__semantic-scholar__paper_search,
-# mcp__plugin_automate_kobiton__getApp): alnum runs joined by a SINGLE `-`/`_`.
-# Each joiner must be followed by an alnum char, so the segment can never swallow
-# the `__` separator (whose second char is `_`, not alnum) — deliberate
-# disambiguation. Charset mirrors RE_MCP_TOOL_REF, minus its ^…$ anchors.
-_RE_MCP_FQ = re.compile(r"mcp__[a-zA-Z0-9]+(?:[-_][a-zA-Z0-9]+)*__[a-zA-Z0-9_]+")
-# Backtick-quoted verbCamelCase short names commonly tool-call-shaped.
-_RE_BACKTICK_VERB = re.compile(r"`([a-z][a-zA-Z0-9_]*)`")
+if _AGENT_TOOLS_SPEC is None or _AGENT_TOOLS_SPEC.loader is None:
+    raise ImportError("Marketplace agent body/tool-list checker is unavailable")
+_AGENT_TOOLS_MODULE = importlib.util.module_from_spec(_AGENT_TOOLS_SPEC)
+_AGENT_TOOLS_SPEC.loader.exec_module(_AGENT_TOOLS_MODULE)
+check_agent_body_vs_allowlist = _AGENT_TOOLS_MODULE.check_agent_body_vs_allowlist
 
 
-def _agent_declared_tools(fm: Dict[str, Any]) -> List[str]:
-    """Normalize the agent `tools` field (string|array) to a list of names."""
-    val = fm.get("tools")
-    if isinstance(val, list):
-        return [str(t).strip() for t in val if str(t).strip()]
-    if isinstance(val, str):
-        return [t.strip() for t in re.split(r"[,\s]+", val) if t.strip()]
-    return []
-
-
-def check_agent_body_vs_allowlist(fm: Dict[str, Any], body: str) -> Tuple[List[str], List[str]]:
-    """Cross-check the agent body against its `tools` allowlist (issue #843).
-
-    The `tools` frontmatter is a runtime allowlist — tools not listed are
-    blocked. An agent whose body invokes an MCP tool it never declares will
-    runtime-block every call (caught downstream, not by the old validator).
-
-    CHECK 1 (ERROR): body contains a fully-qualified mcp__server__tool that is
-                     not in the declared allowlist (and some MCP tools ARE
-                     declared — the partial-coverage case).
-    CHECK 3 (ERROR): the allowlist declares ZERO mcp__* tools but the body
-                     contains fully-qualified mcp__ references — the highest-
-                     confidence form of the defect; every call would block.
-    CHECK 2 (WARN):  body backtick-mentions a verbCamelCase short name
-                     (listDevices, getSession, …) with no matching declared
-                     mcp__*__<name>. Heuristic — short names are ambiguous.
-    WARN (over-declared): a declared mcp__*__<tool> whose suffix never appears
-                     in the body (FQ or short) — privilege drift.
-    """
-    errors: List[str] = []
-    warnings: List[str] = []
-
-    declared = _agent_declared_tools(fm)
-    declared_mcp = [t for t in declared if t.startswith("mcp__")]
-    declared_set = set(declared)
-    declared_suffixes = {t.rsplit("__", 1)[-1] for t in declared_mcp if "__" in t}
-
-    # Strip fenced code blocks from the body so syntax/examples inside ``` … ```
-    # don't trip the FQ-reference checks (they document, not invoke).
-    body_no_fences = re.sub(r"```.*?```", "", body, flags=re.DOTALL)
-
-    fq_refs = sorted(set(_RE_MCP_FQ.findall(body_no_fences)))
-
-    if fq_refs and not declared_mcp:
-        # CHECK 3 — zero MCP tools declared, body references MCP tools.
-        errors.append(
-            "[agent] body references MCP tools "
-            f"({', '.join(fq_refs[:5])}{'…' if len(fq_refs) > 5 else ''}) "
-            "but the `tools` allowlist declares no mcp__* tools — every call would be runtime-blocked (#843 CHECK 3)"
-        )
-    else:
-        # CHECK 1 — specific FQ ref present in body but not in allowlist.
-        for ref in fq_refs:
-            if ref not in declared_set:
-                errors.append(
-                    f"[agent] body invokes '{ref}' but it is not in the `tools` allowlist — "
-                    "this call would be runtime-blocked (#843 CHECK 1)"
-                )
-
-    # CHECK 2 — heuristic short-name mentions with no matching declared MCP tool.
-    # Only meaningful when the agent is demonstrably MCP-oriented (declares an
-    # mcp tool or the body already has a fully-qualified ref); otherwise a
-    # backtick `getStaticProps` / `getServerSideProps` in a code-focused agent
-    # is plain prose, not a tool call. Gating here cuts the false positives the
-    # short-name heuristic is known to produce (#843 acknowledges the ambiguity).
-    short_mentions = (
-        {
-            w
-            for w in _RE_BACKTICK_VERB.findall(body_no_fences)
-            if w.startswith(_MCP_VERB_PREFIXES) and any(c.isupper() for c in w)
-        }
-        if (declared_mcp or fq_refs)
-        else set()
-    )
-    for name in sorted(short_mentions):
-        if name not in declared_suffixes:
-            warnings.append(
-                f"[agent] body mentions `{name}` (tool-call-shaped) but no declared "
-                "mcp__*__"
-                f"{name} matches — verify it isn't a runtime-blocked call (#843 CHECK 2)"
-            )
-
-    # WARN — over-declared MCP tool never referenced in the body.
-    for t in declared_mcp:
-        suffix = t.rsplit("__", 1)[-1]
-        if t not in fq_refs and suffix not in short_mentions:
-            warnings.append(
-                f"[agent] declares MCP tool '{t}' but the body never references it — "
-                "over-declared privilege / spec drift (#843)"
-            )
-
-    return errors, warnings
+# Load only the reviewed sibling, independent of cwd, PYTHONPATH and module cache.
+_SKILL_PRODUCTION_PATH = Path(__file__).resolve().with_name("skill_production_gate.py")
+_SKILL_PRODUCTION_SPEC = importlib.util.spec_from_file_location(
+    "_canonical_skill_production_gate", _SKILL_PRODUCTION_PATH
+)
+if _SKILL_PRODUCTION_SPEC is None or _SKILL_PRODUCTION_SPEC.loader is None:
+    raise ImportError("cannot load canonical skill production checks")
+_SKILL_PRODUCTION_MODULE = importlib.util.module_from_spec(_SKILL_PRODUCTION_SPEC)
+_SKILL_PRODUCTION_SPEC.loader.exec_module(_SKILL_PRODUCTION_MODULE)
 
 
 def validate_agent(path: Path) -> Dict[str, Any]:
@@ -2326,56 +2230,7 @@ def parse_frontmatter(content: str) -> Tuple[dict, str]:
     return data, body
 
 
-def parse_allowed_tools(tools_value: Any) -> List[str]:
-    """Parse allowed-tools per Anthropic spec.
-
-    Anthropic doc (code.claude.com/docs/en/skills, Frontmatter reference):
-      "Tools Claude can use without asking permission when this skill is active.
-       Accepts a space-separated string or a YAML list."
-
-    The doc's canonical example uses space-separated form:
-      allowed-tools: Bash(git add *) Bash(git commit *) Bash(git status *)
-
-    This parser accepts:
-      - YAML list: [Read, Write, "Bash(git:*)"]
-      - Space-separated string: "Read Write Bash(git add *)"
-      - Comma-separated string: "Read, Write, Bash(git:*)" (IS convention)
-      - Mixed: "Read Write,Bash(git:*)" (graceful)
-
-    Quoted-arg regions like Bash(git add *) keep their internal spaces.
-    """
-    if isinstance(tools_value, list):
-        return [str(t).strip() for t in tools_value if str(t).strip()]
-    if not isinstance(tools_value, str):
-        return []
-    s = tools_value.strip()
-    if not s:
-        return []
-    # If commas present, split on commas (preserves spaces inside parens).
-    if "," in s:
-        return [t.strip() for t in s.split(",") if t.strip()]
-    # Otherwise space-separated. Walk the string respecting paren depth so
-    # `Bash(git add *)` stays as one token.
-    tokens: List[str] = []
-    buf: List[str] = []
-    depth = 0
-    for ch in s:
-        if ch == "(":
-            depth += 1
-            buf.append(ch)
-        elif ch == ")":
-            depth = max(0, depth - 1)
-            buf.append(ch)
-        elif ch.isspace() and depth == 0:
-            if buf:
-                tokens.append("".join(buf).strip())
-                buf = []
-        else:
-            buf.append(ch)
-    if buf:
-        tokens.append("".join(buf).strip())
-    return [t for t in tokens if t]
-
+parse_allowed_tools = _SKILL_PRODUCTION_MODULE.parse_allowed_tools
 
 # Well-formed base tool / server identifier (letters, digits, underscore, hyphen).
 RE_TOOL_BASE_IDENT = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
@@ -3843,239 +3698,25 @@ def check_line_character_length(body: str) -> Tuple[List[str], List[str]]:
 # network-fetch, raise a tool-safety concern. Skills that legitimately need
 # unscoped Bash + Write/WebFetch should justify with a "Safety Justification"
 # section in the body (the heuristic checks for one).
-TIER2_DANGEROUS_BASH_COMBOS = ("Write", "WebFetch")
-TIER2_AUTH_INDICATORS = (
-    "curl ",
-    "fetch(",
-    "API_KEY",
-    "TOKEN",
-    "OAuth",
-    "Bearer ",
-    "mcp__",
-)
-TIER2_AUTH_DOCS_MARKERS = (
-    "authentication",
-    "auth method",
-    "api key",
-    "bearer token",
-    "oauth flow",
-    "credentials",
-    "x-api-key",
-)
-TIER2_ORCHESTRATION_SMELLS = (
-    "spawn another skill",
-    "delegate to /",
-    "orchestrate across",
-    "self-coordinate",
-    "spawns multiple skills",
-    "invokes other skills as primary",
-)
-TIER2_BASE_TOOL_PATTERN = re.compile(
-    r"\b(Agent|Artifact|AskUserQuestion|Bash|CronCreate|CronDelete|CronList|Edit|EndConversation|EnterPlanMode|EnterWorktree|ExitPlanMode|ExitWorktree|Glob|Grep|ListMcpResourcesTool|LSP|Monitor|NotebookEdit|PowerShell|PushNotification|Read|ReadMcpResourceTool|RemoteTrigger|ReportFindings|ScheduleWakeup|SendMessage|SendUserFile|ShareOnboardingGuide|Skill|Task|TaskCreate|TaskGet|TaskList|TaskOutput|TaskStop|TaskUpdate|TodoWrite|ToolSearch|WaitForMcpServers|WebFetch|WebSearch|Workflow|Write)\b"
-)
-TIER2_LITERAL_FALSE_PATTERN = re.compile(r"^\s*(if false|if \[ false \]|elif false)\b", re.MULTILINE)
-
-
-def _tier2_extract_declared_base_tools(fm: dict) -> set:
-    """Return the set of base tool names declared in allowed-tools.
-
-    Handles all three accepted forms (CSV string, space-separated string, YAML
-    list) per schema 3.3.1. Strips Bash() scoping wrappers to get just the
-    base tool name (`Bash(git:*)` → `Bash`).
-    """
-    tools_value = fm.get("allowed-tools") if fm else None
-    if not tools_value:
-        return set()
-    parsed = parse_allowed_tools(tools_value)
-    base_tools: set = set()
-    for tool in parsed:
-        m = TIER2_BASE_TOOL_PATTERN.match(tool)
-        if m:
-            base_tools.add(m.group(1))
-    return base_tools
-
-
-def tier2_check_allowed_tools_accuracy(body: str, fm: dict) -> Tuple[List[str], List[str]]:
-    """Tier 2.1: every declared tool is actually referenced in the skill body.
-
-    Over-permissive declarations are an attack-surface concern. Returns
-    (errors, warnings) where any unused declared tool is a warning (not an
-    error — refactors can briefly leave declarations dangling without breaking
-    the skill).
-    """
-    errors: List[str] = []
-    warnings: List[str] = []
-    declared = _tier2_extract_declared_base_tools(fm)
-    for tool in sorted(declared):
-        # Each declared tool should appear somewhere in the body. We grep for
-        # the bare token, allowing tool name to be referenced in code snippets,
-        # prose, or examples. Bash is special-cased — virtually every skill
-        # body mentions "bash" in code fences.
-        if tool == "Bash":
-            continue
-        if tool not in body:
-            warnings.append(
-                f"[tier2:allowed-tools-accuracy] Tool '{tool}' is declared in allowed-tools "
-                f"but never referenced in the skill body — over-permissive or stale declaration"
-            )
-    return errors, warnings
-
-
-def tier2_check_auth_documented(body: str) -> Tuple[List[str], List[str]]:
-    """Tier 2.2: if the skill mentions an external API, an auth method must be documented.
-
-    Heuristic: presence of API indicators (curl, fetch, MCP server, OAuth,
-    bearer tokens) requires at least one documentation marker
-    (authentication / auth method / api key / etc.) somewhere in the body.
-    """
-    errors: List[str] = []
-    warnings: List[str] = []
-    body_lower = body.lower()
-    has_api_indicator = any(ind.lower() in body_lower for ind in TIER2_AUTH_INDICATORS)
-    if not has_api_indicator:
-        return errors, warnings
-    has_auth_doc = any(marker in body_lower for marker in TIER2_AUTH_DOCS_MARKERS)
-    if not has_auth_doc:
-        warnings.append(
-            "[tier2:auth-documented] External API surface referenced (curl/fetch/MCP/OAuth/etc.) "
-            "but no authentication method documented — add an Auth section or reference auth.md"
-        )
-    return errors, warnings
-
-
-def tier2_check_dead_code(body: str) -> Tuple[List[str], List[str]]:
-    """Tier 2.3: detect literal-false branches and unreachable conditionals.
-
-    Conservative — only flags syntactically-obvious dead code. Real
-    unreachable-branch analysis would require parsing the bash AST, which
-    is out of scope for a deterministic gate.
-    """
-    errors: List[str] = []
-    warnings: List[str] = []
-    matches = list(TIER2_LITERAL_FALSE_PATTERN.finditer(body))
-    for m in matches[:3]:  # Cap surfacing to 3
-        line_no = body[: m.start()].count("\n") + 1
-        warnings.append(f"[tier2:dead-code] Literal-false branch found at line ~{line_no}: '{m.group(0).strip()}'")
-    return errors, warnings
-
-
-def tier2_check_tool_safety(body: str, fm: dict) -> Tuple[List[str], List[str]]:
-    """Tier 2.4: dangerous tool combos require a Safety Justification.
-
-    Unscoped Bash + Write/WebFetch is the canonical curl-pipe-shell exploit
-    surface. Skills that need this combo legitimately should explain why
-    in a body section so reviewers can audit.
-    """
-    errors: List[str] = []
-    warnings: List[str] = []
-    tools_value = fm.get("allowed-tools") if fm else None
-    if not tools_value:
-        return errors, warnings
-    parsed = parse_allowed_tools(tools_value)
-
-    # Detect unscoped Bash (presence of "Bash" without paren-scoping)
-    has_unscoped_bash = any(t.strip() == "Bash" for t in parsed)
-    if not has_unscoped_bash:
-        return errors, warnings
-
-    # Check companion dangerous tools
-    has_dangerous_companion = any(
-        any(t.strip().startswith(combo) for combo in TIER2_DANGEROUS_BASH_COMBOS) for t in parsed
-    )
-    if not has_dangerous_companion:
-        return errors, warnings
-
-    # Look for safety justification in body
-    body_lower = body.lower()
-    has_justification = (
-        "safety justification" in body_lower or "why unscoped bash" in body_lower or "why bash + " in body_lower
-    )
-    if not has_justification:
-        errors.append(
-            "[tier2:tool-safety] Unscoped Bash + Write/WebFetch declared without a Safety "
-            "Justification section — high-risk combo. Add `## Safety Justification` explaining why."
-        )
-    return errors, warnings
+TIER2_DANGEROUS_BASH_COMBOS = _SKILL_PRODUCTION_MODULE.TIER2_DANGEROUS_BASH_COMBOS
+TIER2_AUTH_INDICATORS = _SKILL_PRODUCTION_MODULE.TIER2_AUTH_INDICATORS
+TIER2_AUTH_DOCS_MARKERS = _SKILL_PRODUCTION_MODULE.TIER2_AUTH_DOCS_MARKERS
+TIER2_ORCHESTRATION_SMELLS = _SKILL_PRODUCTION_MODULE.TIER2_ORCHESTRATION_SMELLS
+TIER2_BASE_TOOL_PATTERN = _SKILL_PRODUCTION_MODULE.TIER2_BASE_TOOL_PATTERN
+TIER2_LITERAL_FALSE_PATTERN = _SKILL_PRODUCTION_MODULE.TIER2_LITERAL_FALSE_PATTERN
+_tier2_extract_declared_base_tools = _SKILL_PRODUCTION_MODULE._tier2_extract_declared_base_tools
+tier2_check_allowed_tools_accuracy = _SKILL_PRODUCTION_MODULE.tier2_check_allowed_tools_accuracy
+tier2_check_auth_documented = _SKILL_PRODUCTION_MODULE.tier2_check_auth_documented
+tier2_check_dead_code = _SKILL_PRODUCTION_MODULE.tier2_check_dead_code
+tier2_check_tool_safety = _SKILL_PRODUCTION_MODULE.tier2_check_tool_safety
 
 
 def tier2_check_orchestration_bounds(body: str) -> Tuple[List[str], List[str]]:
-    """Tier 2.5: skills should not orchestrate other skills as primary control flow.
-
-    Skills do one job. Cross-skill orchestration is plugin-layer concern.
-    This check flags claims of multi-skill orchestration — multi-agent
-    synthesis WITHIN one skill invocation (calling subagents to specialize)
-    is fine and expected.
-
-    False-positive avoidance:
-    - Skip lines inside code fences (descriptive examples, not actual claims)
-    - Skip lines with negation markers ('not', 'never', 'avoid', "don't",
-      'must not', 'should not', 'NOT', 'forbidden', 'disallow') — these are
-      documenting the anti-pattern, not committing it
-    - Skip lines starting with '>' (block quotes — typically didactic)
-    """
-    errors: List[str] = []
-    warnings: List[str] = []
-    negation_markers = (
-        " not ",
-        "never",
-        "avoid",
-        "don't",
-        "do not",
-        "must not",
-        "should not",
-        "forbidden",
-        "disallow",
-        "anti-pattern",
-        "antipattern",
-        "wrong:",
-        "bad:",
-    )
-    in_fence = False
-    for line in body.splitlines():
-        if CODE_FENCE_PATTERN.match(line):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        stripped = line.strip()
-        if stripped.startswith(">") or stripped.startswith("|"):
-            # Block quotes and table cells often discuss anti-patterns descriptively
-            continue
-        line_lower = line.lower()
-        # Skip negated lines
-        if any(neg in line_lower for neg in negation_markers):
-            continue
-        for smell in TIER2_ORCHESTRATION_SMELLS:
-            if smell in line_lower:
-                errors.append(
-                    f"[tier2:orchestration-bounds] Body contains orchestration smell '{smell}' — "
-                    f"cross-skill orchestration is plugin-layer concern, not skill-layer"
-                )
-                return errors, warnings  # one is enough
-    return errors, warnings
+    return _SKILL_PRODUCTION_MODULE.tier2_check_orchestration_bounds(body, fence_pattern=CODE_FENCE_PATTERN)
 
 
 def validate_tier2_production_gate(path: Path, body: str, fm: dict) -> Tuple[List[str], List[str], List[str]]:
-    """Run all 5 Tier 2 production-gate checks and aggregate results.
-
-    Returns (errors, warnings, infos). Infos report which checks ran (always
-    5) for transparency in the validator output.
-    """
-    errors: List[str] = []
-    warnings: List[str] = []
-    infos: List[str] = [
-        "[tier2] Production gate ran 5 checks: allowed-tools accuracy, auth documented, dead code, tool safety, orchestration bounds"
-    ]
-
-    e1, w1 = tier2_check_allowed_tools_accuracy(body, fm)
-    e2, w2 = tier2_check_auth_documented(body)
-    e3, w3 = tier2_check_dead_code(body)
-    e4, w4 = tier2_check_tool_safety(body, fm)
-    e5, w5 = tier2_check_orchestration_bounds(body)
-
-    errors.extend(e1 + e2 + e3 + e4 + e5)
-    warnings.extend(w1 + w2 + w3 + w4 + w5)
-    return errors, warnings, infos
+    return _SKILL_PRODUCTION_MODULE.validate_tier2_production_gate(path, body, fm, fence_pattern=CODE_FENCE_PATTERN)
 
 
 def detect_stub_sections(body: str) -> Tuple[List[str], List[str]]:

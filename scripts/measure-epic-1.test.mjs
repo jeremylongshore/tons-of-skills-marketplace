@@ -109,6 +109,10 @@ def _is_binary(path: Path):
     'scripts/measure-structural-errors.py': readFileSync(
       new URL('./measure-structural-errors.py', import.meta.url),
     ),
+    'scripts/agent_body_tools.py': readFileSync(new URL('./agent_body_tools.py', import.meta.url)),
+    'scripts/skill_production_gate.py': readFileSync(
+      new URL('./skill_production_gate.py', import.meta.url),
+    ),
     'scripts/validate-skills-schema.py': readFileSync(
       new URL('./validate-skills-schema.py', import.meta.url),
     ),

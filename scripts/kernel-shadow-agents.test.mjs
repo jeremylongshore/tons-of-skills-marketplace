@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
@@ -45,6 +46,8 @@ function setup(t) {
     'kernel-shadow-agents.mjs',
     'kernel-shadow-agents.py',
     'validate-skills-schema.py',
+    'agent_body_tools.py',
+    'skill_production_gate.py',
   ]) {
     copyFileSync(join(ROOT, 'scripts', name), join(root, 'scripts', name));
   }
@@ -94,6 +97,8 @@ function payload() {
     status: 'complete',
     validator_schema_version: 'fixture',
     validator_sha256: 'a'.repeat(64),
+    agent_body_tools_sha256: 'c'.repeat(64),
+    skill_production_gate_sha256: 'd'.repeat(64),
     discovered: 1,
     rows: [
       {
@@ -115,6 +120,12 @@ test('real Python semver gap is captured by both complete composed schemas', (t)
   const { result, report, summary } = run(root);
   assert.equal(result.status, 0);
   assert.equal(report.status, 'complete');
+  assert.equal(
+    report.python.agentBodyToolsSha256,
+    createHash('sha256')
+      .update(readFileSync(join(ROOT, 'scripts/agent_body_tools.py')))
+      .digest('hex'),
+  );
   assert.equal(report.rows[0].python.verdict, 'PASS');
   for (const family of ['authoring/v1', 'authoring/v2']) {
     assert.equal(report.lanes[family].counts.existingPassKernelFail, 1);
@@ -250,6 +261,30 @@ for (const [label, edit] of [
     'missing verdict',
     (p) => {
       delete p.rows[0].errors;
+    },
+  ],
+  [
+    'missing skill helper hash',
+    (p) => {
+      delete p.skill_production_gate_sha256;
+    },
+  ],
+  [
+    'malformed skill helper hash',
+    (p) => {
+      p.skill_production_gate_sha256 = 'invalid';
+    },
+  ],
+  [
+    'missing helper hash',
+    (p) => {
+      delete p.agent_body_tools_sha256;
+    },
+  ],
+  [
+    'malformed helper hash',
+    (p) => {
+      p.agent_body_tools_sha256 = 'not-a-hash';
     },
   ],
   [
