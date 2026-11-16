@@ -1,0 +1,42 @@
+{
+  "name": "@intentsolutionsio/specstream-pack",
+  "version": "1.0.0",
+  "description": "SpecStream operator skill pack for live web search, drop-in search API routes, page extraction, structured Deep Search tables, recurring schedules, and remote MCP setup (5 skills).",
+  "keywords": [
+    "specstream",
+    "web-search",
+    "extract",
+    "deep-search",
+    "schedules",
+    "mcp",
+    "saas",
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/saas-packs/specstream-pack"
+  },
+  "homepage": "https://tonsofskills.com/plugins/specstream-pack",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Tarek Etman",
+    "email": "tarek@specstream.ai",
+    "url": "https://github.com/Specstreamai"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin",
+    "skills",
+    "scripts"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install specstream-pack\\\\n  or /plugin install specstream-pack@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+  }
+}

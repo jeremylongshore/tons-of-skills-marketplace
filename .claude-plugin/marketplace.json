@@ -8298,6 +8298,30 @@
       "homepage": "https://github.com/hashgraph-online/hol-guard",
       "repository": "https://github.com/hashgraph-online/hol-guard-plugin",
       "license": "Apache-2.0"
+    },
+    {
+      "name": "specstream-pack",
+      "source": "./plugins/saas-packs/specstream-pack",
+      "description": "SpecStream operator skill pack for live web search, drop-in search API routes, page extraction, structured Deep Search tables, recurring schedules, and remote MCP setup (5 skills).",
+      "version": "1.0.0",
+      "category": "saas-packs",
+      "keywords": [
+        "specstream",
+        "web-search",
+        "extract",
+        "deep-search",
+        "schedules",
+        "mcp",
+        "saas"
+      ],
+      "author": {
+        "name": "Tarek Etman",
+        "email": "tarek@specstream.ai",
+        "url": "https://github.com/Specstreamai"
+      },
+      "homepage": "https://specstream.ai",
+      "repository": "https://github.com/jeremylongshore/tons-of-skills-marketplace",
+      "license": "MIT"
     }
   ]
 }
