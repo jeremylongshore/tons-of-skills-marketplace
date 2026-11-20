@@ -1,0 +1,142 @@
+# GitHub Actions workflow for a SwiftPM project.
+#
+# Copy this file to .github/workflows/ci.yml and adjust:
+#   - the `xcode` matrix values to versions you actually need to support
+#   - the cache key prefix (defaults to the repo's Package.resolved hash)
+#   - `swift test` flags (e.g. --enable-code-coverage, --filter)
+#
+# Two jobs are included:
+#   1. `test`        - minimal single-runner build + test (fast feedback)
+#   2. `test-matrix` - full matrix across macOS/Xcode versions (correctness net)
+#
+# Delete whichever job you don't need. Keeping both is fine too: make `test`
+# required for merge and let `test-matrix` run as a slower, informational check.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same branch/PR to save minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------
+  # 1. Minimal single-version job. Use this as your required status check.
+  # ---------------------------------------------------------------------
+  test:
+    name: Build & Test (macOS 14, Xcode 15.4)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: Print environment (helps debug "works locally, fails on CI")
+        run: |
+          swift --version
+          xcodebuild -version
+          echo "Locale: $(defaults read -g AppleLocale 2>/dev/null || echo unset)"
+          echo "TZ: $(date +%Z) ($(cat /etc/timezone 2>/dev/null || echo 'no /etc/timezone'))"
+          echo "OS: $(sw_vers)"
+
+      - name: Cache SwiftPM build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+          # Keying on Package.resolved (and the runner image) means the cache
+          # is invalidated exactly when dependencies change, not on every run.
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Resolve dependencies
+        run: swift package resolve
+
+      - name: Build
+        run: swift build --build-tests
+
+      - name: Test
+        run: swift test --parallel
+
+  # ---------------------------------------------------------------------
+  # 2. Matrix job: catches Foundation/locale/OS-version drift between
+  #    runner images. See references/portability-traps.md for *why* this
+  #    matters - the same source can behave differently across these rows.
+  # ---------------------------------------------------------------------
+  test-matrix:
+    name: Test (${{ matrix.os }}, Xcode ${{ matrix.xcode }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Adjust to the oldest and newest OS/Xcode you support.
+          # macos-13 / Xcode 15.2 pairs with an older swift-foundation.
+          - os: macos-13
+            xcode: "15.2"
+          # macos-14 / Xcode 15.4 is a common "current stable" baseline.
+          - os: macos-14
+            xcode: "15.4"
+          # macos-15 / Xcode 16.x picks up the newer swift-foundation
+          # (Swift 6) behavior - this is where the ISO8601/NumberFormatter
+          # traps in references/portability-traps.md tend to surface.
+          - os: macos-15
+            xcode: "16.1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
+
+      - name: Print environment
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: Cache SwiftPM build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ matrix.os }}-xcode${{ matrix.xcode }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ matrix.os }}-xcode${{ matrix.xcode }}-spm-
+
+      - name: Resolve dependencies
+        run: swift package resolve
+
+      - name: Build
+        run: swift build --build-tests
+
+      - name: Test
+        run: swift test --parallel
+
+  # ---------------------------------------------------------------------
+  # Optional: a Linux job if the package needs to run on server-side Swift.
+  # Uncomment and adjust the Swift version tag if so. Note that Linux uses
+  # swift-corelibs-foundation, a *different* Foundation implementation from
+  # Darwin - expect additional divergence beyond what's in the traps doc.
+  # ---------------------------------------------------------------------
+  # test-linux:
+  #   name: Test (Linux, Swift 5.10)
+  #   runs-on: ubuntu-22.04
+  #   container: swift:5.10-jammy
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/cache@v4
+  #       with:
+  #         path: .build
+  #         key: linux-spm-${{ hashFiles('**/Package.resolved') }}
+  #         restore-keys: linux-spm-
+  #     - run: swift build --build-tests
+  #     - run: swift test --parallel

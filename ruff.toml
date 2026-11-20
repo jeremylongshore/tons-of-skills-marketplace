@@ -42,8 +42,10 @@ extend-exclude = [
   "plugins/community/mnemos",
   "plugins/community/portaljs",
   "plugins/community/quit-sponsor",
+  "plugins/community/schliff",
   "plugins/community/skillcrossroads",
   "plugins/community/skills-janitor",
+  "plugins/community/swift-ship",
   "plugins/crypto/aomi",
   "plugins/design/brand-forge",
   "plugins/design/uizze",
@@ -67,6 +69,7 @@ extend-exclude = [
   "plugins/productivity/skyvern",
   "plugins/saas-packs/coreweave-pack",
   "plugins/security/hol-guard",
+  "plugins/skill-enhancers/orca-replay",
   "plugins/testing/cli-ux-tester",
   "plugins/testing/kobiton-automate",
   # >>> END sync-lint-ignores <<<

@@ -1,0 +1,11 @@
+{
+  "name": "schliff",
+  "version": "0.1.0",
+  "description": "Deterministic linter and scorer for SKILL.md, AGENTS.md and CLAUDE.md - no model in the loop, same bytes score the same everywhere; also checks whether the commands a file promises actually resolve in the repo.",
+  "author": {
+    "name": "Zandereins",
+    "url": "https://github.com/Zandereins"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/Zandereins/schliff"
+}

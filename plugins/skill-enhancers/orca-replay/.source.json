@@ -1,0 +1,18 @@
+{
+  "synced_from": {
+    "repo": "Continuum-AI-Corp/OrcaReplay",
+    "path": "skills/orca-replay",
+    "branch": "main"
+  },
+  "last_sync": "2026-11-16T14:34:03.342Z",
+  "author": {
+    "name": "Continuum AI",
+    "github": "Continuum-AI-Corp"
+  },
+  "license": "Apache-2.0",
+  "files_synced": 2,
+  "files": [
+    "LICENSE",
+    "SKILL.md"
+  ]
+}
