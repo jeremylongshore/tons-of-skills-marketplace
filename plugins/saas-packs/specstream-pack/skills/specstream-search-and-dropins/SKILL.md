@@ -29,9 +29,9 @@ Build and validate live web search requests against SpecStream's Search API (`GE
 3. Verify query bounds (`q` 1 to 2,000 characters), pagination (`num` 1 to 100 or 1 to 200 with `images=true`, `page` 1 to 10), `passages=true` vs `images=true` exclusivity, and `Idempotency-Key` length (at most 128 characters).
 4. Run the offline payload validator before executing any live search:
 
-```bash
-python3 scripts/validate_specstream_payload.py --kind search --file search-payload.json
-```
+   ```bash
+   python3 scripts/validate_specstream_payload.py --kind search --file search-payload.json
+   ```
 
 5. For drop-in migrations, change only the base URL and API key configuration (`SPECSTREAM_API_KEY`), keeping existing response parsing intact (`speed=fast` by default, or add `specstream_speed=default` when full default search is needed).
 

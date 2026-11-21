@@ -27,17 +27,17 @@ Configure Claude Code or compatible MCP clients to connect to SpecStream's remot
 1. Use `Read` to inspect the user's MCP config file and check [the MCP and auth contract](references/api-contract.md).
 2. Configure the `specstream` Streamable HTTP server entry with these fields (never commit literal tokens):
 
-| Field | Value |
-| --- | --- |
-| `type` | `http` |
-| `url` | `https://api.specstream.ai/mcp` |
-| `headers.Authorization` (if using key auth instead of OAuth) | `Bearer ${SPECSTREAM_API_KEY}` |
+   | Field | Value |
+   | --- | --- |
+   | `type` | `http` |
+   | `url` | `https://api.specstream.ai/mcp` |
+   | `headers.Authorization` (if using key auth instead of OAuth) | `Bearer ${SPECSTREAM_API_KEY}` |
 
 3. Validate the MCP config JSON offline so literal tokens and mismatched URLs are caught before saving:
 
-```bash
-python3 scripts/validate_specstream_payload.py --kind mcp --file mcp-config.json
-```
+   ```bash
+   python3 scripts/validate_specstream_payload.py --kind mcp --file mcp-config.json
+   ```
 
 4. When issuing keys programmatically (`POST https://api.specstream.ai/v1/account/keys`), scope them narrowly (`account:read`, `finds:spend`, `finds:read`), set `spend_cap_cents` and optional `expires_in_days`, and enable `"zero_retention": true`, `"eu_egress_only": true`, or `"engine_rule": {"deny": ["CN"]}` where policy requires it.
 5. For headless onboarding without a browser, explain the two-step agent signup (`POST /v1/agent/signup` with user email -> user provides 6-digit code -> `POST /v1/agent/signup/verify`), noting that the $10 starter credit activates when the user signs in to the workspace in a browser.

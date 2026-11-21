@@ -28,9 +28,9 @@ Configure and validate saved SpecStream schedules that rerun Deep Search request
 2. Verify the refresh cadence (`hourly`, `daily`, `weekly`, `monthly`, or `yearly`), confirm `spend_cap_cents` is a positive integer bounded by the account's monthly and per-key spending limits, and confirm delivery channels (`slack`, `email`, `sheet`, `crm`, or `webhook` with an `https://` target).
 3. Run the offline schedule validator before creating or modifying any recurring schedule:
 
-```bash
-python3 scripts/validate_specstream_payload.py --kind schedule --file schedule-config.json
-```
+   ```bash
+   python3 scripts/validate_specstream_payload.py --kind schedule --file schedule-config.json
+   ```
 
 4. For webhook consumers, verify SpecStream's webhook signature (`https://specstream.ai/docs/webhooks`), deduplicate deliveries by event ID, and read account spend via `GET https://api.specstream.ai/v1/account/usage?group=day|endpoint|key` (`account:read`, zero cost).
 5. When monitoring standard record families (for example US funding rounds, layoffs, or new executives), check `https://specstream.ai/signals` and `https://specstream.ai/data/lists.json` before building a custom Deep Search schedule.

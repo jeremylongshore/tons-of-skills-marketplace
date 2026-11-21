@@ -29,9 +29,9 @@ Build and validate `POST https://api.specstream.ai/v1/extract` calls to extract 
 3. Add an `Idempotency-Key` header (at most 128 characters) when retrying so repeated requests within 7 days replay with `Idempotent-Replayed: true` and no duplicate charge (note zero-retention keys return `409` on replay).
 4. Validate the request JSON offline before sending it:
 
-```bash
-python3 scripts/validate_specstream_payload.py --kind extract --file extract-payload.json
-```
+   ```bash
+   python3 scripts/validate_specstream_payload.py --kind extract --file extract-payload.json
+   ```
 
 5. When consuming `data.results`, handle every item's `status` independently (`ok`, `blocked`, `not_found`, `empty`, `unsupported`, `invalid_url`, `failed`) and preserve `read_from` (`live`, `site`, `archive`, `html`) and `captured_at` provenance.
 

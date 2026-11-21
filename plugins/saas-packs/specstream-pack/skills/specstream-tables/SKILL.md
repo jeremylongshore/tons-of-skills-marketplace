@@ -28,9 +28,9 @@ Plan, quote, and validate multi-row structured tables using SpecStream Deep Sear
 2. Confirm whether the workload fits Deep Search tables (multi-row structured collection, list enrichment, or condition-verified rows) rather than a single Search API lookup (`GET /v1/web-search`).
 3. Validate the table request and spend-confirmation structure offline before quoting or authorizing spend:
 
-```bash
-python3 scripts/validate_specstream_payload.py --kind table --file table-request.json
-```
+   ```bash
+   python3 scripts/validate_specstream_payload.py --kind table --file table-request.json
+   ```
 
 4. On an account, follow the five-step approval flow: `compile` -> `quote_capacity_work` (quotes expire after 30 minutes) -> ask the user to approve the maximum -> `authorize_capacity_work` with `confirm_max_cents` and a stable idempotency key -> inspect results with `get_find_decisions`.
 5. Without an account, send `POST /v1/agent/lists` to inspect the `402` column read-back and ceiling before submitting MPP (`Authorization: Payment`) or x402 `upto` (`PAYMENT-SIGNATURE`), and check `GET https://specstream.ai/data/lists.json` first if a pre-built catalog list already exists.

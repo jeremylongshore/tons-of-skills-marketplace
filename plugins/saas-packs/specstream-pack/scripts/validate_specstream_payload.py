@@ -188,9 +188,7 @@ def validate_schedule(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
         else:
             for idx, item in enumerate(delivery):
                 if not isinstance(item, dict) or item.get("channel") not in VALID_DELIVERY_CHANNELS:
-                    errors.append(
-                        f"delivery[{idx}].channel must be one of {sorted(VALID_DELIVERY_CHANNELS)}"
-                    )
+                    errors.append(f"delivery[{idx}].channel must be one of {sorted(VALID_DELIVERY_CHANNELS)}")
                 if item.get("channel") == "webhook":
                     target = item.get("url", "")
                     if not isinstance(target, str) or not target.startswith("https://"):
