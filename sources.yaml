@@ -738,11 +738,12 @@ sources:
     verified: false
     include:
       - '/SKILL.md'
-      - 'README.md'
-      - 'LICENSE'
-      - 'SECURITY.md'
-      - '.claude-plugin/**'
-      - 'skills/**'
+      - '/README.md'
+      - '/LICENSE'
+      - '/SECURITY.md'
+      - '/.claude-plugin/**'
+      - '/.mcp.json'
+      - '/skills/**'
     exclude:
       # Held: this unshipped skill fails three marketplace validation rules
       # at 783b6debae31. Resolve upstream before admission (claude-ss50.16).
