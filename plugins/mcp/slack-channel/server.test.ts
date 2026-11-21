@@ -47,6 +47,7 @@ import {
   enforceAuditReceiptCap,
   escMrkdwn,
   extractSlackErrorCode,
+  FetchMessagesInput,
   findReservedActionId,
   findSecretDeclaration,
   type GateOptions,
@@ -12986,7 +12987,8 @@ describe('SessionHandle.update (ccsc-9d9)', () => {
 // malformed tool calls reach the handler body and e.g.
 // `assertOutboundAllowed(undefined, ...)` / the Slack API gets undefined.
 //
-// These schemas are mirrored from `toolSchemas` in server.ts. Importing
+// FetchMessagesInput is shared from lib.ts; the remaining schemas below are
+// mirrored from `toolSchemas` in server.ts. Importing
 // server.ts directly would execute its top-level bootstrap (token load,
 // STATE_DIR mkdir, process.exit(1) on missing .env), so we duplicate the
 // shapes here deliberately and unit-test them in isolation. If a schema
@@ -13019,14 +13021,6 @@ describe('MCP tool input schemas (S5)', () => {
       chat_id: z.string().min(1),
       message_id: z.string().min(1),
       text: z.string().min(1),
-      thread_ts: z.string().optional(),
-    })
-    .strict()
-
-  const FetchMessagesInput = z
-    .object({
-      channel: z.string().min(1),
-      limit: z.number().int().positive().optional(),
       thread_ts: z.string().optional(),
     })
     .strict()
@@ -13234,6 +13228,12 @@ describe('MCP tool input schemas (S5)', () => {
   })
 
   describe('FetchMessagesInput', () => {
+    test('accepts a legacy integer limit beyond the safe-integer ceiling', () => {
+      const result = FetchMessagesInput.safeParse({ channel: 'C123', limit: 2 ** 53 })
+      expect(result.success).toBe(true)
+      if (result.success) expect(result.data.limit).toBe(2 ** 53)
+    })
+
     test('accepts channel-only input', () => {
       const result = FetchMessagesInput.safeParse({ channel: 'C123' })
       expect(result.success).toBe(true)

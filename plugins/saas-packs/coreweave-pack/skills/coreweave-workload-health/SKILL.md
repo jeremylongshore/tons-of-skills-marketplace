@@ -5,7 +5,7 @@ description: Verify workload readiness, GPU allocation and observed activity fro
   health or checking supplied operational evidence. Trigger with "coreweave workload
   health".
 allowed-tools: Read, Write, Edit, Bash(python3:*), Grep
-version: 1.14.0
+version: 1.15.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Portable local Python 3.12+ fixture workflow; optional platform commands

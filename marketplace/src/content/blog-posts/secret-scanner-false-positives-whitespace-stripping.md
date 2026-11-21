@@ -93,7 +93,7 @@ it.each([
 });
 ```
 
-Pair that with positive controls, because a rule that only rejects is easy to write. The suite splits a real test key across a newline and expects a finding after an empty prefix, after `key: `, after a tab, and after an opening parenthesis. It does the same with an indented continuation line. The hardest positive case puts the split key directly against an identifier:
+Pair that with positive controls, because a rule that only rejects is easy to write. The suite splits a real test key across a newline and expects a finding after an empty prefix, after `key:` and a space, after a tab, and after an opening parenthesis. It does the same with an indented continuation line. The hardest positive case puts the split key directly against an identifier:
 
 ```ts
 it('detects a real split key directly adjacent to an identifier', () => {

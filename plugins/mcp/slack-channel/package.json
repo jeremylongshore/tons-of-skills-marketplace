@@ -1,10 +1,13 @@
 {
-  "name": "claude-channel-slack",
+  "name": "claude-code-slack-channel",
   "private": true,
   "version": "0.12.0",
   "description": "Slack channel for Claude Code — two-way chat via Socket Mode",
   "type": "module",
-  "bin": "./server.ts",
+  "bin": {
+    "claude-code-slack-channel": "./server.ts",
+    "claude-channel-slack": "./server.ts"
+  },
   "scripts": {
     "start": "bun install --frozen-lockfile --no-summary && bun server.ts",
     "start:node": "npx tsx server.ts",
@@ -17,7 +20,7 @@
     "@slack/socket-mode": "2.0.6",
     "@slack/web-api": "7.15.2",
     "tsx": "^4.22.4",
-    "zod": "3.25.76"
+    "zod": "4.6.6"
   },
   "overrides": {
     "axios": "^1.20.0",
@@ -28,7 +31,9 @@
     "hono": "^4.12.25",
     "ip-address": "^10.7.0",
     "proxy-addr": "^2.0.8",
-    "ws": "^8.21.0"
+    "ws": "^8.21.0",
+    "zod": "4.6.6",
+    "body-parser": "2.4.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",

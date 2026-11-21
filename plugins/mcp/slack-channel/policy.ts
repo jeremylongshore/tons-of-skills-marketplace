@@ -107,7 +107,8 @@ const RuleBase = {
    *  equivalent. Primary ordering is authored array position (first-
    *  applicable, see 000-docs/policy-evaluation-flow.md §Combining).
    *  Lower `priority` wins the tie. */
-  priority: z.number().int().default(100),
+  // ADR-005: this unbounded legacy field does not gain Zod 4's safe-int ceiling.
+  priority: z.number().refine(Number.isInteger, { message: 'Expected integer' }).default(100),
 
   match: MatchSpec,
 } as const

@@ -10,6 +10,7 @@
       "manifest.ts",
       "supervisor.ts",
       "server.test.ts",
+      "validation-migration.test.ts",
       "features/**/*.ts",
       "scripts/**/*.ts",
       "!**/node_modules/**",

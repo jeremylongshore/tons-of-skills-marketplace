@@ -1,4 +1,4 @@
-# CoreWeave community operator pack
+# Unofficial community operator pack for CoreWeave
 
 **26 skills for GPU operations, evidence review and bounded provisioning workflows.**
 Community-contributed; not affiliated with, endorsed by, or sponsored by CoreWeave, Inc.
@@ -70,17 +70,28 @@ The public CI title remains **UNOFFICIAL CI INTEGRATION FOR COREWEAVE**; its sta
 identifier is `coreweave-ci-integration`. The five deeper workflows are selected by
 operator value; there is no per-skill usage ranking supporting a “most-used” claim.
 
-## Reproduce offline validation
+## Install
 
-From the marketplace repository with its pinned pnpm dependencies, Python/PyYAML
-and gitleaks installed:
+In Claude Code, from the Tons of Skills marketplace (it mirrors this repository):
 
 ```bash
-pnpm run validate:coreweave
-python3 -m pytest tests/test_coreweave_operator_tools.py tests/test_coreweave_cost_gates.py tests/test_coreweave_reviewers.py tests/test_coreweave_pack_gate.py
+/plugin marketplace add jeremylongshore/claude-code-plugins
+/plugin install coreweave-pack@claude-code-plugins-plus
 ```
 
-The gate delegates schema and rubric checks to the canonical repository validator,
+This repository is the source of truth; the marketplace copy is synced from it.
+
+## Reproduce offline validation
+
+Needs Python 3 with PyYAML and pytest, Node 22+ with npm, git and curl:
+
+```bash
+tools/setup.sh                 # pinned grader, kernel schemas, j-rig and gitleaks into .cache/
+python3 tools/validate-pack.py # schema/rubric, links, 11 eval packages, fixtures, gitleaks
+python3 -m pytest tests
+```
+
+The gate delegates schema and rubric checks to the Tons of Skills marketplace validator (pinned commit),
 checks installed references and agent preloads, checks all 11 eval-spec packages,
 replays deterministic contracts and runs gitleaks. It reports model judgments as
 NOT RUN. Run a skill's helper with its packaged example for standalone inspection.

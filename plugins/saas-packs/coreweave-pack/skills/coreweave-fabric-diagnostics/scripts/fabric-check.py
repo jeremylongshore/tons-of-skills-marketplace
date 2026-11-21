@@ -17,16 +17,43 @@ from decimal import Decimal, InvalidOperation
 import yaml
 
 
+# NCCL net plugin names: built-in IB plus external IBext / IBext_vN (SHARP/COLLNET).
+_IB_NET = r"IB(?:ext(?:_v\d+)?)?"
+# NCCL >= 2.22 prints "NET/IB : Using [RO]; OOB <if>" with an EMPTY device list on TCP
+# fallback, so IB selection needs a real "[n]dev:port/IB|RoCE" device entry.
+_IB_SELECTED = re.compile(
+    rf"Using network {_IB_NET}\b|NET/{_IB_NET}\s*:\s*Using\s+\[\d+\]\S+:\d+/(?:IB|RoCE)\b|via NET/{_IB_NET}/",
+    re.I,
+)
+_SOCKET_SELECTED = re.compile(r"Using network Socket\b|NET/Socket\s*:\s*Using\b|via NET/Socket/", re.I)
+_GDR = re.compile(rf"GPU Direct RDMA Enabled\b|via NET/{_IB_NET}/\S*/GDRDMA\b", re.I)
+_IB_FAILURE = re.compile(rf"\b(?:WARN|ERROR)\b.*?(?:ibv_|NET/{_IB_NET}\b)", re.I)
+_IB_DISABLED = re.compile(r"NCCL_IB_DISABLE\s+set by environment to\s+1\b|NCCL_IB_DISABLE\s*[:=]\s*[\'\"]?1\b", re.I)
+_NET_CHANNEL = re.compile(r"\bvia NET/", re.I)
+_LOCAL_CHANNEL = re.compile(r"\bvia (?:P2P|SHM)\b", re.I)
+_NNODES = re.compile(r"\bnNodes\s+(\d+)\b", re.I)
+
+
 def detect_transport(text: str) -> tuple[str, bool, bool]:
-    lines = [line for line in text.splitlines() if "NCCL" in line.upper()]
+    # Pasted logs often lose the "host:pid [rank] NCCL INFO" prefix, so every line
+    # is read; WARN/ERROR lines never count as positive transport evidence.
+    lines = text.splitlines()
     info = [line for line in lines if not re.search(r"\b(?:WARN|ERROR)\b", line, re.I)]
-    ib = any(re.search(r"Using network IB(?:ext)?\b|NET/IB\s*:\s*Using\b|via NET/IB/", line, re.I) for line in info)
-    socket = any(
-        re.search(r"Using network Socket\b|NET/Socket\s*:\s*Using\b|via NET/Socket/", line, re.I) for line in info
-    )
-    gdr = any(re.search(r"GPU Direct RDMA Enabled\b|via NET/IB/\S*/GDRDMA\b", line, re.I) for line in info)
-    failed = any(re.search(r"NCCL\s+(?:WARN|ERROR).*?(?:ibv_|NET/IB)", line, re.I) for line in lines)
+    ib = any(_IB_SELECTED.search(line) for line in info)
+    socket = any(_SOCKET_SELECTED.search(line) for line in info)
+    gdr = any(_GDR.search(line) for line in info)
+    failed = any(_IB_FAILURE.search(line) for line in lines)
     return ("mixed" if ib and socket else "IB" if ib else "Socket" if socket else "unknown", gdr, failed)
+
+
+def detect_single_node(text: str) -> bool:
+    """True when the log shows no inter-node traffic: nNodes 1, or only P2P/SHM channels."""
+    if _NET_CHANNEL.search(text):
+        return False
+    nodes = _NNODES.findall(text)
+    if nodes:
+        return all(count == "1" for count in nodes)
+    return bool(_LOCAL_CHANNEL.search(text))
 
 
 def resource_findings(text: str) -> tuple[list[str], bool]:
@@ -80,10 +107,20 @@ def resource_findings(text: str) -> tuple[list[str], bool]:
     return findings, seen
 
 
+# IB logical port states (ibstat). kubectl describe also prints "State:" lines
+# (Running/Waiting/Terminated); those are not port evidence and are ignored.
+_IB_PORT_STATES = {"down", "init", "initializing", "armed", "active", "active defer", "inactive"}
+
+
 def detect_ibstat(text: str) -> tuple[str, list[str]]:
-    states = re.findall(r"^\s*State:\s*(.+)$", text, re.M)
+    states = [
+        state.strip()
+        for state in re.findall(r"^\s*State:\s*(.+)$", text, re.M)
+        if state.strip().lower() in _IB_PORT_STATES
+    ]
+    states += [m.upper() for m in re.findall(r"^\s*state:\s*PORT_(\w+)", text, re.M | re.I)]
     physical = re.findall(r"^\s*Physical state:\s*(.+)$", text, re.M)
-    notes = [f"IB port State: {state.strip()}" for state in states if state.strip().lower() != "active"]
+    notes = [f"IB port State: {state}" for state in states if state.lower() != "active"]
     notes += [
         f"IB Physical state: {state.strip()}"
         for state in physical
@@ -101,17 +138,26 @@ def diagnose(text: str) -> dict:
     transport, gdr, failed = detect_transport(text)
     missing, manifest_seen = resource_findings(text)
     _, degraded = detect_ibstat(text)
-    if re.search(r"nccl_ib_disable\s*[:=]\s*[\'\"]?1\b", text, re.I):
+    if _IB_DISABLED.search(text):
         missing.append("NCCL_IB_DISABLE=1 disables the IB transport; review the effective environment")
+    single_node = detect_single_node(text)
     rdma = {"IB": "yes", "Socket": "no", "mixed": "partial", "unknown": "unknown"}[transport]
+    if single_node:
+        rdma = "not-applicable"
     verdict = {
         "IB": "InfiniBand transport observed; GPU Direct RDMA needs its own positive log evidence.",
         "Socket": "TCP socket transport observed; investigate whether this is an unintended fallback for the selected run.",
         "mixed": "Both transports observed; separate ranks, channels and run timestamps before concluding that one run is degraded.",
         "unknown": "Insufficient positive transport evidence; a warning or bootstrap line is not proof of the data path.",
     }[transport]
+    if single_node:
+        verdict = (
+            "Single-node run: no traffic crossed the network, so RDMA engagement is not applicable. "
+            "Collect a multi-node run before judging the transport."
+        )
     return {
         "rdma_engaged": rdma,
+        "single_node": single_node,
         "transport": transport,
         "gpu_direct_rdma_confirmed": gdr and transport in ("IB", "mixed"),
         "manifest_evidence_present": manifest_seen,

@@ -21,10 +21,10 @@
   "counts": {
     "AUTO-MIGRATE": 0,
     "CERTIFY": 0,
-    "CERTIFY-PENDING-EVIDENCE": 2959,
+    "CERTIFY-PENDING-EVIDENCE": 2933,
     "CERTIFY-UPSTREAM": 0,
     "DEEP-REMEDIATE": 1,
-    "QUARANTINE": 347
+    "QUARANTINE": 373
   },
   "artifacts": [
     {
@@ -14307,10 +14307,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14318,10 +14318,10 @@
       "grade": "A",
       "score": 98,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14329,10 +14329,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14340,10 +14340,10 @@
       "grade": "A",
       "score": 98,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14351,10 +14351,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14362,10 +14362,10 @@
       "grade": "A",
       "score": 99,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14373,10 +14373,10 @@
       "grade": "A",
       "score": 99,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14384,10 +14384,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14395,10 +14395,10 @@
       "grade": "A",
       "score": 96,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14406,10 +14406,10 @@
       "grade": "A",
       "score": 95,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14417,10 +14417,10 @@
       "grade": "A",
       "score": 98,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14428,10 +14428,10 @@
       "grade": "A",
       "score": 98,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14439,10 +14439,10 @@
       "grade": "A",
       "score": 98,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14450,10 +14450,10 @@
       "grade": "A",
       "score": 96,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14461,10 +14461,10 @@
       "grade": "A",
       "score": 97,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14472,10 +14472,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14483,10 +14483,10 @@
       "grade": "A",
       "score": 97,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14494,10 +14494,10 @@
       "grade": "A",
       "score": 98,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14505,10 +14505,10 @@
       "grade": "A",
       "score": 98,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14516,10 +14516,10 @@
       "grade": "A",
       "score": 99,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14527,10 +14527,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14538,10 +14538,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14549,10 +14549,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14560,10 +14560,10 @@
       "grade": "A",
       "score": 98,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14571,10 +14571,10 @@
       "grade": "A",
       "score": 96,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {
@@ -14582,10 +14582,10 @@
       "grade": "A",
       "score": 100,
       "diagnostics": [],
-      "disposition": "CERTIFY-PENDING-EVIDENCE",
-      "gate": "G7",
+      "disposition": "QUARANTINE",
+      "gate": "G1",
       "reason_codes": [
-        "REPRODUCIBLE_EVIDENCE_NOT_RETAINED"
+        "SOURCE_COMMIT_UNPINNED"
       ]
     },
     {

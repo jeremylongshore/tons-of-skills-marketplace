@@ -6468,7 +6468,7 @@
       "name": "coreweave-pack",
       "source": "./plugins/saas-packs/coreweave-pack",
       "description": "Community CoreWeave GPU operations pack (26 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by CoreWeave, Inc.",
-      "version": "1.14.0",
+      "version": "1.15.0",
       "category": "saas-packs",
       "keywords": [
         "coreweave",
@@ -6480,7 +6480,8 @@
         "name": "Jeremy Longshore",
         "email": "jeremy@intentsolutions.io",
         "url": "https://github.com/jeremylongshore"
-      }
+      },
+      "repository": "https://github.com/jeremylongshore/unofficial-coreweave-operator-pack"
     },
     {
       "name": "elevenlabs-pack",

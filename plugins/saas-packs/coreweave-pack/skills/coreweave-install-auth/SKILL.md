@@ -13,7 +13,7 @@ description: 'Configure CoreWeave Kubernetes Service (CKS) access with kubeconfi
 
   '
 allowed-tools: Read, Write, Edit, Bash(kubectl:*), Grep
-version: 1.14.0
+version: 1.15.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 tags:

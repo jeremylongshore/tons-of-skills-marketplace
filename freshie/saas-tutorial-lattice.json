@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "5ed7d945029ead5a8592e58cf83ec5959845ca9a53ab07ccf08634ffccb58174",
+    "catalog_sha256": "5d390347dc8b48a33d15ce9df2927dfa081ccf1f7002e40b985c46e2ea470dcc",
     "curated_manifest": "skills/.curated/MANIFEST.json",
-    "curated_manifest_sha256": "61d210ea9f625e29a862b090b4dac3991d1e2423e821367783332e4ebf697fa5",
-    "tracked_inventory_sha256": "6e07fbc1585fb3571390d1b2b126de522b99397a7d298670399c575a52084b70"
+    "curated_manifest_sha256": "dcc9cbc37e6e117809bb4250c177c9b751d51f8cf44cd5172bf8930fb969affa",
+    "tracked_inventory_sha256": "9c7cd6c11053ece4a7d4670950316f17ce0ebc7946a95dda7db53195bf25a543"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -1134,8 +1134,8 @@
       "candidate_basis_points": 7692,
       "verification_grade": "A",
       "verification_score": 98,
-      "pack_inventory_sha256": "2c5ac4623e03f49f03795df2b6de3445339f1da5edffd38d42f1945db5d90bf9",
-      "candidate_set_sha256": "e5e55667cb0360453de5f7e15e7c584d165cd52cb7e4edf39d952d051f2b8fdf",
+      "pack_inventory_sha256": "8d21d3e2f5bd9404e26cac84aea18263bf7904bc823fdf418d0a9b711a2e6684",
+      "candidate_set_sha256": "57508298c96f9e2d4e3b4666b26fd6bb89acfd0f3da1d4650ea651aa8af6a0f1",
       "next_action": "ENSURE_EXACTLY_ONE_PACK_DISPOSITION_CHILD"
     },
     {
@@ -8576,30 +8576,36 @@
     {
       "name": "coreweave-pack",
       "source": "plugins/saas-packs/coreweave-pack",
-      "version": "1.14.0",
+      "version": "1.15.0",
       "verification": {
         "grade": "A",
         "score": 98
       },
       "npm_candidate": {
         "name": "@intentsolutionsio/coreweave-pack",
-        "version": "1.0.6",
-        "private": false,
+        "version": "1.0.7",
+        "private": true,
         "files_include_skills": true,
         "live_registry_check": "REQUIRED_BEFORE_MUTATION"
       },
       "publication": "published",
       "ownership": {
-        "status": "first-party"
+        "status": "mirror",
+        "upstream": {
+          "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+          "path": ".",
+          "branch": "main"
+        },
+        "marker": "plugins/saas-packs/coreweave-pack/.source.json"
       },
-      "pack_inventory_sha256": "2c5ac4623e03f49f03795df2b6de3445339f1da5edffd38d42f1945db5d90bf9",
-      "candidate_set_sha256": "e5e55667cb0360453de5f7e15e7c584d165cd52cb7e4edf39d952d051f2b8fdf",
+      "pack_inventory_sha256": "8d21d3e2f5bd9404e26cac84aea18263bf7904bc823fdf418d0a9b711a2e6684",
+      "candidate_set_sha256": "57508298c96f9e2d4e3b4666b26fd6bb89acfd0f3da1d4650ea651aa8af6a0f1",
       "skill_count": 26,
       "catalog_declared_skill_count": 26,
       "tutorial_lattice_count": 20,
       "tutorial_lattice_basis_points": 7692,
-      "curated_skill_count": 26,
-      "candidate_curated_count": 20,
+      "curated_skill_count": 0,
+      "candidate_curated_count": 0,
       "candidate_skills": [
         {
           "directory_name": "coreweave-ci-integration",
@@ -8608,11 +8614,17 @@
           "family": "ci-integration",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-ci-integration"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8623,11 +8635,17 @@
           "family": "common-errors",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-common-errors"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8638,11 +8656,17 @@
           "family": "core-workflow-a",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-core-workflow-a"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8653,11 +8677,17 @@
           "family": "core-workflow-b",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-core-workflow-b"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8668,11 +8698,17 @@
           "family": "cost-tuning",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-cost-tuning"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8683,11 +8719,17 @@
           "family": "data-handling",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-data-handling"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8698,11 +8740,17 @@
           "family": "debug-bundle",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-debug-bundle"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8713,11 +8761,17 @@
           "family": "deploy-integration",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-deploy-integration"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8728,11 +8782,17 @@
           "family": "enterprise-rbac",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-enterprise-rbac"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8743,11 +8803,17 @@
           "family": "hello-world",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-hello-world"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8758,11 +8824,17 @@
           "family": "incident-runbook",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-incident-runbook"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8773,11 +8845,17 @@
           "family": "install-auth",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-install-auth"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8788,11 +8866,17 @@
           "family": "local-dev-loop",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-local-dev-loop"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8803,11 +8887,17 @@
           "family": "multi-env-setup",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-multi-env-setup"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8818,11 +8908,17 @@
           "family": "observability",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-observability"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8833,11 +8929,17 @@
           "family": "performance-tuning",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-performance-tuning"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8848,11 +8950,17 @@
           "family": "prod-checklist",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-prod-checklist"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8863,11 +8971,17 @@
           "family": "sdk-patterns",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-sdk-patterns"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8878,11 +8992,17 @@
           "family": "security-basics",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-security-basics"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         },
@@ -8893,11 +9013,17 @@
           "family": "upgrade-migration",
           "match_rule": "canonical-pack-prefix",
           "curated": {
-            "present": true,
-            "curated_name": "coreweave-upgrade-migration"
+            "present": false,
+            "curated_name": null
           },
           "ownership": {
-            "status": "first-party"
+            "status": "mirror",
+            "upstream": {
+              "repo": "jeremylongshore/unofficial-coreweave-operator-pack",
+              "path": ".",
+              "branch": "main"
+            },
+            "marker": "plugins/saas-packs/coreweave-pack/.source.json"
           },
           "disposition": "REVIEW_REQUIRED"
         }

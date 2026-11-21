@@ -287,7 +287,13 @@ jobs:
       # unbaselined (currently has pre-existing errors), so this reports without
       # walling merges; flip to a blocking gate once the corpus is curated.
       # 2026-11-01 renewal: 229 canonical agent errors (235 baseline); follow-up #1814.
-      # REPORT-ONLY-UNTIL: 2026-11-07 (agent corpus unbaselined; cleanup tracked in #1814)
+      # 2026-11-14 renewal (#1814), fresh count: 230 errors in 30 agent files,
+      # ALL in external mirrors (hyperflow 23, sugar 3, cli-ux-tester,
+      # pair-programmer, over-50s-health, obsidian-project-documentation,
+      # cli-power-skills). Zero first-party agent errors. Mirrors are never
+      # edited locally; #1862 resyncs hyperflow (upstream removed those 23),
+      # the rest need upstream fixes. Retire this marker when the count is 0.
+      # REPORT-ONLY-UNTIL: 2026-11-28 (agent errors are mirror-only; upstream fixes tracked in #1814)
       - name: Validate agent frontmatter (report-only)
         run: |
           python3 -c "import yaml" 2>/dev/null || python3 -m pip install --quiet pyyaml
@@ -673,49 +679,20 @@ jobs:
 
           echo "✅ URL scan complete"
 
-      - name: Security scan - MCP plugin dependencies
-        if: hashFiles('plugins/mcp/*/package.json') != ''
-        run: |
-          echo "Scanning MCP plugin dependencies..."
-          for package in plugins/mcp/*/package.json; do
-            if [ -f "$package" ]; then
-              echo "Checking $package"
-              dir=$(dirname "$package")
-              cd "$dir"
-
-              # npm-audit policy — REPORT-ONLY (loud, not blocking) until the
-              # date below. Decision: a hard block on high/critical would
-              # red-wall every PR whenever an unrelated upstream advisory drops
-              # (this repo vendors ~450 plugins, each with its own deps) — i.e.
-              # fail on state the PR never touched. The prior `npm audit
-              # --production || true` was the opposite failure: silent, so a
-              # real high/critical advisory produced no signal at all. This is
-              # the honest middle — audit at --audit-level=high and SURFACE
-              # findings as a CI ::warning:: annotation, without failing.
-              #
-              # 2026-11-01 renewal: all 15 MCP npm audits return ENOLOCK; #1814
-              # tracks lock-aware inventory. Changed dependency audits stay blocking.
-              # REPORT-ONLY-UNTIL: 2026-11-07 (whole-corpus npm-audit inventory; #1814)
-              # 2026-10-01 revisit: the "scoped to the changed plugin's deps"
-              # block now exists. The changed-standalone-package audit below runs
-              # with --blocking, so a PR can no longer add or change a vulnerable
-              # plugin dependency graph. This whole-corpus loop stays a loud
-              # inventory because blocking it would fail PRs on state they never
-              # touched. Measured 2026-10-01: exactly one plugin reports
-              # high/critical, the external mirror plugins/mcp/pr-to-spec (4).
-              # Its fix lands upstream and arrives through the weekly sync. By
-              # this date, either that mirror is clean and the loop flips to
-              # blocking, or the extension is re-justified with a fresh count.
-              if command -v npm &> /dev/null; then
-                if ! npm audit --production --audit-level=high; then
-                  echo "::warning file=$dir/package.json::npm audit found high/critical advisories in $dir — report-only until 2026-11-07 (whole-corpus npm-audit inventory, #1814)"
-                fi
-              fi
-
-              cd -
-            fi
-          done
-          echo "✅ Dependency scan complete"
+      # Workspace dependency audit — BLOCKING since 2026-11-14 (#1814).
+      # Every plugins/mcp/* package is a pnpm workspace member, so its graph
+      # lives in the root pnpm-lock.yaml. The previous per-directory
+      # `npm audit` loop returned ENOLOCK for all 15 packages and inspected
+      # nothing. `pnpm audit` reads the root lock, so this covers every
+      # workspace member's production graph (MCP plugins, packs, packages).
+      # Measured 2026-11-14 after the follow-redirects override and the
+      # slack-channel resync: 0 high / 0 critical (2 low, 10 moderate).
+      # A new high/critical advisory fails CI until it is fixed (override,
+      # upgrade, or upstream mirror resync), which is the point: the old
+      # report-only loop produced warnings no one could act on.
+      # Non-workspace packages are covered by the changed-standalone audit below.
+      - name: Audit workspace production dependencies (blocking)
+        run: pnpm audit --prod --audit-level=high
 
       # Non-workspace plugin packages are installed and tested in isolation by
       # the widened loop below, so the root lock cannot attest their dependency
@@ -1305,7 +1282,11 @@ jobs:
           # 2026-11-01 renewal: 3 skill and 6 frontmatter errors; #1814.
           # Findings include owned authentication-validator content, so the
           # previous mirror-only description above is historical, not current.
-          # REPORT-ONLY-UNTIL: 2026-11-07 (frontmatter --strict; owned and mirror cleanup; #1814)
+          # 2026-11-14 renewal (#1814), fresh count: 3 skill + 6 frontmatter
+          # errors, ALL in external mirrors: hermes-tweet (undeclared tweet_*
+          # tools) and brand-forge (invalid YAML in two commands). Zero
+          # first-party errors. Upstream fixes tracked in #1814.
+          # REPORT-ONLY-UNTIL: 2026-11-28 (frontmatter --strict; mirror-only findings; #1814)
           # The check-ci-deadlines job (above) FAILS the build once this date
           # passes, so this mitigation cannot rot silently into a permanent
           # bypass. Before the date: clear the errors and flip `|| true` →
@@ -1313,7 +1294,7 @@ jobs:
           # documented reason. Flipping now would red-wall every PR (317 errors).
           echo "Running ccpi validate (reporting mode until frontmatter cleanup — see #1814; current owned and mirror findings)..."
           node packages/cli/dist/index.js validate --strict || true
-          echo "✅ ccpi validate complete (non-blocking; report-only until 2026-11-07 — see #1814 and check-ci-deadlines)"
+          echo "✅ ccpi validate complete (non-blocking; report-only until 2026-11-28 — see #1814 and check-ci-deadlines)"
 
           echo "✅ All validation tests passed"
 

@@ -83,11 +83,11 @@
 
 ## MCP plugins
 
-| ID      | Requirement                                                                               | MoSCoW | Source                                                           | Tests / Checks                                                         | Status  |
-| ------- | ----------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------- | ---------------------------------------------------------------------- | ------- |
-| REQ-033 | Each MCP plugin must build, produce a `dist/index.js`, and the binary must be executable  | MUST   | `CLAUDE.md` § "MCP Server Plugins"                               | `validate-plugins.yml` `test` job (matrix per MCP plugin)              | covered |
-| REQ-034 | MCP plugin `package.json` declares the published name in the `@intentsolutionsio/*` scope | MUST   | `CLAUDE.md` § "npm Publish Pipeline"                             | `publish-changed-packages.yml` (publishes only `@intentsolutionsio/*`) | covered |
-| REQ-035 | `npm audit --production` runs over MCP plugin dependencies                                | SHOULD | `validate-plugins.yml` "Security scan - MCP plugin dependencies" | `validate` job (informational, non-blocking)                           | partial |
+| ID      | Requirement                                                                                       | MoSCoW | Source                                                                      | Tests / Checks                                                         | Status  |
+| ------- | ------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------- |
+| REQ-033 | Each MCP plugin must build, produce a `dist/index.js`, and the binary must be executable          | MUST   | `CLAUDE.md` § "MCP Server Plugins"                                          | `validate-plugins.yml` `test` job (matrix per MCP plugin)              | covered |
+| REQ-034 | MCP plugin `package.json` declares the published name in the `@intentsolutionsio/*` scope         | MUST   | `CLAUDE.md` § "npm Publish Pipeline"                                        | `publish-changed-packages.yml` (publishes only `@intentsolutionsio/*`) | covered |
+| REQ-035 | `pnpm audit --prod --audit-level=high` runs over the workspace lock (all MCP plugin dependencies) | SHOULD | `validate-plugins.yml` "Audit workspace production dependencies (blocking)" | `validate` job (blocking since 2026-11-14, #1814)                      | covered |
 
 ## Validators (universal validator v7.0 / schema 4.x)
 

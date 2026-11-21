@@ -1,6 +1,7 @@
 {
   "name": "@intentsolutionsio/coreweave-pack",
-  "version": "1.0.6",
+  "private": true,
+  "version": "1.0.7",
   "description": "Community CoreWeave GPU operations pack (26 skills): diagnostic tools and scoped operator guides; not affiliated with or endorsed by CoreWeave, Inc.",
   "main": "README.md",
   "type": "module",
@@ -44,8 +45,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
-    "directory": "plugins/saas-packs/coreweave-pack"
+    "url": "git+https://github.com/jeremylongshore/unofficial-coreweave-operator-pack.git"
   },
   "homepage": "https://tonsofskills.com/learn/coreweave/",
   "publishConfig": {

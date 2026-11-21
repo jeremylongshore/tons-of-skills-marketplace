@@ -4,7 +4,7 @@ description: Review original Terraform CKS cluster, VPC and node-pool plans for 
   ownership and replacement risks. Use when reviewing CoreWeave cks provisioning or
   checking supplied operational evidence. Trigger with "coreweave cks provisioning".
 allowed-tools: Read, Write, Edit, Bash(python3:*), Grep
-version: 1.14.0
+version: 1.15.0
 author: Jeremy Longshore <jeremy@intentsolutions.io>
 license: MIT
 compatibility: Portable local Python 3.12+ fixture workflow; optional platform commands

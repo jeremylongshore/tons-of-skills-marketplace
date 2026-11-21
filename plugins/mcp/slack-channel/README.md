@@ -1,5 +1,11 @@
 # claude-code-slack-channel v0.12.0
 
+The package name is `claude-code-slack-channel`, matching this repository. Both
+`claude-code-slack-channel` and the legacy `claude-channel-slack` executable name
+point to `server.ts` when the package is linked or installed from source. Claude
+plugin commands retain the `slack-channel` namespace. This is separate from npm
+registry availability.
+
 <!-- intent-select-partner:start -->
 <p><a href="https://intentsolutions.io/"><img src="https://raw.githubusercontent.com/intent-solutions-io/.github/b82af5d3e7951d85e39ea9e65cc24ee8278722a7/assets/brand/claude-select-partner.svg" alt="Intent Solutions: Claude Partner Network Select Services Partner" width="300" height="95" /></a></p>
 

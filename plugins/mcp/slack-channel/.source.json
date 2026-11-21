@@ -4,14 +4,14 @@
     "path": ".",
     "branch": "main"
   },
-  "last_sync": "2026-10-22T16:23:56.269Z",
+  "last_sync": "2026-11-14T04:20:39.967Z",
   "author": {
     "name": "Jeremy Longshore",
     "github": "jeremylongshore",
     "email": "jeremy@intentsolutions.io"
   },
   "license": "MIT",
-  "files_synced": 66,
+  "files_synced": 67,
   "files": [
     ".audit-harness/LICENSE",
     ".audit-harness/README.md",
@@ -78,6 +78,7 @@
     "slack-delivery.ts",
     "stream-reply.ts",
     "supervisor.ts",
-    "tsconfig.json"
+    "tsconfig.json",
+    "validation-migration.test.ts"
   ]
 }

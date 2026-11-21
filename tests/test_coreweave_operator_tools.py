@@ -262,3 +262,161 @@ def test_ambiguous_cli_flags_are_rejected(args):
     result = subprocess.run([sys.executable, triage.__file__, *args], input="Xid 94", text=True, capture_output=True)
     assert result.returncode != 0
     assert not result.stdout.strip()
+
+
+# ---------------------------------------------------------------------------
+# Round 2 accuracy regressions (#1732): formats seen in public NCCL / Xid logs.
+# ---------------------------------------------------------------------------
+NCCL_222_TCP = """node0:101:101 [0] NCCL INFO NET/IB : No device found.
+node0:101:101 [0] NCCL INFO NET/IB : Using [RO]; OOB eth0:10.0.0.4<0>
+node0:101:101 [0] NCCL INFO NET/Socket : Using [0]eth0:10.0.0.4<0>
+node0:101:101 [0] NCCL INFO Using network Socket
+"""
+
+
+def test_nccl_222_tcp_fallback_is_socket_not_mixed():
+    result = fabric.diagnose(NCCL_222_TCP)
+    assert result["transport"] == "Socket"
+    assert result["rdma_engaged"] == "no"
+
+
+def test_nccl_ib_requires_a_real_device():
+    result = fabric.diagnose("NCCL INFO NET/IB : Using [0]mlx5_0:1/IB [1]mlx5_1:1/IB ; OOB ib0:10.0.0.1<0>")
+    assert result["transport"] == "IB"
+    roce = fabric.diagnose("NCCL INFO NET/IB : Using [0]mlx5_0:1/RoCE ; OOB eth0:10.0.0.1<0>")
+    assert roce["transport"] == "IB"
+
+
+def test_unprefixed_pasted_nccl_lines_are_read():
+    assert fabric.diagnose("NET/IB : Using [0]mlx5_0:1/IB ; OOB ib0:10.0.0.1<0>")["transport"] == "IB"
+    assert fabric.diagnose("[0] Using network Socket")["transport"] == "Socket"
+
+
+def test_ib_disable_set_by_environment_is_recognised():
+    result = fabric.diagnose("NCCL INFO NCCL_IB_DISABLE set by environment to 1.\nNCCL INFO Using network Socket")
+    assert result["transport"] == "Socket"
+    assert any("NCCL_IB_DISABLE" in item for item in result["missing_conditions"])
+
+
+@pytest.mark.parametrize(
+    "log",
+    [
+        "NCCL INFO Using network IBext_v8",
+        "NCCL INFO Using network IBext_v6",
+        "NCCL INFO NET/IBext : Using [0]mlx5_0:1/IB ; OOB ib0:10.0.0.1<0>",
+        "NCCL INFO NET/IBext_v8 : Using [0]mlx5_0:1/IB ; OOB ib0:10.0.0.1<0>",
+    ],
+)
+def test_external_ib_plugins_are_ib(log):
+    assert fabric.diagnose(log)["transport"] == "IB"
+
+
+def test_external_ib_plugin_gdrdma_is_detected():
+    result = fabric.diagnose(
+        "NCCL INFO Using network IBext_v8\nNCCL INFO Channel 00/0 : 0[0] -> 8[0] [send] via NET/IBext_v8/0/GDRDMA"
+    )
+    assert result["gpu_direct_rdma_confirmed"]
+
+
+def test_single_node_run_reports_rdma_not_applicable():
+    log = (
+        "NCCL INFO Using network IB\n"
+        "NCCL INFO Channel 00/0 : 0[0] -> 1[1] via P2P/IPC\n"
+        "NCCL INFO comm 0x55 rank 0 nranks 8 cudaDev 0 nvmlDev 0 busId 1b000 commId 0xab - Init COMPLETE\n"
+        "NCCL INFO ncclCommInitRank comm 0x55 rank 0 nRanks 8 nNodes 1 localRanks 8 localRank 0 MNNVL 0\n"
+    )
+    assert fabric.diagnose(log)["rdma_engaged"] == "not-applicable"
+
+
+def test_multi_node_run_is_not_single_node():
+    log = "NCCL INFO Using network IB\nNCCL INFO Channel 00/0 : 0[0] -> 8[0] [send] via NET/IB/0/GDRDMA"
+    assert fabric.diagnose(log)["rdma_engaged"] == "yes"
+
+
+def test_kubectl_describe_state_is_not_an_ib_port():
+    describe = "Containers:\n  trainer:\n    State:          Waiting\n      Reason:       ContainerCreating\n"
+    assert fabric.detect_ibstat(describe) == ("absent", [])
+
+
+def test_ibstat_port_block_is_still_read():
+    ibstat = "CA 'mlx5_0'\n\tCA type: MT4123\n\tPort 1:\n\t\tState: Down\n\t\tPhysical state: Polling\n"
+    status, notes = fabric.detect_ibstat(ibstat)
+    assert status == "down" and notes
+
+
+XID_154_RESET = (
+    "NVRM: Xid (PCI:0000:01:00): 154, GPU recovery action changed from 0x0 (None) to 0x1 (GPU Reset Required)"
+)
+XID_154_REBOOT = (
+    "NVRM: Xid (PCI:0000:01:00): 154, GPU recovery action changed from 0x0 (None) to 0x2 (Node Reboot Required)"
+)
+
+
+def test_xid_154_recovery_action_sets_verdict():
+    assert triage.triage_from_blob(XID_154_RESET)["action"] == "reset-gpu"
+    assert triage.triage_from_blob(XID_154_REBOOT)["action"] == "reboot-node"
+
+
+def test_xid_154_recovery_action_governs_co_occurring_codes():
+    blob = "NVRM: Xid (PCI:0000:01:00): 94, pid=1, Contained: SM\n" + XID_154_REBOOT
+    result = triage.triage_from_blob(blob)
+    assert result["action"] == "reboot-node"
+    assert 94 in result["co_occurring_xids"]
+
+
+@pytest.mark.parametrize("unknown", [145, 999])
+def test_unknown_code_does_not_override_known_code(unknown):
+    blob = f"NVRM: Xid (PCI:0000:01:00): {unknown}, x\nNVRM: Xid (PCI:0000:01:00): 94, Contained"
+    assert triage.triage_from_blob(blob)["xid"] == 94
+
+
+def test_xid_64_is_reset_and_support_not_rma():
+    result = triage.classify_xid(64)
+    assert result["action"] == "reset-gpu"
+    assert "support" in result["why"].lower()
+
+
+def test_remap_failure_alone_does_not_recommend_rma():
+    result = triage.apply_remap_override(triage.classify_xid(64), pending=False, remap_failure=True)
+    assert result["action"] != "rma"
+    assert "field diagnostic" in result["why"].lower()
+
+
+def test_xid_45_is_follow_on_not_governing():
+    blob = "NVRM: Xid (PCI:0000:01:00): 45, pid=1, Ch 00000010\nNVRM: Xid (PCI:0000:01:00): 31, pid=1, MMU Fault"
+    result = triage.triage_from_blob(blob)
+    assert result["xid"] == 31
+    assert 45 in result["co_occurring_xids"]
+
+
+def test_xid_45_alone_points_at_fabric_manager():
+    result = triage.classify_xid(45)
+    assert "fabric manager" in result["why"].lower()
+
+
+def test_remapped_rows_section_from_real_nvidia_smi_is_read():
+    dump = (
+        "    Remapped Rows\n"
+        "        Correctable Error                 : 0\n"
+        "        Uncorrectable Error               : 1\n"
+        "        Pending                           : Yes\n"
+        "        Remapping Failure Occurred        : No\n"
+    )
+    assert triage.parse_blob(dump)["pending"] is True
+    assert triage.triage_from_blob("Xid 63\n" + dump)["action"] == "reset-gpu"
+
+
+def test_multi_gpu_without_pci_prefix_is_split():
+    blob = "NVRM: Xid (0000:03:00): 94, Contained\nNVRM: Xid (0000:04:00): 79, fallen off the bus"
+    assert triage.triage_from_blob(blob)["classification"] == "Multiple GPU identities in input"
+
+
+@pytest.mark.parametrize("blob", ["XID 79 detected", "event Xid=79", "nvrm: xid (PCI:0000:04:00): 79, off the bus"])
+def test_xid_code_extraction_is_case_and_separator_tolerant(blob):
+    assert triage.parse_blob(blob)["xids"] == [79]
+
+
+def test_redacted_pci_tag_still_yields_code():
+    assert triage.parse_blob("NVRM: Xid (PCI:<redacted>): 79, GPU has fallen off the bus")["xids"] == [79]
+    assert triage.parse_blob("NVRM: Xid [REDACTED]: 79, GPU has fallen off the bus")["xids"] == [79]
+    assert triage.parse_blob("NVRM: Xid ...: 13, Graphics Exception")["xids"] == [13]
