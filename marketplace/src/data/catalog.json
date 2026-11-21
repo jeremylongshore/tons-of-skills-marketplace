@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 428,
-    "totalSkills": 2716,
+    "totalPlugins": 429,
+    "totalSkills": 2721,
     "totalCommands": 82,
-    "pluginsWithSkills": 394,
+    "pluginsWithSkills": 395,
     "byCategory": {
       "productivity": 28,
       "security": 28,
@@ -26,7 +26,7 @@
       "business-tools": 4,
       "community": 19,
       "examples": 5,
-      "saas-packs": 96,
+      "saas-packs": 97,
       "analytics": 1,
       "design": 2
     },
@@ -11611,6 +11611,35 @@
       "author": {
         "name": "Hashgraph Online",
         "url": "https://github.com/hashgraph-online"
+      },
+      "type": "instruction-plugin"
+    },
+    {
+      "slug": "specstream-pack",
+      "name": "specstream-pack",
+      "displayName": "specstream pack",
+      "description": "SpecStream operator skill pack for live web search, drop-in search API routes, page extraction, structured Deep Search tables, recurring schedules, and remote MCP setup (5 skills).",
+      "version": "1.0.0",
+      "category": "saas-packs",
+      "keywords": [
+        "specstream",
+        "web-search",
+        "extract",
+        "deep-search",
+        "schedules",
+        "mcp",
+        "saas"
+      ],
+      "hasSkills": true,
+      "skillCount": 5,
+      "commandCount": 0,
+      "installCommand": "/plugin install specstream-pack",
+      "sourcePath": "./plugins/saas-packs/specstream-pack",
+      "isFeatured": false,
+      "author": {
+        "name": "Tarek Etman",
+        "email": "tarek@specstream.ai",
+        "url": "https://github.com/Specstreamai"
       },
       "type": "instruction-plugin"
     }

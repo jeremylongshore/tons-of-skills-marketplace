@@ -28599,6 +28599,66 @@
       "fallback_for_tools": []
     },
     {
+      "slug": "specstream-extract",
+      "name": "specstream-extract",
+      "description": "Validate and build SpecStream Extract API requests (POST https://api.specstream.ai/v1/extract) for reading live pages, PDFs, Word, Excel, and pre-fetched HTML. Use when extracting clean markdown/text/links or handling per-URL extraction statuses. Trigger with \"SpecStream extract\", \"extract pages with SpecStream\", or \"validate extract payload\".",
+      "version": "1.0.0",
+      "category": "saas-packs",
+      "parentPlugin": "specstream-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
+      "slug": "specstream-mcp-setup",
+      "name": "specstream-mcp-setup",
+      "description": "Configure and validate SpecStream remote MCP server connections (https://api.specstream.ai/mcp), OAuth or scoped API key setup, zero-retention and EU-egress flags, and A2A discovery. Use when connecting an MCP client to SpecStream. Trigger with \"connect SpecStream MCP\", \"setup SpecStream key\", or \"validate SpecStream MCP config\".",
+      "version": "1.0.0",
+      "category": "saas-packs",
+      "parentPlugin": "specstream-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
+      "slug": "specstream-schedules",
+      "name": "specstream-schedules",
+      "description": "Configure and validate recurring SpecStream Deep Search schedules, refresh cadences, spending caps, change labeling, and webhook or channel delivery. Use when keeping a saved table up to date or setting up signal monitors. Trigger with \"SpecStream schedule\", \"monitor changes with SpecStream\", or \"validate SpecStream schedule\".",
+      "version": "1.0.0",
+      "category": "saas-packs",
+      "parentPlugin": "specstream-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
+      "slug": "specstream-search-and-dropins",
+      "name": "specstream-search-and-dropins",
+      "description": "Configure and validate SpecStream Search API requests and drop-in routes for Tavily, Exa, Brave, Serper, and SearXNG on https://api.specstream.ai. Use when building web search integrations, switching an existing search client to SpecStream, or checking search request parameters offline. Trigger with \"SpecStream search\", \"switch Tavily to SpecStream\", or \"validate SpecStream search payload\".",
+      "version": "1.0.0",
+      "category": "saas-packs",
+      "parentPlugin": "specstream-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
+      "slug": "specstream-tables",
+      "name": "specstream-tables",
+      "description": "Design and validate SpecStream Deep Search table requests for multi-row structured web datasets with quote-before-spend approval and per-value source provenance. Use when collecting many matching entities, enriching a list, or auditing get_find_decisions provenance. Trigger with \"SpecStream Deep Search\", \"build a SpecStream table\", or \"quote SpecStream list\".",
+      "version": "1.0.0",
+      "category": "saas-packs",
+      "parentPlugin": "specstream-pack",
+      "requires_env": [],
+      "requires_tools": [],
+      "fallback_for_env": [],
+      "fallback_for_tools": []
+    },
+    {
       "slug": "spine",
       "name": "spine",
       "description": "Backend engineer — APIs, system design, performance, distributed systems, and service scaffolding.",
@@ -32595,7 +32655,7 @@
       "fallback_for_tools": []
     }
   ],
-  "count": 2716,
+  "count": 2721,
   "categories": [
     "ai-agency",
     "ai-ml",

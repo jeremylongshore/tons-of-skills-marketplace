@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/generate-unified-search.mjs"
   },
   "stats": {
-    "totalPlugins": 428,
-    "totalSkills": 2716,
+    "totalPlugins": 429,
+    "totalSkills": 2721,
     "totalDocs": 25,
-    "totalItems": 3169,
+    "totalItems": 3175,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -737,6 +737,7 @@
       "decision-trees",
       "deduplication",
       "deep-learning",
+      "deep-search",
       "deepgram",
       "defi",
       "delegated-auth",
@@ -846,6 +847,7 @@
       "explorer",
       "express",
       "extension-api",
+      "extract",
       "facilities",
       "factory",
       "failover",
@@ -1432,6 +1434,7 @@
       "scanning",
       "scenarios",
       "schedule",
+      "schedules",
       "schema",
       "scorecard",
       "scraper",
@@ -1510,6 +1513,7 @@
       "sow",
       "spark",
       "speak",
+      "specstream",
       "speech",
       "speech-to-text",
       "spies",
@@ -1737,8 +1741,8 @@
     "pluginsWithAgents": 92,
     "pluginsWithHooks": 18,
     "officialPlugins": 382,
-    "communityPlugins": 46,
-    "communityContributors": 36
+    "communityPlugins": 47,
+    "communityContributors": 37
   },
   "items": [
     {
@@ -14940,6 +14944,39 @@
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "hol guard local pre-execution security controls and pre-install scanning for ai agent tools, packages, skills, plugins, and mcp servers. security hol-guard ai-security agent-security plugin-security mcp-security supply-chain-security"
+    },
+    {
+      "type": "plugin",
+      "id": "specstream-pack",
+      "slug": "specstream-pack",
+      "name": "specstream-pack",
+      "displayName": "specstream pack",
+      "description": "SpecStream operator skill pack for live web search, drop-in search API routes, page extraction, structured Deep Search tables, recurring schedules, and remote MCP setup (5 skills).",
+      "category": "saas-packs",
+      "keywords": [
+        "specstream",
+        "web-search",
+        "extract",
+        "deep-search",
+        "schedules",
+        "mcp",
+        "saas"
+      ],
+      "author": {
+        "name": "Tarek Etman",
+        "email": "tarek@specstream.ai",
+        "url": "https://github.com/Specstreamai"
+      },
+      "authorType": "community",
+      "version": "1.0.0",
+      "isFeatured": false,
+      "isNew": false,
+      "badges": [],
+      "skillCount": 5,
+      "verificationScore": 99,
+      "verificationGrade": "A",
+      "verificationBadge": "gold",
+      "searchText": "specstream pack specstream operator skill pack for live web search, drop-in search api routes, page extraction, structured deep search tables, recurring schedules, and remote mcp setup (5 skills). saas-packs specstream web-search extract deep-search schedules mcp saas"
     },
     {
       "type": "skill",
@@ -68217,6 +68254,101 @@
         "category": "community"
       },
       "searchText": "spec-writing execute this skill should be used when the user asks about \"writing specs\", \"specs.md format\", \"how to write specifications\", \"sprint requirements\", \"testing configuration\", \"scope definition\", or needs guidance on creating effective sprint specifications for agentic development. use when appropriate context detected. trigger with relevant phrases based on skill purpose. community read "
+    },
+    {
+      "type": "skill",
+      "id": "specstream-extract",
+      "slug": "specstream-extract",
+      "name": "specstream-extract",
+      "description": "Validate and build SpecStream Extract API requests (POST https://api.specstream.ai/v1/extract) for reading live pages, PDFs, Word, Excel, and pre-fetched HTML. Use when extracting clean markdown/text/links or handling per-URL extraction statuses. Trigger with \"SpecStream extract\", \"extract pages with SpecStream\", or \"validate extract payload\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(python3:*)"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "specstream-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "specstream-extract validate and build specstream extract api requests (post https://api.specstream.ai/v1/extract) for reading live pages, pdfs, word, excel, and pre-fetched html. use when extracting clean markdown/text/links or handling per-url extraction statuses. trigger with \"specstream extract\", \"extract pages with specstream\", or \"validate extract payload\". saas-packs read bash(python3:*) "
+    },
+    {
+      "type": "skill",
+      "id": "specstream-mcp-setup",
+      "slug": "specstream-mcp-setup",
+      "name": "specstream-mcp-setup",
+      "description": "Configure and validate SpecStream remote MCP server connections (https://api.specstream.ai/mcp), OAuth or scoped API key setup, zero-retention and EU-egress flags, and A2A discovery. Use when connecting an MCP client to SpecStream. Trigger with \"connect SpecStream MCP\", \"setup SpecStream key\", or \"validate SpecStream MCP config\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(python3:*)"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "specstream-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "specstream-mcp-setup configure and validate specstream remote mcp server connections (https://api.specstream.ai/mcp), oauth or scoped api key setup, zero-retention and eu-egress flags, and a2a discovery. use when connecting an mcp client to specstream. trigger with \"connect specstream mcp\", \"setup specstream key\", or \"validate specstream mcp config\". saas-packs read bash(python3:*) "
+    },
+    {
+      "type": "skill",
+      "id": "specstream-schedules",
+      "slug": "specstream-schedules",
+      "name": "specstream-schedules",
+      "description": "Configure and validate recurring SpecStream Deep Search schedules, refresh cadences, spending caps, change labeling, and webhook or channel delivery. Use when keeping a saved table up to date or setting up signal monitors. Trigger with \"SpecStream schedule\", \"monitor changes with SpecStream\", or \"validate SpecStream schedule\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(python3:*)"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "specstream-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "specstream-schedules configure and validate recurring specstream deep search schedules, refresh cadences, spending caps, change labeling, and webhook or channel delivery. use when keeping a saved table up to date or setting up signal monitors. trigger with \"specstream schedule\", \"monitor changes with specstream\", or \"validate specstream schedule\". saas-packs read bash(python3:*) "
+    },
+    {
+      "type": "skill",
+      "id": "specstream-search-and-dropins",
+      "slug": "specstream-search-and-dropins",
+      "name": "specstream-search-and-dropins",
+      "description": "Configure and validate SpecStream Search API requests and drop-in routes for Tavily, Exa, Brave, Serper, and SearXNG on https://api.specstream.ai. Use when building web search integrations, switching an existing search client to SpecStream, or checking search request parameters offline. Trigger with \"SpecStream search\", \"switch Tavily to SpecStream\", or \"validate SpecStream search payload\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(python3:*)"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "specstream-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "specstream-search-and-dropins configure and validate specstream search api requests and drop-in routes for tavily, exa, brave, serper, and searxng on https://api.specstream.ai. use when building web search integrations, switching an existing search client to specstream, or checking search request parameters offline. trigger with \"specstream search\", \"switch tavily to specstream\", or \"validate specstream search payload\". saas-packs read bash(python3:*) "
+    },
+    {
+      "type": "skill",
+      "id": "specstream-tables",
+      "slug": "specstream-tables",
+      "name": "specstream-tables",
+      "description": "Design and validate SpecStream Deep Search table requests for multi-row structured web datasets with quote-before-spend approval and per-value source provenance. Use when collecting many matching entities, enriching a list, or auditing get_find_decisions provenance. Trigger with \"SpecStream Deep Search\", \"build a SpecStream table\", or \"quote SpecStream list\".",
+      "category": "saas-packs",
+      "allowedTools": [
+        "Read",
+        "Bash(python3:*)"
+      ],
+      "compatibleWith": [],
+      "version": "1.0.0",
+      "parentPlugin": {
+        "name": "specstream-pack",
+        "category": "saas-packs"
+      },
+      "searchText": "specstream-tables design and validate specstream deep search table requests for multi-row structured web datasets with quote-before-spend approval and per-value source provenance. use when collecting many matching entities, enriching a list, or auditing get_find_decisions provenance. trigger with \"specstream deep search\", \"build a specstream table\", or \"quote specstream list\". saas-packs read bash(python3:*) "
     },
     {
       "type": "skill",

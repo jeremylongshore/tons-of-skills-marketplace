@@ -4,10 +4,10 @@
   "semantics": "Family-name matches are review candidates, not automatic quality or retirement verdicts.",
   "sources": {
     "catalog": ".claude-plugin/marketplace.extended.json",
-    "catalog_sha256": "5d390347dc8b48a33d15ce9df2927dfa081ccf1f7002e40b985c46e2ea470dcc",
+    "catalog_sha256": "cee9d2c3461f61850e1490002f92bb74a40f59527888e31387482d97e53a09bc",
     "curated_manifest": "skills/.curated/MANIFEST.json",
     "curated_manifest_sha256": "dcc9cbc37e6e117809bb4250c177c9b751d51f8cf44cd5172bf8930fb969affa",
-    "tracked_inventory_sha256": "9c7cd6c11053ece4a7d4670950316f17ce0ebc7946a95dda7db53195bf25a543"
+    "tracked_inventory_sha256": "370a9f8c88f9ea6ad8762f9cbf0c77f9d05d79452bab1143a789b9f536018301"
   },
   "family_definition": [
     "advanced-troubleshooting",
@@ -65,13 +65,13 @@
     }
   ],
   "summary": {
-    "active_saas_packs": 96,
-    "active_skills": 2097,
+    "active_saas_packs": 97,
+    "active_skills": 2102,
     "tutorial_lattice_skills": 1940,
     "affected_packs": 89,
     "fully_lattice_packs": 74,
     "at_least_80_percent_lattice_packs": 82,
-    "unaffected_packs": 7,
+    "unaffected_packs": 8,
     "prefix_mismatch_skills": 1,
     "prefix_override_candidate_skills": 48
   },
@@ -30730,6 +30730,51 @@
       ],
       "prefix_mismatch_skills": [],
       "non_lattice_skills": [],
+      "required_blast_radius_checks": [
+        "catalog",
+        "curated_projection",
+        "npm_publication_history",
+        "compatibility_redirects",
+        "repository_references",
+        "mirror_ownership"
+      ]
+    },
+    {
+      "name": "specstream-pack",
+      "source": "plugins/saas-packs/specstream-pack",
+      "version": "1.0.0",
+      "verification": {
+        "grade": "A",
+        "score": 99
+      },
+      "npm_candidate": {
+        "name": "@intentsolutionsio/specstream-pack",
+        "version": "1.0.0",
+        "private": false,
+        "files_include_skills": true,
+        "live_registry_check": "REQUIRED_BEFORE_MUTATION"
+      },
+      "publication": "published",
+      "ownership": {
+        "status": "first-party"
+      },
+      "pack_inventory_sha256": "e08e379772ede4cc3ae2116a4a25687c95eb764f90283ce34c58a4f265a20833",
+      "candidate_set_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "skill_count": 5,
+      "catalog_declared_skill_count": 5,
+      "tutorial_lattice_count": 0,
+      "tutorial_lattice_basis_points": 0,
+      "curated_skill_count": 0,
+      "candidate_curated_count": 0,
+      "candidate_skills": [],
+      "prefix_mismatch_skills": [],
+      "non_lattice_skills": [
+        "specstream-extract",
+        "specstream-mcp-setup",
+        "specstream-schedules",
+        "specstream-search-and-dropins",
+        "specstream-tables"
+      ],
       "required_blast_radius_checks": [
         "catalog",
         "curated_projection",

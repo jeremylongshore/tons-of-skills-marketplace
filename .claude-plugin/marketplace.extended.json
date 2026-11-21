@@ -11475,6 +11475,12 @@
       "license": "MIT",
       "components": {
         "skills": 5
+      },
+      "verification": {
+        "score": 99,
+        "grade": "A",
+        "badge": "gold",
+        "lastValidated": "2026-11-21T00:00:00.000Z"
       }
     }
   ]
