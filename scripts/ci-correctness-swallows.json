@@ -5,7 +5,7 @@
   "workflows": [
     {
       "path": ".github/workflows/validate-plugins.yml",
-      "sha256": "13defa9b3e9881b0cbb58eedcc244e0f962dafc45b695f4320f68ec1d8644d26"
+      "sha256": "006cd2753772de0c61f7ac2a7855fe65bd0b006592eafb1a7619b5adb411f1f3"
     },
     {
       "path": ".github/workflows/secret-scan.yml",
@@ -42,10 +42,10 @@
     "site_containers": 16,
     "workflows": 3,
     "jobs": 28,
-    "containers": 242,
+    "containers": 243,
     "run_containers": 168,
-    "opaque_actions": 74,
-    "conditional_envelopes": 44
+    "opaque_actions": 75,
+    "conditional_envelopes": 45
   },
   "sites": [
     {
@@ -80,7 +80,7 @@
       "job": "validate",
       "step": 13,
       "step_name": "Enforce the safety ratchet",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "592009d8a7bc847feb3aa5b3cf192b99bd5dd9e91ac1e95296c0b444992a8cd2",
       "run_sha256": "0502a1eb56c0748cf95dd68637452811c09c4702d343a0334371517c8ca7ebf5",
       "anchor": {
@@ -158,7 +158,7 @@
       "job": "validate",
       "step": 34,
       "step_name": "Sync CLI marketplace catalog",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "f52645d81bb0c1c2056ef11c0894d8afb04102c45f02a02254de662d8522e80b",
       "run_sha256": "232568b2bef02489e07c3a26b204604fe9cc0fee0e6f014d7352615ee45dc606",
       "anchor": {
@@ -184,7 +184,7 @@
       "job": "validate",
       "step": 58,
       "step_name": "Security scan - Informational sweep (non-blocking)",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "b63dc39b057d39478a2ebfcf3a1448bc8f60f6d131dd634f9c628f258b3439c6",
       "run_sha256": "e30d8d8a76b7b725da343354b40414b821df1a9e2602de1177a3cc2baf79f417",
       "anchor": {
@@ -210,7 +210,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -272,7 +272,7 @@
       "job": "validate",
       "step": 31,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "47c304f65274cfde778c04665640d7bd3ec8e439d0b21a944fa2af18f099190f",
       "run_sha256": "67f55c92e26550b1de1af470d30d67a0d9661a65e346011562b15196f4c086de",
       "anchor": {
@@ -306,7 +306,7 @@
       "job": "validate",
       "step": 31,
       "step_name": "Validate agent frontmatter (report-only)",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "47c304f65274cfde778c04665640d7bd3ec8e439d0b21a944fa2af18f099190f",
       "run_sha256": "67f55c92e26550b1de1af470d30d67a0d9661a65e346011562b15196f4c086de",
       "anchor": {
@@ -329,7 +329,7 @@
       "job": "validate",
       "step": 32,
       "step_name": "Validate .mcp.json configs (advisory + unambiguous gate)",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "5114e3fe37a1e6b52d6406dbc5887faf90d27e889613c7b5ce4a8212f55d4cf4",
       "run_sha256": "adeac5780a51f52948d5267db0492cd8800f1c8994cbaecc56295cd7d93ea55c",
       "anchor": {
@@ -352,7 +352,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -425,7 +425,7 @@
       "promotion": null,
       "authority": [],
       "deadline_marker": {
-        "line": 1289,
+        "line": 1301,
         "sha256": "20718ff710137074cdc2eb0543e4dc9c6a2a8d8ed21455170af63e4024e9715b"
       }
     },
@@ -455,7 +455,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -475,7 +475,7 @@
       "job": "validate",
       "step": 59,
       "step_name": "Security scan - Dangerous patterns",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "f5fd097a53144ed494194db2e66dfa8901c57bdc96fbb1d2032eaaeec35508df",
       "run_sha256": "3c87e800ed132bd615a21e1bd6d8cbd229c3056b004f5295c89f3c14afe01fbb",
       "anchor": {
@@ -495,7 +495,7 @@
       "job": "validate",
       "step": 60,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "cf085d6c4bb286ac74f69520cace1e9c10a599199a2eed9e131753c239f6ec4d",
       "run_sha256": "75ad2f24c7cc506ce4f5f829ec854fc79a041831ba4e0df0fca782fde7752f07",
       "anchor": {
@@ -515,7 +515,7 @@
       "job": "validate",
       "step": 60,
       "step_name": "Security scan - Suspicious URLs",
-      "job_sha256": "4b29c340320971c9959c2987ec8ad930c9f28dffb52e3bb037104acf6ae5198d",
+      "job_sha256": "a6ad4e60586a427900e3cea2d7e6631c72a7402b4fc66bae51838f0572ab77e3",
       "step_sha256": "cf085d6c4bb286ac74f69520cace1e9c10a599199a2eed9e131753c239f6ec4d",
       "run_sha256": "75ad2f24c7cc506ce4f5f829ec854fc79a041831ba4e0df0fca782fde7752f07",
       "anchor": {

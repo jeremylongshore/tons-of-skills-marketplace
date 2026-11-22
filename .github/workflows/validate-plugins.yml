@@ -692,7 +692,19 @@ jobs:
       # report-only loop produced warnings no one could act on.
       # Non-workspace packages are covered by the changed-standalone audit below.
       - name: Audit workspace production dependencies (blocking)
-        run: pnpm audit --prod --audit-level=high
+        id: workspace_audit
+        run: |
+          node --test scripts/audit-workspace-dependencies.test.mjs
+          node scripts/audit-workspace-dependencies.mjs --output "$RUNNER_TEMP/workspace-audit"
+
+      - name: Retain workspace dependency audit evidence
+        if: always() && steps.workspace_audit.outcome != 'skipped'
+        uses: actions/upload-artifact@v7
+        with:
+          name: workspace-dependency-audit
+          path: ${{ runner.temp }}/workspace-audit/
+          retention-days: 14
+          if-no-files-found: error
 
       # Non-workspace plugin packages are installed and tested in isolation by
       # the widened loop below, so the root lock cannot attest their dependency
