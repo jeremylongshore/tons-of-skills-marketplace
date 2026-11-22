@@ -197,6 +197,7 @@
       "Bash(network-trace:*)",
       "Bash(nginx:*)",
       "Bash(ngrok:*)",
+      "Bash(node --version:*)",
       "Bash(node*)",
       "Bash(node:*)",
       "Bash(npm list:*)",
@@ -68887,17 +68888,14 @@
       "id": "supabase-debug-bundle",
       "slug": "supabase-debug-bundle",
       "name": "supabase-debug-bundle",
-      "description": "Collect Supabase diagnostic info for troubleshooting and support tickets. Use when debugging connection failures, auth issues, Realtime drops, Storage errors, RLS misconfigurations, or preparing a support escalation. Trigger: \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\".",
+      "description": "Collect Supabase diagnostic info for troubleshooting and support tickets. Use when debugging connection failures, auth issues, Realtime drops, Storage errors, RLS misconfigurations, or preparing a support escalation. Trigger with \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(npx:*)",
-        "Bash(node:*)",
-        "Bash(curl:*)",
-        "Bash(supabase:*)",
-        "Bash(tar:*)",
         "Grep",
-        "Glob"
+        "Glob",
+        "Bash(node --version:*)",
+        "Bash(npm list:*)"
       ],
       "compatibleWith": [],
       "version": "1.55.0",
@@ -68905,7 +68903,7 @@
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-debug-bundle collect supabase diagnostic info for troubleshooting and support tickets. use when debugging connection failures, auth issues, realtime drops, storage errors, rls misconfigurations, or preparing a support escalation. trigger: \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\". saas-packs read bash(npx:*) bash(node:*) bash(curl:*) bash(supabase:*) bash(tar:*) grep glob "
+      "searchText": "supabase-debug-bundle collect supabase diagnostic info for troubleshooting and support tickets. use when debugging connection failures, auth issues, realtime drops, storage errors, rls misconfigurations, or preparing a support escalation. trigger with \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\". saas-packs read grep glob bash(node --version:*) bash(npm list:*) "
     },
     {
       "type": "skill",

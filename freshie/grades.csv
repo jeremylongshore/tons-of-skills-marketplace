@@ -2495,13 +2495,13 @@ plugins/saas-packs/stackblitz-pack/skills/stackblitz-rate-limits,A,96
 plugins/saas-packs/stackblitz-pack/skills/stackblitz-sdk-patterns,A,100
 plugins/saas-packs/stackblitz-pack/skills/stackblitz-security-basics,A,95
 plugins/saas-packs/supabase-pack/skills/supabase-advanced-troubleshooting,A,95
-plugins/saas-packs/supabase-pack/skills/supabase-architecture-variants,A,95
+plugins/saas-packs/supabase-pack/skills/supabase-architecture-variants,A,94
 plugins/saas-packs/supabase-pack/skills/supabase-auth-storage-realtime-core,A,96
 plugins/saas-packs/supabase-pack/skills/supabase-ci-integration,A,99
 plugins/saas-packs/supabase-pack/skills/supabase-common-errors,A,95
 plugins/saas-packs/supabase-pack/skills/supabase-cost-tuning,A,97
 plugins/saas-packs/supabase-pack/skills/supabase-data-handling,A,98
-plugins/saas-packs/supabase-pack/skills/supabase-debug-bundle,B,89
+plugins/saas-packs/supabase-pack/skills/supabase-debug-bundle,A,92
 plugins/saas-packs/supabase-pack/skills/supabase-deploy-integration,A,94
 plugins/saas-packs/supabase-pack/skills/supabase-enterprise-rbac,A,94
 plugins/saas-packs/supabase-pack/skills/supabase-hello-world,A,94

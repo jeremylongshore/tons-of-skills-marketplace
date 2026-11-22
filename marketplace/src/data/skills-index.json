@@ -28937,7 +28937,7 @@
     {
       "slug": "supabase-debug-bundle",
       "name": "supabase-debug-bundle",
-      "description": "Collect Supabase diagnostic info for troubleshooting and support tickets. Use when debugging connection failures, auth issues, Realtime drops, Storage errors, RLS misconfigurations, or preparing a support escalation. Trigger: \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\".",
+      "description": "Collect Supabase diagnostic info for troubleshooting and support tickets. Use when debugging connection failures, auth issues, Realtime drops, Storage errors, RLS misconfigurations, or preparing a support escalation. Trigger with \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\".",
       "version": "1.55.0",
       "category": "saas-packs",
       "parentPlugin": "supabase-pack",

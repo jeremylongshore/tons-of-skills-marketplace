@@ -8,18 +8,18 @@
     "run_id": 162,
     "total": 3307,
     "grades": {
-      "A": 2867,
-      "B": 160,
+      "A": 2868,
+      "B": 159,
       "C": 122,
       "D": 154,
       "F": 4
     },
-    "grades_csv_sha256": "7b7d1dfafc59d4e09859dee98f33bd46c611c6b44e3ac5e6d5a2ba46082b3072"
+    "grades_csv_sha256": "23f261df9c98d49aea79acdd8678154646b4ab23ff97bd45eba75efd41c06205"
   },
   "selection": {
     "resolver": "graded∩first-party",
     "count": 2426,
-    "sha256": "fc8800e22ff1b16040f35005e40275eaeb1864694a14b53c886aa9ac3c49d8c8"
+    "sha256": "bcd3405498d8ebc49868e695162734fabe990d4b4935c43061ca7a3ae15a007e"
   },
   "count": 2426,
   "skills": [
@@ -32446,7 +32446,7 @@
       "category": "saas-packs",
       "plugin": "supabase-pack",
       "recorded_grade": "A",
-      "recorded_score": "95",
+      "recorded_score": "94",
       "fresh_grade": "A",
       "run_id": 162,
       "files": [
@@ -32557,9 +32557,9 @@
       "source_path": "plugins/saas-packs/supabase-pack/skills/supabase-debug-bundle",
       "category": "saas-packs",
       "plugin": "supabase-pack",
-      "recorded_grade": "B",
-      "recorded_score": "89",
-      "fresh_grade": "B",
+      "recorded_grade": "A",
+      "recorded_score": "92",
+      "fresh_grade": "A",
       "run_id": 162,
       "files": [
         "SKILL.md",
