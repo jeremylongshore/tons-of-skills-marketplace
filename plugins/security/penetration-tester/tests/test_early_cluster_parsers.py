@@ -3,6 +3,7 @@
 import importlib.util
 import socket
 import subprocess
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
@@ -168,3 +169,98 @@ def test_source_scanners_respect_language_filter(tmp_path, skill, script, unsafe
 def test_source_scanners_skip_missing_files(tmp_path, skill, script, unsafe, safe):
     module = load(skill, script)
     assert module.scan_file(tmp_path / "missing.py", tmp_path, {"python"}) == []
+
+
+@pytest.mark.parametrize(
+    "text,expected", [("", False), ("OCSP response: no response sent", False), ("OCSP response: successful", True)]
+)
+def test_certificate_staple_output(text, expected):
+    module = load("detecting-ssl-cert-issues", "check_cert_chain.py")
+    assert module._has_ocsp_response(text) is expected
+
+
+def test_certificate_chain_keeps_complete_blocks_in_order():
+    module = load("detecting-ssl-cert-issues", "check_cert_chain.py")
+    blocks = [
+        "-----BEGIN CERTIFICATE-----\n" + label + "\n-----END CERTIFICATE-----"
+        for label in ("leaf-fixture", "issuer-fixture")
+    ]
+    output = "diagnostic preamble\n" + "\nnoise\n".join(blocks) + "\n-----BEGIN CERTIFICATE-----\ntruncated"
+    assert module._parse_chain(output) == blocks
+    assert module._parse_chain("no certificates") == []
+
+
+@pytest.mark.parametrize(
+    "header,value,severity",
+    [
+        ("Server", "nginx", Severity.LOW),
+        ("Server", "nginx/1.24", Severity.MEDIUM),
+        ("X-AspNet-Version", "4.0", Severity.HIGH),
+    ],
+)
+def test_server_disclosure_distinguishes_product_and_version(header, value, severity):
+    module = load("fingerprinting-server-software", "fingerprint_server.py")
+    findings = module._check_version_headers({header: value}, TARGET, "fixture")
+    assert len(findings) == 1
+    assert findings[0].severity == severity
+    assert findings[0].target == TARGET
+    assert module._check_version_headers({}, TARGET, "fixture") == []
+
+
+@pytest.mark.parametrize("credentials,severity", [("true", Severity.CRITICAL), ("false", Severity.HIGH)])
+def test_cors_attacker_reflection(credentials, severity):
+    module = load("auditing-cors-policy", "audit_cors.py")
+    response = SimpleNamespace(
+        headers={"Access-Control-Allow-Origin": module.ATTACKER_ORIGIN, "Access-Control-Allow-Credentials": credentials}
+    )
+    findings = module._check_reflection(response, None, TARGET)
+    assert len(findings) == 1
+    assert findings[0].severity == severity
+    response.headers["Access-Control-Allow-Origin"] = "https://trusted.example.test"
+    assert module._check_reflection(response, None, TARGET) == []
+    assert module._check_reflection(None, None, TARGET) == []
+
+
+@pytest.mark.parametrize("credentials,expected", [("true", True), ("false", False)])
+def test_cors_wildcard_credential_combination(credentials, expected):
+    module = load("auditing-cors-policy", "audit_cors.py")
+    response = SimpleNamespace(
+        headers={"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Credentials": credentials}
+    )
+    assert bool(module._check_baseline(response, TARGET)) is expected
+    assert module._check_baseline(None, TARGET) == []
+
+
+@pytest.mark.parametrize("value,entropy", [("", 0), ("aaaa", 0), ("abcd", 2)])
+def test_secret_entropy_known_distributions(value, entropy):
+    module = load("scanning-for-hardcoded-secrets", "scan_secrets.py")
+    assert module.shannon_entropy(value) == entropy
+
+
+def test_secret_context_findings_never_contain_complete_value(tmp_path):
+    module = load("scanning-for-hardcoded-secrets", "scan_secrets.py")
+    # Synthetic high-entropy text; no provider credential is generated or used.
+    value = "".join(chr(i) for i in range(65, 91)) + "0123456789"
+    source = tmp_path / "config.py"
+    source.write_text('password = "' + value + '"\n')
+    findings = module.scan_file(source, tmp_path, include_provider=False)
+    assert findings
+    for finding in findings:
+        assert value not in str(finding.to_dict())
+        assert module.redact(value) in finding.detail
+        assert finding.target == "config.py:1"
+    assert module.redact("short") == "***"
+    assert module.scan_file(source, tmp_path, include_provider=False, include_context=False) == []
+
+
+@pytest.mark.parametrize(
+    "filename,allow,expected", [("checksum.py", False, True), ("checksum.py", True, False), ("app.py", True, True)]
+)
+def test_weak_crypto_checksum_exception_is_explicit(tmp_path, filename, allow, expected):
+    module = load("detecting-weak-cryptography", "scan_weak_crypto.py")
+    source = tmp_path / filename
+    source.write_text("hashlib.md5(data)\n")
+    findings = module.scan_file(source, tmp_path, {"python"}, allow)
+    assert bool(findings) is expected
+    source.write_text("hashlib.sha256(data)\n")
+    assert module.scan_file(source, tmp_path, {"python"}, allow) == []
