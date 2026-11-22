@@ -251,7 +251,7 @@ Fork PRs stall in a few known ways — none of them mean your PR is being ignore
 
 - The PR template at [`.github/PULL_REQUEST_TEMPLATE.md`](PULL_REQUEST_TEMPLATE.md) pre-fills when you open a pull request. Fill it out completely.
 - Include test evidence (validation output, screenshots, or logs as appropriate).
-- Reviews are typically completed within 48 hours.
+- Expect a first response within the [72-hour triage SLA](SUPPORT.md#triage-sla); complete review and merge timing depend on scope and required checks.
 - Address review comments, re-run validation, and push before requesting re-review.
 
 ## External Plugin Sync

@@ -22,10 +22,28 @@ routes you to the right one.
 
 ## Triage SLA
 
-**First response within 72 hours** on new Issues and Discussions. That first
+**First response within 72 hours** on new Issues, Discussions, and pull requests. That first
 response is triage — an acknowledgment, a label, a question back, or a routing
 decision — not necessarily a fix. Complex fixes land on their own schedule and are
 tracked in the issue thread.
+
+For pull requests, the area Reviewer owns first response; the Lead Maintainer
+handles submissions without an assigned reviewer. Record one actionable review
+summary: accept, request changes, or decline, with the evidence and next steps.
+The target is a response, not a promise to merge within 72 hours.
+
+A pull request may be closed for inactivity after at least seven days without a
+contributor response **following actionable maintainer feedback**. Time awaiting
+our review, CI approval, or infrastructure repair does not count against the
+contributor. Check for replies and new commits before closing. Explain the
+remaining blockers and how to reopen or submit a replacement; preserve authorship
+and link the original contribution. Age alone is not a reason to close a defect.
+
+If fork CI is awaiting approval, the maintainer must review the proposed code and
+workflow changes before approving execution through the existing runner policy.
+Do not bypass required checks, grant secrets to fork code, or execute it on a
+privileged runner to meet the response target. Record infrastructure blockers in
+the review so a contributor is not left guessing whether validation ran.
 
 ## Security reports
 
