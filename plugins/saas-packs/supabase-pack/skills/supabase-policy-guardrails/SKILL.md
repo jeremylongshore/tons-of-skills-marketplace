@@ -62,7 +62,7 @@ Application RLS checks must use ordinary test-user sessions with publishable or 
 
 #### RLS Policy Templates
 
-Create reusable RLS policy templates that teams apply to new tables. This prevents each developer from writing ad-hoc policies and ensures consistent access control.
+Create reusable RLS policy templates that teams apply to new tables. Review existing policies first: permissive policies combine with OR, so these templates cannot override a broader existing grant. For public-read tables, inserts must bind the owner column to the authenticated user; authentication alone does not prevent forged ownership. Test allowed and rejected inserts using ordinary roles before deployment.
 
 ```sql
 -- supabase/migrations/00000000000000_rls_policy_library.sql
@@ -136,7 +136,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================================
--- Template 3: Public read, authenticated write
+-- Template 3: Public read, authenticated owner-only write
 -- Usage: blog posts, product listings, public content
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.rls_public_read_auth_write(
@@ -152,8 +152,8 @@ BEGIN
     table_name
   );
   EXECUTE format(
-    'CREATE POLICY "auth_insert" ON public.%I FOR INSERT WITH CHECK (auth.uid() IS NOT NULL)',
-    table_name
+    'CREATE POLICY "auth_insert" ON public.%I FOR INSERT WITH CHECK (auth.uid() IS NOT NULL AND %I = auth.uid())',
+    table_name, owner_column
   );
   EXECUTE format(
     'CREATE POLICY "owner_update" ON public.%I FOR UPDATE USING (%I = auth.uid())',
