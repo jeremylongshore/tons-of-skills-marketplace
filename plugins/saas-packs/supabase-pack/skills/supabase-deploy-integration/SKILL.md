@@ -15,7 +15,7 @@ description: 'Deploy and manage Supabase projects in production. Covers database
   "supabase rollback", "supabase blue green", "supabase health check".
 
   '
-allowed-tools: Read, Write, Edit, Bash(npx:supabase), Bash(supabase:*), Bash(curl:*)
+allowed-tools: Read, Write, Edit, Bash(npx supabase:*), Bash(supabase:*), Bash(curl:*)
 version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -84,20 +84,21 @@ npx supabase functions deploy --project-ref $PROJECT_REF
 
 **Secrets management — set environment variables for Edge Functions:**
 
+Have the approved secret store materialize a temporary dotenv file outside the checkout with owner-only permissions. `SECRET_ENV_FILE` identifies that file; it must contain only the reviewed secret names and must not be committed, uploaded as an artifact, or printed. Do not construct it by placing literal credentials in shell history. Disable shell tracing before accessing credentials and arrange cleanup of this specific file on success or failure.
+
 ```bash
-# Set individual secrets
-npx supabase secrets set STRIPE_KEY=sk_live_xxx --project-ref $PROJECT_REF
-npx supabase secrets set WEBHOOK_SECRET=whsec_xxx --project-ref $PROJECT_REF
+# Use the linked project verified above, in the same working directory.
+# Reconfirm the target and names, and obtain approval before changing secrets.
+npx supabase secrets set --env-file "$SECRET_ENV_FILE"
 
-# Set multiple secrets at once
-npx supabase secrets set API_KEY=value1 SIGNING_KEY=value2 --project-ref $PROJECT_REF
+# Inspect metadata without printing the input file or secret values.
+npx supabase secrets list
 
-# List current secrets (names only, values hidden)
-npx supabase secrets list --project-ref $PROJECT_REF
-
-# Remove a secret
-npx supabase secrets unset OLD_KEY --project-ref $PROJECT_REF
+# Only after separate approval to retire this named secret:
+npx supabase secrets unset OLD_KEY
 ```
+
+Confirm the target shown by the CLI before accepting its mutation prompt. For noninteractive execution, check the installed CLI's help and use its confirmation mechanism only after explicit approval of the target and secret names; do not suppress prompts by default. Verify the intended function can use the new configuration without logging values. Remove only the temporary file created for this operation. See [secrets CLI reference](https://supabase.com/docs/reference/cli/supabase-secrets-set).
 
 ### Step 2 — Zero-Downtime Deployments and Blue/Green Branching
 

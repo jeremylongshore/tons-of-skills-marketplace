@@ -16,7 +16,7 @@ description: 'Optimize Supabase query performance with indexes, EXPLAIN ANALYZE,
   "supabase pagination", "supabase explain analyze".
 
   '
-allowed-tools: Read, Write, Edit, Bash(npx:supabase), Bash(supabase:*), Grep
+allowed-tools: Read, Write, Edit, Bash(npx supabase:*), Bash(supabase:*), Grep
 version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>

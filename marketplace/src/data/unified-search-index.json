@@ -201,7 +201,6 @@
       "Bash(npx playwright:*)",
       "Bash(npx supabase:*)",
       "Bash(npx:*)",
-      "Bash(npx:supabase)",
       "Bash(nvidia-smi -q:*)",
       "Bash(oci:*)",
       "Bash(ogr2ogr:*)",
@@ -68915,7 +68914,7 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(npx:supabase)",
+        "Bash(npx supabase:*)",
         "Bash(supabase:*)",
         "Bash(curl:*)"
       ],
@@ -68925,7 +68924,7 @@
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-deploy-integration deploy and manage supabase projects in production. covers database migrations, edge functions deployment, secrets management, zero-downtime rollouts, blue/green branching, rollback procedures, and post-deploy health checks. use when deploying supabase to production, running migrations, deploying edge functions, managing secrets, or implementing zero-downtime deployments. trigger: \"deploy supabase\", \"supabase migration push\", \"deploy edge function\", \"supabase rollback\", \"supabase blue green\", \"supabase health check\". saas-packs read write edit bash(npx:supabase) bash(supabase:*) bash(curl:*) "
+      "searchText": "supabase-deploy-integration deploy and manage supabase projects in production. covers database migrations, edge functions deployment, secrets management, zero-downtime rollouts, blue/green branching, rollback procedures, and post-deploy health checks. use when deploying supabase to production, running migrations, deploying edge functions, managing secrets, or implementing zero-downtime deployments. trigger: \"deploy supabase\", \"supabase migration push\", \"deploy edge function\", \"supabase rollback\", \"supabase blue green\", \"supabase health check\". saas-packs read write edit bash(npx supabase:*) bash(supabase:*) bash(curl:*) "
     },
     {
       "type": "skill",
@@ -69173,7 +69172,7 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(npx:supabase)",
+        "Bash(npx supabase:*)",
         "Bash(supabase:*)",
         "Grep"
       ],
@@ -69183,7 +69182,7 @@
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-performance-tuning optimize supabase query performance with indexes, explain analyze, connection pooling, column selection, pagination, rpc functions, materialized views, and diagnostics. use when queries are slow, connections are exhausted, response payloads are bloated, or when preparing a supabase project for production-scale traffic. trigger with phrases like \"supabase performance\", \"supabase slow queries\", \"optimize supabase\", \"supabase index\", \"supabase connection pool\", \"supabase pagination\", \"supabase explain analyze\". saas-packs read write edit bash(npx:supabase) bash(supabase:*) grep "
+      "searchText": "supabase-performance-tuning optimize supabase query performance with indexes, explain analyze, connection pooling, column selection, pagination, rpc functions, materialized views, and diagnostics. use when queries are slow, connections are exhausted, response payloads are bloated, or when preparing a supabase project for production-scale traffic. trigger with phrases like \"supabase performance\", \"supabase slow queries\", \"optimize supabase\", \"supabase index\", \"supabase connection pool\", \"supabase pagination\", \"supabase explain analyze\". saas-packs read write edit bash(npx supabase:*) bash(supabase:*) grep "
     },
     {
       "type": "skill",
