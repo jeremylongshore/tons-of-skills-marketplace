@@ -3371,12 +3371,12 @@
       "status": "partial",
       "values": {
         "coverage": {
-          "conditional_envelopes": 44,
-          "containers": 242,
+          "conditional_envelopes": 45,
+          "containers": 243,
           "containers_with_sites": 16,
           "counts_overlap": true,
           "jobs": 28,
-          "opaque_actions": 74,
+          "opaque_actions": 75,
           "run_containers": 168,
           "unreviewed_run_containers": 152,
           "workflows": 3
@@ -3431,7 +3431,7 @@
           {
             "authority": [
               {
-                "line": 818,
+                "line": 830,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
               }
@@ -3450,7 +3450,7 @@
           {
             "authority": [
               {
-                "line": 956,
+                "line": 968,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
               }
@@ -3531,7 +3531,7 @@
           {
             "authority": [
               {
-                "line": 1175,
+                "line": 1187,
                 "path": ".github/workflows/validate-plugins.yml",
                 "text": "          # Normalize only grep's no-match status, never a find traversal error."
               },
@@ -3661,7 +3661,7 @@
             "observed_deadline": {
               "date": "2026-11-28",
               "expiry_adjudicated": false,
-              "source_line": 1289
+              "source_line": 1301
             },
             "owner": null,
             "promotion": null,

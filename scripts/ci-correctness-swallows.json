@@ -120,7 +120,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 818,
+          "line": 830,
           "text": "      - name: Enforce R1/R2/R3/R4 marketplace compliance ratchet"
         }
       ],
@@ -146,7 +146,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 956,
+          "line": 968,
           "text": "      - name: Run plugin tests (widened loop — every package.json with a test script)"
         }
       ],
@@ -255,7 +255,7 @@
       "authority": [
         {
           "path": ".github/workflows/validate-plugins.yml",
-          "line": 1175,
+          "line": 1187,
           "text": "          # Normalize only grep's no-match status, never a find traversal error."
         },
         {
