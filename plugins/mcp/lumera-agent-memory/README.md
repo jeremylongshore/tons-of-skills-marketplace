@@ -207,8 +207,10 @@ This makes search results feel intelligent without any network calls or LLM usag
 ## Installation
 
 ```bash
-cd plugins/mcp/lumera-agent-memory
-pip install -r requirements.txt
+cd /absolute/path/to/lumera-agent-memory
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+source .venv/bin/activate
 ```
 
 ## Running Tests
@@ -228,21 +230,25 @@ pytest tests/test_fts_search.py -v
 
 ## Running the MCP Server
 
-```text
-# Direct execution
-python3 src/mcp_server.py
+Installing this plugin does not automatically register its MCP server. Complete
+the dependency setup above, then register the interpreter from that environment.
 
-# Or via Claude Code
-# Add to ~/.config/claude/settings.json:
-{
-  "mcpServers": {
-    "lumera-agent-memory": {
-      "command": "python3",
-      "args": ["/path/to/plugins/mcp/lumera-agent-memory/src/mcp_server.py"]
-    }
-  }
-}
+From the plugin directory, direct execution uses:
+
+```bash
+.venv/bin/python src/mcp_server.py
 ```
+
+For Claude Code, register the same interpreter and script with absolute paths:
+
+```bash
+claude mcp add --transport stdio --scope user lumera-agent-memory -- "/absolute/path/to/lumera-agent-memory/.venv/bin/python" "/absolute/path/to/lumera-agent-memory/src/mcp_server.py"
+```
+
+Use the directory of your installed or copied plugin in both paths. Registration
+is a manual step; it does not install Python dependencies. For another MCP host,
+use its documented configuration location with the same executable and script.
+Do not put an MCP server declaration in Claude Code's `settings.json`.
 
 ## Storage Locations
 
