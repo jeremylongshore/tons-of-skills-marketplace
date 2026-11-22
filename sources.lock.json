@@ -31,7 +31,7 @@
     },
     "agent-city": {
       "repo": "Lulu-The-Narwhal/agent-city",
-      "resolved_ref": "4eaf0b750779bd216fda7cf2cf3c0b9f18f1610a",
+      "resolved_ref": "abc23c7faab7e7b7d9e041bd29cee85502918fc6",
       "locked_at": "2026-11-22T13:31:15.132Z",
       "files": {
         ".claude-plugin/plugin.json": "sha256:adf51d14311c0a170b4f09f2067cc8e2111008dc2acec468648ce7c04859cdaa",
