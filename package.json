@@ -127,6 +127,7 @@
       "esbuild": "0.28.2",
       "express@4.22.2>body-parser": "1.20.9",
       "follow-redirects@<1.16.2": "1.16.2",
+      "re2js@>=2.2.0 <2.8.7": "2.8.7",
       "express@5.2.1>body-parser": "2.4.0",
       "express-rate-limit>ip-address": "10.7.4",
       "proxy-addr": "2.0.8",
