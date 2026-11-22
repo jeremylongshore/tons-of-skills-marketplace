@@ -5,8 +5,8 @@ description: "Upgrade Supabase SDK and CLI versions with breaking-change detecti
   v2 or minor bumps), migrating auth/realtime/storage\nAPIs, or updating the Supabase\
   \ CLI. Trigger with phrases like \"upgrade supabase\",\n\"supabase breaking changes\"\
   , \"migrate supabase v2\", \"update supabase SDK\".\n"
-allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Bash(pip:*), Bash(supabase:*),
-  Bash(git:*), Grep, Glob
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash(npm list:*), Bash(pip show:*),
+  Bash(git status:*), Bash(git diff:*)
 version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -22,7 +22,7 @@ compatibility: Designed for Claude Code
 
 ## Overview
 
-Upgrade `@supabase/supabase-js` and the Supabase CLI with breaking-change detection, automated code migration, and rollback planning. Covers the v1-to-v2 migration path (auth method renames, `data`/`error` destructuring, realtime API overhaul), minor version bumps, `@supabase/ssr` adoption, and Python SDK upgrades via `pip install --upgrade supabase`.
+Upgrade `@supabase/supabase-js` and the Supabase CLI with breaking-change review, explicit source edits, and rollback planning. Covers the v1-to-v2 migration path (auth method renames, `data`/`error` destructuring, realtime API overhaul), minor version bumps, `@supabase/ssr` adoption, and Python SDK upgrades using reviewed version pins.
 
 ## Manual Version Diagnostics
 
@@ -30,7 +30,7 @@ Inspect the installed versions only when requested; this skill does not run thes
 
 ```text
 npm list @supabase/supabase-js
-npx supabase --version
+./node_modules/.bin/supabase --version
 pip show supabase
 ```
 
@@ -39,20 +39,21 @@ pip show supabase
 - `@supabase/supabase-js` or the Python `supabase` package installed in the project
 - Git with a clean working tree (no uncommitted changes)
 - Test suite available for post-upgrade verification
-- Node.js 22+ for current JS SDK releases, or Python 3.9+ for the Python SDK
+- A runtime supported by each exact target package version; inspect its published engine/Requires-Python metadata and release notes before selecting versions
+- An approved disposable local Supabase stack for type generation; current CLI documentation defaults `gen types` to local. Confirm that behavior in the pinned CLI help before running the example
 
 ## Instructions
 
 ### Step 1: Audit Versions, Scan Usage, and Review Breaking Changes
 
-Check every installed Supabase package and find all import sites in the codebase.
+Use Read to inspect manifests, lockfiles and project configuration, Glob to locate source files, and Grep to find imports and affected calls. Do not read credential files or print token values. Review the existing test commands and record exact current and proposed package versions. Use Edit for reviewed source migrations and Write only for explicitly approved new files; generated types use the guarded replacement below. Tool grants are not authorization for remote database operations. Preapproved Bash scopes cover inventory only; installs, generation, tests and other commands follow the session's normal permission flow.
 
 ```bash
 # Check current SDK version
 npm list @supabase/supabase-js
 
 # Check CLI version
-supabase --version
+./node_modules/.bin/supabase --version
 
 # Check Python SDK version
 pip show supabase | grep Version
@@ -101,30 +102,44 @@ supabase
 
 ### Step 2: Run the Upgrade and Apply Code Migrations
 
-Create a branch, install new packages, and transform code to match v2 APIs.
+Choose exact compatible package versions from release notes and the application's runtime constraints. Inspect `git status` first and preserve unrelated work; do not stash, reset or switch away from it automatically. Create a focused branch using the project's normal workflow. Run only the applicable ecosystem commands after approving the manifest/lockfile change; package install scripts execute code.
 
 ```bash
-# Create upgrade branch
-git checkout -b upgrade-supabase-sdk
-
-# Upgrade JS/TS SDK
-npm install @supabase/supabase-js@latest
-
-# Upgrade SSR helper (if used with Next.js/SvelteKit/Nuxt)
-npm install @supabase/ssr@latest
-
-# Upgrade CLI
-npm install --save-dev supabase@latest
-
-# Upgrade Python SDK
-pip install --upgrade supabase
-
-# Regenerate TypeScript types from linked project
-npx supabase gen types typescript --linked > lib/database.types.ts
-
-# Generate a database migration if schema drifted
-npx supabase db diff --use-migra -f upgrade_check
+# Bash: fail on errors. Set these to reviewed exact versions, not "latest".
+set -euo pipefail
+: "${SUPABASE_JS_VERSION:?Set the reviewed exact JavaScript SDK version}"
+: "${SUPABASE_CLI_VERSION:?Set the reviewed exact CLI version}"
+npm install --save-exact "@supabase/supabase-js@$SUPABASE_JS_VERSION"
+npm install --save-dev --save-exact "supabase@$SUPABASE_CLI_VERSION"
 ```
+
+For SSR or Python, review and pin their exact versions separately using the project's existing package manager and lock workflow. Do not install unused ecosystems or replace a pnpm, Yarn, uv or Poetry lock with an npm/pip workflow. A package upgrade does not itself require a database migration; schema changes and remote operations need a separate plan and authorization.
+
+#### Generate types without truncating the previous file
+
+Run the following only from the approved application's root with its pinned CLI installed and its disposable local stack already available. Review the CLI's local-target behavior first. This does not start a stack, download a CLI, select a remote target, or apply a migration. The output directory must already exist, the target must be an approved generated file, and no other process may edit it during replacement.
+
+```bash
+# Preserve existing types when generation fails or returns empty output.
+set -euo pipefail
+target=lib/database.types.ts
+if [[ -L "$target" || ( -e "$target" && ! -f "$target" ) ]]; then
+  printf '%s\n' 'Refusing a symlink or non-file types target' >&2
+  exit 1
+fi
+candidate=$(mktemp lib/.database.types.XXXXXX)
+trap 'rm -f -- "$candidate"' EXIT
+./node_modules/.bin/supabase gen types --lang typescript --schema public > "$candidate"
+if [[ ! -s "$candidate" ]]; then
+  printf '%s\n' 'Type generation returned no content; existing file preserved' >&2
+  exit 1
+fi
+# Same-directory rename publishes only a successful, nonempty candidate.
+mv -- "$candidate" "$target"
+trap - EXIT
+```
+
+Inspect the resulting diff and run the application's typecheck. Nonempty output is not proof of valid or complete types; a typecheck failure requires review or restoration of the recorded prior artifact. The retained failure-path tests use a fake CLI and temporary files, not a running Supabase project.
 
 Apply auth code migrations:
 
@@ -175,25 +190,16 @@ python -m pytest tests/ -v
 # 6. Storage upload/download round-trip
 ```
 
-**Rollback procedure** (if upgrade causes issues):
-
-```text
-# Option A: Pin to previous version
-npm install @supabase/supabase-js@<previous-version>
-pip install supabase==<previous-version>
-
-# Option B: Revert the branch
-git stash && git checkout main
-```
+**Rollback procedure:** retain the exact prior source revision, manifest and lockfile before upgrading. Restore only the reviewed changes through the project's normal review process, reinstall from that lockfile, and rerun compatibility/security checks. Do not automatically stash unrelated work, switch branches, choose an arbitrary older version or claim an SDK rollback reverses database/auth changes. See the [rollback boundary](references/examples.md).
 
 ## Output
 
-- `@supabase/supabase-js` upgraded to latest version with `npm list` confirmation
+- `@supabase/supabase-js` updated to the reviewed exact version with installed-version and lockfile confirmation
 - All `supabase.auth.signIn()` calls migrated to `signInWithPassword` / `signInWithOAuth` / `signInWithOtp`
 - Sync auth methods (`session()`, `user()`) replaced with async `getSession()` / `getUser()`
 - Realtime subscriptions migrated from `.on()` to channel-based API
 - `data`/`error` destructuring updated where return shapes changed
-- TypeScript types regenerated from current schema
+- TypeScript types regenerated from the approved local schema, with failure preservation and application typecheck evidence
 - Test suite passing, type checking clean
 - Rollback branch or version pin documented
 
@@ -208,7 +214,7 @@ git stash && git checkout main
 | Type errors after `gen types` | Database schema changed between versions | Update application code to match new generated types |
 | `PGRST116` from `.single()` | Singular response requested but zero or multiple rows returned; inspect the returned `error` | Use `.maybeSingle()` only for intended zero-or-one results; duplicates still return an error |
 | `ERR_REQUIRE_ESM` after upgrade | Installed dependency/runtime/bundler ESM–CommonJS resolution mismatch | Inspect the exact installed dependency exports and runtime/bundler configuration; the published Supabase SDK supports both import and require, so do not apply a blanket module-setting fix |
-| `AuthSessionMissingError` | `getSession()` called before auth initialized | Wrap in `onAuthStateChange` listener or check `session !== null` |
+| `AuthSessionMissingError` | The requested operation has no usable session; inspect the actual call and client lifecycle | Handle the intended unauthenticated state or repair the reviewed session flow; do not substitute an admin key or assume a listener fixes every case |
 
 ## Examples
 
@@ -288,10 +294,11 @@ users = response.data  # attribute access, not dict
 
 ## Resources
 
-- supabase-js v2 Migration Guide — official step-by-step
+- [supabase-js v2 Migration Guide](https://supabase.com/docs/reference/javascript/v1/upgrade-guide) — review the APIs actually used
 - [supabase-js Releases](https://github.com/supabase/supabase-js/releases) — changelog for every version
 - [Supabase CLI Releases](https://github.com/supabase/cli/releases) — CLI changelog
-- Auth Helpers Migration — `@supabase/auth-helpers` → `@supabase/ssr`
+- [Type generation CLI](https://supabase.com/docs/reference/cli/supabase-gen-types) — verify local targeting for the pinned CLI
+- [Implementation review](references/implementation.md) and [error handling](references/errors.md) — package evidence and failure boundaries
 - [Realtime v2 Guide](https://supabase.com/docs/guides/realtime) — channel-based API reference
 - [supabase-py Releases](https://github.com/supabase-community/supabase-py/releases) — Python SDK changelog
 

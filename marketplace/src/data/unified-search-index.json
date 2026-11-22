@@ -142,6 +142,8 @@
       "Bash(gh:*)",
       "Bash(gherkin-lint:*)",
       "Bash(git *)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
       "Bash(git-cliff*)",
       "Bash(git:*)",
       "Bash(go:*)",
@@ -197,6 +199,7 @@
       "Bash(ngrok:*)",
       "Bash(node*)",
       "Bash(node:*)",
+      "Bash(npm list:*)",
       "Bash(npm:*)",
       "Bash(npx playwright:*)",
       "Bash(npx supabase:*)",
@@ -211,6 +214,7 @@
       "Bash(pg_dump:*)",
       "Bash(pgrep:*)",
       "Bash(ping:*)",
+      "Bash(pip show:*)",
       "Bash(pip-audit:*)",
       "Bash(pip3:*)",
       "Bash(pip:*)",
@@ -69379,13 +69383,12 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(pip:*)",
-        "Bash(supabase:*)",
-        "Bash(git:*)",
         "Grep",
-        "Glob"
+        "Glob",
+        "Bash(npm list:*)",
+        "Bash(pip show:*)",
+        "Bash(git status:*)",
+        "Bash(git diff:*)"
       ],
       "compatibleWith": [],
       "version": "1.55.0",
@@ -69393,7 +69396,7 @@
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-upgrade-migration upgrade supabase sdk and cli versions with breaking-change detection and automated code migration. use when upgrading @supabase/supabase-js (v1→v2 or minor bumps), migrating auth/realtime/storage apis, or updating the supabase cli. trigger with phrases like \"upgrade supabase\", \"supabase breaking changes\", \"migrate supabase v2\", \"update supabase sdk\". saas-packs read write edit bash(npm:*) bash(npx:*) bash(pip:*) bash(supabase:*) bash(git:*) grep glob "
+      "searchText": "supabase-upgrade-migration upgrade supabase sdk and cli versions with breaking-change detection and automated code migration. use when upgrading @supabase/supabase-js (v1→v2 or minor bumps), migrating auth/realtime/storage apis, or updating the supabase cli. trigger with phrases like \"upgrade supabase\", \"supabase breaking changes\", \"migrate supabase v2\", \"update supabase sdk\". saas-packs read write edit grep glob bash(npm list:*) bash(pip show:*) bash(git status:*) bash(git diff:*) "
     },
     {
       "type": "skill",
