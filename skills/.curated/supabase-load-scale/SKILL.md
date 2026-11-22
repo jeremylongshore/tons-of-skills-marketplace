@@ -137,4 +137,4 @@ see [advanced scaling examples](references/advanced-examples.md).
 
 ## Next Steps
 
-For reliability patterns (circuit breakers, offline queues, graceful degradation), see `supabase-reliability-patterns`.
+Record the baseline and post-change latency, connection usage, replica lag, and estimated spend before deciding whether to retain a scaling change. Agree on rollback thresholds with the operator and confirm the workload still meets them under representative traffic. Use `supabase-reliability-patterns` for failure handling after the capacity decision is verified.

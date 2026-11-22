@@ -50,6 +50,12 @@ Organizational governance for Supabase at scale: a **shared RLS policy library**
 - Database access via `psql` or Supabase SQL Editor
 - Pro plan recommended for cost alerts and usage API
 
+## Authentication
+
+Review migration files locally before connecting to a project. For authorized remote CLI work, inject `SUPABASE_ACCESS_TOKEN` from the secret store; for `psql`, use a separately approved database role and a protected password file or secret injection. Do not put passwords in connection strings printed to logs. Give audit-only queries read access; apply policy changes only through the approved migration role and review process.
+
+Application RLS checks must use ordinary test-user sessions with publishable or legacy `anon` keys, not server secret keys, `service_role`, or a table-owner connection. Record allowed and denied operations for separate tenants. Keep management credentials, application keys, and user tokens distinct; see [API key types](https://supabase.com/docs/guides/getting-started/api-keys).
+
 ## Instructions
 
 ### Step 1 — Shared RLS Policy Library and Naming Conventions
@@ -283,4 +289,4 @@ See [CI, cost, and security reference](references/ci-cost-security.md) for full 
 
 ## Next Steps
 
-For architecture patterns across different app types, see `supabase-architecture-variants`.
+Review the proposed migration with the database owner, then test both allowed access and denied cross-tenant access using synthetic users in staging. Record the reviewed migration, target project, results, and rollback procedure before requesting production approval. Use `supabase-architecture-variants` to check that each application client uses the intended trust boundary.

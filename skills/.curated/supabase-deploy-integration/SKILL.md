@@ -44,6 +44,12 @@ Deploy and manage Supabase projects in production with confidence. This skill co
 - Edge Functions in `supabase/functions/` directory (if deploying functions)
 - `SUPABASE_ACCESS_TOKEN` set for CI/non-interactive environments
 
+## Authentication
+
+Authenticate CLI deployment with an authorized operator's personal access token supplied as `SUPABASE_ACCESS_TOKEN` through the CI secret store. Supply the approved project's database password through `SUPABASE_DB_PASSWORD` when required by linked database commands. These credentials are distinct from application API keys; a browser publishable key cannot authorize a deployment. Keep secrets out of command arguments, committed files, shell tracing, and logs. See [environment setup](https://supabase.com/docs/guides/deployment/managing-environments).
+
+Confirm the approved project reference and migration dry-run before mutation. Use separate staging and production credentials and the minimum project access available to the deployment identity. Stop on an authorization failure rather than substituting a broader credential or another project.
+
 ## Instructions
 
 ### Step 1 — Push Database Migrations and Deploy Edge Functions

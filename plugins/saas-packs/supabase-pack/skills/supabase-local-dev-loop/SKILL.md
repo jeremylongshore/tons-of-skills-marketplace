@@ -313,4 +313,4 @@ curl -X POST http://localhost:54321/functions/v1/hello-world \
 
 ## Next Steps
 
-Proceed to `supabase-sdk-patterns` for production-ready client initialization, typed queries, and real-time subscriptions.
+Rebuild the disposable local database from committed migrations and synthetic seed data, then verify the application can authenticate and perform its intended queries. Confirm that the diff contains no local credentials or production data before review. Use `supabase-sdk-patterns` for typed client initialization; remote deployment remains a separate approval and target-selection step.

@@ -38,6 +38,10 @@ This SKILL.md carries the full pitfall table plus one representative fix per cat
 - `@supabase/supabase-js` v2+ installed
 - Basic understanding of Row Level Security (RLS)
 
+## Authentication
+
+This is a read-only source review: no live authentication, access token, database password, or service-role credential is required. Read the code and configuration variable names without displaying secret values. For optional runtime verification, request the target environment and permission first, then use an ordinary test user's Supabase Auth session with a publishable API key (or legacy `anon` key). Do not use a secret or `service_role` key to demonstrate that RLS works, because privileged access can bypass it. See [API key types](https://supabase.com/docs/guides/getting-started/api-keys).
+
 ## Instructions
 
 Work the pitfalls top-down by severity. Fix every **Critical** finding before moving on — a single security miss can expose the whole database.
