@@ -10,6 +10,7 @@ import {
   PORTABLE_INSTALL_RECEIPT_FILE,
   PORTABLE_INSTALL_RECEIPT_SCHEMA_VERSION,
   readPortableTreeFromCleanCommit,
+  readPortableTreeFromCommit,
   serializePortableInstallReceipt,
   type PortableInstallReceiptV1,
   type PortableTreeInput,
@@ -141,6 +142,8 @@ export async function stagedTree(
 /** Installs Git object bytes, never a recursive copy of a mutable checkout. */
 export async function installPortableTree(options: {
   sourceDirectory: string;
+  /** Explicit immutable Git object for lifecycle staging; never a branch or tag. */
+  sourceCommit?: string;
   destinationRoot: string;
   harness: string;
   scope: 'project' | 'user';
@@ -149,7 +152,15 @@ export async function installPortableTree(options: {
   dryRun: boolean;
 }): Promise<PortableInstallReceiptV1> {
   const coordinates = await portableSourceCoordinates(options.sourceDirectory);
-  const acquisition = await readPortableTreeFromCleanCommit(coordinates);
+  const selected =
+    options.sourceCommit === undefined
+      ? coordinates
+      : { ...coordinates, commit: options.sourceCommit };
+  const acquire = () =>
+    options.sourceCommit === undefined
+      ? readPortableTreeFromCleanCommit(selected)
+      : readPortableTreeFromCommit(selected);
+  const acquisition = await acquire();
   admitFiles(acquisition.files);
   const name = path.basename(acquisition.sourcePath);
   const root = path.resolve(options.destinationRoot);
@@ -247,7 +258,7 @@ export async function installPortableTree(options: {
     ) {
       throw new Error('Staged portable skill does not match its immutable source digest');
     }
-    const currentSource = await readPortableTreeFromCleanCommit(coordinates);
+    const currentSource = await acquire();
     assertReceiptMatchesAcquisition(receipt, currentSource);
     if (!options.dryRun) {
       const evidenceRoot = path.join(root, '.ccpi-evidence');

@@ -68,6 +68,33 @@ describe('atomic portable installation', { timeout: 30_000 }, () => {
     git('remote', 'add', 'origin', 'https://github.com/example/skills');
     await commit();
   });
+  test('explicit immutable revision installs historical bytes without copying local state', async () => {
+    const selected = git('rev-parse', 'HEAD');
+    await fs.writeFile(path.join(source, 'SKILL.md'), skill + '\nNew revision\n');
+    await commit();
+    const head = git('rev-parse', 'HEAD');
+    await fs.writeFile(path.join(source, 'SKILL.md'), skill + '\nUncommitted local edit\n');
+    await fs.writeFile(path.join(source, 'private.env'), 'synthetic local-only marker');
+    const receipt = await installPortableTree({ ...options(), sourceCommit: selected });
+    expect(receipt.source.commit.digest).toBe(selected);
+    expect(await fs.readFile(path.join(destination, 'SKILL.md'), 'utf8')).toBe(skill);
+    await expect(fs.lstat(path.join(destination, 'private.env'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+    expect(git('rev-parse', 'HEAD')).toBe(head);
+    expect(await fs.readFile(path.join(source, 'private.env'), 'utf8')).toBe(
+      'synthetic local-only marker',
+    );
+  });
+
+  test.each(['HEAD', 'main', 'deadbeef'])(
+    'explicit revision rejects mutable or abbreviated reference %s',
+    async (sourceCommit) => {
+      await expect(installPortableTree({ ...options(), sourceCommit })).rejects.toThrow();
+      await assertNoPartialInstall();
+    },
+  );
+
   afterEach(async () => {
     vi.restoreAllMocks();
     await fs.rm(root, { recursive: true, force: true });
