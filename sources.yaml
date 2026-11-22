@@ -1513,6 +1513,41 @@ sources:
       - '*.log'
       - '**/__pycache__/**'
 
+  # ============================================================
+  # Agent City (Lulu-The-Narwhal)
+  # https://github.com/Lulu-The-Narwhal/agent-city
+  # Hooks-only, watch-only plugin: one Node hook script forwards
+  # each Claude Code session event to the local Agent City
+  # daemon on 127.0.0.1 (no other host, no file writes).
+  # ============================================================
+
+  - name: agent-city
+    description: Watch your Claude Code sessions as gangs in Agent City, a local 3D open-world city — a watch-only hook that forwards session events to the local daemon on 127.0.0.1
+    repo: Lulu-The-Narwhal/agent-city
+    source_path: plugins/agent-city
+    target_path: plugins/community/agent-city
+    author:
+      name: Tal Mogendorff
+      github: Lulu-The-Narwhal
+    license: MIT
+    category: community
+    verified: false
+    keywords:
+      - hooks
+      - monitoring
+      - visualization
+      - agent-dashboard
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/hooks/hooks.json'
+      - '/hooks/forward.mjs'
+      - '/README.md'
+      - '/LICENSE'
+    exclude:
+      - 'node_modules/**'
+      - '.git/**'
+      - '*.log'
+
 # Sync configuration
 config:
   # Branch to sync from (default: main)

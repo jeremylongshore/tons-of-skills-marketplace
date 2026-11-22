@@ -1,0 +1,37 @@
+{
+  "name": "@intentsolutionsio/agent-city",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Watch your Claude Code sessions as gangs in Agent City, a local 3D open-world city (watch-only; run npx agent-city-ai for the city).",
+  "keywords": [
+    "agent-city",
+    "hooks",
+    "agent-dashboard",
+    "agent-monitoring",
+    "visualization",
+    "game",
+    "claude-code",
+    "claude-plugin",
+    "tonsofskills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremylongshore/tons-of-skills-marketplace.git",
+    "directory": "plugins/community/agent-city"
+  },
+  "homepage": "https://tonsofskills.com/plugins/agent-city",
+  "bugs": "https://github.com/jeremylongshore/tons-of-skills-marketplace/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Tal Mogendorff",
+    "url": "https://github.com/Lulu-The-Narwhal"
+  },
+  "files": [
+    "README.md",
+    ".claude-plugin",
+    "hooks"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log(\\\"\\\\n→ This npm package is a tracking/proof artifact. Install the plugin via:\\\\n  ccpi install agent-city\\\\n  or /plugin install agent-city@claude-code-plugins-plus in Claude Code\\\\n\\\")\""
+  }
+}

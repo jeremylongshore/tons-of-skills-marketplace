@@ -29,6 +29,18 @@
         "skills/sync-status/SKILL.md": "sha256:98a7aaec07bf527f1f728754980232cdfb459201e9fd87dd64f657d565f32c1f"
       }
     },
+    "agent-city": {
+      "repo": "Lulu-The-Narwhal/agent-city",
+      "resolved_ref": "4eaf0b750779bd216fda7cf2cf3c0b9f18f1610a",
+      "locked_at": "2026-11-22T13:31:15.132Z",
+      "files": {
+        ".claude-plugin/plugin.json": "sha256:adf51d14311c0a170b4f09f2067cc8e2111008dc2acec468648ce7c04859cdaa",
+        "LICENSE": "sha256:da37b726b000461cd91fb2a9c3602efb3838e002488bfd2cd76b5f88507efe30",
+        "README.md": "sha256:4f3c4c801709f60c9251195d5d5878973059e66a4c4501d8c011d92153301176",
+        "hooks/forward.mjs": "sha256:515da67f0da4dc889f808ff548cf6c4e7e4d288e3d72919ee93767c5b9f868bb",
+        "hooks/hooks.json": "sha256:f1144fea83c640e1fd7aca078456ac23c73f53e27b3397b82ed24e789d94a93c"
+      }
+    },
     "agent-memory-discipline": {
       "repo": "mnemoverse/agent-memory-discipline",
       "resolved_ref": "77578ac18f29c69b1b45f34268ac0ed16df72fca",

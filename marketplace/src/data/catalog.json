@@ -5,7 +5,7 @@
     "generator": "marketplace/scripts/sync-catalog.mjs"
   },
   "stats": {
-    "totalPlugins": 428,
+    "totalPlugins": 429,
     "totalSkills": 2716,
     "totalCommands": 82,
     "pluginsWithSkills": 394,
@@ -24,7 +24,7 @@
       "skill-enhancers": 10,
       "database": 26,
       "business-tools": 4,
-      "community": 19,
+      "community": 20,
       "examples": 5,
       "saas-packs": 96,
       "analytics": 1,
@@ -11611,6 +11611,33 @@
       "author": {
         "name": "Hashgraph Online",
         "url": "https://github.com/hashgraph-online"
+      },
+      "type": "instruction-plugin"
+    },
+    {
+      "slug": "agent-city",
+      "name": "agent-city",
+      "displayName": "agent city",
+      "description": "Watch your Claude Code sessions as gangs in Agent City, a local 3D open-world city — a watch-only hook that forwards session events to the local daemon on 127.0.0.1",
+      "version": "0.1.0",
+      "category": "community",
+      "keywords": [
+        "agent-city",
+        "hooks",
+        "agent-dashboard",
+        "agent-monitoring",
+        "visualization",
+        "game"
+      ],
+      "hasSkills": false,
+      "skillCount": 0,
+      "commandCount": 0,
+      "installCommand": "/plugin install agent-city",
+      "sourcePath": "./plugins/community/agent-city",
+      "isFeatured": false,
+      "author": {
+        "name": "Tal Mogendorff",
+        "url": "https://github.com/Lulu-The-Narwhal"
       },
       "type": "instruction-plugin"
     }
