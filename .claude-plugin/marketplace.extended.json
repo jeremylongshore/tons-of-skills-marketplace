@@ -11449,6 +11449,30 @@
         "badge": "gold",
         "lastValidated": "2026-10-01T00:00:00.000Z"
       }
+    },
+    {
+      "name": "datacircle",
+      "source": "./plugins/community/datacircle",
+      "description": "Find the best GTM APIs: prices, scores, rate limits and fields from real calls, through the open Datacircle API",
+      "version": "0.1.0",
+      "category": "community",
+      "keywords": [
+        "gtm",
+        "api",
+        "pricing",
+        "benchmark",
+        "email-finder",
+        "enrichment",
+        "linkedin",
+        "datacircle"
+      ],
+      "author": {
+        "name": "Datacircle",
+        "url": "https://datacircle.dev"
+      },
+      "homepage": "https://datacircle.dev",
+      "repository": "https://github.com/waynehamadi/claude-code-datacircle",
+      "license": "MIT"
     }
   ]
 }
