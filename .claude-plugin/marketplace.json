@@ -8298,6 +8298,28 @@
       "homepage": "https://github.com/hashgraph-online/hol-guard",
       "repository": "https://github.com/hashgraph-online/hol-guard-plugin",
       "license": "Apache-2.0"
+    },
+    {
+      "name": "agent-city",
+      "source": "./plugins/community/agent-city",
+      "description": "Watch your Claude Code sessions as gangs in Agent City, a local 3D open-world city — a watch-only hook that forwards session events to the local daemon on 127.0.0.1",
+      "version": "0.1.0",
+      "category": "community",
+      "keywords": [
+        "agent-city",
+        "hooks",
+        "agent-dashboard",
+        "agent-monitoring",
+        "visualization",
+        "game"
+      ],
+      "author": {
+        "name": "Tal Mogendorff",
+        "url": "https://github.com/Lulu-The-Narwhal"
+      },
+      "homepage": "https://github.com/Lulu-The-Narwhal/agent-city#install-as-a-claude-code-plugin",
+      "repository": "https://github.com/Lulu-The-Narwhal/agent-city",
+      "license": "MIT"
     }
   ]
 }

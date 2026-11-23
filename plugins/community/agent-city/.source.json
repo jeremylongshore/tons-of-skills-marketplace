@@ -1,0 +1,21 @@
+{
+  "synced_from": {
+    "repo": "Lulu-The-Narwhal/agent-city",
+    "path": "plugins/agent-city",
+    "branch": "main"
+  },
+  "last_sync": "2026-11-22T13:31:15.096Z",
+  "author": {
+    "name": "Tal Mogendorff",
+    "github": "Lulu-The-Narwhal"
+  },
+  "license": "MIT",
+  "files_synced": 5,
+  "files": [
+    ".claude-plugin/plugin.json",
+    "LICENSE",
+    "README.md",
+    "hooks/forward.mjs",
+    "hooks/hooks.json"
+  ]
+}

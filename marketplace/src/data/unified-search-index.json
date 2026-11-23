@@ -5,10 +5,10 @@
     "generator": "marketplace/scripts/generate-unified-search.mjs"
   },
   "stats": {
-    "totalPlugins": 428,
+    "totalPlugins": 429,
     "totalSkills": 2716,
     "totalDocs": 25,
-    "totalItems": 3169,
+    "totalItems": 3170,
     "categories": [
       "ai-agency",
       "ai-ml",
@@ -415,6 +415,8 @@
       "agency",
       "agent",
       "agent-card",
+      "agent-city",
+      "agent-dashboard",
       "agent-development",
       "agent-development-kit",
       "agent-engine",
@@ -911,6 +913,7 @@
       "fuzzing",
       "ga4",
       "gainers",
+      "game",
       "games",
       "gas",
       "gcr",
@@ -1733,12 +1736,12 @@
       "zod"
     ],
     "totalAgents": 355,
-    "totalHooks": 26,
+    "totalHooks": 27,
     "pluginsWithAgents": 92,
-    "pluginsWithHooks": 18,
+    "pluginsWithHooks": 19,
     "officialPlugins": 382,
-    "communityPlugins": 46,
-    "communityContributors": 36
+    "communityPlugins": 47,
+    "communityContributors": 37
   },
   "items": [
     {
@@ -14940,6 +14943,34 @@
       "verificationGrade": "A",
       "verificationBadge": "gold",
       "searchText": "hol guard local pre-execution security controls and pre-install scanning for ai agent tools, packages, skills, plugins, and mcp servers. security hol-guard ai-security agent-security plugin-security mcp-security supply-chain-security"
+    },
+    {
+      "type": "plugin",
+      "id": "agent-city",
+      "slug": "agent-city",
+      "name": "agent-city",
+      "displayName": "agent city",
+      "description": "Watch your Claude Code sessions as gangs in Agent City, a local 3D open-world city — a watch-only hook that forwards session events to the local daemon on 127.0.0.1",
+      "category": "community",
+      "keywords": [
+        "agent-city",
+        "hooks",
+        "agent-dashboard",
+        "agent-monitoring",
+        "visualization",
+        "game"
+      ],
+      "author": {
+        "name": "Tal Mogendorff",
+        "url": "https://github.com/Lulu-The-Narwhal"
+      },
+      "authorType": "community",
+      "version": "0.1.0",
+      "isFeatured": false,
+      "isNew": false,
+      "badges": [],
+      "skillCount": 0,
+      "searchText": "agent city watch your claude code sessions as gangs in agent city, a local 3d open-world city — a watch-only hook that forwards session events to the local daemon on 127.0.0.1 community agent-city hooks agent-dashboard agent-monitoring visualization game"
     },
     {
       "type": "skill",

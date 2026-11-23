@@ -1,0 +1,21 @@
+{
+  "name": "agent-city",
+  "displayName": "Agent City",
+  "version": "0.1.0",
+  "description": "Watch your Claude Code sessions as gangs in Agent City, a local 3D open-world city (watch-only; run npx agent-city-ai for the city).",
+  "author": {
+    "name": "Tal Mogendorff",
+    "url": "https://github.com/Lulu-The-Narwhal"
+  },
+  "homepage": "https://github.com/Lulu-The-Narwhal/agent-city#install-as-a-claude-code-plugin",
+  "repository": "https://github.com/Lulu-The-Narwhal/agent-city",
+  "license": "MIT",
+  "keywords": [
+    "agent-city",
+    "hooks",
+    "agent-dashboard",
+    "agent-monitoring",
+    "visualization",
+    "game"
+  ]
+}
