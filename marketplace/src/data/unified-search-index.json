@@ -142,6 +142,8 @@
       "Bash(gh:*)",
       "Bash(gherkin-lint:*)",
       "Bash(git *)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
       "Bash(git-cliff*)",
       "Bash(git:*)",
       "Bash(go:*)",
@@ -195,13 +197,14 @@
       "Bash(network-trace:*)",
       "Bash(nginx:*)",
       "Bash(ngrok:*)",
+      "Bash(node --version:*)",
       "Bash(node*)",
       "Bash(node:*)",
+      "Bash(npm list:*)",
       "Bash(npm:*)",
       "Bash(npx playwright:*)",
       "Bash(npx supabase:*)",
       "Bash(npx:*)",
-      "Bash(npx:supabase)",
       "Bash(nvidia-smi -q:*)",
       "Bash(oci:*)",
       "Bash(ogr2ogr:*)",
@@ -212,6 +215,7 @@
       "Bash(pg_dump:*)",
       "Bash(pgrep:*)",
       "Bash(ping:*)",
+      "Bash(pip show:*)",
       "Bash(pip-audit:*)",
       "Bash(pip3:*)",
       "Bash(pip:*)",
@@ -68884,17 +68888,14 @@
       "id": "supabase-debug-bundle",
       "slug": "supabase-debug-bundle",
       "name": "supabase-debug-bundle",
-      "description": "Collect Supabase diagnostic info for troubleshooting and support tickets. Use when debugging connection failures, auth issues, Realtime drops, Storage errors, RLS misconfigurations, or preparing a support escalation. Trigger: \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\".",
+      "description": "Collect Supabase diagnostic info for troubleshooting and support tickets. Use when debugging connection failures, auth issues, Realtime drops, Storage errors, RLS misconfigurations, or preparing a support escalation. Trigger with \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\".",
       "category": "saas-packs",
       "allowedTools": [
         "Read",
-        "Bash(npx:*)",
-        "Bash(node:*)",
-        "Bash(curl:*)",
-        "Bash(supabase:*)",
-        "Bash(tar:*)",
         "Grep",
-        "Glob"
+        "Glob",
+        "Bash(node --version:*)",
+        "Bash(npm list:*)"
       ],
       "compatibleWith": [],
       "version": "1.55.0",
@@ -68902,7 +68903,7 @@
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-debug-bundle collect supabase diagnostic info for troubleshooting and support tickets. use when debugging connection failures, auth issues, realtime drops, storage errors, rls misconfigurations, or preparing a support escalation. trigger: \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\". saas-packs read bash(npx:*) bash(node:*) bash(curl:*) bash(supabase:*) bash(tar:*) grep glob "
+      "searchText": "supabase-debug-bundle collect supabase diagnostic info for troubleshooting and support tickets. use when debugging connection failures, auth issues, realtime drops, storage errors, rls misconfigurations, or preparing a support escalation. trigger with \"supabase debug\", \"supabase diagnostics\", \"supabase support bundle\", \"collect supabase logs\", \"debug supabase connection\". saas-packs read grep glob bash(node --version:*) bash(npm list:*) "
     },
     {
       "type": "skill",
@@ -68915,7 +68916,7 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(npx:supabase)",
+        "Bash(npx supabase:*)",
         "Bash(supabase:*)",
         "Bash(curl:*)"
       ],
@@ -68925,7 +68926,7 @@
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-deploy-integration deploy and manage supabase projects in production. covers database migrations, edge functions deployment, secrets management, zero-downtime rollouts, blue/green branching, rollback procedures, and post-deploy health checks. use when deploying supabase to production, running migrations, deploying edge functions, managing secrets, or implementing zero-downtime deployments. trigger: \"deploy supabase\", \"supabase migration push\", \"deploy edge function\", \"supabase rollback\", \"supabase blue green\", \"supabase health check\". saas-packs read write edit bash(npx:supabase) bash(supabase:*) bash(curl:*) "
+      "searchText": "supabase-deploy-integration deploy and manage supabase projects in production. covers database migrations, edge functions deployment, secrets management, zero-downtime rollouts, blue/green branching, rollback procedures, and post-deploy health checks. use when deploying supabase to production, running migrations, deploying edge functions, managing secrets, or implementing zero-downtime deployments. trigger: \"deploy supabase\", \"supabase migration push\", \"deploy edge function\", \"supabase rollback\", \"supabase blue green\", \"supabase health check\". saas-packs read write edit bash(npx supabase:*) bash(supabase:*) bash(curl:*) "
     },
     {
       "type": "skill",
@@ -69173,7 +69174,7 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(npx:supabase)",
+        "Bash(npx supabase:*)",
         "Bash(supabase:*)",
         "Grep"
       ],
@@ -69183,7 +69184,7 @@
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-performance-tuning optimize supabase query performance with indexes, explain analyze, connection pooling, column selection, pagination, rpc functions, materialized views, and diagnostics. use when queries are slow, connections are exhausted, response payloads are bloated, or when preparing a supabase project for production-scale traffic. trigger with phrases like \"supabase performance\", \"supabase slow queries\", \"optimize supabase\", \"supabase index\", \"supabase connection pool\", \"supabase pagination\", \"supabase explain analyze\". saas-packs read write edit bash(npx:supabase) bash(supabase:*) grep "
+      "searchText": "supabase-performance-tuning optimize supabase query performance with indexes, explain analyze, connection pooling, column selection, pagination, rpc functions, materialized views, and diagnostics. use when queries are slow, connections are exhausted, response payloads are bloated, or when preparing a supabase project for production-scale traffic. trigger with phrases like \"supabase performance\", \"supabase slow queries\", \"optimize supabase\", \"supabase index\", \"supabase connection pool\", \"supabase pagination\", \"supabase explain analyze\". saas-packs read write edit bash(npx supabase:*) bash(supabase:*) grep "
     },
     {
       "type": "skill",
@@ -69380,13 +69381,12 @@
         "Read",
         "Write",
         "Edit",
-        "Bash(npm:*)",
-        "Bash(npx:*)",
-        "Bash(pip:*)",
-        "Bash(supabase:*)",
-        "Bash(git:*)",
         "Grep",
-        "Glob"
+        "Glob",
+        "Bash(npm list:*)",
+        "Bash(pip show:*)",
+        "Bash(git status:*)",
+        "Bash(git diff:*)"
       ],
       "compatibleWith": [],
       "version": "1.55.0",
@@ -69394,7 +69394,7 @@
         "name": "supabase-pack",
         "category": "saas-packs"
       },
-      "searchText": "supabase-upgrade-migration upgrade supabase sdk and cli versions with breaking-change detection and automated code migration. use when upgrading @supabase/supabase-js (v1→v2 or minor bumps), migrating auth/realtime/storage apis, or updating the supabase cli. trigger with phrases like \"upgrade supabase\", \"supabase breaking changes\", \"migrate supabase v2\", \"update supabase sdk\". saas-packs read write edit bash(npm:*) bash(npx:*) bash(pip:*) bash(supabase:*) bash(git:*) grep glob "
+      "searchText": "supabase-upgrade-migration upgrade supabase sdk and cli versions with breaking-change detection and automated code migration. use when upgrading @supabase/supabase-js (v1→v2 or minor bumps), migrating auth/realtime/storage apis, or updating the supabase cli. trigger with phrases like \"upgrade supabase\", \"supabase breaking changes\", \"migrate supabase v2\", \"update supabase sdk\". saas-packs read write edit grep glob bash(npm list:*) bash(pip show:*) bash(git status:*) bash(git diff:*) "
     },
     {
       "type": "skill",

@@ -50,13 +50,19 @@ Organizational governance for Supabase at scale: a **shared RLS policy library**
 - Database access via `psql` or Supabase SQL Editor
 - Pro plan recommended for cost alerts and usage API
 
+## Authentication
+
+Review migration files locally before connecting to a project. For authorized remote CLI work, inject `SUPABASE_ACCESS_TOKEN` from the secret store; for `psql`, use a separately approved database role and a protected password file or secret injection. Do not put passwords in connection strings printed to logs. Give audit-only queries read access; apply policy changes only through the approved migration role and review process.
+
+Application RLS checks must use ordinary test-user sessions with publishable or legacy `anon` keys, not server secret keys, `service_role`, or a table-owner connection. Record allowed and denied operations for separate tenants. Keep management credentials, application keys, and user tokens distinct; see [API key types](https://supabase.com/docs/guides/getting-started/api-keys).
+
 ## Instructions
 
 ### Step 1 — Shared RLS Policy Library and Naming Conventions
 
 #### RLS Policy Templates
 
-Create reusable RLS policy templates that teams apply to new tables. This prevents each developer from writing ad-hoc policies and ensures consistent access control.
+Create reusable RLS policy templates that teams apply to new tables. Review existing policies first: permissive policies combine with OR, so these templates cannot override a broader existing grant. For public-read tables, inserts must bind the owner column to the authenticated user; authentication alone does not prevent forged ownership. Test allowed and rejected inserts using ordinary roles before deployment.
 
 ```sql
 -- supabase/migrations/00000000000000_rls_policy_library.sql
@@ -130,7 +136,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================================
--- Template 3: Public read, authenticated write
+-- Template 3: Public read, authenticated owner-only write
 -- Usage: blog posts, product listings, public content
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.rls_public_read_auth_write(
@@ -146,8 +152,8 @@ BEGIN
     table_name
   );
   EXECUTE format(
-    'CREATE POLICY "auth_insert" ON public.%I FOR INSERT WITH CHECK (auth.uid() IS NOT NULL)',
-    table_name
+    'CREATE POLICY "auth_insert" ON public.%I FOR INSERT WITH CHECK (auth.uid() IS NOT NULL AND %I = auth.uid())',
+    table_name, owner_column
   );
   EXECUTE format(
     'CREATE POLICY "owner_update" ON public.%I FOR UPDATE USING (%I = auth.uid())',
@@ -283,4 +289,4 @@ See [CI, cost, and security reference](references/ci-cost-security.md) for full 
 
 ## Next Steps
 
-For architecture patterns across different app types, see `supabase-architecture-variants`.
+Review the proposed migration with the database owner, then test both allowed access and denied cross-tenant access using synthetic users in staging. Record the reviewed migration, target project, results, and rollback procedure before requesting production approval. Use `supabase-architecture-variants` to check that each application client uses the intended trust boundary.

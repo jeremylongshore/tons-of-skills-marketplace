@@ -6,13 +6,12 @@ description: 'Collect Supabase diagnostic info for troubleshooting and support t
 
   errors, RLS misconfigurations, or preparing a support escalation.
 
-  Trigger: "supabase debug", "supabase diagnostics", "supabase support bundle",
+  Trigger with "supabase debug", "supabase diagnostics", "supabase support bundle",
 
   "collect supabase logs", "debug supabase connection".
 
   '
-allowed-tools: Read, Bash(npx:*), Bash(node:*), Bash(curl:*), Bash(supabase:*), Bash(tar:*),
-  Grep, Glob
+allowed-tools: Read, Grep, Glob, Bash(node --version:*), Bash(npm list:*)
 version: 1.55.0
 license: MIT
 author: Jeremy Longshore <jeremy@intentsolutions.io>
@@ -36,19 +35,21 @@ These commands are shown for an operator to run after approval, not executed whe
 
 ```text
 node --version
-npx supabase --version
+./node_modules/.bin/supabase --version
 npm list @supabase/supabase-js
 ```
 
 ## Prerequisites
 
 - **Node.js 22+** with `@supabase/supabase-js` v2 installed in the project
-- **Supabase CLI** installed (`npm install --save-dev supabase` or `npx supabase`)
-- **Environment variables** set: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (minimum); `SUPABASE_SERVICE_ROLE_KEY` for full diagnostics
+- **Supabase CLI** already installed at the project's reviewed version; do not download a CLI as part of evidence collection
+- **Environment variables** set: `SUPABASE_URL` and the intended legacy `SUPABASE_ANON_KEY` for these examples. An admin key is optional and only used for a separately approved comparison; ordinary probes must not inherit it
 - Project linked and target verified before approved CLI diagnostics
 - An explicitly approved existing diagnostic table with an `id` column, selected through `SUPABASE_DIAGNOSTIC_TABLE`; no automatic table discovery or creation
 
 ## Instructions
+
+Use Glob to locate only approved evidence files, Read to inspect their contents, and Grep to check for sensitive fields before including them. Exclude credential files, shell history and unrelated logs. CLI, network and archive commands follow the session's normal permission flow; the default shell grants cover version inventory only.
 
 ### Step 1: Gather Environment and Connectivity
 
@@ -61,9 +62,9 @@ const url = process.env.SUPABASE_URL!
 const anonKey = process.env.SUPABASE_ANON_KEY!
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Identify which key is in use
-const keyType = serviceKey ? 'service_role' : 'anon'
-const supabase = createClient(url, serviceKey ?? anonKey, {
+// Ordinary probes never escalate merely because an admin key is present.
+const keyType = 'anon'
+const supabase = createClient(url, anonKey, {
   auth: { autoRefreshToken: false, persistSession: false }
 })
 
@@ -155,13 +156,17 @@ diagnostics.storage = {
 }
 
 // 2c — Counts are observations, not an RLS verdict. Both probes require approval.
-if (serviceKey && probeTable) {
+// Set the approval flag only after explicit approval for this admin comparison.
+if (process.env.SUPABASE_DIAGNOSTIC_ADMIN_APPROVED === '1' && serviceKey && probeTable) {
+  const adminClient = createClient(url, serviceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
   const anonClient = createClient(url, anonKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
   const [anonResult, adminResult] = await Promise.all([
     anonClient.from(probeTable).select('id', { count: 'exact', head: true }),
-    supabase.from(probeTable).select('id', { count: 'exact', head: true }),
+    adminClient.from(probeTable).select('id', { count: 'exact', head: true }),
   ])
   diagnostics.rls_comparison = {
     status: anonResult.error || adminResult.error ? 'query_failed' : 'inconclusive',
@@ -172,7 +177,7 @@ if (serviceKey && probeTable) {
     scope: 'Counts alone cannot establish RLS status or correctness',
   }
 } else {
-  diagnostics.rls_comparison = { status: 'not_run', detail: 'Requires approved table and admin probe' }
+  diagnostics.rls_comparison = { status: 'not_run', detail: 'Requires approved table and separately approved admin comparison' }
 }
 ```
 
@@ -180,24 +185,30 @@ if (serviceKey && probeTable) {
 
 ### Step 3: Collect Database Health and Package the Bundle
 
-Collect only approved database statistics and platform-status evidence. The script below creates a local candidate archive; its example masking is incomplete and does not approve the result for export.
+Collect only approved database statistics and platform-status evidence. The Bash script below creates a private local candidate archive on a POSIX filesystem. It does not sanitize arbitrary output or approve export. Confirm the target and installed CLI commands before running it; never include `.env`, raw CLI status, session tokens or home-directory log globs.
 
 ```bash
 #!/bin/bash
 set -euo pipefail
+umask 077
 
-BUNDLE_DIR="supabase-debug-$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$BUNDLE_DIR"
+# Unique owner-only directory, even if the caller has a permissive umask.
+BUNDLE_DIR=$(mktemp -d "${TMPDIR:-/tmp}/supabase-debug.XXXXXX")
 
-# 3a — Supabase CLI status (local dev)
-npx supabase status > "$BUNDLE_DIR/cli-status.txt" 2>&1 || echo "CLI status unavailable (not linked or no local dev)" > "$BUNDLE_DIR/cli-status.txt"
+# 3a — Record CLI version only; raw status can disclose credentials.
+if ./node_modules/.bin/supabase --version > "$BUNDLE_DIR/cli-version.txt" 2>&1; then
+  version_status=0
+else
+  version_status=$?
+fi
+printf 'cli-version\t%s\n' "$version_status" > "$BUNDLE_DIR/version-status.tsv"
 
 # 3b — Approved database inspections; preserve individual exit statuses.
 # A captured output file can contain an error, not a successful observation.
 STATUS_FILE="$BUNDLE_DIR/inspect-status.tsv"
 printf 'inspection\texit_status\n' > "$STATUS_FILE"
 for inspection in table-sizes index-usage cache-hit seq-scans long-running-queries bloat replication-slots; do
-  if npx supabase inspect db "$inspection" > "$BUNDLE_DIR/$inspection.txt" 2>&1; then
+  if ./node_modules/.bin/supabase inspect db "$inspection" > "$BUNDLE_DIR/$inspection.txt" 2>&1; then
     probe_status=0
   else
     probe_status=$?
@@ -212,28 +223,24 @@ curl -sf https://status.supabase.com/api/v2/status.json \
   | python3 -m json.tool > "$BUNDLE_DIR/platform-status.json" 2>/dev/null \
   || echo '{"error": "Could not reach status.supabase.com"}' > "$BUNDLE_DIR/platform-status.json"
 
-# 3d — Partial example masking only; inspect and sanitize the candidate manually
-find "$BUNDLE_DIR" -type f -exec sed -i \
-  -e 's/eyJ[A-Za-z0-9_-]\{20,\}\(\.[A-Za-z0-9_-]*\)*/[JWT_REDACTED]/g' \
-  -e 's/sbp_[A-Za-z0-9]\{20,\}/[SBP_KEY_REDACTED]/g' \
-  -e 's/[A-Za-z0-9._%+-]\+@[A-Za-z0-9.-]\+\.[A-Za-z]\{2,\}/[EMAIL_REDACTED]/g' {} +
-
-# 3e — Local candidate only; owner-reviewed minimization/sanitization required before sharing
-tar czf "${BUNDLE_DIR}.tar.gz" "$BUNDLE_DIR"
-echo "Debug bundle created: ${BUNDLE_DIR}.tar.gz"
-echo "Contents:"
-ls -lh "$BUNDLE_DIR"/
+# 3d — Unreviewed candidate: raw output may still contain sensitive data.
+printf '%s\n' 'UNREVIEWED: minimize and sanitize every file before sharing.' > "$BUNDLE_DIR/REVIEW-REQUIRED.txt"
+tar -czf "${BUNDLE_DIR}.tar.gz" -C "$BUNDLE_DIR" .
+printf 'Private candidate archive: %s\n' "${BUNDLE_DIR}.tar.gz"
+printf 'Private evidence directory: %s\n' "$BUNDLE_DIR"
 ```
 
 **What to check:** Inspect `inspect-status.tsv` first: a nonzero exit status means that inspection failed, even when an output file was archived. Treat the bundle as partial evidence. Cache ratios, estimated bloat, and sequential scans depend on workload, table size, measurement interval, and query plans; they do not by themselves establish memory pressure, a missing index, or a need for `VACUUM` or larger compute. Review approved baselines and execution plans before proposing separately authorized remediation.
 
 ## Output
 
-The skill produces `supabase-debug-YYYYMMDD-HHMMSS.tar.gz` containing:
+The skill produces a uniquely named `supabase-debug.XXXXXX.tar.gz` candidate beside an owner-only evidence directory under the selected temporary directory. On a POSIX filesystem, new files/archive are mode 0600 and the directory is 0700. Verify permissions and storage policy on the actual host; shared identities or filesystem ACLs require separate review. The candidate contains:
 
 | File | Contents |
 |------|----------|
-| `cli-status.txt` | Local Supabase stack status (services, ports, URLs) |
+| `cli-version.txt` | Captured CLI version output or error; check the version receipt |
+| `version-status.tsv` | Version-command exit status |
+| `REVIEW-REQUIRED.txt` | Explicit unreviewed-artifact marker |
 | `table-sizes.txt` | All tables with row counts and disk usage |
 | `index-usage.txt` | Index scan frequency — unused indexes are candidates for removal |
 | `cache-hit.txt` | Buffer cache and index cache hit ratios |
@@ -246,7 +253,7 @@ The skill produces `supabase-debug-YYYYMMDD-HHMMSS.tar.gz` containing:
 
 Plus the TypeScript diagnostics output (connectivity, auth, Realtime, Storage, RLS) printed to stdout.
 
-The example masks only text matching its `eyJ...` token, `sbp_...`, and email patterns. It does not guarantee removal of `sb_secret_...` keys, other opaque credentials, SQL/query contents, personal data, or secrets embedded in arbitrary output. Review and minimize every included file, apply the required sanitization, and obtain owner approval for the resulting artifact before sharing. A generated archive is not a safe-to-share certification.
+No regex pass can certify arbitrary diagnostic output as safe. Error messages, SQL text, object names, URLs and stack traces may contain credentials or personal data. Build a separate minimized, sanitized export from the private candidate and obtain owner review of its exact contents before sharing. Never archive `.env` or infer that replacing text after `=` handles multiline secrets. Keep the private source and candidate local under the approved retention policy; do not upload them automatically. See the [collection boundary](references/implementation.md), [review examples](references/examples.md) and [failure handling](references/errors.md).
 
 ## Error Handling
 
@@ -264,42 +271,7 @@ The example masks only text matching its `eyJ...` token, `sbp_...`, and email pa
 
 ## Examples
 
-**Quick connectivity check (no service key needed):**
-
-```typescript
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!)
-
-const table = process.env.SUPABASE_DIAGNOSTIC_TABLE
-if (!table) throw new Error('An approved diagnostic table is required')
-const start = Date.now()
-const { error } = await supabase.from(table).select('id', { head: true }).limit(1)
-console.log({
-  query_accepted: !error,
-  latency_ms: Date.now() - start,
-  error_code: error?.code ?? null,
-  scope: 'approved table only; not overall health or RLS verification',
-})
-```
-
-**API endpoint test with curl:**
-
-```bash
-curl -s -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
-  "https://<project-ref>.supabase.co/rest/v1/" \
-  -H "apikey: $SUPABASE_ANON_KEY"
-```
-
-**Verify the current user from an approved running app's user client:**
-
-```typescript
-const { data: { user }, error } = await supabase.auth.getUser()
-if (error || !user) console.log('No server-verified authenticated user', error?.code ?? null)
-else console.log('Current user verified by Auth server')
-```
-
-This is a fresh user lookup, not a complete Auth-platform health check. Do not use an admin client's absence of a user session to diagnose an outage, and never include session tokens in the bundle.
+See the [approved-scope probe examples](references/examples.md) for a bounded table query and server-verified user lookup. A successful request establishes only that observation; failures and missing sessions remain explicit. Review the [collection boundary](references/implementation.md) before building an export.
 
 ## Resources
 

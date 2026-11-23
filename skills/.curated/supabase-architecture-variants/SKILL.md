@@ -34,9 +34,15 @@ Every Supabase `createClient` configuration turns on two questions: **where the 
 
 - `@supabase/supabase-js` v2+ installed
 - `@supabase/ssr` package for Next.js SSR (v0.5+)
-- Supabase project with URL, `anon` key, and `service_role` key
+- Supabase project URL and publishable key (legacy `anon` in these examples); server credentials only for explicitly authorized admin operations
 - TypeScript project with generated database types (`supabase gen types typescript`)
 - For mobile: React Native with Expo or bare workflow
+
+## Authentication
+
+Use a publishable API key (or the legacy `anon` key used in these examples) for browser/mobile clients. Authenticate each user through Supabase Auth and pass that user's session to requests; the project key alone is not a user identity. Keep secret keys and legacy `service_role` keys in trusted server environments only. Do not create an admin client unless the selected operation requires it, and authorize the caller before privileged work. See [API key types](https://supabase.com/docs/guides/getting-started/api-keys).
+
+Verify RLS with ordinary authenticated users, not an admin client or table-owner SQL session. Use two synthetic users in separate tenants and confirm both allowed reads and denied cross-tenant operations. Never print session tokens or server secrets in reports.
 
 ## Instructions
 
@@ -117,15 +123,9 @@ Full walkthrough — Edge Function per-request clients, admin escalation, RLS mu
 
 ## Examples
 
-Verify tenant isolation by impersonating a JWT and confirming RLS scopes the result:
+Verify tenant isolation in a disposable environment containing two synthetic users and known rows for each tenant. Through each user's ordinary authenticated client, assert that its own rows are returned and the other tenant's known row IDs are absent. Attempt a cross-tenant write and verify that no row changed. Capture only redacted results and fixture identifiers.
 
-```sql
--- Test that RLS properly isolates tenants
-SET request.jwt.claims = '{"sub": "user-uuid-1"}';
-
--- Should only return projects for user-uuid-1's tenant
-SELECT * FROM public.projects;
-```
+Setting JWT claims inside a table-owner SQL session is not sufficient evidence: that role may bypass RLS. A query returning no rows is also inconclusive unless the fixture proves the expected authorized rows exist. Stop if the positive or negative control fails.
 
 More runnable examples — the Next.js OAuth callback route and further end-to-end flows: [Next.js SSR patterns](references/nextjs-ssr.md) and [examples](references/examples.md).
 

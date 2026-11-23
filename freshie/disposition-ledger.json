@@ -3,7 +3,7 @@
   "authority": "Blueprint 727 §8; Freshie graded export",
   "source": {
     "path": "freshie/grades.csv",
-    "sha256": "7b7d1dfafc59d4e09859dee98f33bd46c611c6b44e3ac5e6d5a2ba46082b3072",
+    "sha256": "23f261df9c98d49aea79acdd8678154646b4ab23ff97bd45eba75efd41c06205",
     "artifact_count": 3307
   },
   "rule_order": [
@@ -30521,7 +30521,7 @@
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-architecture-variants/SKILL.md",
       "grade": "A",
-      "score": 95,
+      "score": 94,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",
@@ -30586,8 +30586,8 @@
     },
     {
       "path": "plugins/saas-packs/supabase-pack/skills/supabase-debug-bundle/SKILL.md",
-      "grade": "B",
-      "score": 89,
+      "grade": "A",
+      "score": 92,
       "diagnostics": [],
       "disposition": "CERTIFY-PENDING-EVIDENCE",
       "gate": "G7",

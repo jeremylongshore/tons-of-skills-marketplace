@@ -1,29 +1,19 @@
-## Implementation Guide
+# Upgrade implementation review
 
-### Step 1: Check Current Version
+Read the manifest, lockfile and actual installed versions before proposing a change.
+Choose exact target versions using each package's release notes and runtime metadata;
+JavaScript SDK, CLI, SSR helper and Python SDK have independent release histories.
+Do not infer a fixed API version or compatible runtime from a major version alone.
 
-```bash
-npm list @supabase/supabase-js
-npm view @supabase/supabase-js version
-```
+- [JavaScript SDK releases](https://github.com/supabase/supabase-js/releases)
+- [CLI releases](https://github.com/supabase/cli/releases)
+- [Python SDK releases](https://github.com/supabase-community/supabase-py/releases)
 
-### Step 2: Review Changelog
+Apply only the relevant ecosystem's upgrade with its existing package manager.
+Preserve the prior source and lockfile for reviewed rollback. Review installation
+scripts and do not apply remote database changes as a side effect of an SDK upgrade.
 
-```bash
-open https://github.com/supabase/sdk/releases
-```
-
-### Step 3: Create Upgrade Branch
-
-```bash
-git checkout -b upgrade/supabase-sdk-vX.Y.Z
-npm install @supabase/supabase-js@latest
-npm test
-```
-
-### Step 4: Handle Breaking Changes
-
-Update import statements, configuration, and method signatures as needed.
-
----
-*[Tons of Skills](https://tonsofskills.com) by [Intent Solutions](https://intentsolutions.io) | [jeremylongshore.com](https://jeremylongshore.com)*
+For generated types, follow the [guarded local-generation example](../SKILL.md#generate-types-without-truncating-the-previous-file).
+Its temporary file and same-directory rename preserve the old artifact if the CLI
+fails or emits nothing. This is not TypeScript validation: inspect the diff and run
+the application's typecheck and scoped regression tests after generation.
