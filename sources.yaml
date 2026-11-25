@@ -1514,6 +1514,33 @@ sources:
       - '**/__pycache__/**'
 
 # Sync configuration
+  # ============================================================
+  # Datacircle (waynehamadi)
+  # https://github.com/waynehamadi/claude-code-datacircle
+  # One skill: the open Datacircle API (benchmark of GTM APIs), no key
+  # ============================================================
+
+  - name: datacircle
+    description: "Find the best GTM APIs: prices, scores, rate limits and fields from real calls, through the open Datacircle API"
+    repo: waynehamadi/claude-code-datacircle
+    source_path: plugins/datacircle
+    target_path: plugins/community/datacircle
+    author:
+      name: Datacircle
+      github: waynehamadi
+    license: MIT
+    category: community
+    verified: false
+    include:
+      - '/.claude-plugin/plugin.json'
+      - '/README.md'
+      - '/LICENSE'
+      - '/skills/**'
+    exclude:
+      - '/.git/**'
+      - '**/node_modules/**'
+      - '**/*.log'
+
 config:
   # Branch to sync from (default: main)
   default_branch: main

@@ -1,0 +1,20 @@
+{
+  "synced_from": {
+    "repo": "waynehamadi/claude-code-datacircle",
+    "path": "plugins/datacircle",
+    "branch": "main"
+  },
+  "last_sync": "2026-11-23T07:26:06.579Z",
+  "author": {
+    "name": "Datacircle",
+    "github": "waynehamadi"
+  },
+  "license": "MIT",
+  "files_synced": 4,
+  "files": [
+    ".claude-plugin/plugin.json",
+    "LICENSE",
+    "README.md",
+    "skills/datacircle/SKILL.md"
+  ]
+}

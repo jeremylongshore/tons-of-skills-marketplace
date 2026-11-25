@@ -1,0 +1,13 @@
+{
+  "name": "datacircle",
+  "version": "0.1.0",
+  "description": "Find the best GTM APIs. A skill that calls our open API, free with no key: list every API, see who is best for each and search every plan, at api.datacircle.dev/v1.",
+  "author": {
+    "name": "Datacircle",
+    "url": "https://datacircle.dev"
+  },
+  "homepage": "https://datacircle.dev",
+  "repository": "https://github.com/waynehamadi/claude-code-datacircle",
+  "license": "MIT",
+  "keywords": ["gtm", "api", "pricing", "benchmark", "email-finder", "enrichment", "linkedin", "datacircle"]
+}

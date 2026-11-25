@@ -430,6 +430,17 @@
         "skills/coreweave-workload-health/tests/fixtures/example.json": "sha256:f7a9d75e4c954d051cb01318d64cd7427f76f39007e4d4244a613ff37ba59a1d"
       }
     },
+    "datacircle": {
+      "repo": "waynehamadi/claude-code-datacircle",
+      "resolved_ref": "b97b1a5b2cb6b45ebe3f88ad55ffbdbcbd66ef66",
+      "locked_at": "2026-11-23T07:26:06.596Z",
+      "files": {
+        ".claude-plugin/plugin.json": "sha256:4bed3665066e4150468b8f0eb482501aca1f4eadea1144f063fab0a218fff2ae",
+        "LICENSE": "sha256:769805ef31b178e77d22943dc9419ae1af9c4e3f1f23aba51e7ba29591289c2a",
+        "README.md": "sha256:647d0ba945276b9fdfe0e6701496501225f6e59eadf43b20b732413c45abdd6d",
+        "skills/datacircle/SKILL.md": "sha256:d3bf9983799c3c469c6c8eebf804404f2ae3b55d8a7d848f1f18b26a3fdde190"
+      }
+    },
     "dolt-mcp-vcs": {
       "repo": "jeremylongshore/dolt-mcp-vcs-plugin",
       "resolved_ref": "fe35723176f102bafdc7c5e3d4d119b1abeb68fd",
