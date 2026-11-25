@@ -11449,6 +11449,27 @@
         "badge": "gold",
         "lastValidated": "2026-10-01T00:00:00.000Z"
       }
+    },
+    {
+      "name": "winly",
+      "source": "./plugins/mcp/winly",
+      "description": "Run your Instagram and Facebook DMs from Claude, ChatGPT or any AI agent.",
+      "version": "1.0.0",
+      "category": "mcp",
+      "keywords": [
+        "winly",
+        "instagram",
+        "facebook",
+        "dms",
+        "mcp"
+      ],
+      "author": {
+        "name": "Winly AI",
+        "url": "https://getwinly.ai",
+        "email": "hello@getwinly.ai"
+      },
+      "homepage": "https://getwinly.ai/mcp/",
+      "license": "Proprietary"
     }
   ]
 }
