@@ -65,7 +65,6 @@ vercel --prod
 // Tokens refresh every ~1 hour and refresh_token changes each time
 import { Redis } from '@upstash/redis';
 
-// Reads UPSTASH_REDIS_REST_URL/TOKEN (or KV_REST_API_URL/TOKEN from the Vercel integration)
 const kv = Redis.fromEnv();
 
 async function getStoredToken(): Promise<string> {

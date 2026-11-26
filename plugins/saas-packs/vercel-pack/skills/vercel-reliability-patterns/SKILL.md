@@ -163,7 +163,6 @@ const data = await withRetry(
 // api/products.ts — serve stale data when primary source is down
 import { Redis } from '@upstash/redis';
 
-// Reads UPSTASH_REDIS_REST_URL/TOKEN (or the KV_REST_API_URL/TOKEN vars set by the Vercel integration)
 const redis = Redis.fromEnv();
 
 export default async function handler(req, res) {
