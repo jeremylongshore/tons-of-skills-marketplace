@@ -1,0 +1,19 @@
+{
+  "name": "winly",
+  "version": "1.0.0",
+  "description": "Run your Instagram and Facebook DMs from Claude, ChatGPT or any AI agent.",
+  "author": {
+    "name": "Winly AI",
+    "email": "hello@getwinly.ai",
+    "url": "https://getwinly.ai"
+  },
+  "homepage": "https://getwinly.ai/mcp/",
+  "license": "Proprietary",
+  "keywords": [
+    "winly",
+    "instagram",
+    "facebook",
+    "dms",
+    "mcp"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "winly": {
+      "type": "http",
+      "url": "https://app.sbccrm.com/bld/api/mcp"
+    }
+  }
+}
