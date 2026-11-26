@@ -104,7 +104,7 @@ export default async function handler(req, res) {
 }
 ```
 
-**Important for serverless:** Circuit breaker state lives in a single function instance. Different instances have independent circuits. For global circuit state, use a shared store such as Upstash Redis (available from the Vercel Marketplace).
+**Important for serverless:** Circuit breaker state lives in a single function instance. Different instances have independent circuits. For global circuit state, use a shared store such as Upstash Redis.
 
 ### Step 2: Retry with Exponential Backoff
 
@@ -351,7 +351,6 @@ Require a client-supplied idempotency key for the mutation, store the key and ou
 
 - [Vercel Instant Rollback](https://vercel.com/docs/instant-rollback)
 - [Upstash Redis TypeScript SDK](https://upstash.com/docs/redis/sdks/ts/overview)
-- [Redis on Vercel (Marketplace)](https://vercel.com/docs/redis)
 - [Edge Config](https://vercel.com/docs/edge-config)
 - [Circuit Breaker Pattern](https://martinfowler.com/bliki/CircuitBreaker.html)
 
