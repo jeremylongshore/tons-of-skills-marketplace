@@ -115,7 +115,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 |------------|-------------------|
 | Workers | Edge Functions |
 | Pages Functions | API routes |
-| KV | Upstash Redis (Vercel Marketplace) or Edge Config |
+| KV | Upstash Redis or Edge Config |
 | R2 | Vercel Blob |
 | D1 | Vercel Postgres |
 | `wrangler.toml` | `vercel.json` |
