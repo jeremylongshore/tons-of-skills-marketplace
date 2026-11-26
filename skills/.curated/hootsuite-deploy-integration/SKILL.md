@@ -63,14 +63,17 @@ vercel --prod
 ```typescript
 // Use Redis, database, or KV store for token persistence
 // Tokens refresh every ~1 hour and refresh_token changes each time
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+// Reads UPSTASH_REDIS_REST_URL/TOKEN (or KV_REST_API_URL/TOKEN from the Vercel integration)
+const kv = Redis.fromEnv();
 
 async function getStoredToken(): Promise<string> {
-  let token = await kv.get('hootsuite:access_token');
-  const expiresAt = await kv.get('hootsuite:expires_at') as number;
+  let token = await kv.get<string>('hootsuite:access_token');
+  const expiresAt = (await kv.get<number>('hootsuite:expires_at')) ?? 0;
 
   if (!token || Date.now() > expiresAt - 60000) {
-    const refreshToken = await kv.get('hootsuite:refresh_token') as string;
+    const refreshToken = (await kv.get<string>('hootsuite:refresh_token')) as string;
     const newTokens = await refreshHootsuiteToken(refreshToken);
     await kv.set('hootsuite:access_token', newTokens.access_token);
     await kv.set('hootsuite:refresh_token', newTokens.refresh_token);
@@ -100,7 +103,7 @@ Halt for unknown profile/destination, missing approval, public-post path in a ca
 
 ## Resources
 
-- [Vercel KV](https://vercel.com/docs/storage/vercel-kv)
+- [Upstash Redis TypeScript SDK](https://upstash.com/docs/redis/sdks/ts/overview)
 - [Hootsuite OAuth](https://developer.hootsuite.com/docs/using-rest-apis)
 
 ## Next Steps

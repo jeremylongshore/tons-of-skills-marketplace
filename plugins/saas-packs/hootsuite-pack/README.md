@@ -36,7 +36,7 @@ Gives Claude Code deep knowledge of Hootsuite's REST API v1 for social media pub
 | Skill | What It Does |
 |-------|-------------|
 | `hootsuite-ci-integration` | GitHub Actions with mocked tests and live API verification |
-| `hootsuite-deploy-integration` | Deploy with persistent token storage (Vercel KV, Redis) |
+| `hootsuite-deploy-integration` | Deploy with persistent token storage (Upstash Redis or a database) |
 | `hootsuite-webhooks-events` | Message status polling, custom scheduling webhooks |
 | `hootsuite-performance-tuning` | Profile caching, batch scheduling, connection reuse |
 | `hootsuite-cost-tuning` | Plan comparison, API call tracking, profile audit |
