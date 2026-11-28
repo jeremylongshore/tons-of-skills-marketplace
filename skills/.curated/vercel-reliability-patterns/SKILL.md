@@ -104,7 +104,7 @@ export default async function handler(req, res) {
 }
 ```
 
-**Important for serverless:** Circuit breaker state lives in a single function instance. Different instances have independent circuits. For global circuit state, use Vercel KV or Edge Config.
+**Important for serverless:** Circuit breaker state lives in a single function instance. Different instances have independent circuits. For global circuit state, use a shared store such as Upstash Redis.
 
 ### Step 2: Retry with Exponential Backoff
 
@@ -161,7 +161,9 @@ const data = await withRetry(
 
 ```typescript
 // api/products.ts — serve stale data when primary source is down
-import { get, set } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 export default async function handler(req, res) {
   const cacheKey = 'products:latest';
@@ -171,18 +173,18 @@ export default async function handler(req, res) {
     const freshData = await fetchProductsFromDB();
 
     // Update cache with fresh data
-    await set(cacheKey, JSON.stringify(freshData), { ex: 3600 });
+    await redis.set(cacheKey, freshData, { ex: 3600 }); // values are JSON-serialized automatically
 
     res.setHeader('x-data-source', 'live');
     res.json(freshData);
   } catch (error) {
     // Primary failed — serve stale cache
-    const cachedData = await get(cacheKey);
+    const cachedData = await redis.get(cacheKey);
 
     if (cachedData) {
       console.warn('Serving stale cache — primary source unavailable');
       res.setHeader('x-data-source', 'cache-stale');
-      res.json(JSON.parse(cachedData as string));
+      res.json(cachedData);
     } else {
       // No cache available — return degraded response
       res.setHeader('x-data-source', 'degraded');
@@ -316,7 +318,7 @@ echo "Deployment healthy"
 |---------|-----------------|----------------------|
 | Circuit breaker | Dependency degradation | In-function state or Edge Config |
 | Retry + backoff | Transient failures | withRetry wrapper |
-| Stale cache | Primary source outage | Vercel KV with TTL |
+| Stale cache | Primary source outage | Upstash Redis with TTL |
 | Idempotency | Duplicate mutations | Database record per request |
 | Health checks | Bad deployments | `/api/health` + rollback automation |
 | Instant rollback | Deployment regression | `vercel rollback` in CI |
@@ -348,7 +350,7 @@ Require a client-supplied idempotency key for the mutation, store the key and ou
 ## Resources
 
 - [Vercel Instant Rollback](https://vercel.com/docs/instant-rollback)
-- [Vercel KV](https://vercel.com/docs/storage/vercel-kv)
+- [Upstash Redis TypeScript SDK](https://upstash.com/docs/redis/sdks/ts/overview)
 - [Edge Config](https://vercel.com/docs/edge-config)
 - [Circuit Breaker Pattern](https://martinfowler.com/bliki/CircuitBreaker.html)
 

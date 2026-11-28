@@ -221,7 +221,7 @@ export default async function handler(request: Request): Promise<Response> {
 | `429 Too Many Requests` | API rate limit exceeded | Use `vercelFetchWithRetry()` wrapper |
 | `FUNCTION_THROTTLED` | Concurrent execution limit hit | Reduce parallelism or upgrade plan |
 | Rate limit not applied | Middleware not matching routes | Check `config.matcher` pattern |
-| In-memory rate limit resets | Edge function isolate recycled | Use Redis or Vercel KV for persistent state |
+| In-memory rate limit resets | Edge function isolate recycled | Use a shared store such as Upstash Redis for persistent state |
 
 ## Examples
 
